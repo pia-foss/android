@@ -93,7 +93,7 @@ By contributing to this project you are agreeing to the terms stated in the [Con
 
 ## Licensing
 
-The source code is licensed under the GPLv3. See [LICENSE](/LICENSE.md) for more information.
+The source code is licensed under the GPLv3. See [LICENSE](/LICENSE) for more information.
 
 ### Acknowledgements
 
