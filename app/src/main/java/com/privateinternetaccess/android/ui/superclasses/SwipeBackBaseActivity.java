@@ -22,7 +22,7 @@ package com.privateinternetaccess.android.ui.superclasses;
  * Created by hfrede on 6/6/17.
  */
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
 import com.privateinternetaccess.android.PIAApplication;

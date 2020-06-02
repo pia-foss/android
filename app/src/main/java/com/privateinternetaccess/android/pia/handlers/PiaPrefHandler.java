@@ -20,12 +20,11 @@ package com.privateinternetaccess.android.pia.handlers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.privateinternetaccess.android.BuildConfig;
+import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.model.PIAAccountData;
 import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.PurchaseData;
@@ -39,12 +38,13 @@ import com.privateinternetaccess.android.pia.utils.Prefs;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,11 +95,12 @@ public class PiaPrefHandler {
 
     public static final String AUTOSTART = "autostart";
     public static final String AUTOCONNECT = "autoconnect";
-    public static final String TRUST_CELLULAR = "trustCellular";
     public static final String TRUST_WIFI = "trustWifi";
 
     public static final String MACE_ACTIVE = "mace_active";
     public static final String PIA_MACE = "pia_mace";
+
+    public static final String LAST_SERVER_VERSION = "last_server_version";
 
     public static final String USE_TCP = "useTCP";
     public static final String RPORT = "rport";
@@ -112,6 +113,8 @@ public class PiaPrefHandler {
     public static final String TLSCIPHER = "tlscipher";
 
     public static final String FIRST_PERMISSION_REQUEST = "firstPermissionRequest";
+
+    public static final String VPN_PROTOCOL = "vpn_protocol";
 
     public static final String WIDGET_BACKGROUND_COLOR = "widgetBackgroundColor";
     public static final String WIDGET_TEXT_COLOR = "widgetTextColor";
@@ -176,6 +179,7 @@ public class PiaPrefHandler {
     public static final String TRIAL_EMAIL_TEMP = "trialEmailTemp";
     public static final String DNS = "DNS";
     public static final String DNS_SECONDARY = "DNS_SECONDARY";
+    public static final String DNS_CHANGED = "DNS_CHANGED";
     public static final String CUSTOM_DNS = "CUSTOM_DNS";
     public static final String CUSTOM_SECONDARY_DNS = "CUSTOM_SECONDARY_DNS";
     public static final String CUSTOM_DNS_SELECTED = "CUSTOM_SELECTED";
@@ -183,6 +187,16 @@ public class PiaPrefHandler {
     public static final String CONNECTION_ENDED = "connectionEndedByUser";
     public static final String LAST_CONNECT = "lastConnect";
     public static final String LAST_DISCONNECT = "lastDisconnect";
+    public static final String LAST_CHANGE = "last_change";
+
+    public static final String QUICK_SETTINGS_KILLSWITCH = "quickSettingsKillswitch";
+    public static final String QUICK_SETTINGS_NETWORK = "quickSettingsNetwork";
+    public static final String QUICK_SETTING_PRIVATE_BROWSER = "quickSettingsPrivateBrowser";
+
+    public static final String QUICK_CONNECT_LIST = "quickConnectList";
+
+    public static final String USAGE_BYTE_COUNT = "usageByteCount";
+    public static final String USAGE_BYTE_COUNT_OUT = "usageByteCountOut";
 
     public static final String TRUSTED_WIFI_LIST = "trustedWifiList";
 
@@ -256,6 +270,14 @@ public class PiaPrefHandler {
 
     public static void setLocationRequest(Context context, boolean state) {
         Prefs.with(context).set(FIRST_PERMISSION_REQUEST, state);
+    }
+
+    public static int getLastServerVersion(Context context) {
+        return Prefs.with(context).get(LAST_SERVER_VERSION, 0);
+    }
+
+    public static void setLastServerVersion(Context context, int version) {
+        Prefs.with(context).set(LAST_SERVER_VERSION, version);
     }
 
     public static String getLogin(Context context) {
@@ -358,8 +380,109 @@ public class PiaPrefHandler {
         return diffToLastMsg > minIntervalBetweenNotifications;
     }
 
-    public static boolean shouldConnectOnCellular(Context context) {
-        return Prefs.with(context).get(TRUST_CELLULAR, false);
+    public static boolean getQuickSettingsKillswitch(Context c) {
+        return Prefs.with(c).get(QUICK_SETTINGS_KILLSWITCH, true);
+    }
+
+    public static boolean getQuickSettingsNetwork(Context c) {
+        return Prefs.with(c).get(QUICK_SETTINGS_NETWORK, true);
+    }
+
+    public static boolean getQuickSettingsPrivateBrowser(Context c) {
+        return Prefs.with(c).get(QUICK_SETTING_PRIVATE_BROWSER, true);
+    }
+
+    public static void setQuickSettingsKillswitch(Context c, boolean shouldShow) {
+        Prefs.with(c).set(QUICK_SETTINGS_KILLSWITCH, shouldShow);
+    }
+
+    public static void setQuickSettingsNetwork(Context c, boolean shouldShow) {
+        Prefs.with(c).set(QUICK_SETTINGS_NETWORK, shouldShow);
+    }
+
+    public static void setQuickSettingsPrivateBrowser(Context c, boolean shouldShow) {
+        Prefs.with(c).set(QUICK_SETTING_PRIVATE_BROWSER, shouldShow);
+    }
+
+    public static void addByteCount(Context c, long bytes) {
+        long previousCount = getByteCount(c);
+        Prefs.with(c).set(USAGE_BYTE_COUNT, previousCount + bytes);
+    }
+
+    public static void setByteCount(Context c, long bytes) {
+        Prefs.with(c).set(USAGE_BYTE_COUNT, bytes);
+    }
+
+    public static long getByteCount(Context c) {
+        return Prefs.with(c).get(USAGE_BYTE_COUNT, 0l);
+    }
+
+    public static void addByteCountOut(Context c, long bytes) {
+        long previousCount = getByteCount(c);
+        Prefs.with(c).set(USAGE_BYTE_COUNT_OUT, previousCount + bytes);
+    }
+
+    public static void setByteCountOut(Context c, long bytes) {
+        Prefs.with(c).set(USAGE_BYTE_COUNT_OUT, bytes);
+    }
+
+    public static long getByteCountOut(Context c) {
+        return Prefs.with(c).get(USAGE_BYTE_COUNT_OUT, 0l);
+    }
+
+    public static void addQuickConnectItem(Context c, String name) {
+        List<String> regions = new ArrayList<>();
+        Collections.addAll(regions, getQuickConnectList(c));
+
+        for (int i = 0; i < regions.size(); i++) {
+            if (regions.get(i).equals(name)) {
+                regions.remove(i);
+                break;
+            }
+        }
+
+        if (regions.size() == 6) {
+            regions.remove(5);
+        }
+
+        regions.add(0, name);
+
+        String[] items = new String[6];
+
+        for (int i = 0; i < regions.size(); i++) {
+            if (regions.get(i) != null)
+                items[i] = regions.get(i);
+        }
+
+        setQuickConnectList(c, items);
+    }
+
+    public static String[] getQuickConnectList(Context c) {
+        String[] items = new String[6];
+        Arrays.fill(items, "");
+
+        try {
+            JSONArray array = new JSONArray(Prefs.with(c).get(QUICK_CONNECT_LIST, "[]"));
+
+            for (int i = 0; i < array.length(); i++) {
+                items[i] = array.getString(i);
+            }
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return items;
+    }
+
+    public static void setQuickConnectList(Context c, String[] items) {
+        JSONArray array = new JSONArray();
+
+        for (int i = 0; i < items.length; i++) {
+            array.put(items[i]);
+        }
+
+        Prefs.with(c).set(QUICK_CONNECT_LIST, array.toString());
     }
 
     public static boolean shouldConnectOnWifi(Context context) {
@@ -373,10 +496,10 @@ public class PiaPrefHandler {
     }
 
     public static List<String> getWidgetOrder(Context context) {
-        List<String> items = new ArrayList<String>();
+        List<String> items = new ArrayList<>();
 
         try {
-            JSONArray array = new JSONArray(Prefs.with(context).get(WIDGET_ORDER, ""));
+            JSONArray array = new JSONArray(Prefs.with(context).get(WIDGET_ORDER, "[]"));
 
             for (int i = 0; i < array.length(); i++) {
                 items.add(array.getString(i));
@@ -573,6 +696,10 @@ public class PiaPrefHandler {
     }
 
 
+    public static String getProtocol(Context context) {
+        return Prefs.with(context).get(VPN_PROTOCOL, context.getResources().getStringArray(R.array.protocol_options)[0]);
+    }
+
     public static boolean isKillswitchEnabled(Context context){
         return Prefs.with(context).getBoolean(KILLSWITCH);
     }
@@ -676,6 +803,14 @@ public class PiaPrefHandler {
     }
     public static void setServerTesting(Context context, boolean testing){
         Prefs.with(context).set(TESTING_SERVER, testing);
+    }
+
+    public static boolean hasDnsChanged(Context context) {
+        return Prefs.with(context).get(DNS_CHANGED, false);
+    }
+
+    public static void setDnsChanged(Context context, boolean changed) {
+        Prefs.with(context).set(DNS_CHANGED, changed);
     }
 
     public static void saveServerTesting(Context context, String url,
@@ -796,23 +931,27 @@ public class PiaPrefHandler {
     }
 
     public static void setLastDisconnection(Context context, long val) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFNAME, 0);
-        prefs.edit().putLong(LAST_DISCONNECT, val).commit();
+        Prefs.with(context).set(LAST_DISCONNECT, val);
     }
 
     public static long getLastDisconnection(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFNAME, 0);
-        return prefs.getLong(LAST_DISCONNECT, 0L);
+        return Prefs.with(context).get(LAST_DISCONNECT, 0L);
     }
 
     public static void setLastConnection(Context context, long val) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFNAME, 0);
-        prefs.edit().putLong(LAST_CONNECT, val).commit();
+        Prefs.with(context).set(LAST_CONNECT, val);
     }
 
     public static long getLastConnection(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFNAME, 0);
-        return prefs.getLong(LAST_CONNECT, 0L);
+        return Prefs.with(context).get(LAST_CONNECT, 0L);
+    }
+
+    public static void setLastNetworkChange(Context context, long val) {
+        Prefs.with(context).set(LAST_CHANGE, val);
+    }
+
+    public static long getLastNetworkChange(Context context) {
+        return Prefs.with(context).get(LAST_CHANGE, 0L);
     }
 
     public static boolean wasVPNConnecting(Context context){

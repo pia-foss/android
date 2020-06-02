@@ -163,6 +163,8 @@ public class DeveloperActivity extends BaseActivity {
 
     @BindView(R.id.developer_clear_app_timers) View aClearTimers;
 
+    @BindView(R.id.developer_token) TextView tvToken;
+
     private final String[] levels = new String[]{"Info","Debug","Warning","Exception"};
     @BindView(R.id.developer_use_staging) Switch sStaging;
     @BindView(R.id.staging_servers) View aStaging;
@@ -219,6 +221,8 @@ public class DeveloperActivity extends BaseActivity {
         setupUpdaterTesting();
 
         setupVPNControls();
+
+        tvToken.setText(PiaPrefHandler.getAuthToken(this));
 
         VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
         tvConnectionStatus.setText(event.getLocalizedResId());

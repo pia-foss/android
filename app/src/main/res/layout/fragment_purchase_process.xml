@@ -34,13 +34,13 @@
         >
 
         <!-- success -->
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/windowBackground"
             android:id="@+id/fragment_purchase_process_success_area">
 
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/fragment_success_logo"
                 android:layout_width="match_parent"
                 android:layout_height="25dp"
@@ -59,7 +59,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/fragment_success_logo">
 
-                <android.support.v7.widget.AppCompatImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="100dp"
                     android:layout_height="83dp"
                     android:layout_marginTop="20dp"
@@ -164,7 +164,7 @@
 
             </LinearLayout>
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- failure/no connection -->
         <LinearLayout
@@ -179,11 +179,11 @@
             android:layout_marginBottom="24dp"
             >
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <android.support.v7.widget.AppCompatImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/fragment_failure_logo"
                     android:layout_width="match_parent"
                     android:layout_height="25dp"
@@ -202,7 +202,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fragment_failure_logo">
 
-                    <android.support.v7.widget.AppCompatImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="72dp"
                         android:layout_height="72dp"
                         android:layout_marginTop="20dp"
@@ -234,7 +234,7 @@
 
                 </LinearLayout>
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
 
         <!-- process -->
@@ -248,13 +248,13 @@
             tools:visibility="visible"
             >
 
-            <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/windowBackground"
                 xmlns:app="http://schemas.android.com/apk/res-auto">
 
-                <android.support.v7.widget.AppCompatImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/fragment_progress_logo"
                     android:layout_width="match_parent"
                     android:layout_height="25dp"
@@ -301,7 +301,7 @@
                         android:text="@string/redeeming_gift_card" />
                 </LinearLayout>
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         </LinearLayout>

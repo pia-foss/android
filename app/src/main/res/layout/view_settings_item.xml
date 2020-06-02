@@ -27,7 +27,7 @@
     android:paddingBottom="19dp"
     android:paddingTop="19dp" >
 
-    <android.support.v7.widget.SwitchCompat
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/settings_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
         android:layout_toLeftOf="@+id/settings_toggle"
         android:layout_marginRight="8dp">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             style="@style/Style06"
             android:id="@+id/settings_title"
             android:layout_width="wrap_content"
@@ -53,7 +53,7 @@
             android:textColor="?attr/grey20_white"
             app:autoSizeTextType="uniform" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             style="@style/Style11"
             android:id="@+id/settings_summary"
             android:layout_width="wrap_content"

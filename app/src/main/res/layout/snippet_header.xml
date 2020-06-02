@@ -24,14 +24,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         android:id="@+id/header_toolbar"
         android:background="@color/transparent"
         app:popupTheme="@style/piaToolbarOverflow"
         >
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <ImageView
         android:contentDescription="Logo"
@@ -69,7 +69,7 @@
         android:background="@drawable/shape_standard_background"
         />
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/header_text"
@@ -102,7 +102,7 @@
         android:textSize="16sp"
         android:visibility="gone" />
     
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/header_icon_button"
         android:layout_width="48dp"
         android:layout_height="48dp"

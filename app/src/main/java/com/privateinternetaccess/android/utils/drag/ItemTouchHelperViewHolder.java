@@ -18,11 +18,9 @@
 
 package com.privateinternetaccess.android.utils.drag;
 
-import android.support.v7.widget.helper.ItemTouchHelper;
-
 /**
  * Interface to notify an item ViewHolder of relevant callbacks from {@link
- * android.support.v7.widget.helper.ItemTouchHelper.Callback}.
+ * androidx.appcompat.widget.helper.ItemTouchHelper.Callback}.
  *
  * @author Paul Burke (ipaulpro)
  */

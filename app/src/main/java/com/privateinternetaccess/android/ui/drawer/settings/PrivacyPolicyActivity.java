@@ -18,16 +18,11 @@
 
 package com.privateinternetaccess.android.ui.drawer.settings;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
-import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;

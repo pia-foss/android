@@ -46,7 +46,7 @@
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:gravity="center"
             >
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="81dp"
                 android:layout_height="108dp"
                 app:srcCompat="@drawable/ic_vpn_permission"

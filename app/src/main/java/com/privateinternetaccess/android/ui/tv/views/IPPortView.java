@@ -19,8 +19,8 @@
 package com.privateinternetaccess.android.ui.tv.views;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -32,13 +32,14 @@ import android.widget.TextView;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.PIAKillSwitchStatus;
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.states.VPNProtocol;
+import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.FetchIPEvent;
 import com.privateinternetaccess.android.pia.model.events.PortForwardEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.tunnel.PortForwardingStatus;
 
 import org.greenrobot.eventbus.EventBus;
@@ -48,7 +49,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.VpnStatus;
 
 public class IPPortView extends FrameLayout {
 
@@ -113,7 +113,8 @@ public class IPPortView extends FrameLayout {
             tvIP.setText(lastIp);
 
         if (!PIAApplication.isAndroidTV(getContext()) &&
-                lastIpVpn != null && lastIpVpn.length() > 0 && VpnStatus.isVPNActive()) {
+                lastIpVpn != null && lastIpVpn.length() > 0 &&
+                PIAFactory.getInstance().getVPN(getContext()).isVPNActive()) {
             tvIPVPN.setText(lastIpVpn);
         }
 
@@ -131,7 +132,10 @@ public class IPPortView extends FrameLayout {
         tvPort.post(new Runnable() {
             @Override
             public void run() {
-                if(PiaPrefHandler.isPortForwardingEnabled(tvPort.getContext())) {
+                boolean isVpnActive = PIAFactory.getInstance().getVPN(getContext()).isVPNActive();
+
+                if(PiaPrefHandler.isPortForwardingEnabled(tvPort.getContext()) &&
+                        VPNProtocol.activeProtocol(getContext()) == VPNProtocol.Protocol.OpenVPN) {
                     aPort.setVisibility(View.VISIBLE);
                     PIAServerHandler handler = PIAServerHandler.getInstance(getContext());
                     PIAServer selectedServer = handler.getSelectedRegion(getContext(), true);
@@ -148,7 +152,7 @@ public class IPPortView extends FrameLayout {
                     else if (event.getStatus() == PortForwardingStatus.NO_PORTFWD) {
                         tvPort.setText("---");
                     } else {
-                        if (VpnStatus.isVPNActive() && event.getArg().length() > 0) {
+                        if (isVpnActive && event.getArg().length() > 0) {
                             tvPort.setText(event.getArg());
                         } else {
                             tvPort.setText("---");
@@ -183,6 +187,7 @@ public class IPPortView extends FrameLayout {
         tvIP.post(new Runnable() {
             public void run() {
                 setVisibilities();
+                boolean isVpnActive = PIAFactory.getInstance().getVPN(getContext()).isVPNActive();
 
                 if (!TextUtils.isEmpty(event.getIp()) && !event.isSearching()) {
                     if (PIAApplication.isAndroidTV(getContext())) {
@@ -194,7 +199,7 @@ public class IPPortView extends FrameLayout {
                         String lastIp = PiaPrefHandler.getLastIP(getContext());
                         String lastIpVpn = PiaPrefHandler.getLastIPVPN(getContext());
 
-                        if (VpnStatus.isVPNActive()) {
+                        if (isVpnActive) {
                             tvIP.setText(lastIp);
                             tvIPVPN.setText(lastIpVpn);
                         }
@@ -211,7 +216,7 @@ public class IPPortView extends FrameLayout {
                     tvIP.setText("---");
                     tvIP.setVisibility(View.INVISIBLE);
                 } else if (TextUtils.isEmpty(event.getIp()) && !event.isSearching()) {
-                    if (!VpnStatus.isVPNActive()) {
+                    if (!isVpnActive) {
                         tvIP.setText("---");
                         //tvIP.setVisibility(View.INVISIBLE);
                     }
@@ -227,7 +232,8 @@ public class IPPortView extends FrameLayout {
 
     private void setVisibilities() {
         if (!PIAApplication.isAndroidTV(getContext())) {
-            if (PiaPrefHandler.isPortForwardingEnabled(getContext())) {
+            if (PiaPrefHandler.isPortForwardingEnabled(getContext()) &&
+                    VPNProtocol.activeProtocol(getContext()) == VPNProtocol.Protocol.OpenVPN) {
                 aPort.setVisibility(View.VISIBLE);
             }
             else {

@@ -79,12 +79,12 @@
             summary="@string/preference_connect_proxy_summary"
             type="toggle"/>
 
-        <android.support.v7.preference.PreferenceScreen
+        <PreferenceScreen
             key="excluded_proxy_app"
             title="@string/preference_connect_proxy_app"
             />
 
-        <android.support.v7.preference.PreferenceScreen
+        <PreferenceScreen
             dependency="useproxy"
             key="proxyport"
             title="@string/preference_proxy_port" />

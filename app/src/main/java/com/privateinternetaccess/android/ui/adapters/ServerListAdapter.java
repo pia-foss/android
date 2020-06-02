@@ -19,13 +19,11 @@
 package com.privateinternetaccess.android.ui.adapters;
 
 import android.app.Activity;
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.content.res.AppCompatResources;
-import android.support.v7.widget.RecyclerView;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,7 +52,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.VpnStatus;
 
 /**
  * Created by half47 on 2/23/16.
@@ -225,7 +222,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 sHolder.view.setClickable(true);
 
                 if (item.isSelected()) {
-                    if (VpnStatus.isVPNActive()) {
+                    if (PIAFactory.getInstance().getVPN(mContext).isVPNActive()) {
                         sHolder.connectedImage.setVisibility(View.VISIBLE);
                         sHolder.view.setClickable(false);
                     }

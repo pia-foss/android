@@ -104,7 +104,7 @@ public class LogoutHandler {
     }
 
     private void removeInfoAndListener() {
-        PIAFactory.getInstance().getAccount(activity).logout();
+        PIAFactory.getInstance().getAccount(activity).logout(PiaPrefHandler.getAuthToken(activity));
         EventBus.getDefault().unregister(this);
     }
 

@@ -19,9 +19,12 @@
 package com.privateinternetaccess.android.ui.drawer;
 
 import android.os.Bundle;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +35,6 @@ import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.adapters.VpnLogAdapter;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Collections;
@@ -98,7 +100,8 @@ public class VpnLogActivity extends BaseActivity {
 
         showHideProgress(true);
 
-        new Thread(new Runnable() {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
             @Override
             public void run() {
                 LogItem[] items = VpnStatus.getlogbuffer();
@@ -106,16 +109,13 @@ public class VpnLogActivity extends BaseActivity {
                 Collections.addAll(logs, items);
                 Collections.reverse(logs);
 
-                recyclerView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter = new VpnLogAdapter(recyclerView.getContext(), logs);
-                        recyclerView.setAdapter(adapter);
-                        showHideProgress(false);
-                    }
+                recyclerView.post(() -> {
+                    adapter = new VpnLogAdapter(recyclerView.getContext(), logs);
+                    recyclerView.setAdapter(adapter);
+                    showHideProgress(false);
                 });
             }
-        }).start();
+        });
     }
 
     public void showHideProgress(boolean show){

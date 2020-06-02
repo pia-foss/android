@@ -22,25 +22,28 @@ package com.privateinternetaccess.android.ui.drawer;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.SwitchPreferenceCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.Preference;
+import androidx.preference.SwitchPreferenceCompat;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
+import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.Toaster;
@@ -48,13 +51,14 @@ import com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig;
 import com.privateinternetaccess.android.ui.DialogFactory;
 import com.privateinternetaccess.android.ui.adapters.SettingsAdapter;
 import com.privateinternetaccess.android.ui.widgets.WidgetBaseProvider;
+import com.privateinternetaccess.android.wireguard.backend.GoBackend;
 
 import java.util.Locale;
 import java.util.Vector;
 
-import butterknife.OnClick;
 import de.blinkt.openvpn.core.VpnStatus;
 
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_AUTH;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_CIPHER;
 
@@ -65,6 +69,145 @@ import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_CI
  */
 
 public class SettingsFragmentHandler {
+
+    public static void setupProtocolDialog(final Context context, final Preference screen, final SettingsFragment fragment) {
+        screen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle(R.string.settings_protocol);
+                builder.setCancelable(true);
+
+                final String[] protocolArray = context.getResources().getStringArray(R.array.protocol_options);
+
+                final SettingsAdapter adapter = new SettingsAdapter(context);
+                adapter.setOptions(protocolArray);
+                adapter.setSelected(Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]));
+                adapter.setDisplayNames(protocolArray);
+                adapter.setPreviewIndex(1);
+
+                builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(PIAApplication.isAndroidTV(context)) {
+                            String selectedProtocol = protocolArray[i];
+                            String previousProtocol = Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]);
+
+                            String warningMessage = "";
+
+                            if (!selectedProtocol.equals(previousProtocol)) {
+                                if(PIAFactory.getInstance().getVPN(context).isVPNActive()) {
+                                    Toaster.l(fragment.getActivity().getApplicationContext(), R.string.reconnect_vpn);
+                                }
+
+                                if (previousProtocol.equals(protocolArray[1])) {
+                                    if (GoBackend.VpnService.backend != null) {
+                                        GoBackend.VpnService.backend.stopVpn();
+                                    }
+                                }
+                                else {
+                                    IVPN vpn = PIAFactory.getInstance().getVPN(context);
+
+                                    if(vpn.isVPNActive()) {
+                                        vpn.stop();
+
+                                        Handler handler = new Handler(Looper.getMainLooper());
+                                        handler.postDelayed(() -> {
+                                            if(vpn.isKillswitchActive()){
+                                                vpn.stopKillswitch();
+                                            }
+                                        }, 1000);
+                                    }
+
+                                    if (PiaPrefHandler.isKillswitchEnabled(context)) {
+                                        warningMessage += context.getResources().getString(R.string.killswitch) + "\n";
+                                    }
+
+                                    if (PiaPrefHandler.getVPNPerAppPackages(context).size() > 0) {
+                                        warningMessage += context.getResources().getString(R.string.per_app_settings);
+                                    }
+                                }
+
+                                if (warningMessage.length() > 0) {
+                                    showPerAppWarning(context, warningMessage);
+                                }
+
+                                Prefs.with(context).set(PiaPrefHandler.VPN_PROTOCOL, selectedProtocol);
+                                fragment.setProtocolSummary();
+                            }
+                            DLog.d("Wireguard", "Changing protocol TV: " + selectedProtocol);
+                            dialogInterface.dismiss();
+                        }
+                    }
+                });
+
+                builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        int index = adapter.getSelectedIndex();
+                        String selectedProtocol = protocolArray[index];
+                        String previousProtocol = Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]);
+
+                        String warningMessage = "";
+
+                        if (!selectedProtocol.equals(previousProtocol)) {
+                            if(PIAFactory.getInstance().getVPN(context).isVPNActive()) {
+                                Toaster.l(fragment.getActivity().getApplicationContext(), R.string.reconnect_vpn);
+                            }
+
+                            if (previousProtocol.equals(protocolArray[1])) {
+                                if (GoBackend.VpnService.backend != null) {
+                                    GoBackend.VpnService.backend.stopVpn();
+                                }
+                            }
+                            else {
+                                IVPN vpn = PIAFactory.getInstance().getVPN(context);
+
+                                if(vpn.isVPNActive()) {
+                                    vpn.stop();
+
+                                    Handler handler = new Handler(Looper.getMainLooper());
+                                    handler.postDelayed(() -> {
+                                        if(vpn.isKillswitchActive()){
+                                            vpn.stopKillswitch();
+                                        }
+                                    }, 1000);
+                                }
+
+                                if (PiaPrefHandler.isKillswitchEnabled(context)) {
+                                    warningMessage += context.getResources().getString(R.string.killswitch) + "\n";
+                                }
+
+                                if (PiaPrefHandler.getVPNPerAppPackages(context).size() > 0) {
+                                    warningMessage += context.getResources().getString(R.string.per_app_settings);
+                                }
+                            }
+
+                            if (warningMessage.length() > 0) {
+                                showPerAppWarning(context, warningMessage);
+                            }
+
+                            Prefs.with(context).set(PiaPrefHandler.VPN_PROTOCOL, selectedProtocol);
+                            fragment.setProtocolSummary();
+                        }
+
+                        dialogInterface.dismiss();
+                    }
+                });
+
+                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.show();
+
+                return false;
+            }
+        });
+    }
 
     public static void setupDNSDialog(final Context context, final Preference screen, final SettingsFragment fragment){
         screen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -156,7 +299,11 @@ public class SettingsFragmentHandler {
                         int index = adapter.getSelectedIndex();
 
                         if (index < dnsCustomArray.length && index >= 0) {
+                            PiaPrefHandler.setDnsChanged(context,
+                                    !Prefs.with(context).get(PiaPrefHandler.DNS, "").equals(dnsCustomArray[index]));
                             Prefs.with(context).set(PiaPrefHandler.DNS, dnsCustomArray[index]);
+
+                            DLog.d("SettingsFragment", "DNS Changed: " + PiaPrefHandler.hasDnsChanged(context));
 
                             if (index == dnsCustomArray.length- 1) {
                                 Prefs.with(context).set(PiaPrefHandler.DNS_SECONDARY, Prefs.with(context).get(PiaPrefHandler.CUSTOM_SECONDARY_DNS, ""));
@@ -349,6 +496,23 @@ public class SettingsFragmentHandler {
         builder.show();
 
         fragment.toggleMace(false);
+    }
+
+    private static void showPerAppWarning(Context context, String message) {
+        String fullMessage = context.getResources().getString(R.string.wg_protocol_warning) + "\n\n" + message;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.settings_protocol);
+        builder.setMessage(fullMessage);
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        builder.show();
     }
 
     private static boolean isDnsValid(TextInputEditText text, String error) {
@@ -754,17 +918,14 @@ public class SettingsFragmentHandler {
             ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.PROXY_ENABLED)).setChecked(false);
             fragment.resetProxyArea(fragment.findPreference(PiaPrefHandler.PROXY_ENABLED), false);
 
-            prefs.set(PiaPrefHandler.TRUST_CELLULAR, false);
-            ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.TRUST_CELLULAR)).setChecked(false);
-
             prefs.set(PiaPrefHandler.PIA_MACE, false);
             try {
                 ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.PIA_MACE)).setChecked(false);
             } catch (Exception e) {
             }
 
-            prefs.set(PiaPrefHandler.KILLSWITCH, false);
-            ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.KILLSWITCH)).setChecked(false);
+            prefs.set(KILLSWITCH, false);
+            ((SwitchPreferenceCompat) fragment.findPreference(KILLSWITCH)).setChecked(false);
         }
 
         //Blocking
@@ -787,6 +948,9 @@ public class SettingsFragmentHandler {
 
         prefs.set(PiaPrefHandler.TLSCIPHER, tls);
         fragment.findPreference(PiaPrefHandler.TLSCIPHER).setSummary(tls);
+
+        // Protocol
+        prefs.set(PiaPrefHandler.VPN_PROTOCOL, ctx.getResources().getStringArray(R.array.protocol_options)[0]);
 
         // Application Settings
         prefs.set(PiaPrefHandler.AUTOCONNECT, false);
@@ -824,12 +988,12 @@ public class SettingsFragmentHandler {
         prefs.remove(PiaPrefHandler.CUSTOM_DNS);
 
         prefs.remove(PiaPrefHandler.TRUST_WIFI);
-        prefs.remove(PiaPrefHandler.TRUST_CELLULAR);
         prefs.remove(PiaPrefHandler.TRUSTED_WIFI_LIST);
 
         fragment.setDNSSummary();
+        fragment.setProtocolSummary();
 
-        if(VpnStatus.isVPNActive()) {
+        if(PIAFactory.getInstance().getVPN(ctx).isVPNActive()) {
             Toaster.l(fragment.getActivity().getApplicationContext(), R.string.reconnect_vpn);
         }
         else {

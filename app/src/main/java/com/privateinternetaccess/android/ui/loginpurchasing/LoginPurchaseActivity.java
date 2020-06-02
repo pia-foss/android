@@ -20,30 +20,24 @@ package com.privateinternetaccess.android.ui.loginpurchasing;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.zxing.client.android.Intents;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.handlers.PurchasingHandler;
 import com.privateinternetaccess.android.handlers.UpdateHandler;
-import com.privateinternetaccess.android.model.events.GiftCardQRCodeEvent;
 import com.privateinternetaccess.android.model.events.PricingLoadedEvent;
 import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.PIAFactory;
@@ -52,33 +46,25 @@ import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.interfaces.IPurchasing;
 import com.privateinternetaccess.android.pia.model.PurchaseData;
 import com.privateinternetaccess.android.pia.model.PurchaseObj;
-import com.privateinternetaccess.android.pia.model.events.APICheckEvent;
 import com.privateinternetaccess.android.pia.model.events.LoginEvent;
-import com.privateinternetaccess.android.pia.model.events.PurchasingEvent;
 import com.privateinternetaccess.android.pia.model.events.PurchasingInfoEvent;
 import com.privateinternetaccess.android.pia.model.events.SystemPurchaseEvent;
 import com.privateinternetaccess.android.pia.model.response.PurchasingResponse;
 import com.privateinternetaccess.android.pia.model.response.SubscriptionAvailableResponse;
 import com.privateinternetaccess.android.pia.subscription.InAppPurchasesHelper;
-import com.privateinternetaccess.android.pia.tasks.APICheckTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Toaster;
-import com.privateinternetaccess.android.ui.connection.MainActivity;
-import com.privateinternetaccess.android.ui.drawer.settings.DeveloperActivity;
 import com.privateinternetaccess.android.ui.features.WebviewActivity;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 import com.privateinternetaccess.android.pia.model.SkuDetailsObj;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * Created by half47 on 3/13/17.

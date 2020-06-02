@@ -34,7 +34,7 @@
         android:textAppearance="@style/PiaTextTitle"
         style="@style/PiaTextTitleStyle" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/fragment_login_user_area"
@@ -50,9 +50,9 @@
             style="@style/PiaTextInput"
             android:inputType="textEmailAddress"
             />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/fragment_login_password_area"
@@ -70,7 +70,7 @@
             android:imeOptions="actionDone"
             android:imeActionLabel="@string/action_sign_in_short"
             />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:layout_width="wrap_content"

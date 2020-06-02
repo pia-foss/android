@@ -26,14 +26,14 @@
     android:paddingBottom="6dp"
     android:paddingTop="6dp" >
 
-    <android.support.v7.widget.SwitchCompat
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/toggle_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true" />
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/toggle_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

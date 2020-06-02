@@ -22,6 +22,7 @@ import android.content.Context;
 import android.util.Base64;
 
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
+import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.response.ServerResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
@@ -69,7 +70,7 @@ public class ServerAPI extends PiaApi {
             "IQIDAQAB\n" +
             "-----END PUBLIC KEY-----";
 
-    public static final int SERVER_FILE_NUMBER = 81;
+    public static final int SERVER_FILE_NUMBER = 1001;
 
     private Context context;
     private static boolean testing;
@@ -113,6 +114,8 @@ public class ServerAPI extends PiaApi {
                 if(verifySignature(body)){
                     res = PIAServerHandler.parseServers(body);
                     res.setBody(body);
+
+                    PiaPrefHandler.setLastServerVersion(context, SERVER_FILE_NUMBER);
                 }
             }
         } catch (IOException e) {
@@ -120,6 +123,10 @@ public class ServerAPI extends PiaApi {
         }
 
         return res;
+    }
+
+    public static boolean forceUpdate(Context context) {
+        return SERVER_FILE_NUMBER != PiaPrefHandler.getLastServerVersion(context);
     }
 
     public static boolean verifySignature(String json) {

@@ -39,6 +39,7 @@
         android:id="@+id/snooze_resume_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="vertical">
 
         <TextView
@@ -74,7 +75,7 @@
         android:id="@+id/snooze_times_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
         android:orientation="vertical"
         android:visibility="gone">
 

@@ -41,7 +41,7 @@
         android:layout_marginLeft="10dp"
         android:layout_toRightOf="@+id/list_favorites_image"/>
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/list_favorites_icon"
         android:layout_width="24dp"
         android:layout_height="20dp"

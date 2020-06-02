@@ -25,10 +25,12 @@ import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.view.GravityCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -40,6 +42,7 @@ import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.handlers.UpdateHandler;
+import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.LogoutHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
@@ -70,7 +73,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.blinkt.openvpn.core.LogItem;
-import de.blinkt.openvpn.core.VpnStatus;
 
 public class MainActivity extends BaseActivity {
 
@@ -132,7 +134,7 @@ public class MainActivity extends BaseActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (PIAApplication.isAndroidTV(getApplicationContext())) {
             if (keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) {
-                if (!VpnStatus.isVPNActive()) {
+                if (!PIAFactory.getInstance().getVPN(this).isVPNActive()) {
                     PIAFactory.getInstance().getVPN(getApplicationContext()).start();
                 } else {
                     PIAFactory.getInstance().getVPN(getApplicationContext()).stop();
@@ -165,6 +167,7 @@ public class MainActivity extends BaseActivity {
         super.onResume();
         drawerItemOpened = false;
         initView();
+        initDrawer();
         Intent i = getIntent();
         checkForStartIntents(i);
         setIntent(null);
@@ -352,7 +355,7 @@ public class MainActivity extends BaseActivity {
                 } else if (SHORTCUT_SETTINGS.equals(i.getAction())) {
                     Intent apps = new Intent(getApplicationContext(), SettingsActivity.class);
                     startActivity(apps);
-                } else if ((autoConnect || START_VPN_SHORTCUT.equals(i.getAction())) && !VpnStatus.isVPNActive()) {
+                } else if ((autoConnect || START_VPN_SHORTCUT.equals(i.getAction())) && !PIAFactory.getInstance().getVPN(this).isVPNActive()) {
                     autoStartVPN();
                 }
             } else {
@@ -374,27 +377,33 @@ public class MainActivity extends BaseActivity {
 
     @SuppressLint("NewApi")
     public void startVPN(boolean reconnect) {
-        if (VpnStatus.isVPNActive() && !reconnect)
+        if (PIAFactory.getInstance().getVPN(this).isVPNActive() && !reconnect)
             return;
 
-        PIAFactory.getInstance().getConnection(getApplicationContext()).resetFetchIP();
+        if (VPNProtocol.activeProtocol(this) == VPNProtocol.Protocol.OpenVPN) {
+            PIAFactory.getInstance().getConnection(getApplicationContext()).resetFetchIP();
 
-        Intent intent = VpnService.prepare(getApplicationContext());
-        if (intent != null) {
-            Intent i = new Intent(getApplicationContext(), VPNPermissionActivity.class);
-            i.putExtra(MainActivity.START_VPN_SHORTCUT, true);
-            overridePendingTransition(R.anim.launcher_enter, R.anim.launcher_exit);
-            startActivityForResult(i, START_VPN_PROFILE);
-        } else {
-            onActivityResult(START_VPN_PROFILE, RESULT_OK, null);
+            Intent intent = VpnService.prepare(getApplicationContext());
+            if (intent != null) {
+                Intent i = new Intent(getApplicationContext(), VPNPermissionActivity.class);
+                i.putExtra(MainActivity.START_VPN_SHORTCUT, true);
+                overridePendingTransition(R.anim.launcher_enter, R.anim.launcher_exit);
+                startActivityForResult(i, START_VPN_PROFILE);
+            } else {
+                onActivityResult(START_VPN_PROFILE, RESULT_OK, null);
+            }
         }
+        else {
+            PIAFactory.getInstance().getVPN(getApplicationContext()).start();
+        }
+
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         if (mDrawer != null)
-            mDrawer.getDrawerLayout().closeDrawer(Gravity.START, false);
+            mDrawer.getDrawerLayout().closeDrawer(GravityCompat.START, false);
     }
 
     @Subscribe

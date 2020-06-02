@@ -19,7 +19,7 @@
 package com.privateinternetaccess.android.handlers;
 
 import android.app.Activity;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.android.billingclient.api.BillingClient;

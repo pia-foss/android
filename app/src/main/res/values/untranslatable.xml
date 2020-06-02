@@ -29,11 +29,15 @@
     <string name="gpl_compliance_header" translatable="false">GPL Compliance</string>
     <string name="openvpn_for_android" translatable="false">OpenVPN for Android</string>
     <string name="unknown_state" translatable="false">Unknown state</string>
-    <string name="copyright" translatable="false">Copyright © 2012-2017 Private Internet Access Inc.</string>
+    <string name="copyright" translatable="false">Copyright © 2012-2017 London Trust Media, Inc.</string>
     <string name="privacy_policy" translatable="false"><a href="https://www.privateinternetaccess.com/pages/privacy-policy/">Privacy Policy</a></string>
     <string name="website" translatable="false"><a href="https://www.privateinternetaccess.com/">www.privateinternetaccess.com</a></string>
     <string name="bouncy_castle" translatable="false">Bouncy Castle Crypto APIs</string>
     <string name="copyright_bouncycastle" translatable="false">Copyright © 2000–2012 The Legion Of The Bouncy Castle (http://www.bouncycastle.org)</string>
+    <string name="wireguard_title" translatable="false">WireGuard</string>
+    <string name="wireguard_copyright" translatable="false">Copyright (c) 2019 Jason A. Donenfeld. All rights reserved.
+        https://raw.githubusercontent.com/WireGuard/wireguard-android/master/README.md</string>
+
     <!-- Please keep the % elements, this is a formatted text. %1$s is Private Internet Access, %2$s is version number(ei 1.4), %3$s is the version code (ei 114)  -->
     <string name="version_info" translatable="false">%1$s v%2$s (%3$d) - %4$s</string>
 
@@ -94,7 +98,7 @@
         \nA copy of that license is included as license.txt.
         \nYou may obtain the complete Corresponding Source code from us for a period of three years after our last shipment of this product, which will be no earlier than 2011-08-01, by sending a money order or check for $5 to:
         \n\nGPL Compliance Division
-        \nPrivate Internet Access Inc.
+        \nLondon Trust Media, Inc.
         \n2885 Sanford Ave SW Suite 20138
         \nGrandville MI 49418
         \n\nPlease write "source for Private Internet Access GPL" in the memo line of your payment.
@@ -115,5 +119,10 @@
     </string-array>
 
     <string name="dns_pref_header">DNS</string>
+
+    <string-array name="protocol_options">
+        <item>OpenVPN</item>
+        <item>WireGuard</item>
+    </string-array>
 
 </resources>

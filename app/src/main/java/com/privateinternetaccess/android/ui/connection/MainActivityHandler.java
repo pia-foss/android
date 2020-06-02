@@ -20,11 +20,9 @@ package com.privateinternetaccess.android.ui.connection;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
@@ -41,6 +39,7 @@ import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.draweritems.PIAPrimaryDrawerItem;
+import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
@@ -129,7 +128,8 @@ public class MainActivityHandler {
                             .withTextColorRes(textColor)
                     );
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                VPNProtocol.activeProtocol(act) == VPNProtocol.Protocol.OpenVPN) {
             drawerItems.add(new PIAPrimaryDrawerItem()
                     .withIdentifier(IDEN_PER_APP)
                     .withName(R.string.per_app_settings)

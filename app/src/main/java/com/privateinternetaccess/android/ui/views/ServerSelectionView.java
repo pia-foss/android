@@ -22,13 +22,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.events.ServerClickedEvent;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
@@ -37,6 +38,7 @@ import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.drawer.ServerListActivity;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,6 +73,7 @@ public class ServerSelectionView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        EventBus.getDefault().register(this);
 
         aServer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,6 +89,12 @@ public class ServerSelectionView extends FrameLayout {
         });
 
         setRegionDisplay();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        EventBus.getDefault().unregister(this);
     }
 
     private void setRegionDisplay() {
@@ -125,5 +134,10 @@ public class ServerSelectionView extends FrameLayout {
             context = ((ContextWrapper)context).getBaseContext();
         }
         return null;
+    }
+
+    @Subscribe
+    public void serverSelected(ServerClickedEvent event) {
+        setServerName();
     }
 }

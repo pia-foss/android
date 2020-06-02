@@ -27,7 +27,7 @@
     android:background="@color/tv_grey_15"
     >
 
-    <android.support.v4.widget.Space
+    <Space
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.3"
@@ -87,7 +87,7 @@
                     />
             </RelativeLayout>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:elevation="4dp"
@@ -107,12 +107,12 @@
                     <include layout="@layout/fragment_login" />
 
                 </FrameLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
     </ScrollView>
 
-    <android.support.v4.widget.Space
+    <Space
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.3"

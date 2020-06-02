@@ -1,19 +1,20 @@
 buildscript {
     repositories {
+        google()
         jcenter()
         maven {
             url 'https://maven.google.com/'
             name 'Google'
         }
-        google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:4.0.0-beta04'
     }
 }
 allprojects{
     repositories {
+        google()
         jcenter()
         mavenCentral()
         maven { url "https://jitpack.io" }
@@ -27,8 +28,9 @@ allprojects{
 
 //only change those when updating support-library, target and compile versions.
 ext {
-    buildToolsVersion = '27.0.3'
+    buildToolsVersion = '30.0.0 rc2'
     supportLibVersion = '27.1.1'
     targetSdkVersion = 28
-    compileSdkVersion = 28
+    compileSdkVersion = 29
+    minSdkVersion = 21
 }

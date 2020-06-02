@@ -19,8 +19,9 @@
 package com.privateinternetaccess.android.ui.startup;
 
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.DrawableRes;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 
 import com.github.paolorotolo.appintro.AppIntroBaseFragment;
 import com.privateinternetaccess.android.R;

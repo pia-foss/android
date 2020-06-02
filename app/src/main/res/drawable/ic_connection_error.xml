@@ -25,12 +25,12 @@
         android:pathData="M138,138m-116,0a116,116 0,1 1,232 0a116,116 0,1 1,-232 0"
         android:strokeColor="#F24458"
         android:fillType="evenOdd"
-        android:fillColor="#22252E"
+        android:fillColor="#EEEEEE"
         android:strokeWidth="8"/>
     <path
         android:pathData="M138,138m-129,0a129,129 0,1 1,258 0a129,129 0,1 1,-258 0"
         android:fillType="evenOdd"
-        android:strokeColor="#17181C"
+        android:strokeColor="#D7D8D9"
         android:fillColor="#00000000"
         android:strokeWidth="18"/>
     <path

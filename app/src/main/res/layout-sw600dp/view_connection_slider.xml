@@ -38,7 +38,7 @@
             android:indeterminateDrawable="@drawable/shape_progress_spinner"
             android:layout_gravity="center" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_height="225dp"
             android:layout_width="225dp"
             android:id="@+id/connection_background"

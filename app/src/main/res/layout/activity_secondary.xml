@@ -23,13 +23,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <include layout="@layout/snippet_activity_secondary_top" />
 
-        <android.support.v4.widget.NestedScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="fill_vertical"
@@ -45,8 +45,8 @@
                 android:layout_marginRight="@dimen/tablet_margins"
                 android:layout_marginTop="@dimen/fragment_top_margin"
                 ></FrameLayout>
-        </android.support.v4.widget.NestedScrollView>
-    </android.support.design.widget.CoordinatorLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <ProgressBar
         style="?android:attr/progressBarStyle"

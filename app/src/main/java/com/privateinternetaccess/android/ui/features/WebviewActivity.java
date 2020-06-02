@@ -25,8 +25,9 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
+import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,8 +44,6 @@ import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by half47 on 7/20/16.
@@ -52,6 +51,15 @@ import java.util.List;
 public class WebviewActivity extends BaseActivity {
 
     public static final String EXTRA_URL = "url";
+
+    private static final String[] WHITELIST_URLS = {
+            "https://www.privateinternetaccess.com",
+            "https://helpdesk.privateinternetaccess.com/",
+            "https://www.privateinternetaccess.com/pages/terms-of-service/",
+            "https://www.privateinternetaccess.com/pages/buy-vpn/",
+            "https://bra.privateinternetaccess.com/pages/buy-vpn/",
+            "https://helpdesk.privateinternetaccess.com"
+            };
 
     private WebView mWebView;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -168,8 +176,10 @@ public class WebviewActivity extends BaseActivity {
         if(TextUtils.isEmpty(mURL))
             mURL = "https://helpdesk.privateinternetaccess.com";
 
-        if(mWebView.getUrl() == null)
-            mWebView.loadUrl(mURL);
+        if(mWebView.getUrl() == null) {
+            if (isWhitelisted(mURL))
+                mWebView.loadUrl(mURL);
+        }
     }
 
     @Override
@@ -197,5 +207,14 @@ public class WebviewActivity extends BaseActivity {
 
         if(!copied)
             Toaster.s(getApplicationContext(), R.string.text_failed_to_copy);
+    }
+
+    private boolean isWhitelisted(String url) {
+        for (String whitelistUrl : WHITELIST_URLS) {
+            if (url.equals(whitelistUrl))
+                return true;
+        }
+
+        return false;
     }
 }

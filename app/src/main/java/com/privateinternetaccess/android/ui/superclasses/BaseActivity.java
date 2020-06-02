@@ -27,13 +27,13 @@ import android.graphics.drawable.Drawable;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.content.res.AppCompatResources;
-import android.support.v7.widget.AppCompatImageButton;
-import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.Toolbar;
+
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -42,7 +42,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.handlers.PurchasingHandler;
@@ -65,7 +64,6 @@ import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.connection.VPNPermissionActivity;
-import com.privateinternetaccess.android.ui.features.WebviewActivity;
 import com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
 import com.privateinternetaccess.android.ui.views.SwipeBackLayout;
@@ -75,7 +73,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -288,6 +285,7 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
     }
 
     protected void setBackground() {
+        DLog.d("BaseActivity", "Setting background");
         VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
         ConnectionStatus status = event.getLevel();
 
@@ -321,7 +319,8 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
             removeIcon();
             setHeaderTints(getResources().getColor(R.color.grey15));
         }
-        else if (status == ConnectionStatus.LEVEL_AUTH_FAILED || status == null) {
+        else if (status == ConnectionStatus.LEVEL_AUTH_FAILED || status == ConnectionStatus.LEVEL_NONETWORK ||
+                status == null) {
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.failed_start));
 
@@ -355,9 +354,13 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
         }
 
         int lastStateResId = event.getLocalizedResId();
+
         if (lastStateResId != 0) {
             if (lastStateResId == de.blinkt.openvpn.R.string.state_waitconnectretry)
                 connectionText.setText(VpnStatus.getLastCleanLogMessage(this));
+            else if (event.getLevel() == ConnectionStatus.LEVEL_NONETWORK) {
+                connectionText.setText(getString(R.string.failed_connect_status));
+            }
             else if (event.getLevel() == ConnectionStatus.LEVEL_CONNECTED){
                 PIAServer server = PIAServerHandler.getInstance(this).getSelectedRegion(this, false);
                 StringBuilder sb = new StringBuilder();

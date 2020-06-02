@@ -17,7 +17,8 @@
   ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<android.support.design.widget.AppBarLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+<com.google.android.material.appbar.AppBarLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/appbar"
@@ -27,7 +28,7 @@
     app:elevation="0dp"
     tools:showIn="@layout/activity_tv_secondary">
 
-    <android.support.design.widget.CollapsingToolbarLayout
+    <com.google.android.material.appbar.CollapsingToolbarLayout
         android:id="@+id/main.collapsing"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -48,7 +49,7 @@
                 android:id="@+id/activity_secondary_top" />
 
             <!-- top container -->
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/activity_secondary_top_card_view"
@@ -62,7 +63,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:id="@+id/activity_secondary_top_add_area"></LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
-    </android.support.design.widget.CollapsingToolbarLayout>
-</android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.CollapsingToolbarLayout>>
+</com.google.android.material.appbar.AppBarLayout>

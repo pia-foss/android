@@ -19,8 +19,9 @@
 package com.privateinternetaccess.android.pia.vpn;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;

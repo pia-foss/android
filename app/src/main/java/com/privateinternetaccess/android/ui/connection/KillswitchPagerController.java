@@ -18,13 +18,13 @@
 
 package com.privateinternetaccess.android.ui.connection;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -33,8 +33,6 @@ import android.widget.LinearLayout;
 import com.privateinternetaccess.android.PIAKillSwitchStatus;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.api.PiaApi;
-import com.privateinternetaccess.android.pia.interfaces.IConnection;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.events.KillSwitchEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
@@ -44,8 +42,6 @@ import com.privateinternetaccess.android.ui.adapters.pager.StatusPager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.KillSwitch;
 import de.blinkt.openvpn.core.VpnStatus;
 
 public class KillswitchPagerController {

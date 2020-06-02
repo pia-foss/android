@@ -20,6 +20,7 @@ package com.privateinternetaccess.android.tunnel;
 
 import com.privateinternetaccess.android.PIAKillSwitchStatus;
 import com.privateinternetaccess.android.model.events.VPNTrafficDataPointEvent;
+import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.events.KillSwitchEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 

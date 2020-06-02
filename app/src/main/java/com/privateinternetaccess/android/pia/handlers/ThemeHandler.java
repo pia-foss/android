@@ -21,8 +21,8 @@ package com.privateinternetaccess.android.pia.handlers;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.pia.utils.Prefs;

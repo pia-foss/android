@@ -22,20 +22,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.ui.drawer.SettingsActivity;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
-import com.privateinternetaccess.android.ui.tv.GraphActivity;
 import com.privateinternetaccess.android.ui.tv.views.IPPortView;
 import com.privateinternetaccess.android.ui.tv.views.PanelItem;
 import com.privateinternetaccess.android.ui.tv.views.TVToggleView;
@@ -151,6 +151,15 @@ public class PanelFragment extends Fragment {
     public void onResume() {
         super.onResume();
         PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(prefListener);
+
+        if (VPNProtocol.activeProtocol(getContext()) == VPNProtocol.Protocol.OpenVPN) {
+            killswitchPanelItem.setVisibility(View.VISIBLE);
+            perAppSettingsPanelItem.setVisibility(View.VISIBLE);
+        }
+        else {
+            killswitchPanelItem.setVisibility(View.GONE);
+            perAppSettingsPanelItem.setVisibility(View.GONE);
+        }
     }
 
     SharedPreferences.OnSharedPreferenceChangeListener prefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {

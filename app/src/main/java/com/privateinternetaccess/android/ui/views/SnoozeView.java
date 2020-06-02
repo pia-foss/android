@@ -19,12 +19,13 @@
 package com.privateinternetaccess.android.ui.views;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.model.events.SnoozeEvent;
@@ -85,7 +86,11 @@ public class SnoozeView extends LinearLayout {
         EventBus.getDefault().register(this);
 
         setLayouts();
-        shouldEnable(VpnStatus.isVPNActive());
+
+        VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
+        ConnectionStatus status = event.getLevel();
+
+        shouldEnable(status == ConnectionStatus.LEVEL_CONNECTED);
     }
 
     @Override
@@ -112,12 +117,7 @@ public class SnoozeView extends LinearLayout {
         VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
         ConnectionStatus status = event.getLevel();
 
-        if (status == ConnectionStatus.LEVEL_CONNECTED) {
-            shouldEnable(true);
-        }
-        else {
-            shouldEnable(false);
-        }
+        shouldEnable(status == ConnectionStatus.LEVEL_CONNECTED);
     }
 
     private void shouldEnable(boolean shouldEnable) {
@@ -139,20 +139,20 @@ public class SnoozeView extends LinearLayout {
 
     @OnClick(R.id.snooze_short_button)
     public void onShortSnoozeClicked() {
-        PIAFactory.getInstance().getVPN(getContext()).stop();
         setAlarm(SHORT_DELAY);
+        PIAFactory.getInstance().getVPN(getContext()).stop();
     }
 
     @OnClick(R.id.snooze_medium_button)
     public void onMediumSnoozeClicked() {
-        PIAFactory.getInstance().getVPN(getContext()).stop();
         setAlarm(MEDIUM_DELAY);
+        PIAFactory.getInstance().getVPN(getContext()).stop();
     }
 
     @OnClick(R.id.snooze_long_button)
     public void onLongSnoozeClicked() {
-        PIAFactory.getInstance().getVPN(getContext()).stop();
         setAlarm(LONG_DELAY);
+        PIAFactory.getInstance().getVPN(getContext()).stop();
     }
 
     @OnClick(R.id.snooze_resume_button)

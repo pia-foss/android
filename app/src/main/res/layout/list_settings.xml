@@ -37,12 +37,30 @@
         android:focusableInTouchMode="false"
         />
 
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/list_settings_text"
-        style="@style/PiaTextBody1"
-        tools:text="1078"
-        />
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/list_settings_text"
+            style="@style/PiaTextBody1"
+            tools:text="1078"/>
+
+        <TextView
+            android:id="@+id/list_settings_preview"
+            android:background="@drawable/shape_purchasing_fill_green"
+            android:layout_marginLeft="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:visibility="gone"
+            android:text="@string/preview"/>
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -24,7 +24,7 @@
     android:layout_height="match_parent"
     android:background="@color/tv_grey_15">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:id="@+id/header_logo"
@@ -44,7 +44,7 @@
         />
 
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="125dp"
         android:layout_height="125dp"
         app:srcCompat="@drawable/ic_launcher_side"

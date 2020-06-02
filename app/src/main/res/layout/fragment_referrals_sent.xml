@@ -91,7 +91,7 @@
             tools:text="3 pending invites"
             />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="9dp"
             android:layout_height="18dp"
             android:layout_centerVertical="true"
@@ -125,7 +125,7 @@
             tools:text="2 signups"
             />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="9dp"
             android:layout_height="18dp"
             android:layout_centerVertical="true"

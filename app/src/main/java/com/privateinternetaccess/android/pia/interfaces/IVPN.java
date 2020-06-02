@@ -20,6 +20,7 @@ package com.privateinternetaccess.android.pia.interfaces;
 
 import android.content.Context;
 
+import com.privateinternetaccess.android.model.states.VPNProtocol.Protocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
 
 import de.blinkt.openvpn.VpnProfile;
@@ -55,6 +56,13 @@ public interface IVPN {
      * Stops the VPN by connecting with {@link de.blinkt.openvpn.core.OpenVPNService} and calling {@link de.blinkt.openvpn.core.IOpenVPNServiceInternal#stopVPN(boolean)}
      */
     void stop();
+
+    /**
+     * If the Vpn is active,
+     *
+     * Optionally forces VPN to stop regardless of current state
+     */
+    void forceStop();
 
     /**
      * Pauses the VPN if the VPN is connected.

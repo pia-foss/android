@@ -246,7 +246,8 @@
     <string name="done">DONE</string>
     <string name="update_account">UPDATE ACCOUNT</string>
     <string name="local_port_titla">Local Port</string>
-    <string name="preference_application_settings">APPLICATION SETTINGS</string>
+    <string name="preference_application_settings">GENERAL SETTINGS</string>
+    <string name="preference_vpn_settings">VPN SETTINGS</string>
     <string name="preference_haptic_title">Haptic feedback on connect</string>
     <string name="preference_dialog_graph_title">Select measurement unit for the graph</string>
     <string name="preference_connect_on_boot_summary">Connect on system start</string>
@@ -579,5 +580,35 @@
 
     <string name="snooze_status">Snoozing</string>
     <string name="snooze_notification">Snoozed</string>
+
+    <string name="failed_connect_status">Unable to Connect</string>
+
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">QUICK SETTINGS</string>
+    <string name="quick_settings_network_toggle">Network Management</string>
+    <string name="quick_settings_private_browser">Private Browser</string>
+
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">QUICK CONNECT</string>
+
+    <!-- Usage Strings -->
+    <string name="usage_title">USAGE</string>
+    <string name="usage_download">Download</string>
+    <string name="usage_upload">Upload</string>
+
+    <!-- Settings -->
+    <string name="settings_protocol">Protocol</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+
+    <string name="wg_per_app_warning">Switching to WireGuard will disable the Per App Settings-feature</string>
+    <string name="wg_protocol_warning">The following features are not available on WireGuard:</string>
+    <string name="wg_connecting">Connecting</string>
+    <string name="wg_connected">VPN Connected</string>
+
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">Tunnel “%s” already exists</string>
+    <string name="tunnel_error_invalid_name">Invalid name</string>
+    <string name="preview">PREVIEW</string>
 
 </resources>

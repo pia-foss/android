@@ -24,8 +24,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.app.NotificationCompat;
 
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.utils.NotificationHelper;
@@ -165,7 +165,7 @@ public class PIANotifications implements de.blinkt.openvpn.core.VPNNotifications
     }
 
     @Override
-    public  void addPiaNotificationExtra(android.support.v4.app.NotificationCompat.Builder nbuilder, Context context, DeviceStateReceiver mDeviceStateReceiver) {
+    public  void addPiaNotificationExtra(androidx.core.app.NotificationCompat.Builder nbuilder, Context context, DeviceStateReceiver mDeviceStateReceiver) {
 
         Intent disconnectVPN = new Intent(context, NotificationReceiver.class);
         disconnectVPN.setAction(NotificationReceiver.ACTION_DISCONNECT);
@@ -190,8 +190,8 @@ public class PIANotifications implements de.blinkt.openvpn.core.VPNNotifications
         Intent changeServer = new Intent(context, MainActivity.class);
         changeServer.setAction(MainActivity.CHANGE_VPN_SERVER);
         PendingIntent changeServerPI = PendingIntent.getActivity(context, 0, changeServer, 0);
-        android.support.v4.app.NotificationCompat.Action changeServerA =
-                new android.support.v4.app.NotificationCompat.Action(0, context.getString(R.string.change_server), changeServerPI);
+        androidx.core.app.NotificationCompat.Action changeServerA =
+                new androidx.core.app.NotificationCompat.Action(0, context.getString(R.string.change_server), changeServerPI);
         nbuilder.addAction(changeServerA);
 
     }

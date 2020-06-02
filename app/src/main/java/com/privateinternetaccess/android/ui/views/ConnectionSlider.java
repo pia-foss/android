@@ -19,29 +19,20 @@
 package com.privateinternetaccess.android.ui.views;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.view.Gravity;
-import android.view.HapticFeedbackConstants;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
-import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.utils.DLog;
-import com.privateinternetaccess.android.utils.SnoozeUtils;
+import com.privateinternetaccess.android.wireguard.backend.GoBackend;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -50,7 +41,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.VpnStatus;
 
 /**
  * Created by hfrede on 12/18/17.
@@ -58,6 +48,7 @@ import de.blinkt.openvpn.core.VpnStatus;
 
 public class ConnectionSlider extends FrameLayout {
 
+    public static GoBackend wireguard;
     public static final String TAG = "ConnectionSlider";
     @BindView(R.id.connection_background) AppCompatImageView background;
     @Nullable @BindView(R.id.connect_progress) ProgressBar progressBar;
@@ -92,6 +83,10 @@ public class ConnectionSlider extends FrameLayout {
     }
 
     public void init(Context context){
+        if (wireguard == null) {
+            wireguard = PIAApplication.getWireguard();
+        }
+
         inflate(context, R.layout.view_connection_slider, this);
         ButterKnife.bind(this, this);
 
@@ -106,7 +101,7 @@ public class ConnectionSlider extends FrameLayout {
     }
 
     private void toggleVPN() {
-        if(!VpnStatus.isVPNActive()) {
+        if(!PIAFactory.getInstance().getVPN(getContext()).isVPNActive()) {
             PIAFactory.getInstance().getVPN(getContext()).start();
         } else {
             PIAFactory.getInstance().getVPN(getContext()).stop();
@@ -119,10 +114,13 @@ public class ConnectionSlider extends FrameLayout {
 
         if (status == ConnectionStatus.LEVEL_CONNECTED) {
             background.setImageDrawable(getResources().getDrawable(R.drawable.ic_connection_on));
-        } else if (status == ConnectionStatus.LEVEL_NOTCONNECTED ||
-                status == ConnectionStatus.LEVEL_AUTH_FAILED || status == null) {
+        } else if (status == ConnectionStatus.LEVEL_NOTCONNECTED || status == null) {
             background.setImageDrawable(getResources().getDrawable(R.drawable.ic_connection_off));
-        } else {
+        } else if (status == ConnectionStatus.LEVEL_AUTH_FAILED ||
+                status == ConnectionStatus.LEVEL_NONETWORK) {
+            background.setImageDrawable(getResources().getDrawable(R.drawable.ic_connection_error));
+        }
+        else {
             background.setImageDrawable(getResources().getDrawable(R.drawable.ic_connection_connecting));
         }
         Context context = getContext();

@@ -25,6 +25,7 @@ import android.text.TextUtils;
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.IPIACallback;
+import com.privateinternetaccess.android.pia.api.ServerAPI;
 import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.PIAServerInfo;
 import com.privateinternetaccess.android.pia.model.response.ServerResponse;
@@ -202,7 +203,7 @@ public class PIAServerHandler {
         long lastGrab = prefs.get(LAST_SERVER_GRAB, 0L);
         long now = Calendar.getInstance().getTimeInMillis();
         long minDiff = SERVER_TIME_DIFFERENCE;
-        if(now - lastGrab > minDiff) {
+        if(now - lastGrab > minDiff || ServerAPI.forceUpdate(context)) {
             FetchServersTask task = new FetchServersTask(context, CALLBACK);
             task.execute("");
             Prefs.with(context).set(LAST_SERVER_GRAB, Calendar.getInstance().getTimeInMillis());
@@ -349,6 +350,7 @@ public class PIAServerHandler {
 
     public void saveSelectedServer(Context context, String region) {
         Prefs.with(context).set(SELECTEDREGION, region);
+        PiaPrefHandler.addQuickConnectItem(context, region);
     }
 
     static public class ServerNameComperator implements Comparator<PIAServer> {

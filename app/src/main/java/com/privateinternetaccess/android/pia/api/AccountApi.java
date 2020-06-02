@@ -25,13 +25,13 @@ import com.privateinternetaccess.android.pia.model.TrialData;
 import com.privateinternetaccess.android.pia.model.TrialTestingData;
 import com.privateinternetaccess.android.pia.model.UpdateAccountInfo;
 import com.privateinternetaccess.android.pia.model.enums.LoginResponseStatus;
+import com.privateinternetaccess.android.pia.model.response.ExpireTokenResponse;
 import com.privateinternetaccess.android.pia.model.response.LoginResponse;
 import com.privateinternetaccess.android.pia.model.response.TokenResponse;
 import com.privateinternetaccess.android.pia.model.response.TrialResponse;
 import com.privateinternetaccess.android.pia.model.response.UpdateEmailResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -192,6 +192,43 @@ public class AccountApi extends PiaApi {
             return res;
         }
     }
+
+    public ExpireTokenResponse expireToken(String token) {
+        try {
+            ExpireTokenResponse etRes = new ExpireTokenResponse();
+            setAuthenticatorUP(token);
+            RequestBody body = new FormBody.Builder().
+                    build();
+            Request request = new Request.Builder().url(getClientURL(context,"v2/expire_token")).
+                    addHeader("client_version", ANDROID_HTTP_CLIENT).
+                    addHeader("Authorization", "Token " + token).
+                    post(body).
+                    build();
+            Response response = getOkHttpClient().newCall(request).execute();
+            int status = response.code();
+            DLog.d("PIAAPI Expire", "status = " + status);
+            String res = response.body().string();
+            DLog.d("PIAAPI Expire", "body = " + res);
+            if (status == 200) {
+                etRes.setSuccess(true);
+            }
+            else {
+                etRes.setSuccess(false);
+            }
+
+            cleanAuthenticator();
+            return etRes;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+
+            ExpireTokenResponse etRes = new ExpireTokenResponse();
+            etRes.setSuccess(false);
+
+            return etRes;
+        }
+    }
+
 
     public TrialResponse createTrialAccount(TrialData data, TrialTestingData testingData){
         TrialResponse response = new TrialResponse(0);

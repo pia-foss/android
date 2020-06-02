@@ -19,7 +19,7 @@
 package com.privateinternetaccess.android.pia.api;
 
 import android.content.Context;
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 
 import com.privateinternetaccess.android.pia.model.response.IPResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;

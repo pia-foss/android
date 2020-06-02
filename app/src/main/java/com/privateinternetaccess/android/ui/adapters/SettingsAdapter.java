@@ -19,18 +19,16 @@
 package com.privateinternetaccess.android.ui.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.utils.DLog;
 
 /**
  * Created by half47 on 4/25/17.
@@ -45,6 +43,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     private String selected;
 
     private int selectedIndex = 0;
+    private int previewIndex = -1;
 
     private String warningMessage;
     private boolean hasWarning = false;
@@ -126,6 +125,13 @@ public class SettingsAdapter extends ArrayAdapter<String> {
             holder.selected.setChecked(selected.equals(option));
         }
 
+        if (previewIndex == position) {
+            holder.preview.setVisibility(View.VISIBLE);
+        }
+        else {
+            holder.preview.setVisibility(View.GONE);
+        }
+
         holder.position = position;
         holder.view.setTag(holder);
 
@@ -137,6 +143,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
         View view;
         TextView name;
         RadioButton selected;
+        TextView preview;
         int position;
 
         public SettingsHolder(View itemView) {
@@ -144,6 +151,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
             view = itemView;
             name = itemView.findViewById(R.id.list_settings_text);
             selected = itemView.findViewById(R.id.list_settings_radio);
+            preview = itemView.findViewById(R.id.list_settings_preview);
         }
     }
 
@@ -173,6 +181,8 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     public void setLastItemSelected() {
         this.selectedIndex = options.length - 1;
     }
+
+    public void setPreviewIndex(int index) { this.previewIndex = index; }
 
     public void setWarning(String warning) {
         this.warningMessage = warning;

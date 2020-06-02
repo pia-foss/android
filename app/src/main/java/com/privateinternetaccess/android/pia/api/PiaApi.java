@@ -21,7 +21,7 @@ package com.privateinternetaccess.android.pia.api;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
@@ -281,7 +281,7 @@ public class PiaApi {
         INTERCEPTOR = interceptor;
     }
 
-    protected OkHttpClient getOkHttpClient(){
+    public OkHttpClient getOkHttpClient(){
         return OKHTTPCLIENT;
     }
 }

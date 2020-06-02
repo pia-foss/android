@@ -24,26 +24,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceCategory;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.preference.SwitchPreferenceCompat;
+import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceScreen;
+import androidx.preference.SwitchPreferenceCompat;
 import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.privateinternetaccess.android.BuildConfig;
@@ -87,8 +81,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     private PreferenceScreen pRemotePort;
     private Preference pDNS;
+    private Preference pProtocol;
     private int tvPosition;
     private int totalPref;
+
+    private String[] ovpnKeys = {
+            "useTCP", "portforwarding", "rport", "lport", "mssfix", "proxy_settings",
+            "useproxy", "blockipv6", "blockLocalLan", "encryption", "cipher", "auth",
+            "killswitch", "tlscipher", "vpn_log"};
+    private String[] wgKeys = {};
 
     private boolean reseting;
 
@@ -193,6 +194,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
         setupDNSSettings();
 
+        setupProtocolSettings();
+
         handleAndroidTVRemovals();
 
         handleDevMode();
@@ -216,6 +219,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 //        PreferenceCategory connectionCat = (PreferenceCategory) findPreference("connection_setting");
 //        if(pDNS != null)
 //            connectionCat.removePreference(pDNS);
+    }
+
+    private void setupProtocolSettings() {
+        pProtocol = findPreference("vpn_protocol");
+        SettingsFragmentHandler.setupProtocolDialog(pProtocol.getContext(), pProtocol, this);
+
+        setProtocolSummary();
     }
 
     private void setupProxyArea() {
@@ -423,11 +433,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
             if (secureWifi != null)
                 category.removePreference(secureWifi);
-
-            Preference cellular = findPreference("trustCellular");
-
-            if (cellular != null)
-                category.removePreference(cellular);
         }
 
         if(BuildConfig.FLAVOR_store.equals("playstore")){
@@ -587,6 +592,35 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         });
     }
 
+    public void setProtocolSummary() {
+        String[] protocols = getContext().getResources().getStringArray(R.array.protocol_options);
+        String activeProtocol = Prefs.with(getContext()).get(
+                PiaPrefHandler.VPN_PROTOCOL,
+                protocols[0]);
+
+        pProtocol.setSummary(activeProtocol);
+
+        boolean showOvpn = activeProtocol.equals(protocols[0]);
+
+        for (String key : ovpnKeys) {
+            Preference pref = findPreference(key);
+
+            if (pref != null) {
+                pref.setVisible(showOvpn);
+            }
+        }
+
+        for (String key : wgKeys) {
+            Preference pref = findPreference(key);
+
+            if (pref != null) {
+                pref.setVisible(!showOvpn);
+            }
+        }
+
+        pProtocol.setVisible(true);
+    }
+
     public void setDNSSummary(){
         String dnsSummary = getActivity().getString(R.string.auto_dns_setting_summary);
         String dns = Prefs.with(getActivity()).get(PiaPrefHandler.DNS, "");
@@ -699,7 +733,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             if (response.getTicketId() == null && response.getException() != null) {
                 Toast.makeText(context, getString(R.string.failure_sending_log, response.getException().getLocalizedMessage()), Toast.LENGTH_LONG).show();
             } else if (response.getException() == null){
-                android.support.v7.app.AlertDialog.Builder ab = new android.support.v7.app.AlertDialog.Builder(context);
+                androidx.appcompat.app.AlertDialog.Builder ab = new androidx.appcompat.app.AlertDialog.Builder(context);
                 ab.setTitle(R.string.log_send_done_title);
                 ab.setMessage(getString(R.string.log_send_done_msg, response.getTicketId()));
                 ab.setPositiveButton(getString(android.R.string.ok), null);
@@ -779,7 +813,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                     showOrbotDialog(context);
                 }
             }
-            if (showMessage && VpnStatus.isVPNActive()) {
+            if (showMessage && PIAFactory.getInstance().getVPN(context).isVPNActive()) {
                 Toaster.l(getActivity().getApplicationContext(), R.string.reconnect_vpn);
             }
         } else {

@@ -19,9 +19,9 @@
 package com.privateinternetaccess.android.ui.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.core.view.MotionEventCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,7 +30,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.WidgetManager;
 import com.privateinternetaccess.android.utils.drag.ItemTouchHelperAdapter;
 import com.privateinternetaccess.android.utils.drag.ItemTouchHelperViewHolder;

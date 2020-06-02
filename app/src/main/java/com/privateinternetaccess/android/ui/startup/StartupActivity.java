@@ -20,10 +20,11 @@ package com.privateinternetaccess.android.ui.startup;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -33,7 +34,6 @@ import android.widget.TextView;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.adapters.pager.StartupPager;
@@ -128,33 +128,36 @@ public class StartupActivity extends AppCompatActivity {
 
     private void setupPager() {
         List<StartupFragment> list = new ArrayList<>();
+
+
+
         list.add(StartupFragment.newInstance(getString(R.string.startup_support_title),
                 getString(R.string.startup_support_message),
                 R.drawable.ic_walkthrough_devices,
                 ContextCompat.getColor(getApplicationContext(), R.color.transparent),
-                ContextCompat.getColor(getApplicationContext(), R.color.textColorPrimary),
-                ContextCompat.getColor(getApplicationContext(), R.color.textColorSecondary)));
+                ContextCompat.getColor(getApplicationContext(), R.color.pia_text_dark_primary),
+                ContextCompat.getColor(getApplicationContext(), R.color.pia_text_dark_secondary)));
 
         list.add(StartupFragment.newInstance(getString(R.string.startup_region_title),
                 getString(R.string.startup_region_message),
                 R.drawable.ic_walkthrough_world,
                 ContextCompat.getColor(getApplicationContext(), R.color.transparent),
-                ContextCompat.getColor(getApplicationContext(), R.color.textColorPrimary),
-                ContextCompat.getColor(getApplicationContext(), R.color.textColorSecondary)));
+                ContextCompat.getColor(getApplicationContext(), R.color.pia_text_dark_primary),
+                ContextCompat.getColor(getApplicationContext(), R.color.pia_text_dark_secondary)));
 
         list.add(StartupFragment.newInstance(getString(R.string.startup_ads_title),
                 getString(R.string.startup_ads_message),
                 R.drawable.ic_walkthrough_protect,
                 ContextCompat.getColor(getApplicationContext(), R.color.transparent),
-                ContextCompat.getColor(getApplicationContext(), R.color.textColorPrimary),
-                ContextCompat.getColor(getApplicationContext(), R.color.textColorSecondary)));
+                ContextCompat.getColor(getApplicationContext(), R.color.pia_text_dark_primary),
+                ContextCompat.getColor(getApplicationContext(), R.color.pia_text_dark_secondary)));
 
         list.add(StartupFragment.newInstance(getString(R.string.startup_connection_title),
                 getString(R.string.startup_connection_message),
                 R.drawable.ic_walkthrough_per_app,
                 ContextCompat.getColor(getApplicationContext(), R.color.transparent),
-                ContextCompat.getColor(getApplicationContext(), R.color.textColorPrimary),
-                ContextCompat.getColor(getApplicationContext(), R.color.textColorSecondary)));
+                ContextCompat.getColor(getApplicationContext(), R.color.pia_text_dark_primary),
+                ContextCompat.getColor(getApplicationContext(), R.color.pia_text_dark_secondary)));
 
         viewPager = new StartupPager(getSupportFragmentManager(), list);
         pager.setAdapter(viewPager);

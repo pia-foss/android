@@ -34,6 +34,7 @@ public class PIAServer {
     private String name;
     private String iso;
     private Object dns;
+    private String wgHost;
     private String ping;
     private String tcpbest;
     private String udpbest;
@@ -55,6 +56,10 @@ public class PIAServer {
 //            "best": "198.8.80.54:500"
 //        },
 //        "serial": "528993c9148e23182cbf83de58aaadae"
+//        "wireguard": {
+//            "host":"107.181.189.80:1337",
+//            "serial":"b21ab1a2b7c1a2f0879b5d5e7dac09e8"
+//        }
 //    }
 
     public void parse(JSONObject json, String key){
@@ -71,6 +76,9 @@ public class PIAServer {
         JSONObject tcp = json.optJSONObject("openvpn_tcp");
         if(tcp != null)
             tcpbest = tcp.optString("best");
+        JSONObject wg = json.optJSONObject("wireguard");
+        if (wg != null)
+            wgHost = wg.optString("host");
         DLog.d("PIAServer",toString());
     }
 
@@ -85,6 +93,7 @@ public class PIAServer {
                 ", key='" + key + '\'' +
                 ", tlsRemote='" + tlsRemote + '\'' +
                 ", allowsPF=" + allowsPF +
+                ", wgHost=" + wgHost +
                 '}';
     }
 
@@ -135,6 +144,10 @@ public class PIAServer {
     public void setUdpbest(String udpbest) {
         this.udpbest = udpbest;
     }
+
+    public String getWgHost() { return wgHost; }
+
+    public void setWgHost(String host) { this.wgHost = host; }
 
     public String getKey() {
         return key;

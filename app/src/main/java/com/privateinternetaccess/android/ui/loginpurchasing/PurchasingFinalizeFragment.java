@@ -19,9 +19,9 @@
 package com.privateinternetaccess.android.ui.loginpurchasing;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.text.TextUtils;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,10 +31,6 @@ import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.subscription.InAppPurchasesHelper;
 import com.privateinternetaccess.android.pia.utils.DLog;
-
-import java.text.DecimalFormat;
-import java.util.Currency;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

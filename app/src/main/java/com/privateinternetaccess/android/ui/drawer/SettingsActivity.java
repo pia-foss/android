@@ -19,14 +19,12 @@
 package com.privateinternetaccess.android.ui.drawer;
 
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
+import androidx.fragment.app.Fragment;
+
 import android.view.KeyEvent;
 import android.view.MenuItem;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.ui.connection.MainActivity;

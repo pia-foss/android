@@ -59,6 +59,8 @@
         <item name="piax_edit_text_color">@color/white</item>
         <item name="piax_edit_underline_color">@color/grey15</item>
 
+        <item name="purchasing_finalize_background">@drawable/shape_rounded_border_grey55</item>
+
         <item name="grey20_white">@color/white</item>
 
         <item name="search_background">@color/grey15</item>

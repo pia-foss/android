@@ -23,13 +23,15 @@ import android.view.View;
 
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.utils.DLog;
-import com.privateinternetaccess.android.ui.tv.views.GraphView;
 import com.privateinternetaccess.android.ui.tv.views.IPPortView;
 import com.privateinternetaccess.android.ui.views.ConnectionSlider;
+import com.privateinternetaccess.android.ui.views.QuickConnectView;
 import com.privateinternetaccess.android.ui.views.QuickSettingsView;
 import com.privateinternetaccess.android.ui.views.ServerSelectionView;
 import com.privateinternetaccess.android.ui.views.SnoozeView;
+import com.privateinternetaccess.android.ui.views.UsageView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +42,10 @@ public class WidgetManager {
         WIDGET_SERVER,
         WIDGET_IP,
         WIDGET_PERFORMANCE,
+        WIDGET_SNOOZE,
         WIDGET_QUICK_SETTINGS,
-        WIDGET_SNOOZE
+        WIDGET_QUICK_CONNECT,
+        WIDGET_USAGE
     }
 
     private Context mContext;
@@ -64,8 +68,12 @@ public class WidgetManager {
                 return null;
             case WIDGET_QUICK_SETTINGS:
                 return new QuickSettingsView(context);
+            case WIDGET_QUICK_CONNECT:
+                return new QuickConnectView(context);
             case WIDGET_SNOOZE:
                 return new SnoozeView(context);
+            case WIDGET_USAGE:
+                return new UsageView(context);
             default:
                 return null;
         }
@@ -93,32 +101,50 @@ public class WidgetManager {
         return items;
     }
 
-    private void createDefaultList() {
-        widgetList.clear();
-        widgetList.add(new WidgetItem(WidgetType.WIDGET_CONNECTION, true));
-        widgetList.add(new WidgetItem(WidgetType.WIDGET_SERVER, true));
-        widgetList.add(new WidgetItem(WidgetType.WIDGET_IP, true));
-        widgetList.add(new WidgetItem(WidgetType.WIDGET_PERFORMANCE, true));
-        widgetList.add(new WidgetItem(WidgetType.WIDGET_QUICK_SETTINGS, true));
-        widgetList.add(new WidgetItem(WidgetType.WIDGET_SNOOZE, true));
+    private List<WidgetItem> createDefaultList() {
+        List<WidgetItem> defaultList = new ArrayList<>();;
+        defaultList.add(new WidgetItem(WidgetType.WIDGET_CONNECTION, true));
+        defaultList.add(new WidgetItem(WidgetType.WIDGET_SERVER, true));
+        defaultList.add(new WidgetItem(WidgetType.WIDGET_IP, true));
+        defaultList.add(new WidgetItem(WidgetType.WIDGET_PERFORMANCE, true));
+        defaultList.add(new WidgetItem(WidgetType.WIDGET_QUICK_SETTINGS, true));
+        defaultList.add(new WidgetItem(WidgetType.WIDGET_QUICK_CONNECT, true));
+        defaultList.add(new WidgetItem(WidgetType.WIDGET_SNOOZE, true));
+        defaultList.add(new WidgetItem(WidgetType.WIDGET_USAGE, true));
+
+        return defaultList;
     }
 
     private void getWidgets() {
         List<String> serializedItems = PiaPrefHandler.getWidgetOrder(mContext);
+        List<WidgetItem> defaultList = createDefaultList();
+        widgetList.clear();
 
         if (serializedItems.size() == 0) {
             DLog.d("Drag", "Prefs are empty");
-            createDefaultList();
+            widgetList.addAll(defaultList);
         }
         else {
             DLog.d("Drag", "Prefs size: " + serializedItems.size());
-            widgetList.clear();
 
             for (int i = 0; i < serializedItems.size(); i++) {
                 String[] fields = serializedItems.get(i).split(" ");
                 WidgetItem item = new WidgetItem(WidgetType.values()[Integer.parseInt(fields[0])], Boolean.parseBoolean(fields[1]));
 
                 widgetList.add(item);
+            }
+
+            for (WidgetItem item : defaultList) {
+                boolean itemExists = false;
+
+                for (WidgetItem oldItem : widgetList) {
+                    if (oldItem.widgetType == item.widgetType)
+                        itemExists = true;
+                }
+
+                if (!itemExists) {
+                    widgetList.add(item);
+                }
             }
         }
     }

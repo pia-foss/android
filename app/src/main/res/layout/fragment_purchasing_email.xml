@@ -31,7 +31,7 @@
         android:layout_margin="3dp"
         android:background="@color/windowBackground"
         >
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/fragment_trial_logo"
             android:layout_width="match_parent"
             android:layout_height="25dp"

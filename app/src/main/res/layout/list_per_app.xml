@@ -54,7 +54,7 @@
         style="@style/Style06"
         android:textAlignment="viewStart" />
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/list_allowed_app_selected"
         android:layout_marginStart="8dip"
         android:layout_gravity="center_vertical"

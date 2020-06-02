@@ -74,7 +74,7 @@ public interface IAccount {
     /**
      * deletes the user data
      */
-    void logout();
+    void logout(String token);
 
     /**
      * Grabs the last login response information

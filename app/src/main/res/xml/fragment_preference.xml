@@ -17,77 +17,86 @@
   ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<android.support.v7.preference.PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:key="preferenceScreen">
 
     <com.privateinternetaccess.android.ui.views.PIAPreferenceCategory
         android:key="connection_setting"
-        android:title="@string/preference_connection">
+        android:title="@string/preference_vpn_settings"
+        app:iconSpaceReserved="false">
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.PreferenceScreen
+            android:key="vpn_protocol"
+            android:title="@string/settings_protocol"
+            android:summary="@string/protocol_ovpn"
+            app:iconSpaceReserved="false"
+            />
+
+        <androidx.preference.SwitchPreferenceCompat
             android:key="useTCP"
             android:summaryOff="@string/use_udp_summary"
             android:summaryOn="@string/use_tcp_summary"
-            android:title="@string/use_tcp" />
+            android:title="@string/use_tcp"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="portforwarding"
             android:summary="@string/portforwarding_summary"
-            android:title="@string/portforwarding" />
+            android:title="@string/portforwarding"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="rport"
             android:summary="@string/rportsummary"
-            android:title="@string/remote_port" />
+            android:title="@string/remote_port"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="lport"
-            android:title="@string/local_port" />
+            android:title="@string/local_port"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="dns_pref"
             android:title="@string/dns_pref_header"
+            app:iconSpaceReserved="false"
             />
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="@bool/usemssfix"
             android:key="mssfix"
             android:summary="@string/usemssfix"
-            android:title="@string/mssfixsummary" />
+            android:title="@string/mssfixsummary"
+            app:iconSpaceReserved="false"/>
 
-        <PreferenceScreen
-            android:key="vpn_log"
-            android:title="@string/preference_vpn_log_title"
-            android:summary="@string/preference_vpn_log_summary"/>
-
-        <PreferenceScreen
-            android:key="developer_mode"
-            android:summary="Alter advanced configurations on the vpn"
-            android:title="Developer settings" />
 
     </com.privateinternetaccess.android.ui.views.PIAPreferenceCategory>
 
-    <android.support.v7.preference.PreferenceCategory
+    <androidx.preference.PreferenceCategory
         android:key="proxy_settings"
         android:title="@string/proxy_settings_title"
+        app:iconSpaceReserved="false"
         >
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="useproxy"
             android:title="@string/preference_connect_proxy"
-            android:summary="@string/preference_connect_proxy_summary"/>
+            android:summary="@string/preference_connect_proxy_summary"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="excluded_proxy_app"
             android:title="@string/preference_connect_proxy_app"
+            app:iconSpaceReserved="false"
             />
 
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:dependency="useproxy"
             android:key="proxyport"
-            android:title="@string/preference_proxy_port" />
+            android:title="@string/preference_proxy_port"
+            app:iconSpaceReserved="false"/>
 
         <!--<android.support.v7.preference.SwitchPreferenceCompat-->
             <!--android:key="proxyisorbot"-->
@@ -95,130 +104,154 @@
             <!--android:summary="@string/preference_orbot_summary"-->
             <!--/>-->
 
-    </android.support.v7.preference.PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-    <android.support.v7.preference.PreferenceCategory
+    <androidx.preference.PreferenceCategory
         android:key="blocking"
         android:orderingFromXml="false"
-        android:title="@string/preference_blocking">
+        android:title="@string/preference_blocking"
+        app:iconSpaceReserved="false">
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="pia_mace"
             android:summary="@string/settings_mace_summary"
-            android:title="@string/settings_mace" />
+            android:title="@string/settings_mace"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="killswitch"
             android:summary="@string/killswitchsummary"
-            android:title="@string/killswitch" />
+            android:title="@string/killswitch"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.Preference
+        <androidx.preference.Preference
             android:key="oreoalwayson"
             android:summary="@string/androidalwaysonsummary"
-            android:title="@string/androidalwayson" />
+            android:title="@string/androidalwayson"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="@bool/useblockipv6"
             android:key="blockipv6"
             android:summary="@string/blockipv6_summary"
-            android:title="@string/blockipv6" />
+            android:title="@string/blockipv6"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="blockLocalLan"
             android:summaryOff="@string/block_locallan_off"
             android:summaryOn="@string/block_locallan_on"
-            android:title="@string/block_locallan" />
+            android:title="@string/block_locallan"
+            app:iconSpaceReserved="false"/>
 
+    </androidx.preference.PreferenceCategory>
 
+    <com.privateinternetaccess.android.ui.views.PIAPreferenceCategory
+        android:key="encryption"
+        android:title="@string/preference_encryption"
+        app:iconSpaceReserved="false">
 
-    </android.support.v7.preference.PreferenceCategory>
-
-    <com.privateinternetaccess.android.ui.views.PIAPreferenceCategory android:title="@string/preference_encryption">
-
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="cipher"
-            android:title="@string/data_encyrption" />
+            android:title="@string/data_encyrption"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="auth"
-            android:title="@string/data_auth" />
+            android:title="@string/data_auth"
+            app:iconSpaceReserved="false"/>
 
 
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="tlscipher"
-            android:title="@string/handshake" />
+            android:title="@string/handshake"
+            app:iconSpaceReserved="false"/>
 
     </com.privateinternetaccess.android.ui.views.PIAPreferenceCategory>
 
     <com.privateinternetaccess.android.ui.views.PIAPreferenceCategory
         android:key="app_settings"
-        android:title="@string/preference_application_settings">
-        <android.support.v7.preference.SwitchPreferenceCompat
+        android:title="@string/preference_application_settings"
+        app:iconSpaceReserved="false">
+        <androidx.preference.SwitchPreferenceCompat
             android:key="autoconnect"
             android:summary="@string/connect_onstart"
-            android:title="@string/oneclickconnect"/>
-        <android.support.v7.preference.SwitchPreferenceCompat
+            android:title="@string/oneclickconnect"
+            app:iconSpaceReserved="false"/>
+        <androidx.preference.SwitchPreferenceCompat
             android:key="autostart"
             android:title="@string/connect_on_boot"
-            android:summary="@string/preference_connect_on_boot_summary" />
+            android:summary="@string/preference_connect_on_boot_summary"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="connectOnAppUpdated"
             android:title="@string/preference_app_update_title"
             android:summary="@string/preference_app_update_message"
-            android:defaultValue="false"/>
+            android:defaultValue="false"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.SwitchPreferenceCompat
-            android:key="trustCellular"
-            android:title="@string/trusted_cellular_title"
-            android:summary="@string/trusted_cellular_message"
-            android:defaultValue="false"/>
-
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="trustWifi"
             android:title="@string/trusted_wifi_title"
-            android:summary="@string/trusted_wifi_message" />
+            android:summary="@string/trusted_wifi_message"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="hapticFeedback"
             android:title="@string/preference_haptic_title"
             android:summary="@string/preference_haptic_feedback_summary"
-            android:defaultValue="true" />
+            android:defaultValue="true"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="darktheme"
             android:title="@string/preference_app_theme"
-            android:defaultValue="false" />
+            android:defaultValue="false"
+            app:iconSpaceReserved="false"/>
 
+        <PreferenceScreen
+            android:key="vpn_log"
+            android:title="@string/preference_vpn_log_title"
+            android:summary="@string/preference_vpn_log_summary"
+            app:iconSpaceReserved="false"/>
+
+        <PreferenceScreen
+            android:key="developer_mode"
+            android:summary="Alter advanced configurations on the vpn"
+            android:title="Developer settings"
+            app:iconSpaceReserved="false"/>
 
         <!--<android.support.v7.preference.PreferenceScreen-->
         <!--android:key="graphunit"-->
         <!--android:title="@string/preference_graph_unit"/>-->
 
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:title="@string/preferences_widget_title"
             android:summary="@string/preferences_widget_summary"
-            android:key="widgetConfiguration"></android.support.v7.preference.PreferenceScreen>
+            android:key="widgetConfiguration"
+            app:iconSpaceReserved="false"/>
 
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="resetToDefault"
-            android:title="@string/preference_reset_settings"/>
+            android:title="@string/preference_reset_settings"
+            app:iconSpaceReserved="false"/>
 
     </com.privateinternetaccess.android.ui.views.PIAPreferenceCategory>
 
     <com.privateinternetaccess.android.ui.views.PIAPreferenceCategory
         android:key="app_info_cat"
         android:title="@string/application_information">
-        <android.support.v7.preference.PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:title="@string/version"
-            android:key="version_info">
+            android:key="version_info"
+            app:iconSpaceReserved="false"/>
 
-        </android.support.v7.preference.PreferenceScreen>
-
-        <android.support.v7.preference.Preference
+        <androidx.preference.Preference
             android:title="@string/send_debug_log"
-            android:key="send_log" />
+            android:key="send_log"
+            app:iconSpaceReserved="false"/>
     </com.privateinternetaccess.android.ui.views.PIAPreferenceCategory>
-</android.support.v7.preference.PreferenceScreen>
+</androidx.preference.PreferenceScreen>

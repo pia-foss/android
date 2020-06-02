@@ -27,15 +27,14 @@ import android.net.Uri;
 import android.net.VpnService;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.api.AccountApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.model.LoginInfo;
@@ -49,8 +48,6 @@ import com.privateinternetaccess.android.ui.connection.VPNPermissionActivity;
 import com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity;
 import com.privateinternetaccess.android.ui.startup.StartupActivity;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
-
-import org.w3c.dom.Text;
 
 public class LauncherActivity extends AppCompatActivity {
 

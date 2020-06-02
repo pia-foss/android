@@ -29,18 +29,22 @@ import android.text.format.DateFormat;
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.exceptions.CustomExceptionHandler;
+import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.ReportingApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.model.events.ReportEvent;
 import com.privateinternetaccess.android.pia.model.response.ReportResponse;
+import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -70,12 +74,23 @@ public class VPNReportTask extends AsyncTask<String, Void, ReportResponse> {
         try {
             VpnStatus.logDebug("Requested support log");
             ReportingApi api = new ReportingApi(context);
-            return api.sendReport(new String[] {
+
+            if (VPNProtocol.activeProtocol(context) == VPNProtocol.Protocol.OpenVPN) {
+                return api.sendReport(new String[] {
                     getVersionString(context),
                     getConfigStr(context),
                     getUserSettings(context),
                     getLogStr(context),
                     CustomExceptionHandler.getStackTrace(context)});
+            }
+            else  {
+                return api.sendReport(new String[] {
+                        getVersionString(context),
+                        getConfigStr(context),
+                        getUserSettings(context),
+                        getWireguardReport(),
+                        CustomExceptionHandler.getStackTrace(context)});
+            }
         } catch (IOException ioe) {
             ioe.printStackTrace();
             return new ReportResponse(ioe);
@@ -92,6 +107,36 @@ public class VPNReportTask extends AsyncTask<String, Void, ReportResponse> {
         if(callback != null) {
             callback.apiReturn(reportResponse);
         }
+    }
+
+    String getWireguardReport() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        try {
+            final Process process = Runtime.getRuntime().exec(new String[]{
+                    "logcat", "-b", "all", "-d", "-v", "threadtime", "*:V"});
+            try (final BufferedReader stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                 final BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream())))
+            {
+                String line;
+                while ((line = stdout.readLine()) != null) {
+                    builder.append(line);
+                    builder.append(line + "\n");
+                }
+
+                stdout.close();
+                if (process.waitFor() != 0) {
+                    final StringBuilder errors = new StringBuilder();
+                    errors.append("Unable to run logcat:");
+                    while ((line = stderr.readLine()) != null)
+                        errors.append(line);
+                    throw new Exception(errors.toString());
+                }
+            }
+        } catch (final Exception e) {
+            throw e;
+        }
+
+        return builder.toString();
     }
 
     String getConfigStr(Context context) throws IOException {
@@ -126,6 +171,7 @@ public class VPNReportTask extends AsyncTask<String, Void, ReportResponse> {
         sb.append("Remote Port: " + prefs.get(PiaPrefHandler.RPORT, "auto")).append("\n");
         sb.append("Local Port: " + prefs.get(PiaPrefHandler.LPORT, "auto")).append("\n");
         sb.append("Use Small Packets: " + prefs.get(PiaPrefHandler.PACKET_SIZE, context.getResources().getBoolean(R.bool.usemssfix))).append("\n").append("\n");
+        sb.append("Protocol: " + (VPNProtocol.activeProtocol(context) == VPNProtocol.Protocol.OpenVPN ? "OpenVPN" : "WireGuard")).append("\n");
         sb.append("~~ Proxy Settings ~~").append("\n");
         sb.append("Proxy Enabled: " + prefs.get(PiaPrefHandler.PROXY_ENABLED, false)).append("\n");
         sb.append("Proxy App: " + prefs.get(PiaPrefHandler.PROXY_APP, "")).append("\n");

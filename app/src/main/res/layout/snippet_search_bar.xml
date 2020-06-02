@@ -24,7 +24,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/search_icon"
         android:layout_width="17dp"
         android:layout_height="17dp"
@@ -52,7 +52,7 @@
         android:inputType="text"
         android:hint="@string/search_region"/>
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/cancel_icon"
         android:layout_width="13dp"
         android:layout_height="13dp"

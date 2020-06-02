@@ -34,12 +34,14 @@ import com.privateinternetaccess.android.pia.model.response.PurchasingResponse;
 import com.privateinternetaccess.android.pia.model.response.TokenResponse;
 import com.privateinternetaccess.android.pia.model.response.TrialResponse;
 import com.privateinternetaccess.android.pia.model.response.UpdateEmailResponse;
+import com.privateinternetaccess.android.pia.tasks.ExpireTokenTask;
 import com.privateinternetaccess.android.pia.tasks.FetchAccountTask;
 import com.privateinternetaccess.android.pia.tasks.PurchasingTask;
 import com.privateinternetaccess.android.pia.tasks.RetryPurchasingTask;
 import com.privateinternetaccess.android.pia.tasks.TokenTask;
 import com.privateinternetaccess.android.pia.tasks.TrialCreationTask;
 import com.privateinternetaccess.android.pia.tasks.UpdateEmailTask;
+import com.privateinternetaccess.android.pia.utils.DLog;
 
 
 /**
@@ -80,7 +82,8 @@ public class AccountImpl implements IAccount {
     }
 
     @Override
-    public void logout() {
+    public void logout(String token) {
+        new ExpireTokenTask(context, null, token).execute();
         PiaPrefHandler.clearAccountInformation(context);
     }
 

@@ -18,9 +18,9 @@
 
 package com.privateinternetaccess.android.ui.adapters.pager;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.privateinternetaccess.android.ui.connection.ConnectFragment;
 import com.privateinternetaccess.android.ui.connection.GraphFragment;

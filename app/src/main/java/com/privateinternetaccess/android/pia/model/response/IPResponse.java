@@ -19,7 +19,7 @@
 package com.privateinternetaccess.android.pia.model.response;
 
 
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 
 /**
  * Created by hfrede on 8/18/17.

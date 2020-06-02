@@ -20,10 +20,10 @@ package com.privateinternetaccess.android.ui.connection;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,7 +52,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.VpnStatus;
 
 /**
  * Created by half47 on 3/14/17.
@@ -206,7 +205,7 @@ public class ConnectBottomFragment extends Fragment {
             public void run() {
                 DLog.d("ConnectBottom", "ip = " + event.getIp() + " searching = " + event.isSearching());
                 if (!TextUtils.isEmpty(event.getIp()) && !event.isSearching()) {
-                    if(!VpnStatus.isVPNActive()){
+                    if(!PIAFactory.getInstance().getVPN(getContext()).isVPNActive()){
                         normalIP = event.getIp();
                     }
                     tvIP.setText(event.getIp());
@@ -217,7 +216,7 @@ public class ConnectBottomFragment extends Fragment {
                     tvIP.setText("");
                     tvIP.setVisibility(View.INVISIBLE);
                 } else if (TextUtils.isEmpty(event.getIp()) && !event.isSearching()) {
-                    if (!VpnStatus.isVPNActive()) {
+                    if (!PIAFactory.getInstance().getVPN(getContext()).isVPNActive()) {
                         tvIP.setText("");
                         tvIP.setVisibility(View.INVISIBLE);
                     }
@@ -259,7 +258,7 @@ public class ConnectBottomFragment extends Fragment {
                             aPort.setVisibility(View.INVISIBLE);
                         tvPort.setText("");
                     } else {
-                        if (VpnStatus.isVPNActive()) {
+                        if (PIAFactory.getInstance().getVPN(getContext()).isVPNActive()) {
                             tvPort.setText(event.getArg());
                             if (isLargerScreen())
                                 aPort.setVisibility(View.VISIBLE);
@@ -281,7 +280,7 @@ public class ConnectBottomFragment extends Fragment {
     }
 
     public void setRegionDisplay() {
-        if (PIAServerHandler.getInstance(getActivity()).isSelectedRegionAuto(tvServer.getContext()) && VpnStatus.isVPNActive()) {
+        if (PIAServerHandler.getInstance(getActivity()).isSelectedRegionAuto(tvServer.getContext()) && PIAFactory.getInstance().getVPN(getContext()).isVPNActive()) {
             PIAServer currentServer = PIAVpnStatus.getLastConnectedRegion();
             VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
             if (!(event.getLevel() == ConnectionStatus.LEVEL_NOTCONNECTED ||

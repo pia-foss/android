@@ -104,6 +104,31 @@
             style="@style/Style06"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@string/wireguard_title"
+            android:textColor="?attr/grey20_white"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/about_wireguard_text"
+        style="@style/Style11"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/wireguard_copyright"
+        android:textColor="@color/grey55"/>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/about_difference_group" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/Style06"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="@string/lzo"
             android:textColor="?attr/grey20_white"/>
 
@@ -209,7 +234,7 @@
             android:text="@string/full_licenses"
             android:textColor="?attr/grey20_white"/>
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/about_full_collapse"
             android:layout_width="15dp"
             android:layout_height="15dp"

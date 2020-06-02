@@ -19,14 +19,14 @@
 package com.privateinternetaccess.android.ui.drawer;
 
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.model.events.InviteEvent;
-import com.privateinternetaccess.android.pia.model.response.InviteResponse;
 import com.privateinternetaccess.android.pia.model.response.InvitesResponse;
 import com.privateinternetaccess.android.ui.adapters.InviteListAdapter;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;

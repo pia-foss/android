@@ -33,8 +33,8 @@ import java.util.Set;
  */
 public class Prefs {
 
-    private SharedPreferences preferences;
-
+    private MultiPreferences preferences;
+    private SharedPreferences oldPreferences;
 
 
     /**
@@ -53,7 +53,8 @@ public class Prefs {
     }
 
     private void setUp(Context context, String fileName){
-        preferences = context.getSharedPreferences(fileName, 0);
+        preferences = new MultiPreferences(fileName, context.getContentResolver());
+        oldPreferences = context.getSharedPreferences(fileName, 0);
     }
 
     /**
@@ -77,9 +78,7 @@ public class Prefs {
      *
      */
     public void remove(String key){
-        SharedPreferences.Editor edit = preferences.edit();
-        edit.remove(key);
-        edit.apply();
+        preferences.removePreference(key);
     }
 
     // getters with defaults
@@ -101,7 +100,7 @@ public class Prefs {
     }
 
     public Set<String> get(String key, Set<String> defaultValue){
-        return preferences.getStringSet(key, defaultValue);
+        return oldPreferences.getStringSet(key, defaultValue);
     }
 
     // quick getters
@@ -150,31 +149,23 @@ public class Prefs {
     // Setters
 
     public void set(String key, String value){
-        SharedPreferences.Editor edit = preferences.edit();
-        edit.putString(key, value);
-        edit.apply();
+        preferences.setString(key, value);
     }
 
     public void set(String key, boolean value){
-        SharedPreferences.Editor edit = preferences.edit();
-        edit.putBoolean(key, value);
-        edit.apply();
+        preferences.setBoolean(key, value);
     }
 
     public void set(String key, int value){
-        SharedPreferences.Editor edit = preferences.edit();
-        edit.putInt(key, value);
-        edit.apply();
+        preferences.setInt(key, value);
     }
 
     public void set(String key, long value){
-        SharedPreferences.Editor edit = preferences.edit();
-        edit.putLong(key, value);
-        edit.apply();
+        preferences.setLong(key, value);
     }
 
     public void set(String key, Set<String> value){
-        SharedPreferences.Editor edit = preferences.edit();
+        SharedPreferences.Editor edit = oldPreferences.edit();
         edit.putStringSet(key, value);
         edit.apply();
     }

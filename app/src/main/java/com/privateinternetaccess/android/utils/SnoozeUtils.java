@@ -22,7 +22,11 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Handler;
 
+import com.privateinternetaccess.android.PIAApplication;
+import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.events.SnoozeEvent;
@@ -35,6 +39,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import de.blinkt.openvpn.core.VpnStatus;
+
+import static android.os.Looper.getMainLooper;
 
 public class SnoozeUtils {
     private static final int SNOOZE_REQUEST_CODE = 24;
@@ -55,9 +61,6 @@ public class SnoozeUtils {
     }
 
     public static boolean hasActiveAlarm(Context context) {
-        DLog.d("SnoozeUtils", "Last snooze: " + Long.toString(PiaPrefHandler.getLastSnoozeTime(context)));
-        DLog.d("SnoozeUtils", "Current time: " + Long.toString(System.currentTimeMillis()));
-
         if (PiaPrefHandler.getLastSnoozeTime(context) < System.currentTimeMillis()) {
             return false;
         }
@@ -70,7 +73,12 @@ public class SnoozeUtils {
         Intent intent = new Intent(context, OnSnoozeReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, SNOOZE_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        alarmManager.set(AlarmManager.RTC, time, pendingIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC, time, pendingIntent);
+        }
+        else {
+            alarmManager.set(AlarmManager.RTC, time, pendingIntent);
+        }
 
         PiaPrefHandler.setLastSnoozeTime(context, time);
 
@@ -88,8 +96,8 @@ public class SnoozeUtils {
 
         PiaPrefHandler.setLastSnoozeTime(context, 0);
 
-        if(!VpnStatus.isVPNActive() && forceStart) {
-            PIAFactory.getInstance().getVPN(context).start();
+        if(!PIAFactory.getInstance().getVPN(context).isVPNActive() && forceStart) {
+            new Handler(getMainLooper()).post(() -> PIAFactory.getInstance().getVPN(context).start());
         }
 
         EventBus.getDefault().post(new SnoozeEvent(true));

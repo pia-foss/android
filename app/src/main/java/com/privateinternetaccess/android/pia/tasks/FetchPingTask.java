@@ -111,7 +111,11 @@ public class FetchPingTask extends AsyncTask<String, Void, PingResponse> {
                 before = System.currentTimeMillis();
                 s.setSoTimeout(3000); // 3s
                 s.send(pingPacket);
-                s.receive(pingPacket);
+                try {
+                    s.receive(pingPacket);
+                } catch (IOException e) {
+                    DLog.d(TAG, "Pinging server " + address + " failed: " + e.getMessage());
+                }
                 after = System.currentTimeMillis();
                 lat = after - before;
             } else {
@@ -133,9 +137,7 @@ public class FetchPingTask extends AsyncTask<String, Void, PingResponse> {
         } catch (IOException e) {
             DLog.d(TAG, "Pinging " + p + " server " + address + " failed:" + e.getMessage());
             e.printStackTrace();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e){
+        } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }
         return lat;

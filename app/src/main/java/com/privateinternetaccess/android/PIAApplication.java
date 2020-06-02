@@ -31,9 +31,13 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatDelegate;
+import android.os.Handler;
+import android.os.Looper;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatDelegate;
 import android.text.TextUtils;
 
 import com.privateinternetaccess.android.model.exceptions.CustomExceptionHandler;
@@ -43,6 +47,7 @@ import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.SubscriptionHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
+import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.subscription.Base64DecoderException;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.PasswordObfuscation;
@@ -53,8 +58,15 @@ import com.privateinternetaccess.android.receivers.OnNetworkChangeReceiver;
 import com.privateinternetaccess.android.tunnel.PIANotifications;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
+import com.privateinternetaccess.android.wireguard.backend.Backend;
+import com.privateinternetaccess.android.wireguard.backend.GoBackend;
+import com.privateinternetaccess.android.wireguard.model.Tunnel;
+import com.privateinternetaccess.android.wireguard.model.TunnelManager;
+import com.privateinternetaccess.android.wireguard.backend.GoBackend.GhettoCompletableFuture;
+import com.privateinternetaccess.android.wireguard.util.AsyncWorker;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.List;
@@ -78,6 +90,48 @@ public class PIAApplication extends Application {
     public static final String HAS_RESET_ALLOWED_APPS = "hasResetAllowedApps3";
     public static final String UPDATE_DIALOG_VERSION = "update_dialog_version";
     public static final String HAS_RESET_MACE_GOOGLE = "hasResetMaceGoogle";
+
+    public static Tunnel wireguardTunnel = null;
+    public static PIAServer wireguardServer = null;
+
+    public static GoBackend getWireguard() {
+        return getBackend();
+    }
+
+    @SuppressWarnings("NullableProblems") private static WeakReference<PIAApplication> weakSelf;
+    private final GhettoCompletableFuture<Backend> futureBackend = new GhettoCompletableFuture<>();
+    @SuppressWarnings("NullableProblems") private AsyncWorker asyncWorker;
+    @Nullable static private GoBackend backend;
+    @SuppressWarnings("NullableProblems") private SharedPreferences sharedPreferences;
+    @SuppressWarnings("NullableProblems") private TunnelManager tunnelManager;
+
+    public static PIAApplication get() {
+        return weakSelf.get();
+    }
+
+    public static AsyncWorker getAsyncWorker() {
+        return get().asyncWorker;
+    }
+
+    public static GoBackend getBackend() {
+        final PIAApplication app = get();
+        synchronized (app.futureBackend) {
+            if (app.backend == null) {
+                GoBackend backend;
+                backend = new GoBackend(app.getApplicationContext());
+                app.backend = backend;
+            }
+            return app.backend;
+        }
+    }
+
+    public static TunnelManager getTunnelManager() {
+        return get().tunnelManager;
+    }
+
+    public static SharedPreferences getSharedPreferences() {
+        return get().sharedPreferences;
+    }
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -107,9 +161,15 @@ public class PIAApplication extends Application {
 
     public static final String TAG = "PIAApplication";
 
+    public PIAApplication() {
+        weakSelf = new WeakReference<>(this);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        asyncWorker = new AsyncWorker(AsyncTask.SERIAL_EXECUTOR, new Handler(Looper.getMainLooper()));
 
         CustomExceptionHandler crashHandler = new CustomExceptionHandler(getApplicationContext().getFilesDir().getAbsolutePath(),"");
         crashHandler.setDefaultUEH(Thread.getDefaultUncaughtExceptionHandler());

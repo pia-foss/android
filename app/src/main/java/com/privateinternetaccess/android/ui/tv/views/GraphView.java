@@ -21,8 +21,8 @@ package com.privateinternetaccess.android.ui.tv.views;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -43,7 +43,6 @@ import com.privateinternetaccess.android.model.events.VPNTrafficDataPointEvent;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.connection.GraphFragmentHandler;
 
 import org.greenrobot.eventbus.EventBus;

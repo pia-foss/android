@@ -22,14 +22,20 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatImageView;
+import android.net.Uri;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
@@ -42,12 +48,13 @@ import butterknife.OnClick;
 
 public class QuickSettingsView extends FrameLayout {
 
-    @BindView(R.id.quick_settings_theme_image) AppCompatImageView ivActiveTheme;
-    @BindView(R.id.quick_settings_kill_switch_image) AppCompatImageView ivKillSwitch;
-    @BindView(R.id.quick_settings_network_image) AppCompatImageView ivNetwork;
+    public enum QuickSettings {
+        SETTING_KILL_SWITCH,
+        SETTING_NETWORK,
+        SETTING_BROWSER
+    }
 
-    @BindView(R.id.quick_settings_kill_switch_layout) LinearLayout lKillSwitch;
-    @BindView(R.id.quick_settings_network_layout) LinearLayout lNetwork;
+    @BindView(R.id.quick_settings_icons_layout) LinearLayout lIcons;
 
     public QuickSettingsView(Context context) {
         super(context);
@@ -75,7 +82,32 @@ public class QuickSettingsView extends FrameLayout {
         setupStates();
     }
 
-    @OnClick(R.id.quick_settings_kill_switch_layout)
+    @OnClick(R.id.quick_settings_layout)
+    public void onTileClicked() {
+        Intent i = new Intent(getContext(), QuickSettingsSettings.class);
+        getContext().startActivity(i);
+    }
+
+    public void onBrowserClicked() {
+        Intent launchIntent = getContext().getPackageManager().getLaunchIntentForPackage("nu.tommie.inbrowser");
+        if (launchIntent != null) {
+            String url = "https://www.privateinternetaccess.com";
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            launchIntent.setData(Uri.parse(url));
+            getContext().startActivity(launchIntent);
+        }
+        else {
+            launchIntent = new Intent(Intent.ACTION_VIEW);
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            launchIntent.setData(Uri.parse("market://details?id=" + "nu.tommie.inbrowser"));
+
+						//silently fail if Google Play Store isn't installed.
+						if (launchIntent.resolveActivity(getContext().getPackageManager()) != null) {
+							getContext().startActivity(launchIntent);
+						}
+        }
+    }
+
     public void onKillSwitchClicked() {
         boolean killswitch = PiaPrefHandler.isKillswitchEnabled(getContext());
 
@@ -94,7 +126,6 @@ public class QuickSettingsView extends FrameLayout {
         setupStates();
     }
 
-    @OnClick(R.id.quick_settings_network_layout)
     public void onNetworkClicked() {
         boolean networking = PiaPrefHandler.shouldConnectOnWifi(getContext());
 
@@ -117,18 +148,77 @@ public class QuickSettingsView extends FrameLayout {
     }
 
     private void setupStates() {
-        if (PiaPrefHandler.isKillswitchEnabled(getContext())) {
-            ivKillSwitch.setImageResource(R.drawable.ic_kill_switch_active);
-        }
-        else {
-            ivKillSwitch.setImageResource(R.drawable.ic_kill_switch_inactive);
+        lIcons.removeAllViews();
+
+        if (PiaPrefHandler.getQuickSettingsKillswitch(getContext()) &&
+                VPNProtocol.activeProtocol(getContext()) == VPNProtocol.Protocol.OpenVPN) {
+            View view = getView(QuickSettings.SETTING_KILL_SWITCH,
+                    PiaPrefHandler.isKillswitchEnabled(getContext()));
+            lIcons.addView(view);
+
+            view.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onKillSwitchClicked();
+                }
+            });
         }
 
-        if (PiaPrefHandler.shouldConnectOnWifi(getContext())) {
-            ivNetwork.setImageResource(R.drawable.ic_network_management_active);
+        if (PiaPrefHandler.getQuickSettingsNetwork(getContext())) {
+            View view = getView(QuickSettings.SETTING_NETWORK,
+                    PiaPrefHandler.shouldConnectOnWifi(getContext()));
+            lIcons.addView(view);
+
+            view.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onNetworkClicked();
+                }
+            });
         }
-        else {
-            ivNetwork.setImageResource(R.drawable.ic_network_management_inactive);
+
+        if (PiaPrefHandler.getQuickSettingsPrivateBrowser(getContext())) {
+            View view = getView(QuickSettings.SETTING_BROWSER, false);
+            lIcons.addView(view);
+
+            view.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onBrowserClicked();
+                }
+            });
         }
+    }
+
+    private View getView(QuickSettings viewType, boolean isActive) {
+        LinearLayout view = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.view_quick_settings_icon, null);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.weight = 1;
+
+        view.setLayoutParams(lp);
+
+        TextView iconText = view.findViewById(R.id.quick_settings_icon_text);
+        AppCompatImageView iconImage = view.findViewById(R.id.quick_settings_icon_image);
+
+        switch(viewType) {
+            case SETTING_BROWSER:
+                iconImage.setImageResource(R.drawable.ic_private_browser);
+                iconText.setText(R.string.quick_settings_private_browser);
+                break;
+            case SETTING_NETWORK:
+                iconImage.setImageResource(isActive ? R.drawable.ic_network_management_active :
+                        R.drawable.ic_network_management_inactive);
+                iconText.setText(R.string.quick_settings_network_toggle);
+                break;
+            case SETTING_KILL_SWITCH:
+                iconImage.setImageResource(isActive ? R.drawable.ic_kill_switch_active :
+                        R.drawable.ic_kill_switch_inactive);
+                iconText.setText(R.string.killswitch);
+                break;
+        }
+
+        iconText.setVisibility(View.VISIBLE);
+
+        return view;
     }
 }
