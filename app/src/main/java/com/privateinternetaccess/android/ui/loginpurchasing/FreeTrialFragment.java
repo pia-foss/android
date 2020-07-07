@@ -18,21 +18,26 @@
 
 package com.privateinternetaccess.android.ui.loginpurchasing;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.PricingLoadedEvent;
 import com.privateinternetaccess.android.pia.subscription.InAppPurchasesHelper;
+import com.privateinternetaccess.android.ui.features.WebviewActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -47,6 +52,8 @@ public class FreeTrialFragment extends Fragment {
 
     @BindView(R.id.fragment_trial_cost) TextView tvCost;
     @BindView(R.id.fragment_trial_terms) TextView tvToS;
+
+    private boolean pricesLoaded = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -72,11 +79,28 @@ public class FreeTrialFragment extends Fragment {
 
     @OnClick(R.id.fragment_trial_start)
     public void startSubscriptionClicked() {
-        ((LoginPurchaseActivity) getActivity()).onContinuePurchasingClicked(InAppPurchasesHelper.getYearlySubscriptionId());
+        LoginPurchaseActivity loginPurchaseActivity = (LoginPurchaseActivity) getActivity();
+        if (!BuildConfig.FLAVOR_store.equals("playstore")) {
+            loginPurchaseActivity.navigateToBuyVpnSite();
+            return;
+        }
+
+        if (!pricesLoaded) {
+            ((LoginPurchaseActivity) getActivity()).showConnectionError();
+        }
+        else {
+            ((LoginPurchaseActivity) getActivity()).onContinuePurchasingClicked(InAppPurchasesHelper.getYearlySubscriptionId());
+        }
     }
 
     @OnClick(R.id.fragment_trial_see_all)
     public void seeAllClicked() {
+        LoginPurchaseActivity loginPurchaseActivity = (LoginPurchaseActivity) getActivity();
+        if (!BuildConfig.FLAVOR_store.equals("playstore")) {
+            loginPurchaseActivity.navigateToBuyVpnSite();
+            return;
+        }
+
         ((LoginPurchaseActivity) getActivity()).switchToPurchasing();
     }
 
@@ -85,7 +109,7 @@ public class FreeTrialFragment extends Fragment {
         setUpCosts(event.yearlyCost);
     }
 
-    public void setUpCosts(String yearly){
+    private void setUpCosts(String yearly){
         String costText = String.format(getString(R.string.free_trial_cost), yearly);
         String[] splitCost = costText.split(Pattern.quote(yearly));
 
@@ -95,5 +119,12 @@ public class FreeTrialFragment extends Fragment {
         spanText.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.trial_bold)),
                 costStart, costStart + yearly.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvCost.setText(spanText);
+
+        if(!TextUtils.isEmpty(yearly)){
+            pricesLoaded = true;
+        }
+        else {
+            pricesLoaded = false;
+        }
     }
 }

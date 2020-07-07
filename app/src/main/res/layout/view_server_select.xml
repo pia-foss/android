@@ -59,11 +59,27 @@
 
     </LinearLayout>
 
+    <ProgressBar
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/connect_server_list_progress_bar"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        />
+
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="120dp"
         android:layout_height="60dp"
-        android:layout_alignParentRight="true"
         android:scaleType="fitXY"
+        android:layout_alignParentRight="true"
         app:srcCompat="@drawable/map_full"/>
+
+    <com.privateinternetaccess.android.ui.views.RegionMapView
+        android:id="@+id/fragment_connect_server_map"
+        android:layout_width="120dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true" >
+
+    </com.privateinternetaccess.android.ui.views.RegionMapView>
 
 </RelativeLayout>

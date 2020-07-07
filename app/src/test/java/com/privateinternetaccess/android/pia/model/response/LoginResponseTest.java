@@ -24,10 +24,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
 
 public class LoginResponseTest {
-
 
     @Test
     public void creationTest(){
@@ -40,9 +38,8 @@ public class LoginResponseTest {
         try {
             JSONObject object = new JSONObject("");
             response.parse(object);
-        } catch (JSONException e) {
-        }
-        Assert.assertTrue(response.getEmail() == null);
+        } catch (JSONException e) {  }
+        Assert.assertNull(response.getEmail());
     }
 
     @Test
@@ -52,8 +49,9 @@ public class LoginResponseTest {
             JSONObject object = new JSONObject("{\"email\": \"dev@londontrustmedia.com\"}");
             response.parse(object);
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
         }
-        Assert.assertTrue(response.getEmail().equals("dev@londontrustmedia.com"));
+        Assert.assertEquals("dev@londontrustmedia.com", response.getEmail());
     }
 
     @Test
@@ -63,6 +61,7 @@ public class LoginResponseTest {
             JSONObject object = new JSONObject("{\"expired\": false}");
             response.parse(object);
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
         }
         Assert.assertFalse(response.isExpired());
     }

@@ -18,7 +18,7 @@
 
 package com.privateinternetaccess.android.pia.api;
 
-import android.test.mock.MockContext;
+import android.content.Context;
 
 import com.privateinternetaccess.android.pia.model.response.IPResponse;
 
@@ -27,7 +27,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -36,16 +35,14 @@ import okhttp3.mock.MockInterceptor;
 import okhttp3.mock.Rule;
 
 import static okhttp3.mock.MediaTypes.MEDIATYPE_JSON;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IpApiTest {
 
-    IpApi api;
-
-    @Mock
-    MockContext context;
-
     MockInterceptor interceptor;
+    Context context;
+    IpApi api;
 
     @Before
     public void setUp() throws Exception {
@@ -53,6 +50,7 @@ public class IpApiTest {
         interceptor = new MockInterceptor();
         PiaApi.setInterceptor(interceptor);
 
+        context = mock(Context.class);
         api = new IpApi(context);
     }
 
@@ -64,7 +62,7 @@ public class IpApiTest {
                 .respond(401));
 
         IPResponse response = api.getIPAddress();
-        Assert.assertTrue(response == null);
+        Assert.assertNull(response);
     }
 
     @Test
@@ -77,7 +75,7 @@ public class IpApiTest {
                 .body(ResponseBody.create(MEDIATYPE_JSON, "{}")));
 
         IPResponse response = api.getIPAddress();
-        Assert.assertTrue(response.getPair() != null);
+        Assert.assertNotNull(response.getPair());
     }
 
     @Test
@@ -90,7 +88,7 @@ public class IpApiTest {
                 .body(ResponseBody.create(MEDIATYPE_JSON, "{\"connected\": true, \"ip\": \"0.0.0.0\"}")));
 
         IPResponse response = api.getIPAddress();
-        Assert.assertTrue(response != null);
+        Assert.assertNotNull(response);
     }
 
     @Test
@@ -104,7 +102,7 @@ public class IpApiTest {
 
         IPResponse response = api.getIPAddress();
         Assert.assertTrue(response.getPair().first);
-        Assert.assertTrue(response.getPair().second.equals("0.0.0.0"));
+        Assert.assertEquals("0.0.0.0", response.getPair().second);
     }
 
     @Test
@@ -118,7 +116,7 @@ public class IpApiTest {
 
         IPResponse response = api.getIPAddress();
         Assert.assertFalse(response.getPair().first);
-        Assert.assertTrue(response.getPair().second.equals("0.0.0.1"));
+        Assert.assertEquals("0.0.0.1", response.getPair().second);
     }
 
     @After

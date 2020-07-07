@@ -26,16 +26,20 @@ import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.ServerClickedEvent;
+import com.privateinternetaccess.android.model.events.SeverListUpdateEvent;
+import com.privateinternetaccess.android.model.events.SeverListUpdateEvent.ServerListUpdateState;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
+import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.drawer.ServerListActivity;
+import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -49,6 +53,8 @@ public class ServerSelectionView extends FrameLayout {
 
     @BindView(R.id.fragment_connect_flag_area) View aServer;
     @BindView(R.id.fragment_connect_server_name) TextView tvServer;
+    @BindView(R.id.connect_server_list_progress_bar) View progressBar;
+    @BindView(R.id.fragment_connect_server_map) RegionMapView mapView;
 
     public ServerSelectionView(Context context) {
         super(context);
@@ -74,7 +80,7 @@ public class ServerSelectionView extends FrameLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         EventBus.getDefault().register(this);
-
+        updateUiForFetchingState(PIAServerHandler.getServerListFetchState());
         aServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,7 +111,7 @@ public class ServerSelectionView extends FrameLayout {
                     event.getLevel() == ConnectionStatus.LEVEL_AUTH_FAILED) && currentServer != null) {
                 String name = currentServer.getName();
                 tvServer.setText(getContext().getString(R.string.automatic_server_selection_main_region, name));
-
+                mapView.setServer(name);
             } else {
                 setServerName();
             }
@@ -123,6 +129,7 @@ public class ServerSelectionView extends FrameLayout {
             name = selectedServer.getName();
         }
         tvServer.setText(name);
+        mapView.setServer(name);
     }
 
     private Activity getActivity() {
@@ -139,5 +146,24 @@ public class ServerSelectionView extends FrameLayout {
     @Subscribe
     public void serverSelected(ServerClickedEvent event) {
         setServerName();
+    }
+
+    @Subscribe
+    public void serverListUpdateEvent(SeverListUpdateEvent event) {
+        updateUiForFetchingState(event.getState());
+    }
+
+    private void updateUiForFetchingState(ServerListUpdateState state) {
+        switch (state) {
+            case STARTED:
+                aServer.setEnabled(false);
+                progressBar.setVisibility(VISIBLE);
+                break;
+            case FETCH_SERVERS_FINISHED:
+            case GEN4_PING_SERVERS_FINISHED:
+                aServer.setEnabled(true);
+                progressBar.setVisibility(GONE);
+                break;
+        }
     }
 }

@@ -22,6 +22,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -29,8 +30,6 @@ import android.widget.ProgressBar;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.wireguard.backend.GoBackend;
 
@@ -54,6 +53,9 @@ public class ConnectionSlider extends FrameLayout {
     @Nullable @BindView(R.id.connect_progress) ProgressBar progressBar;
 
     private boolean isScaled = false;
+
+    private static final long TAP_DELAY = 750;
+    private long lastTap = 0L;
 
     public ConnectionSlider(Context context) {
         super(context);
@@ -101,44 +103,49 @@ public class ConnectionSlider extends FrameLayout {
     }
 
     private void toggleVPN() {
+        if (lastTap + TAP_DELAY > System.currentTimeMillis()) {
+            return;
+        }
+
+        lastTap = System.currentTimeMillis();
+
         if(!PIAFactory.getInstance().getVPN(getContext()).isVPNActive()) {
-            PIAFactory.getInstance().getVPN(getContext()).start();
+            PIAFactory.getInstance().getVPN(getContext()).start(true);
         } else {
-            PIAFactory.getInstance().getVPN(getContext()).stop();
+            PIAFactory.getInstance().getVPN(getContext()).stop(true);
         }
     }
 
     public void updateState(){
-        VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
-        ConnectionStatus status = event.getLevel();
-
-        if (status == ConnectionStatus.LEVEL_CONNECTED) {
-            background.setImageDrawable(getResources().getDrawable(R.drawable.ic_connection_on));
-        } else if (status == ConnectionStatus.LEVEL_NOTCONNECTED || status == null) {
-            background.setImageDrawable(getResources().getDrawable(R.drawable.ic_connection_off));
-        } else if (status == ConnectionStatus.LEVEL_AUTH_FAILED ||
-                status == ConnectionStatus.LEVEL_NONETWORK) {
-            background.setImageDrawable(getResources().getDrawable(R.drawable.ic_connection_error));
-        }
-        else {
-            background.setImageDrawable(getResources().getDrawable(R.drawable.ic_connection_connecting));
-        }
-        Context context = getContext();
-
-        int lastStateResId = event.getLocalizedResId();
-        if (lastStateResId != 0) {
-            if (lastStateResId == de.blinkt.openvpn.R.string.state_waitconnectretry) {
-
-            }
-            else if (event.getLevel() == ConnectionStatus.LEVEL_CONNECTED){
-                PIAServer server = PIAServerHandler.getInstance(context).getSelectedRegion(context, false);
-                StringBuilder sb = new StringBuilder();
-                sb.append(context.getString(R.string.state_connected));
-                sb.append(": ");
-                sb.append(server.getName());
-            } else {
-
-            }
+        ConnectionStatus status =
+                EventBus.getDefault().getStickyEvent(VpnStateEvent.class).getLevel();
+        switch (status) {
+            case LEVEL_CONNECTED:
+                background.setImageDrawable(
+                        getResources().getDrawable(R.drawable.ic_connection_on)
+                );
+                break;
+            case LEVEL_NOTCONNECTED:
+                background.setImageDrawable(
+                        getResources().getDrawable(R.drawable.ic_connection_off)
+                );
+                break;
+            case LEVEL_NONETWORK:
+            case LEVEL_AUTH_FAILED:
+                background.setImageDrawable(
+                        getResources().getDrawable(R.drawable.ic_connection_error)
+                );
+                break;
+            case LEVEL_VPNPAUSED:
+            case UNKNOWN_LEVEL:
+            case LEVEL_WAITING_FOR_USER_INPUT:
+            case LEVEL_START:
+            case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
+            case LEVEL_CONNECTING_SERVER_REPLIED:
+                background.setImageDrawable(
+                        getResources().getDrawable(R.drawable.ic_connection_connecting)
+                );
+                break;
         }
     }
 

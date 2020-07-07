@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[Portnummer skal være mellem 1024 og 65535]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[Port mellem 1024 og 65535]]></string>
-    <string name="startup_support_title">Understøt 5 enheder på en gang</string>
-    <string name="startup_support_message">Beskyt dig selv på op til 5 enheder ad gangen.</string>
     <string name="startup_region_title">Forbind nemt til en hvilken som helst region</string>
     <string name="startup_region_message">Med servere rundt om i verden er du altid beskyttet.</string>
     <string name="startup_ads_title">Beskyt dig mod annoncer</string>
@@ -245,7 +243,8 @@
     <string name="done">UDFØRT</string>
     <string name="update_account">OPDATER KONTO</string>
     <string name="local_port_titla">Lokal port</string>
-    <string name="preference_application_settings">APPLIKATIONSINDSTILLINGER</string>
+    <string name="preference_application_settings">GENERELLE INDSTILLINGER</string>
+    <string name="preference_vpn_settings">VPN-INDSTILLINGER</string>
     <string name="preference_haptic_title">Haptisk feedback på forbindelse</string>
     <string name="preference_dialog_graph_title">Vælg måleenhed for grafen</string>
     <string name="preference_connect_on_boot_summary">Opret forbindelse ved systemstart</string>
@@ -339,10 +338,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">Generelle begivenheder og meddelelser</string>
     <string name="tv_startup_press_right">TRYK TIL HØJRE</string>
-    <string name="androidalwayson">Android VPN altid til</string>
-    <string name="androidalwaysonsummary">Android 8.0+ indeholder et bedre alternativ til afbryderknappen, klik for mere information</string>
+    <string name="androidalwayson">Bloker forbindelser uden VPN</string>
+    <string name="androidalwaysonsummary">Android indeholder et bedre alternativ til afbryderknappens funktionalitet, klik for mere information</string>
     <string name="block_connection_wo_vpn">Bloker forbindelser uden VPN</string>
-    <string name="always_oreo_message">Android 8.0 og nyere omfatter en mulighed fra Android selv, for at blokere forbindelser uden VPN. Da dette er dybt integreret i Android OS, er det en bedre integreret afbryderknap i Android, der endda virker, hvis PIA VPN-appen bryder ned eller stoppes og også virker, før PIA startes.\n\nVi anbefaler at konfigurere \"Altid på VPN\" og \"Bloker forbindelser uden VPN\" i tillægm eller som alternativm til afbryderknap-indstillingen</string>
+    <string name="always_oreo_message">For at sikre, at du aldrig er tilsluttet uden din VPN, foreslår vi, at du aktiverer blokering af forbindelse uden VPN i dine Android-indstillinger. Dette kan aktiveres, når der er tændt for VPN altid til for PIA. Dette vil sikre, at Android gør sit bedste for at få din PIA VPN til at køre på alle tidspunkter, når du er tilsluttet og blokerer forbindelser uden en VPN - også en VPN-afbryderknap. Afbryderknap-indstillingen i PIA VPN-appen er blevet udskiftet til fordel for at indstille \"Bloker forbindelse uden VPN\" på systemniveau i dine Android-indstillinger, siden Android 8.0+ har denne funktion indbygget nu. Hvis der nogensinde er et problem, får du besked, og Android blokerer alle internetforbindelser, der ikke går gennem din VPN.</string>
     <string name="preference_blocking">BLOKERING</string>
     <string name="preference_connect_proxy">Forbind via proxy</string>
     <string name="preference_connect_proxy_app">Valgte proxy-app</string>
@@ -391,7 +390,7 @@
     <string name="pp_text">Fortrolighedspolitik</string>
     <string name="website_isnt_protected">Hjemmesiden er ikke beskyttet</string>
     <string name="api_check_failure_title">Forbindelsesfejl</string>
-    <string name="api_check_message">Vi kan ikke nå Private Internet Access. Dette kan skyldes dårlig internet eller at vores service er blokeret i dit land.</string>
+    <string name="api_check_message">Vi kan ikke nå Private Internet Access. Dette kan skyldes dårlig internet eller at vores service er blokeret i dit land. Sørg for, at du har en stabil internetforbindelse, Brug funktionen Tvunget stop af appen fra Indstillinger, genstart appen, og prøv igen.</string>
     <string name="invalid_qr_code">Ugyldig QR-kode sekvens. Prøv igen.</string>
     <string name="empty_qr_code">QR-indhold var tomt. Prøv igen.</string>
     <string name="your_plan_will_expire_on">Din plan vil udløbe den</string>
@@ -427,10 +426,11 @@
     <string name="trusted_wifi_title">Betroet wifi</string>
     <string name="trusted_wifi_message">VPN\'en vil autokoble på alle wifi-netværk undtagen dem der hvidlistes af brugeren</string>
     <string name="trusted_wifi_enable_message">Deaktiver VPN, når du tilslutter dig betroede netværk</string>
-    <string name="trusted_wifi_header">Betroede netværk</string>
+    <string name="trusted_wifi_singular">Betroet netværk</string>
+    <string name="trusted_wifi_plural">Betroede netværk</string>
     <string name="available_wifi_header">Tilgængelige netværk</string>
     <string name="trusted_wifi_no_wifi">Aktiver WiFi for at vælge betroede netværk.</string>
-    <string name="trusted_wifi_no_permission">Betroet wifi kræver placeringsrettigheder for at registrere nærliggende wifi-netværk. Hvis denne tilladelse tilbagekaldes, fungerer denne funktion ikke længere.\n\nFor at bruge denne funktion skal du gå til Indstillinger&gt; Apps&gt; PIA VPN og sikre dig, at placeringstilladelsen er slået til</string>
+    <string name="trusted_wifi_no_permission">Betroet wifi kræver placeringsrettigheder for at registrere nærliggende wifi-netværk. Hvis denne tilladelse tilbagekaldes, fungerer denne funktion ikke længere.\n\nFor at bruge denne funktion skal du gå til Indstillinger&gt; Apps&gt; PIA VPN og sikre dig, at placeringstilladelsen er slået til.</string>
     <string name="no_permission_title">Påkrævede tilladelser</string>
     <string name="trusted_wifi_not_available">Ingen tilgængelige netværk</string>
     <string name="trusted_wifi_no_trusted">Der er ingen betroede netværk</string>
@@ -518,4 +518,44 @@
     <string name="free_trial_region_text">Mere end 3300 servere i 32 lande</string>
     <string name="free_trial_start">START ABONNEMENT</string>
     <string name="free_trial_see_all">Se alle tilgængelige planer</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">VPN-SNOOZE</string>
+    <string name="snooze_short">SNOOZE I 5 MINUTTER</string>
+    <string name="snooze_medium">SNOOZE I 15 MINUTTER</string>
+    <string name="snooze_long">SNOOZE I 1 TIME</string>
+    <string name="snooze_description">Afbryder VPN og forbinder automatisk igen, når timeren udløber.</string>
+    <string name="snooze_resume">GENOPTAG</string>
+    <string name="snooze_paused">Sat på pause indtil %s</string>
+    <string name="snooze_status">Snoozer</string>
+    <string name="snooze_notification">Snoozed</string>
+    <string name="failed_connect_status">Kunne ikke forbinde</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">HURTIG-INDSTILLINGER</string>
+    <string name="quick_settings_network_toggle">Netværksstyring</string>
+    <string name="quick_settings_private_browser">Privat browser</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">HURTIG-TILSLUTNING</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">BRUG</string>
+    <string name="usage_download">Download</string>
+    <string name="usage_upload">Upload</string>
+    <!-- Settings -->
+    <string name="settings_protocol">Protokol</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">Hvis du skifter til WireGuard, vil Per App-indstillinger-funktionen blive deaktiveret</string>
+    <string name="wg_protocol_warning">Følgende funktioner er ikke tilgængelige på WireGuard:</string>
+    <string name="wg_connecting">Forbinder</string>
+    <string name="wg_connected">VPN forbundet</string>
+    <string name="ks_removal_warning">Vi har opdaget, at du har afbryderknappen aktiveret. Vi har ændret, hvordan denne funktion fungerer ved at integrere Android-indstillingen \"Bloker forbindelser uden VPN\" til både WireGuard og OpenVPN. Gennemgå ændringerne i Indstillinger for at sikre, at du forbliver beskyttet.</string>
+    <string name="preference_on_boot_always_on">Tilslut ved systemstart. Vi anbefaler at slå denne indstilling til, hvis du bruger VPN Altid til.</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">Tunnelen \"%s\" eksisterer allerede.</string>
+    <string name="tunnel_error_invalid_name">Ugyldigt navn</string>
+    <string name="preview">FORHÅNDSVISNING</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">Næste generations netværk</string>
+    <string name="gen4_next_generation_network_message">VPN\'en skal afbrydes for at skifte servernetværk.</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">Inkluder geo-placerede områder</string>
 </resources>

@@ -52,7 +52,7 @@ public class ReferralInvitesActivity extends BaseActivity {
 
         initHeader(true, true);
         setTitle(getString(R.string.refer_invites_title));
-        setGreenBackground();
+        setBackground();
         setSecondaryGreenBackground();
 
         addSnippetToView();

@@ -23,13 +23,13 @@ import android.os.AsyncTask;
 import android.os.Handler;
 
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.IpApi;
 import com.privateinternetaccess.android.pia.api.PiaApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.events.FetchIPEvent;
 import com.privateinternetaccess.android.pia.model.response.IPResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

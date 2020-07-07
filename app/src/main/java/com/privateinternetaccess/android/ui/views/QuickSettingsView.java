@@ -26,6 +26,8 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.widget.AppCompatImageView;
+
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -130,13 +132,13 @@ public class QuickSettingsView extends FrameLayout {
         boolean networking = PiaPrefHandler.shouldConnectOnWifi(getContext());
 
         if (networking) {
-            Prefs.with(getContext()).set(PiaPrefHandler.TRUST_WIFI, false);
+            PiaPrefHandler.setTrustWifi(getContext(), false);
         }
         else {
             if (ContextCompat.checkSelfPermission(getContext(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                Prefs.with(getContext()).set(PiaPrefHandler.TRUST_WIFI, true);
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            ) {
+                PiaPrefHandler.setTrustWifi(getContext(), true);
             }
             else {
                 Intent i = new Intent(getContext(), TrustedWifiActivity.class);

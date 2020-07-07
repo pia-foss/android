@@ -55,9 +55,11 @@ public class WebviewActivity extends BaseActivity {
     private static final String[] WHITELIST_URLS = {
             "https://www.privateinternetaccess.com",
             "https://helpdesk.privateinternetaccess.com/",
+            "https://www.privateinternetaccess.com/pages/privacy-policy/",
             "https://www.privateinternetaccess.com/pages/terms-of-service/",
             "https://www.privateinternetaccess.com/pages/buy-vpn/",
             "https://bra.privateinternetaccess.com/pages/buy-vpn/",
+            "https://www.privateinternetaccess.com/helpdesk/new-ticket/",
             "https://helpdesk.privateinternetaccess.com"
             };
 
@@ -142,7 +144,7 @@ public class WebviewActivity extends BaseActivity {
         });
 
         mWebView.getSettings().setJavaScriptEnabled(true);
-        setGreenBackground();
+        setBackground();
     }
 
     @Override

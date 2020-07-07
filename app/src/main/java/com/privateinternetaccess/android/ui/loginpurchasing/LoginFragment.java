@@ -38,7 +38,6 @@ import android.widget.TextView;
 
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
@@ -50,6 +49,7 @@ import com.privateinternetaccess.android.pia.model.response.TokenResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.views.PiaxEditText;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -88,7 +88,6 @@ public class LoginFragment extends Fragment {
         }
 
         ButterKnife.bind(this, view);
-
         return view;
     }
 

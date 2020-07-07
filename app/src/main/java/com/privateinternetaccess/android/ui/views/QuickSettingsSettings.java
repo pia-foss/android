@@ -18,13 +18,17 @@
 
 package com.privateinternetaccess.android.ui.views;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.Switch;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 
@@ -38,12 +42,14 @@ public class QuickSettingsSettings extends BaseActivity {
     @BindView(R.id.snippet_quick_settings_killswitch_switch) Switch sKillswitch;
     @BindView(R.id.snippet_quick_settings_network_switch) Switch sNetwork;
 
+    @BindView(R.id.snippet_quick_settings_killswitch_layout) ConstraintLayout lKillswitch;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_secondary);
         initHeader(true, true);
-        setGreenBackground();
+        setBackground();
         setSecondaryGreenBackground();
 
         addSnippetToView();
@@ -70,6 +76,10 @@ public class QuickSettingsSettings extends BaseActivity {
         sNetwork.setChecked(PiaPrefHandler.getQuickSettingsNetwork(this));
         sKillswitch.setChecked(PiaPrefHandler.getQuickSettingsKillswitch(this));
         sBrowser.setChecked(PiaPrefHandler.getQuickSettingsPrivateBrowser(this));
+
+        if (VPNProtocol.activeProtocol(this) == VPNProtocol.Protocol.Wireguard) {
+            lKillswitch.setVisibility(View.GONE);
+        }
     }
 
     @OnCheckedChanged(R.id.snippet_quick_settings_killswitch_switch)

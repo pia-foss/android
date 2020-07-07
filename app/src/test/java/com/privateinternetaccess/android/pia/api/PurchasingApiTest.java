@@ -18,7 +18,7 @@
 
 package com.privateinternetaccess.android.pia.api;
 
-import android.test.mock.MockContext;
+import android.content.Context;
 
 import com.privateinternetaccess.android.pia.model.PurchasingTestingData;
 import com.privateinternetaccess.android.pia.model.exceptions.HttpResponseError;
@@ -30,7 +30,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
@@ -40,20 +39,16 @@ import okhttp3.mock.MockInterceptor;
 import okhttp3.mock.Rule;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
 
 import static okhttp3.mock.MediaTypes.MEDIATYPE_JSON;
+import static org.mockito.Mockito.mock;
 
 public class PurchasingApiTest {
 
-    MockInterceptor interceptor;
-
-    PurchasingApi api;
-
-    @Mock
-    MockContext context;
-
     JSONObject testPurchasingJSON;
+    MockInterceptor interceptor;
+    PurchasingApi api;
+    Context context;
 
     @Before
     public void setUp() throws Exception {
@@ -61,6 +56,7 @@ public class PurchasingApiTest {
         interceptor = new MockInterceptor();
         PiaApi.setInterceptor(interceptor);
 
+        context = mock(Context.class);
         api = new PurchasingApi(context);
 
         testPurchasingJSON = api.createIAPJSON("2000","asdftg","1234","test@test.com",null, "1.0 (1)");
@@ -87,7 +83,7 @@ public class PurchasingApiTest {
                 .body(ResponseBody.create(MEDIATYPE_JSON, "")));
         PurchasingTestingData data = new PurchasingTestingData(false);
         PurchasingResponse response = api.signUp("","","","",null,data, 5);
-        Assert.assertTrue(response.getException() == null);
+        Assert.assertNull(response.getException());
     }
 
     @Test
@@ -113,8 +109,8 @@ public class PurchasingApiTest {
                 .body(ResponseBody.create(MEDIATYPE_JSON, "{\"username\":\"p1234567\", \"password\":\"testing1\"}")));
         PurchasingTestingData data = new PurchasingTestingData(false);
         PurchasingResponse response = api.signUp("","","","",null,data, 5);
-        Assert.assertTrue(response.getUsername().equals("p1234567"));
-        Assert.assertTrue(response.getPassword().equals("testing1"));
+        Assert.assertEquals("p1234567", response.getUsername());
+        Assert.assertEquals("testing1", response.getPassword());
     }
 
     @Test
@@ -127,9 +123,9 @@ public class PurchasingApiTest {
                 .body(ResponseBody.create(MEDIATYPE_JSON, "{\"username\":\"p1234567\", \"password\":\"testing1\"}")));
         PurchasingTestingData data = new PurchasingTestingData(true, 200, "p7654321", "testing", null);
         PurchasingResponse response = api.signUp("","","","",null, data, 5);
-        Assert.assertTrue(response.getUsername().equals("p7654321"));
-        Assert.assertTrue(response.getPassword().equals("testing"));
-        Assert.assertTrue(response.getResponseNumber() == 200);
+        Assert.assertEquals("p7654321", response.getUsername());
+        Assert.assertEquals("testing", response.getPassword());
+        Assert.assertEquals(200, response.getResponseNumber());
     }
 
     @Test
@@ -142,41 +138,41 @@ public class PurchasingApiTest {
                 .body(ResponseBody.create(MEDIATYPE_JSON, "{\"username\":\"p1234567\", \"password\":\"testing1\"}")));
         PurchasingTestingData data = new PurchasingTestingData(true, 200, "p7654321", "testing", "bad crash");
         PurchasingResponse response = api.signUp("","","","",null, data, 5);
-        Assert.assertTrue(response.getException() != null);
-        Assert.assertTrue(response.getResponse().equals("bad crash"));
+        Assert.assertNotNull(response.getException());
+        Assert.assertEquals("bad crash", response.getResponse());
     }
 
     @Test
     public void createIAPJson_validateJSON() throws JSONException {
-        Assert.assertTrue(testPurchasingJSON != null);
+        Assert.assertNotNull(testPurchasingJSON);
     }
 
     @Test
     public void createIAPJson_validateRecieptJSON() throws JSONException {
-        Assert.assertTrue(testPurchasingJSON.getJSONObject("receipt") != null);
+        Assert.assertNotNull(testPurchasingJSON.getJSONObject("receipt"));
     }
 
     @Test
     public void createIAPJson_validateMarketingJSON() throws JSONException {
-        Assert.assertTrue(testPurchasingJSON.getJSONObject("marketing") != null);
+        Assert.assertNotNull(testPurchasingJSON.getJSONObject("marketing"));
     }
 
     @Test
     public void createIAPJson_correctReceiptData(){
         JSONObject reciept = testPurchasingJSON.optJSONObject("receipt");
-        Assert.assertTrue(reciept.optString("order_id").equals("2000"));
-        Assert.assertTrue(reciept.optString("token").equals("asdftg"));
-        Assert.assertTrue(reciept.optString("product_id").equals("1234"));
+        Assert.assertEquals("2000", reciept.optString("order_id"));
+        Assert.assertEquals("asdftg", reciept.optString("token"));
+        Assert.assertEquals("1234", reciept.optString("product_id"));
     }
 
     @Test
     public void createIAPJson_correctEmailPostiion(){
-        Assert.assertTrue(testPurchasingJSON.optString("email").equals("test@test.com"));
+        Assert.assertEquals("test@test.com", testPurchasingJSON.optString("email"));
     }
 
     @Test
     public void createISPJson_correctVersionPosition(){
-        Assert.assertTrue(testPurchasingJSON.optString("client_version").equals("1.0 (1)"));
+        Assert.assertEquals("1.0 (1)", testPurchasingJSON.optString("client_version"));
     }
 
     @After

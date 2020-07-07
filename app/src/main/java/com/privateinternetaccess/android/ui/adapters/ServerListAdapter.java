@@ -39,12 +39,13 @@ import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.PingHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
 import com.privateinternetaccess.android.ui.views.ConnectionSlider;
+import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -141,6 +142,23 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
 
                 Long ping = PingHandler.getInstance(mContext).getPings().get(item.getKey());
+                if (Prefs.with(mContext).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+                    ping = null;
+                    if (item.getLatency() != null && !item.getLatency().isEmpty()) {
+                        ping = Long.valueOf(item.getLatency());
+                    }
+                }
+
+                int targetGeoVisibility = View.GONE;
+                if (Prefs.with(mContext).getBoolean(PiaPrefHandler.GEO_SERVERS_ACTIVE)) {
+                    targetGeoVisibility = item.isGeo() ? View.VISIBLE : View.GONE;
+                    if (item.isSelected()) {
+                        sHolder.geoServerImage.setImageDrawable(
+                                AppCompatResources.getDrawable(mContext, R.drawable.ic_geo_selected)
+                        );
+                    }
+                }
+                sHolder.geoServerImage.setVisibility(targetGeoVisibility);
 
                 if (!item.isAllowsPF() && PiaPrefHandler.isPortForwardingEnabled(mContext)) {
                     sHolder.portForwarding.setVisibility(View.VISIBLE);
@@ -364,6 +382,13 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         });
     }
 
+    public void itemsUpdated(List<ServerItem> items) {
+        mItems = items;
+        mFilteredItems.clear();
+        mFilteredItems.addAll(mItems);
+        notifyDataSetChanged();
+    }
+
     private void findSelectedServer() {
         for (int i = 0; i < mItems.size(); i++) {
             ServerItem item = mItems.get(i);
@@ -454,6 +479,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         ImageView portForwarding;
         ProgressBar connectionProgress;
 
+        ImageView geoServerImage;
         ImageView favoriteImage;
         ImageView connectedImage;
 
@@ -469,6 +495,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             portForwarding = itemView.findViewById(R.id.list_server_allows_port_forwarding);
             connectionProgress = itemView.findViewById(R.id.list_server_connection);
 
+            geoServerImage = itemView.findViewById(R.id.list_server_geo);
             favoriteImage = itemView.findViewById(R.id.list_server_favorite);
             connectedImage = itemView.findViewById(R.id.list_server_connected_icon);
 

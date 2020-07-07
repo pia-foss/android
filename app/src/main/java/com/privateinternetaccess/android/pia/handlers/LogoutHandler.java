@@ -25,12 +25,13 @@ import android.content.DialogInterface;
 
 import com.privateinternetaccess.android.PIAKillSwitchStatus;
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.events.KillSwitchEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
+import com.privateinternetaccess.android.ui.drawer.SettingsFragmentHandler;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -101,6 +102,7 @@ public class LogoutHandler {
         } else {
             vpn.stop();
         }
+        SettingsFragmentHandler.resetToDefault(activity);
     }
 
     private void removeInfoAndListener() {

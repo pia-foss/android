@@ -109,11 +109,4 @@ public class NotificationHelper {
 
         mNotificationManager.notify(id, nBuilder.build());
     }
-
-    public static void deleteChannel(Context context, String name){
-        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mNotificationManager.deleteNotificationChannel(name);
-        }
-    }
 }

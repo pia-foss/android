@@ -18,10 +18,10 @@
 
 package com.privateinternetaccess.android.tunnel;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.PortForwardEvent;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.core.model.PIAServer;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

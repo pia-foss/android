@@ -63,6 +63,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class AllowedAppsActivity extends BaseActivity implements IAllowedApps {
 
     public static final String EXTRA_SELECT_APP = "SelectApp";
@@ -73,13 +76,14 @@ public class AllowedAppsActivity extends BaseActivity implements IAllowedApps {
     private Vector<ApplicationInfo> mPackages = new Vector<>();
     private PackageManager mPm;
 
-    private AppBarLayout appBar;
+    @BindView(R.id.appbar) AppBarLayout appBar;
+    @BindView(R.id.header_save) View save;
+    @BindView(android.R.id.list) RecyclerView rvListView;
+    @BindView(R.id.activity_secondary_progress) View pbLoad;
+    @BindView(R.id.search) EditText etSearch;
+    @BindView(R.id.allowed_apps_problem_apps_text) TextView tvAppProblemExplanation;
 
-    private RecyclerView rvListView;
     private LinearLayoutManager layoutManager;
-    private View pbLoad;
-    private EditText etSearch;
-    private TextView tvAppProblemExplanation;
 
     private Map<String, String> mProblemApps;
 
@@ -88,14 +92,12 @@ public class AllowedAppsActivity extends BaseActivity implements IAllowedApps {
     private boolean selectApp;
     private String selectedApp;
 
-    private View save;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_secondary_list);
         initHeader(true, true);
-        setGreenBackground();
+        setBackground();
         setSecondaryGreenBackground();
 
         if(savedInstanceState == null){
@@ -105,6 +107,8 @@ public class AllowedAppsActivity extends BaseActivity implements IAllowedApps {
         }
 
         bindSnippetsToViews();
+
+        ButterKnife.bind(this);
 
         showTopExtraArea();
         bindView();
@@ -179,24 +183,12 @@ public class AllowedAppsActivity extends BaseActivity implements IAllowedApps {
     }
 
     private void bindView() {
-        appBar = findViewById(R.id.appbar);
-
-        save = findViewById(R.id.header_save);
-
-        rvListView = (RecyclerView) findViewById(android.R.id.list);
-
         // set remote view the way we want in per apps
         rvListView.setPadding(0,0,0,0);
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) rvListView.getLayoutParams();
         params.setMargins(0, 5,0,0);
 
         rvListView.setLayoutParams(params);
-
-        pbLoad = findViewById(R.id.activity_secondary_progress);
-
-        etSearch = findViewById(R.id.search);
-
-        tvAppProblemExplanation = findViewById(R.id.allowed_apps_problem_apps_text);
 
         if(PIAApplication.isAndroidTV(getApplicationContext()))
             etSearch.setBackgroundResource(R.drawable.shape_standard_background);
@@ -213,6 +205,8 @@ public class AllowedAppsActivity extends BaseActivity implements IAllowedApps {
         rvListView.setAdapter(mListAdapter);
 
         etSearch.setHint(R.string.search_apps);
+
+        hideIconButton();
 
         initToggleAndFilter();
 

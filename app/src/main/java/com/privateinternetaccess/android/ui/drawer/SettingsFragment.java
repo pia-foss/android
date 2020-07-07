@@ -38,12 +38,14 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreferenceCompat;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Toast;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
@@ -55,6 +57,7 @@ import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.LauncherActivity;
 import com.privateinternetaccess.android.ui.drawer.settings.DeveloperActivity;
+import com.privateinternetaccess.android.ui.widgets.WidgetBaseProvider;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -63,10 +66,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import de.blinkt.openvpn.core.VpnStatus;
 import me.philio.preferencecompatextended.PreferenceFragmentCompat;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEN4_ACTIVE;
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEO_SERVERS_ACTIVE;
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_AUTH;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_CIPHER;
 
@@ -78,24 +83,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 {
 
     private SwitchPreferenceCompat pTCP;
-
     private PreferenceScreen pRemotePort;
-    private Preference pDNS;
-    private Preference pProtocol;
-    private int tvPosition;
-    private int totalPref;
 
     private String[] ovpnKeys = {
             "useTCP", "portforwarding", "rport", "lport", "mssfix", "proxy_settings",
-            "useproxy", "blockipv6", "blockLocalLan", "encryption", "cipher", "auth",
-            "killswitch", "tlscipher", "vpn_log"};
+            "useproxy", "blockipv6", "encryption", "cipher", "auth", "killswitch", "tlscipher"};
     private String[] wgKeys = {};
-
-    private boolean reseting;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootkey) {
         setPreferencesFromResource(R.xml.fragment_preference, rootkey);
+        Prefs prefs = new Prefs(getContext());
 
         for (String prefname : new String[]{"rport", "lport", "proxyport"}) {
             Preference pref = findPreference(prefname);
@@ -117,18 +115,16 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 "rsa2048", getResources().getStringArray(R.array.tls_cipher),
                 getResources().getStringArray(R.array.tls_values)));
 
-        String lport = Prefs.with(getActivity()).get("lport", "auto");
-        setLportSummary(lport);
-
-        String proxyPort = Prefs.with(getActivity()).get(PiaPrefHandler.PROXY_PORT, "8080");
-        findPreference(PiaPrefHandler.PROXY_PORT).setSummary(proxyPort);
-
+        setLportSummary(prefs.get("lport", "auto"));
+        findPreference(PiaPrefHandler.PROXY_PORT).setSummary(
+                prefs.get(PiaPrefHandler.PROXY_PORT, "8080")
+        );
 
         pTCP = (SwitchPreferenceCompat) findPreference("useTCP");
         pTCP.setOnPreferenceChangeListener(this);
 
         pRemotePort = (PreferenceScreen) findPreference("rport");
-        setRportSummary(Prefs.with(pRemotePort.getContext()).get(PiaPrefHandler.RPORT, "auto"));
+        setRportSummary(prefs.get(PiaPrefHandler.RPORT, "auto"));
 
         // Always On VPN is only available after Oreo
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -136,11 +132,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             Preference alwaysOn = findPreference("oreoalwayson");
             if(alwaysOn != null)
                 category.removePreference(alwaysOn);
-        } else
+        } else {
             setAlwaysOnClickListener(findPreference("oreoalwayson"));
+        }
 
+        updateSettingsUiWithKnownPersistedData();
     }
-
 
     private void setAlwaysOnClickListener(Preference preference) {
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -158,7 +155,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 return true;
             }
         });
-
     }
 
 
@@ -186,46 +182,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
         setupDialogs();
 
-        setupGraphOptions();
-
         setupBlockLan();
 
         setupProxyArea();
 
-        setupDNSSettings();
+        setDNSSummary();
 
-        setupProtocolSettings();
+        setProtocolSummary();
 
         handleAndroidTVRemovals();
 
         handleDevMode();
-
-        //Calculate the total preferences for android tv.
-        totalPref = 0;
-        for(int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++){
-            Preference pref = getPreferenceScreen().getPreference(i);
-            if(pref instanceof PreferenceCategory){
-                totalPref += ((PreferenceCategory) pref).getPreferenceCount();
-            } else{
-                totalPref += 1;
-            }
-        }
-    }
-
-    private void setupDNSSettings() {
-        pDNS = findPreference("dns_pref");
-        SettingsFragmentHandler.setupDNSDialog(pDNS.getContext(), pDNS, this);
-        setDNSSummary();
-//        PreferenceCategory connectionCat = (PreferenceCategory) findPreference("connection_setting");
-//        if(pDNS != null)
-//            connectionCat.removePreference(pDNS);
-    }
-
-    private void setupProtocolSettings() {
-        pProtocol = findPreference("vpn_protocol");
-        SettingsFragmentHandler.setupProtocolDialog(pProtocol.getContext(), pProtocol, this);
-
-        setProtocolSummary();
     }
 
     private void setupProxyArea() {
@@ -365,6 +332,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         Preference pref = findPreference("widgetConfiguration");
         Preference viewVPN = findPreference("vpn_log");
         Preference secureWifi = findPreference("trustWifi");
+        Preference alwaysOn = findPreference("oreoalwayson");
+
         if(!PIAApplication.isAndroidTV(pTCP.getContext())){
             pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -408,6 +377,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 info.removePreference(recentChanges);
             }
 
+            PreferenceCategory blocking = (PreferenceCategory) findPreference("blocking");
+            if (alwaysOn != null && blocking != null) {
+                blocking.removePreference(alwaysOn);
+            }
+
             PreferenceScreen screen = getPreferenceScreen();
             PreferenceCategory proxy = (PreferenceCategory) findPreference("proxy_settings");
 
@@ -415,7 +389,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 screen.removePreference(proxy);
             }
 
-            PreferenceCategory blocking = (PreferenceCategory) findPreference("blocking");
             Preference mace = findPreference("pia_mace");
             Preference killswitch = findPreference("killswitch");
 
@@ -507,14 +480,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 pTCP);
     }
 
-    private void setupGraphOptions(){
-//        SettingsFragmentHandler.createListDialog(getActivity(), findPreference("graphunit"),
-//                PiaPrefHandler.GRAPHUNIT, getResources().getStringArray(R.array.preference_graph_titles), getResources().getStringArray(R.array.preference_graph_values),
-//                getString(R.string.preference_dialog_graph_title), "8192");
-//        String current = SettingsFragmentHandler.getSummaryItem(getActivity(), "graphunit", "8192", getResources().getStringArray(R.array.preference_graph_titles), getResources().getStringArray(R.array.preference_graph_values));
-//        findPreference("graphunit").setSummary(current);
-    }
+    private void setupKillswitch() {
+        Preference p = findPreference("killswitch");
+        Preference pConnectBoot = findPreference("autostart");
 
+        if (pConnectBoot != null && !PIAApplication.isAndroidTV(pTCP.getContext())) {
+            pConnectBoot.setSummary(R.string.preference_on_boot_always_on);
+        }
+    }
 
     // did this to fix up reusability of the xml file so you don't have to change it so much.
     private void setupOnClicks() {
@@ -550,7 +523,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 builder.setPositiveButton(R.string.reset, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        resetSettings();
+                        SettingsFragmentHandler.resetToDefault(getActivity());
+                        updateSettingsUiWithKnownPersistedData();
+                        if (!PIAFactory.getInstance().getVPN(ctx).isVPNActive()) {
+                            Toaster.s(ctx, ctx.getString(R.string.settings_reset));
+                        }
+                        WidgetBaseProvider.updateWidget(ctx, false);
                         dialogInterface.dismiss();
                     }
                 });
@@ -564,21 +542,41 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 return true;
             }
         });
-    }
 
-    private void resetSettings() {
-        reseting = true;
-        SettingsFragmentHandler.resetToDefault(getActivity(), this);
-        reseting = false;
-    }
+        findPreference(GEN4_ACTIVE).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Context context = preference.getContext();
+                if (PIAFactory.getInstance().getVPN(context).isVPNActive()) {
+                    boolean previousState = !Prefs.with(context).get(GEN4_ACTIVE, false);
+                    Prefs.with(context).set(GEN4_ACTIVE, previousState);
+                    SwitchPreferenceCompat gen4Switch =
+                            (SwitchPreferenceCompat) findPreference(PiaPrefHandler.GEN4_ACTIVE);
+                    gen4Switch.setChecked(Prefs.with(context).get(GEN4_ACTIVE, false));
 
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle(R.string.gen4_next_generation_network);
+                    builder.setMessage(R.string.gen4_next_generation_network_message);
+                    builder.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.show();
+                } else {
+                    PIAServerHandler.getInstance(context).fetchServers(context, true);
+                }
+                return true;
+            }
+        });
+    }
 
     private void setUpVersionCode() {
         String version = BuildConfig.VERSION_NAME;
         int versionCode = BuildConfig.VERSION_CODE;
 
         findPreference("version_info").setSummary("v" + version + " (" + versionCode + ")");
-
         findPreference("version_info").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -593,12 +591,18 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     public void setProtocolSummary() {
+        SettingsFragmentHandler.setupProtocolDialog(
+                getContext(),
+                findPreference(PiaPrefHandler.VPN_PROTOCOL),
+                this
+        );
+
         String[] protocols = getContext().getResources().getStringArray(R.array.protocol_options);
         String activeProtocol = Prefs.with(getContext()).get(
                 PiaPrefHandler.VPN_PROTOCOL,
                 protocols[0]);
 
-        pProtocol.setSummary(activeProtocol);
+        findPreference(PiaPrefHandler.VPN_PROTOCOL).setSummary(activeProtocol);
 
         boolean showOvpn = activeProtocol.equals(protocols[0]);
 
@@ -618,10 +622,18 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             }
         }
 
-        pProtocol.setVisible(true);
+        findPreference(PiaPrefHandler.VPN_PROTOCOL).setVisible(true);
+
+        setupKillswitch();
     }
 
     public void setDNSSummary(){
+        SettingsFragmentHandler.setupDNSDialog(
+                getContext(),
+                findPreference(PiaPrefHandler.DNS_PREF),
+                this
+        );
+
         String dnsSummary = getActivity().getString(R.string.auto_dns_setting_summary);
         String dns = Prefs.with(getActivity()).get(PiaPrefHandler.DNS, "");
         String secondaryDns = Prefs.with(getActivity()).get(PiaPrefHandler.DNS_SECONDARY, "");
@@ -645,7 +657,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             }
         }
 
-        pDNS.setSummary(dnsSummary);
+        findPreference(PiaPrefHandler.DNS_PREF).setSummary(dnsSummary);
     }
 
 
@@ -792,32 +804,30 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             }
         }
 
-        if(!reseting) {
-            boolean showMessage = true;
-            List<String> dontShowList = new ArrayList<>();
-            dontShowList.add(PiaPrefHandler.AUTOCONNECT);
-            dontShowList.add(PiaPrefHandler.AUTOSTART);
-            dontShowList.add(PiaPrefHandler.KILLSWITCH);
-            dontShowList.add(PiaPrefHandler.MACE_ACTIVE);
-            dontShowList.add(PiaPrefHandler.LAST_IP);
-            dontShowList.add(PiaPrefHandler.LAST_IP_TIMESTAMP);
-            dontShowList.add(PiaPrefHandler.CONNECT_ON_APP_UPDATED);
-            if (dontShowList.contains(key)) {
-                showMessage = false;
-            } else if(key.equals(PiaPrefHandler.USE_TCP)){
-                Prefs prefs = Prefs.with(context);
-                boolean useTCP = prefs.get(PiaPrefHandler.USE_TCP, false);
-                boolean proxyEnabled = prefs.get(PiaPrefHandler.PROXY_ENABLED, false);
-                String proxyApp = prefs.get(PiaPrefHandler.PROXY_APP, "");
-                if(!useTCP && proxyEnabled && proxyApp.equals(AllowedAppsActivity.ORBOT)){
-                    showOrbotDialog(context);
-                }
+        boolean showMessage = true;
+        List<String> dontShowList = new ArrayList<>();
+        dontShowList.add(PiaPrefHandler.AUTOCONNECT);
+        dontShowList.add(PiaPrefHandler.AUTOSTART);
+        dontShowList.add(PiaPrefHandler.KILLSWITCH);
+        dontShowList.add(PiaPrefHandler.MACE_ACTIVE);
+        dontShowList.add(PiaPrefHandler.LAST_IP);
+        dontShowList.add(PiaPrefHandler.LAST_IP_TIMESTAMP);
+        dontShowList.add(PiaPrefHandler.CONNECT_ON_APP_UPDATED);
+        dontShowList.add(PiaPrefHandler.GEN4_ACTIVE);
+        dontShowList.add(PiaPrefHandler.GEO_SERVERS_ACTIVE);
+        if (dontShowList.contains(key)) {
+            showMessage = false;
+        } else if(key.equals(PiaPrefHandler.USE_TCP)){
+            Prefs prefs = Prefs.with(context);
+            boolean useTCP = prefs.get(PiaPrefHandler.USE_TCP, false);
+            boolean proxyEnabled = prefs.get(PiaPrefHandler.PROXY_ENABLED, false);
+            String proxyApp = prefs.get(PiaPrefHandler.PROXY_APP, "");
+            if(!useTCP && proxyEnabled && proxyApp.equals(AllowedAppsActivity.ORBOT)){
+                showOrbotDialog(context);
             }
-            if (showMessage && PIAFactory.getInstance().getVPN(context).isVPNActive()) {
-                Toaster.l(getActivity().getApplicationContext(), R.string.reconnect_vpn);
-            }
-        } else {
-
+        }
+        if (showMessage && PIAFactory.getInstance().getVPN(context).isVPNActive()) {
+            Toaster.l(getActivity().getApplicationContext(), R.string.reconnect_vpn);
         }
     }
 
@@ -852,5 +862,150 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         }
 
         return true;
+    }
+
+    private void updateSettingsUiWithKnownPersistedData() {
+        Prefs prefs = new Prefs(getContext());
+
+        // Connection Area
+        SwitchPreferenceCompat useTcpPreference = findPreference(PiaPrefHandler.USE_TCP);
+        if (useTcpPreference != null) {
+            useTcpPreference.setChecked(prefs.get(PiaPrefHandler.USE_TCP, false));
+        }
+
+        SwitchPreferenceCompat portForwardingPreference =
+                findPreference(PiaPrefHandler.PORTFORWARDING);
+        if (portForwardingPreference != null) {
+            portForwardingPreference.setChecked(prefs.get(PiaPrefHandler.PORTFORWARDING, false));
+        }
+
+        setRportSummary(prefs.get(PiaPrefHandler.RPORT, ""));
+        setLportSummary(prefs.get(PiaPrefHandler.LPORT, ""));
+
+        SwitchPreferenceCompat packetSizePreference = findPreference(PiaPrefHandler.PACKET_SIZE);
+        if (packetSizePreference != null) {
+            packetSizePreference.setChecked(
+                    prefs.get(PiaPrefHandler.PACKET_SIZE, getResources().getBoolean(R.bool.usemssfix))
+            );
+        }
+
+        SwitchPreferenceCompat gen4ActivePreference = findPreference(PiaPrefHandler.GEN4_ACTIVE);
+        if (gen4ActivePreference != null) {
+            gen4ActivePreference.setChecked(prefs.get(GEN4_ACTIVE, false));
+        }
+
+        SwitchPreferenceCompat geoServersActivePreference =
+                findPreference(PiaPrefHandler.GEO_SERVERS_ACTIVE);
+        if (geoServersActivePreference != null) {
+            geoServersActivePreference.setChecked(prefs.get(GEO_SERVERS_ACTIVE, true));
+        }
+
+        if (!PIAApplication.isAndroidTV(getContext())) {
+            Preference proxyPortPreference = findPreference(PiaPrefHandler.PROXY_PORT);
+            if (proxyPortPreference != null) {
+                proxyPortPreference.setSummary(prefs.get(PiaPrefHandler.PROXY_PORT, "8080"));
+            }
+
+            Preference proxyAppPreference = findPreference(PiaPrefHandler.PROXY_APP);
+            if (proxyAppPreference != null) {
+                proxyAppPreference.setSummary(prefs.get(PiaPrefHandler.PROXY_APP, ""));
+            }
+
+            SwitchPreferenceCompat proxyEnabledPreference =
+                    findPreference(PiaPrefHandler.PROXY_ENABLED);
+            if (proxyEnabledPreference != null) {
+                proxyEnabledPreference.setChecked(prefs.get(PiaPrefHandler.PROXY_ENABLED, false));
+                resetProxyArea(proxyEnabledPreference, false);
+            }
+
+            SwitchPreferenceCompat piaMacePreference = findPreference(PiaPrefHandler.PIA_MACE);
+            if (piaMacePreference != null) {
+                piaMacePreference.setChecked(prefs.get(PiaPrefHandler.PIA_MACE, false));
+            }
+
+            SwitchPreferenceCompat killSwitchPreference = findPreference(PiaPrefHandler.KILLSWITCH);
+            if (killSwitchPreference != null) {
+                killSwitchPreference.setChecked(prefs.get(PiaPrefHandler.KILLSWITCH, false));
+            }
+        }
+
+        //Blocking
+        SwitchPreferenceCompat ipv6Preference = findPreference(PiaPrefHandler.IPV6);
+        if (ipv6Preference != null) {
+            ipv6Preference.setChecked(
+                    prefs.get(PiaPrefHandler.IPV6, getResources().getBoolean(R.bool.useblockipv6))
+            );
+        }
+
+        SwitchPreferenceCompat blockLocalLanPreference =
+                findPreference(PiaPrefHandler.BLOCK_LOCAL_LAN);
+        if (blockLocalLanPreference != null) {
+            blockLocalLanPreference.setChecked(prefs.get(PiaPrefHandler.BLOCK_LOCAL_LAN, true));
+        }
+
+        // Encryption
+        Preference cipherPreference = findPreference(PiaPrefHandler.CIPHER);
+        if (cipherPreference != null) {
+            cipherPreference.setSummary(
+                    prefs.get(
+                            PiaPrefHandler.CIPHER,
+                            getResources().getStringArray(R.array.ciphers_values)[0]
+                    )
+            );
+        }
+
+        Preference authPreference = findPreference(PiaPrefHandler.AUTH);
+        if (authPreference != null) {
+            authPreference.setSummary(
+                    prefs.get(
+                            PiaPrefHandler.AUTH,
+                            getResources().getStringArray(R.array.auth_values)[0]
+                    )
+            );
+        }
+
+        Preference tlsCipherPreference = findPreference(PiaPrefHandler.TLSCIPHER);
+        if (tlsCipherPreference != null) {
+            tlsCipherPreference.setSummary(
+                    prefs.get(
+                            PiaPrefHandler.TLSCIPHER,
+                            getResources().getStringArray(R.array.tls_values)[0]
+                    )
+            );
+        }
+
+        // Application Settings
+        SwitchPreferenceCompat autoConnectPreference = findPreference(PiaPrefHandler.AUTOCONNECT);
+        if (autoConnectPreference != null) {
+            autoConnectPreference.setChecked(
+                    prefs.get(PiaPrefHandler.AUTOCONNECT, false)
+            );
+        }
+
+        SwitchPreferenceCompat autoStartPreference = findPreference(PiaPrefHandler.AUTOSTART);
+        if (autoStartPreference != null) {
+            autoStartPreference.setChecked(
+                    prefs.get(PiaPrefHandler.AUTOSTART, false)
+            );
+        }
+
+        SwitchPreferenceCompat hapticFeedbackPreference =
+                findPreference(PiaPrefHandler.HAPTIC_FEEDBACK);
+        if (hapticFeedbackPreference != null) {
+            hapticFeedbackPreference.setChecked(
+                    prefs.get(PiaPrefHandler.HAPTIC_FEEDBACK, true)
+            );
+        }
+
+        SwitchPreferenceCompat connectOnAppUpdatedPreference =
+                findPreference(PiaPrefHandler.CONNECT_ON_APP_UPDATED);
+        if (connectOnAppUpdatedPreference != null) {
+            connectOnAppUpdatedPreference.setChecked(
+                    prefs.get(PiaPrefHandler.CONNECT_ON_APP_UPDATED, false)
+            );
+        }
+
+        setDNSSummary();
+        setProtocolSummary();
     }
 }

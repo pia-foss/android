@@ -45,22 +45,28 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintDimensionRatio="H,360:307"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@android:id/list"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/server_list_refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:drawSelectorOnTop="false"
-            android:padding="@dimen/server_list_padding"
-            android:layout_marginTop="@dimen/fragment_top_margin"
-            android:paddingTop="5dp"
-            android:descendantFocusability="afterDescendants"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            />
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@android:id/list"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:drawSelectorOnTop="false"
+                android:padding="@dimen/server_list_padding"
+                android:layout_marginTop="@dimen/fragment_top_margin"
+                android:paddingTop="5dp"
+                android:descendantFocusability="afterDescendants"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -22,7 +22,6 @@ import android.os.Handler;
 
 import com.privateinternetaccess.android.wireguard.backend.GoBackend.GhettoCompletableFuture;
 
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 
 /**

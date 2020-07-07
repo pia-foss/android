@@ -20,9 +20,9 @@ package com.privateinternetaccess.android.pia.handlers;
 
 import android.content.Context;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.model.response.SubscriptionAvailableResponse;
 import com.privateinternetaccess.android.pia.tasks.FetchSubscriptionsTask;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

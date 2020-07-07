@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[يجب أن يكون رقم المنفذ بين 1024 و65535]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[المنفذ بين 1024 و65535]]></string>
-    <string name="startup_support_title">يدعم 5 أجهزة في المرة الواحدة</string>
-    <string name="startup_support_message">احمي نفسك على ما يصل إلى 5 أجهزة في وقت واحد.</string>
     <string name="startup_region_title">اتصل بأي منطقة بسهولة</string>
     <string name="startup_region_message">مع خوادم في جميع أنحاء العالم، أنت دائما تحت الحماية.</string>
     <string name="startup_ads_title">احمي نفسك من الإعلانات</string>
@@ -245,7 +243,8 @@
     <string name="done">تم</string>
     <string name="update_account">تحديث الحساب</string>
     <string name="local_port_titla">منفذ محلي</string>
-    <string name="preference_application_settings">إعدادات التطبيق</string>
+    <string name="preference_application_settings">الإعدادات العامة</string>
+    <string name="preference_vpn_settings">إعدادات VPN</string>
     <string name="preference_haptic_title">رد فعل لمسي عند الاتصال</string>
     <string name="preference_dialog_graph_title">حدد وحدة القياس في الرسم البياني</string>
     <string name="preference_connect_on_boot_summary">اتصال عند بدء تشغيل النظام</string>
@@ -339,10 +338,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">أحداث عامة وإشعارات</string>
     <string name="tv_startup_press_right">اضغط على اليمين</string>
-    <string name="androidalwayson">VPN الخاص بالأندرويد دائما شغال</string>
-    <string name="androidalwaysonsummary">يتضمن +Android 8.0 بديل لمفتاح إغلاق الإنترنت، اضغط لمزيد من المعلومات</string>
+    <string name="androidalwayson">حظر الاتصالات بدون VPN</string>
+    <string name="androidalwaysonsummary">يتضمن Android بديلاً أفضل لوظائف مفتاح اغلاق الإنترنت (Killswitch)، اضغط لمزيد من المعلومات</string>
     <string name="block_connection_wo_vpn">حظر الاتصالات بدون VPN</string>
-    <string name="always_oreo_message">أندرويد 8.0+ يحتوي على خيار من الأندرويد نفسه لحظر الاتصالات بدون VPN. بما أن هذا مدمج بشكل عميق مع نظام تشغيل الأندرويد نفسه، فهو خدمة إغلاق الإنترنت  جيدة في الأندرويد نفسه تعمل حتى ولو تعطل تطبيق PIA VPN أو توقف ويعمل أيضاً قبل PIA إذا انطلق.\n\nنوصي باستعمال \"دائما في VPN\" و \"حظر الاتصالات بدون VPN\" إضافة إلى ذلك أو كبديل لخيار خدمة إغلاق الإنترنت</string>
+    <string name="always_oreo_message">للتأكد من عدم اتصالك مطلقًا بدون VPN، نقترح تفعيل خاصية حظر الاتصال بدون VPN من إعدادات Android. يمكن تفعيل هذه الخاصية بعد تشغيل خاصية التشغيل الدائم لـ VPN في PIA. سيضمن ذلك أن يقوم Android بأفضل ما في وسعه لتشغيل PIA VPN في جميع الأوقات عند الاتصال وحظر الاتصالات دون VPN - ويعرف أيضًا باسم خدمة اغلاق الإنترنت في VPN. تم إيقاف إعداد خدمة اغلاق الإنترنت (Killswitch) في تطبيق PIA VPN لصالح إعداد \"حظر الاتصال بدون VPN\" على مستوى النظام في إعدادات Android منذ أن تم تضمين هذه الميزة الآن في Android 8.0+. إذا حدث أي مشكلة، فسيتم إعلامك وسيحظر Android جميع اتصالات الإنترنت التي لا تمر عبر VPN الموجود على جهازك.</string>
     <string name="preference_blocking">الحظر</string>
     <string name="preference_connect_proxy">اتصال عبر البروكسي</string>
     <string name="preference_connect_proxy_app">تطبيق البروكسي المحدد</string>
@@ -391,7 +390,7 @@
     <string name="pp_text">سياسة الخصوصية</string>
     <string name="website_isnt_protected">الموقع غير محمي.</string>
     <string name="api_check_failure_title">فشل الاتصال</string>
-    <string name="api_check_message">لم نتمكن من الوصول إلى منفذ الإنترنت الخاص. ربما بسبب اتصال ضعيف بالإنترنت أو خدماتنا موقوفة في بلدك.</string>
+    <string name="api_check_message">لم نتمكن من الوصول إلى منفذ الإنترنت الخاص. ربما بسبب ضعف الاتصال بالإنترنت أو ربما تكون خدماتنا محجوبة في بلدك. يرجى التأكد من وجود اتصال إنترنت مستقر، والإيقاف الجبري للتطبيق من الإعدادات، ثم إعادة تشغيل التطبيق، وإعادة المحاولة.</string>
     <string name="invalid_qr_code">تسلسل رمز QR غير صالح. حاول مرة اخرى.</string>
     <string name="empty_qr_code">محتوى رمز QR فارغ. حاول مرة اخرى.</string>
     <string name="your_plan_will_expire_on">ستنتهي صلاحية خطتك في</string>
@@ -427,10 +426,11 @@
     <string name="trusted_wifi_title">شبكة WiFi موثوقة</string>
     <string name="trusted_wifi_message">سيتم الاتصال بخدمة VPN على جميع شبكات WiFi فيما عدا التي تم إدخالها في القائمة البيضاء بواسطة المستخدم</string>
     <string name="trusted_wifi_enable_message">تعطيل VPN عند الاتصال</string>
-    <string name="trusted_wifi_header">الشبكات الموثوق بها</string>
+    <string name="trusted_wifi_singular">شبكة موثوقة</string>
+    <string name="trusted_wifi_plural">الشبكات الموثوق بها</string>
     <string name="available_wifi_header">الشبكات المتاحة</string>
     <string name="trusted_wifi_no_wifi">يرجى تمكين WiFi لتحديد الشبكات الموثوق بها.</string>
-    <string name="trusted_wifi_no_permission">تتطلب خدمة WiFi الموثوقة أذونات الوصول إلى الموقع للكشف عن شبكات WiFi القريبة. إذا تم إلغاء هذا الإذن، فلن تعمل هذه الميزة.\n\nلاستخدام هذه الخاصية، انتقل إلى الإعدادات&gt;التطبيقات&gt;PIA VPN وتأكد من تفعيل خاصية إذن الوصول إلى الموقع</string>
+    <string name="trusted_wifi_no_permission">تتطلب خدمة WiFi الموثوقة أذونات الوصول إلى الموقع للكشف عن شبكات WiFi القريبة. إذا تم إلغاء هذا الإذن، فلن تعمل هذه الميزة.\n\nلاستخدام هذه الخاصية، انتقل إلى الإعدادات&gt;التطبيقات&gt;PIA VPN وتأكد من تفعيل خاصية إذن الوصول إلى الموقع.</string>
     <string name="no_permission_title">هناك أذونات مطلوبة</string>
     <string name="trusted_wifi_not_available">لا توجد شبكات متاحة</string>
     <string name="trusted_wifi_no_trusted">لا توجد شبكات موثوقة متاحة</string>
@@ -518,4 +518,44 @@
     <string name="free_trial_region_text">أكثر من 3300 خادم في 32 دولة</string>
     <string name="free_trial_start">ابدأ الاشتراك</string>
     <string name="free_trial_see_all">استعرض جميع الخطط المتوفر</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">غفوة VPN</string>
+    <string name="snooze_short">غفوة 5 دقائق</string>
+    <string name="snooze_medium">غفوة 15 دقيقة</string>
+    <string name="snooze_long">غفوة 1 ساعة</string>
+    <string name="snooze_description">قطع اتصال VPN وإعادة الاتصال تلقائيًا عندما تنتهي مدة المؤقت.</string>
+    <string name="snooze_resume">استئناف</string>
+    <string name="snooze_paused">إيقاف مؤقت حتى %s</string>
+    <string name="snooze_status">دخول غفوة</string>
+    <string name="snooze_notification">في غفوة</string>
+    <string name="failed_connect_status">تعذر الاتصال</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">إعدادات سريعة</string>
+    <string name="quick_settings_network_toggle">إدارة الشبكات</string>
+    <string name="quick_settings_private_browser">المتصفح الخاص</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">اتصال سريع</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">الاستخدام</string>
+    <string name="usage_download">تنزيل</string>
+    <string name="usage_upload">رفع</string>
+    <!-- Settings -->
+    <string name="settings_protocol">البروتوكول</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">سيؤدي الانتقال إلى WireGuard إلى تعطيل خاصية الإعدادات لكل تطبيق</string>
+    <string name="wg_protocol_warning">الخصائص التالية غير متوفرة على WireGuard:</string>
+    <string name="wg_connecting">جارٍ الاتصال</string>
+    <string name="wg_connected">متصل بـVPN</string>
+    <string name="ks_removal_warning">لقد اكتشفنا أنك قمت بتفعيل خدمة إغلاق الإنترنت (Killswitch). لقد قمنا بتغيير كيفية عمل هذه الخاصية عبر دمج إعداد \"حظر الاتصالات بدون VPN\" في Android لكل من WireGuard وOpenVPN. يرجى مراجعة التغييرات في الإعدادات لضمان الحفاظ على حمايتك.</string>
+    <string name="preference_on_boot_always_on">الاتصال عند تشغيل النظام. نوصي بتشغيل هذا الإعداد إذا كنت تستخدم خاصية التشغيل الدائم لـ VPN.</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">نفق “%s” موجود بالفعل</string>
+    <string name="tunnel_error_invalid_name">اسم غير صالح</string>
+    <string name="preview">معاينة</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">شبكة الجيل القادم</string>
+    <string name="gen4_next_generation_network_message">يجب قطع اتصال VPN لتغيير شبكة الخادم.</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">تضمين المناطق المحدد موقعها جغرافيًا</string>
 </resources>

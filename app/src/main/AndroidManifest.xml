@@ -50,6 +50,12 @@
         >
 
         <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            android:exported="false"
+            android:enabled="false"/>
+
+        <provider
             android:authorities="com.privateinternetaccess.multipreferences.MultiProvider"
             android:name=".pia.utils.MultiProvider" >
         </provider>

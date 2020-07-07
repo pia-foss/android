@@ -28,13 +28,25 @@ public class ServerItem {
     private String name;
     private boolean selected;
     private boolean allowsPF;
+    private boolean geo;
+    private String latency;
 
-    public ServerItem(String key, int flagId, String name, boolean selected, boolean allowsPF) {
+    public ServerItem(
+            String key,
+            int flagId,
+            String name,
+            boolean selected,
+            boolean allowsPF,
+            boolean geo,
+            String latency
+    ) {
         this.key = key;
         this.flagId = flagId;
         this.name = name;
         this.selected = selected;
         this.allowsPF = allowsPF;
+        this.geo = geo;
+        this.latency = latency;
     }
 
     public String getKey() {
@@ -71,5 +83,13 @@ public class ServerItem {
 
     public void setAllowsPF(boolean allowsPF) {
         this.allowsPF = allowsPF;
+    }
+
+    public boolean isGeo() {
+        return geo;
+    }
+
+    public String getLatency() {
+        return latency;
     }
 }

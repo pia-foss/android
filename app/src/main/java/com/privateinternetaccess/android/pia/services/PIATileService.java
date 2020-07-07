@@ -19,35 +19,29 @@
 package com.privateinternetaccess.android.pia.services;
 
 import android.annotation.TargetApi;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Build;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.PingHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
+import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.LauncherActivity;
-import com.privateinternetaccess.android.ui.features.LaunchVPNForService;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
-import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 
 @TargetApi(Build.VERSION_CODES.N)
-public class PIATileService extends TileService implements VpnStatus.StateListener {
+public class PIATileService extends TileService {
 
     @Override
     public void onClick() {
@@ -89,15 +83,17 @@ public class PIATileService extends TileService implements VpnStatus.StateListen
     @Override
     public void onStartListening() {
         super.onStartListening();
-        VpnStatus.addStateListener(this);
+        EventBus.getDefault().register(this);
     }
 
-    @Override
-    public void updateState(String state, String logmessage, int localizedResId, ConnectionStatus level) {
+    @Subscribe(sticky = true)
+    public void updateState(VpnStateEvent event){
+        ConnectionStatus status = event.getLevel();
+
         Tile t = getQsTile();
         if(t != null) {
             IVPN ivpn = PIAFactory.getInstance().getVPN(this);
-            if (level != ConnectionStatus.LEVEL_CONNECTED) {
+            if (status != ConnectionStatus.LEVEL_CONNECTED) {
                 if(!ivpn.isKillswitchActive()) {
                     IAccount account = PIAFactory.getInstance().getAccount(this);
                     // No login
@@ -105,8 +101,8 @@ public class PIATileService extends TileService implements VpnStatus.StateListen
                         t.setLabel(getString(R.string.not_logged_in));
                         t.setState(Tile.STATE_UNAVAILABLE);
                     } else {
-                        if (localizedResId == R.string.status_server_ping)
-                            t.setLabel(getString(localizedResId));
+                        if (event.getLocalizedResId() == R.string.status_server_ping)
+                            t.setLabel(getString(event.getLocalizedResId()));
                         else
                             t.setLabel(getString(R.string.qs_title));
                         t.setState(Tile.STATE_INACTIVE);
@@ -131,13 +127,9 @@ public class PIATileService extends TileService implements VpnStatus.StateListen
     }
 
     @Override
-    public void setConnectedVPN(String uuid) {
-
-    }
-
-    @Override
     public void onStopListening() {
-        VpnStatus.removeStateListener(this);
+        DLog.d("PIATileService", "Stop Listening");
+        EventBus.getDefault().unregister(this);
         super.onStopListening();
     }
 }

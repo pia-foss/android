@@ -18,23 +18,12 @@
 
 package com.privateinternetaccess.android.pia.api;
 
-import android.test.mock.MockContext;
-
-import com.privateinternetaccess.android.pia.api.AccountApi;
-import com.privateinternetaccess.android.pia.api.IpApi;
-import com.privateinternetaccess.android.pia.api.LocationApi;
-import com.privateinternetaccess.android.pia.api.MaceApi;
-import com.privateinternetaccess.android.pia.api.PiaApi;
-import com.privateinternetaccess.android.pia.api.PortForwardApi;
-import com.privateinternetaccess.android.pia.api.PurchasingApi;
-import com.privateinternetaccess.android.pia.api.ReportingApi;
-import com.privateinternetaccess.android.pia.api.ServerAPI;
+import android.content.Context;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -42,19 +31,19 @@ import okhttp3.mock.MockInterceptor;
 import okhttp3.mock.Rule;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PIAAPITest {
 
-    @Mock
-    MockContext context;
-
     MockInterceptor interceptor;
+    Context context;
 
     @Before
     public void setup(){
         MockitoAnnotations.initMocks(this);
         interceptor = new MockInterceptor();
+        context = mock(Context.class);
     }
 
     @Test

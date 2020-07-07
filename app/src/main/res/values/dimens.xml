@@ -96,4 +96,6 @@
     <dimen name="panel_horizontal_padding">24dp</dimen>
     <dimen name="panel_vertical_padding">18dp</dimen>
 
+    <dimen name="region_location_radius">6dp</dimen>
+
 </resources>

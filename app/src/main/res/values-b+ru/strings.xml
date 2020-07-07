@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[Номер порта должен быть в интервале от 1024 до 65535]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[Номер порта от 1024 до 65535]]></string>
-    <string name="startup_support_title">Поддержка 5 устройств одновременно</string>
-    <string name="startup_support_message">Защищайте себя на нескольких устройствах одновременно (до 5).</string>
     <string name="startup_region_title">Простое подключение к любому региону</string>
     <string name="startup_region_message">У нас есть серверы по всему миру, так что вы всегда будете под защитой.</string>
     <string name="startup_ads_title">Защита от рекламы</string>
@@ -245,7 +243,8 @@
     <string name="done">ГОТОВО</string>
     <string name="update_account">ОБНОВИТЬ УЧЕТНУЮ ЗАПИСЬ</string>
     <string name="local_port_titla">Локальный порт</string>
-    <string name="preference_application_settings">НАСТРОЙКИ ПРИЛОЖЕНИЯ</string>
+    <string name="preference_application_settings">ОБЩИЕ НАСТРОЙКИ</string>
+    <string name="preference_vpn_settings">НАСТРОЙКИ VPN</string>
     <string name="preference_haptic_title">Сенсорная реакция при подключении</string>
     <string name="preference_dialog_graph_title">Выберите единицу измерения для графика</string>
     <string name="preference_connect_on_boot_summary">Подключаться при запуске системы</string>
@@ -339,10 +338,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">Общие события и уведомления</string>
     <string name="tv_startup_press_right">НАЖМИТЕ ВПРАВО</string>
-    <string name="androidalwayson">Android VPN всегда вкл</string>
-    <string name="androidalwaysonsummary">В Android 8.0+ есть механизм даже лучше аварийного блокиратора. Нажмите, чтобы узнать о нём</string>
+    <string name="androidalwayson">Блокировать подключения без VPN</string>
+    <string name="androidalwaysonsummary">В Android есть лучшая альтернатива функции «Аварийный блокиратор». Нажмите, чтобы узнать о ней</string>
     <string name="block_connection_wo_vpn">Блокировать подключения без VPN</string>
-    <string name="always_oreo_message">В Android 8.0 и более поздних версиях есть возможность блокировать подключения без VPN. Она встроена в саму ОС Android, и это более надежный блокиратор, который работает, даже если приложение PIA VPN «падает» или останавливается, и начинает работать еще до запуска PIA.\n\nМы рекомендуем настройки \"VPN всегда вкл\" и \"Блокировать подключения без VPN\" в дополнение к аварийному блокиратору или как альтернативу ему</string>
+    <string name="always_oreo_message">Чтобы всегда быть подключенным через VPN, рекомендуем включить «Блокировать подключения без VPN» в настройках Android. Настройку можно включить после активации «VPN всегда вкл» для PIA. Тогда Android сделает всё возможное, чтобы PIA VPN работал при любом подключении и блокировал соединения без VPN (аварийный блокиратор VPN). Настройка «Аварийный блокиратор» в приложении PIA VPN заменена на функцию «Блокировать подключения без VPN» на системном уровне в настройках, поскольку начиная с Android 8.0 эта функция встроена. Если возникнет проблема, вы получите уведомление, и Android заблокирует все подключения к Интернету, не проходящие через ваш VPN.</string>
     <string name="preference_blocking">БЛОКИРОВКА</string>
     <string name="preference_connect_proxy">Подключаться через прокси</string>
     <string name="preference_connect_proxy_app">Выбранное прокси-приложение</string>
@@ -391,7 +390,7 @@
     <string name="pp_text">Политика конфиденциальности</string>
     <string name="website_isnt_protected">Веб-сайт не защищен.</string>
     <string name="api_check_failure_title">Ошибка подключения</string>
-    <string name="api_check_message">Не удалось подключиться к Private Internet Access. Это может быть из-за плохого качества соединения с Интернетом, или наша служба заблокирована в вашей стране.</string>
+    <string name="api_check_message">Не удалось подключиться к Private Internet Access. Это может быть из-за плохого качества соединения с Интернетом, или если наша служба заблокирована в вашей стране. Убедитесь, что Интернет-соединение стабильно, принудительно остановите приложение в Настройках, перезапустите приложение и повторите попытку.</string>
     <string name="invalid_qr_code">Недействительная последовательность QR-кодов. Повторите.</string>
     <string name="empty_qr_code">Содержимое QR пустое. Повторите.</string>
     <string name="your_plan_will_expire_on">Ваш план истечет</string>
@@ -427,7 +426,8 @@
     <string name="trusted_wifi_title">Доверенные сети Wi-Fi</string>
     <string name="trusted_wifi_message">VPN будет автоматически включаться во всех сетях Wi-Fi, кроме тех, которые внесены пользователем в белый список</string>
     <string name="trusted_wifi_enable_message">Отключать VPN при подключении к доверенным сетям</string>
-    <string name="trusted_wifi_header">Доверенные сети</string>
+    <string name="trusted_wifi_singular">Доверенная сеть</string>
+    <string name="trusted_wifi_plural">Доверенные сети</string>
     <string name="available_wifi_header">Доступные сети</string>
     <string name="trusted_wifi_no_wifi">Включите Wi-Fi для выбора доверенных сетей.</string>
     <string name="trusted_wifi_no_permission">Функции «Доверенные сети Wi-Fi» для обнаружения ближайших Wi-Fi сетей нужно разрешение на определение местоположения. Если отозвать разрешение, функция перестанет работать.\n\nДля использования функции перейдите в меню Настройки&gt;Приложения&gt;PIA VPN и убедитесь, что определение местоположения включено.</string>
@@ -518,4 +518,44 @@
     <string name="free_trial_region_text">Больше 3300 серверов в 32 странах</string>
     <string name="free_trial_start">НАЧАТЬ ПОДПИСКУ</string>
     <string name="free_trial_see_all">Посмотреть все планы</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">РЕЖИМ ПАУЗЫ VPN</string>
+    <string name="snooze_short">ПАУЗА 5 МИНУТ</string>
+    <string name="snooze_medium">ПАУЗА 15 МИНУТ</string>
+    <string name="snooze_long">ПАУЗА 1 ЧАС</string>
+    <string name="snooze_description">Отключает VPN и автоматически переподключается, когда таймер истекает.</string>
+    <string name="snooze_resume">ВОЗОБНОВИТЬ</string>
+    <string name="snooze_paused">Пауза до %s</string>
+    <string name="snooze_status">Пауза</string>
+    <string name="snooze_notification">На паузе</string>
+    <string name="failed_connect_status">Не удалось подключиться</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">БЫСТРАЯ НАСТРОЙКА</string>
+    <string name="quick_settings_network_toggle">Управление сетью</string>
+    <string name="quick_settings_private_browser">Приватный браузер</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">БЫСТРОЕ ПОДКЛЮЧЕНИЕ</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">ИСПОЛЬЗОВАНИЕ</string>
+    <string name="usage_download">Загрузить</string>
+    <string name="usage_upload">Отправить</string>
+    <!-- Settings -->
+    <string name="settings_protocol">Протокол</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">Переключение на WireGuard отключит функцию «Настройки по каждому приложению»</string>
+    <string name="wg_protocol_warning">Следующие функции недоступны в WireGuard:</string>
+    <string name="wg_connecting">Идет подключение</string>
+    <string name="wg_connected">VPN подключен</string>
+    <string name="ks_removal_warning">Мы обнаружили, что у вас включен аварийный блокиратор. Мы изменили принцип работы этой функции, добавив настройку Android «Блокировать подключения без VPN» для WireGuard и OpenVPN. Посмотрите изменения в Настройках, чтобы убедиться, что вы под защитой.</string>
+    <string name="preference_on_boot_always_on">Подключение при запуске системы. Мы рекомендуем включить эту настройку при использовании функции «VPN всегда вкл».</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">Туннель «%s» уже существует</string>
+    <string name="tunnel_error_invalid_name">Неверное имя</string>
+    <string name="preview">ПРОСМОТР</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">Сеть следующего поколения</string>
+    <string name="gen4_next_generation_network_message">Необходимо отключить VPN для смены сети сервера.</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">Включать регионы, определенные по местоположению</string>
 </resources>

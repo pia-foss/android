@@ -52,6 +52,7 @@ public final class Interface {
 
     private final Set<InetNetwork> addresses;
     private final Set<InetAddress> dnsServers;
+    private final String gateway;
     private final Set<String> excludedApplications;
     private final KeyPair keyPair;
     private final Optional<Integer> listenPort;
@@ -61,6 +62,7 @@ public final class Interface {
         // Defensively copy to ensure immutability even if the Builder is reused.
         addresses = Collections.unmodifiableSet(new LinkedHashSet<>(builder.addresses));
         dnsServers = Collections.unmodifiableSet(new LinkedHashSet<>(builder.dnsServers));
+        gateway = builder.gateway;
         excludedApplications = Collections.unmodifiableSet(new LinkedHashSet<>(builder.excludedApplications));
         keyPair = Objects.requireNonNull(builder.keyPair, "Interfaces must have a private key");
         listenPort = builder.listenPort;
@@ -87,9 +89,6 @@ public final class Interface {
                 case "dns":
                     builder.parseDnsServers(attribute.getValue());
                     break;
-//                case "excludedapplications":
-//                    builder.parseExcludedApplications(attribute.getValue());
-//                    break;
                 case "listenport":
                     builder.parseListenPort(attribute.getValue());
                     break;
@@ -98,6 +97,9 @@ public final class Interface {
                     break;
                 case "privatekey":
                     builder.parsePrivateKey(attribute.getValue());
+                    break;
+                case "gateway":
+                    builder.parseGateway(attribute.getValue());
                     break;
                 default:
                     throw new BadConfigException(Section.INTERFACE, Location.TOP_LEVEL,
@@ -138,6 +140,15 @@ public final class Interface {
     public Set<InetAddress> getDnsServers() {
         // The collection is already immutable.
         return dnsServers;
+    }
+
+    /**
+     * Returns the tunnels gateway associated with the interface.
+     *
+     * @return and endpoint, or null if missing
+     */
+    public String getGateway() {
+        return gateway;
     }
 
     /**
@@ -232,6 +243,9 @@ public final class Interface {
         private Optional<Integer> listenPort = Optional.empty();
         // Defaults to not present.
         private Optional<Integer> mtu = Optional.empty();
+        // No default.
+        @Nullable
+        private String gateway;
 
         public Builder addAddress(final InetNetwork address) {
             addresses.add(address);
@@ -290,10 +304,6 @@ public final class Interface {
             }
         }
 
-//        public Builder parseExcludedApplications(final CharSequence apps) {
-//            return excludeApplications(Lists.of(Attribute.split(apps)));
-//        }
-
         public Builder parseListenPort(final String listenPort) throws BadConfigException {
             try {
                 return setListenPort(Integer.parseInt(listenPort));
@@ -316,6 +326,11 @@ public final class Interface {
             } catch (final KeyFormatException e) {
                 throw new BadConfigException(Section.INTERFACE, Location.PRIVATE_KEY, e);
             }
+        }
+
+        public Builder parseGateway(final String gateway) {
+            this.gateway = gateway;
+            return this;
         }
 
         public Builder setKeyPair(final KeyPair keyPair) {

@@ -25,18 +25,14 @@ import android.os.AsyncTask;
 import com.privateinternetaccess.android.pia.api.PiaApi;
 import com.privateinternetaccess.android.pia.api.PortForwardApi;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.exceptions.PortForwardingError;
 import com.privateinternetaccess.android.pia.model.response.PortForwardResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.tunnel.PortForwardingStatus;
+import com.privateinternetaccess.core.model.PIAServer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 
 import de.blinkt.openvpn.core.VpnStatus;
 
@@ -81,7 +77,6 @@ public class PortForwardTask extends AsyncTask<String, Void, PortForwardResponse
                     String expMessage = null;
                     try {
                         if (VpnStatus.isVPNActive()) {
-
                             PortForwardApi api = new PortForwardApi();
                             port = api.getPort(mContext);
                         }
@@ -127,23 +122,5 @@ public class PortForwardTask extends AsyncTask<String, Void, PortForwardResponse
         intent.setAction("com.privateinternetaccess.com.PORTFORWARD");
         intent.putExtra("port", port);
         c.sendBroadcast(intent);
-    }
-
-    StringReader printServerResponse(InputStream isr) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(isr));
-
-        StringBuilder sb = new StringBuilder();
-
-        String line = "";
-        do {
-            sb.append(line).append("\n");
-            try {
-                line = br.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } while (line != null);
-        DLog.d("PIA", sb.toString());
-        return new StringReader(sb.toString());
     }
 }

@@ -18,7 +18,7 @@
 
 package com.privateinternetaccess.android.pia.api;
 
-import android.test.mock.MockContext;
+import android.content.Context;
 
 import com.privateinternetaccess.android.pia.model.TrialData;
 import com.privateinternetaccess.android.pia.model.TrialTestingData;
@@ -33,8 +33,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -43,15 +41,14 @@ import okhttp3.mock.MockInterceptor;
 import okhttp3.mock.Rule;
 
 import static okhttp3.mock.MediaTypes.MEDIATYPE_JSON;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AccountApiTest {
 
     AccountApi api;
     MockInterceptor interceptor;
-
-    @Mock
-    MockContext context;
+    Context context;
 
     @Before
     public void setup(){
@@ -60,6 +57,7 @@ public class AccountApiTest {
         PiaApi.setInterceptor(interceptor);
 
         api = new AccountApi(context);
+        context = mock(Context.class);
     }
 
     @Test
@@ -70,7 +68,7 @@ public class AccountApiTest {
                 .respond(401));
 
         LoginResponse response = api.getAccountInformation("");
-        Assert.assertTrue(response.getStatus() == LoginResponseStatus.AUTH_FAILED);
+        Assert.assertSame(response.getStatus(), LoginResponseStatus.AUTH_FAILED);
     }
 
     @Test
@@ -82,7 +80,7 @@ public class AccountApiTest {
                 .respond(200).body(ResponseBody.create(MEDIATYPE_JSON, "{}")));
 
         LoginResponse response = api.getAccountInformation("");
-        Assert.assertTrue(response.getStatus() == LoginResponseStatus.CONNECTED);
+        Assert.assertSame(response.getStatus(), LoginResponseStatus.CONNECTED);
     }
 
     @Test
@@ -94,7 +92,7 @@ public class AccountApiTest {
                 .body(ResponseBody.create(MEDIATYPE_JSON, "{\"email\":\"test@test.com\"}")));
 
         LoginResponse response = api.getAccountInformation("");
-        Assert.assertTrue(response.getEmail().equals("test@test.com"));
+        Assert.assertEquals("test@test.com", response.getEmail());
     }
 
     @Test
@@ -167,8 +165,8 @@ public class AccountApiTest {
         TrialData data = new TrialData("","");
 
         TrialResponse response = api.createTrialAccount(data, new TrialTestingData(false, 200,"","",""));
-        Assert.assertTrue(response.getUsername().equals("p1234567"));
-        Assert.assertTrue(response.getPassword().equals("testing1"));
+        Assert.assertEquals("p1234567", response.getUsername());
+        Assert.assertEquals("testing1", response.getPassword());
     }
 
     @Test
@@ -184,7 +182,7 @@ public class AccountApiTest {
         TrialData data = new TrialData("","");
 
         TrialResponse response = api.createTrialAccount(data, new TrialTestingData(false, 200,"","",""));
-        Assert.assertTrue(response.getStatus() == 400);
+        Assert.assertEquals(400, response.getStatus());
     }
 
     @Test
@@ -192,9 +190,9 @@ public class AccountApiTest {
         TrialData data = new TrialData("","");
         TrialTestingData testing = new TrialTestingData(true, 300, "blah", "p1234567","testing1");
         TrialResponse response = api.createTrialAccount(data, testing);
-        Assert.assertTrue(response.getStatus() == 300);
-        Assert.assertFalse(response.getUsername().equals("p123456"));
-        Assert.assertTrue(response.getPassword().equals("testing1"));
+        Assert.assertEquals(300, response.getStatus());
+        Assert.assertNotEquals("p123456", response.getUsername());
+        Assert.assertEquals("testing1", response.getPassword());
     }
 
     @After

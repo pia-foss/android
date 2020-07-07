@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[Numer portu musi mieścić się pomiędzy 1024 i 65535]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[Port pomiędzy 1024 i 65535]]></string>
-    <string name="startup_support_title">Obsługa 5 urządzeń jednocześnie</string>
-    <string name="startup_support_message">Ochrona na maksymalnie 5 urządzeniach jednocześnie.</string>
     <string name="startup_region_title">Łatwo połączysz się z dowolnym regionem</string>
     <string name="startup_region_message">Dzięki serwerami na całym świecie zawsze jesteś pod ochroną</string>
     <string name="startup_ads_title">Nie daj się reklamow</string>
@@ -245,7 +243,8 @@
     <string name="done">GOTOWE</string>
     <string name="update_account">ZMIEŃ ABONAMENT</string>
     <string name="local_port_titla">Port lokalny</string>
-    <string name="preference_application_settings">USTAWIENIA APLIKACJI</string>
+    <string name="preference_application_settings">OGÓLNE USTAWIENIA</string>
+    <string name="preference_vpn_settings">USTAWIENIA VPN</string>
     <string name="preference_haptic_title">Informacje haptyczne przy połączeniu</string>
     <string name="preference_dialog_graph_title">Wybierz jednostkę miary dla wykresu</string>
     <string name="preference_connect_on_boot_summary">Połącz przy uruchomieniu systemu</string>
@@ -339,10 +338,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">Ogólne zdarzenia i powiadomienia</string>
     <string name="tv_startup_press_right">NACIŚNIJ W PRAWO</string>
-    <string name="androidalwayson">Android VPN zawsze włączony</string>
-    <string name="androidalwaysonsummary">Android 8.0+ obejmuje lepszą alternatywę dla Killswitch, kliknij, aby uzyskać więcej informacji</string>
+    <string name="androidalwayson">Blokuj połączenia bez VPN</string>
+    <string name="androidalwaysonsummary">Android obejmuje lepszą alternatywę dla funkcji Killswitch; kliknij, aby uzyskać więcej informacji</string>
     <string name="block_connection_wo_vpn">Blokuj połączenia bez VPN</string>
-    <string name="always_oreo_message">Android 8.0 i nowsze wersje obejmują opcję wbudowaną w system Android, która blokuje połączenia bez VPN. Ponieważ jest to opcja głęboko zintegrowana z samym Android OS, jest to lepszy zintegrowany KillSwitch w samym Androidzie, który działa nawet wtedy, kiedy wystąpi awaria lub zamknięcie aplikacji PIA VPN i działa również, zanim PIA zostanie w ogóle uruchomione.\n\nZalecamy ustawienie „Zawsze włączone VPN” i „Blokuj połączenia bez VPN” dodatkowo lub jako alternatywę dla opcji Killswitch</string>
+    <string name="always_oreo_message">Aby mieć pewność, że nigdy nie będziesz łączyć się bez VPN, zalecamy włączenie opcji „Blokuj połączenie bez VPN” w ustawieniach Androida. Można to włączyć po włączeniu „Zawsze przez VPN” dla PIA. Dzięki temu system Android będzie się starał, aby PIA VPN działała przez cały czas podczas połączenia i będzie blokować połączenia bez VPN - inaczej „killswitch” (wyłącznik) VPN. Ustawienie Killswitch w aplikacji PIA VPN zostało wycofane na rzecz ustawienia „Blokuj połączenie bez VPN” na poziomie systemu w ustawieniach Androida, ponieważ Android 8.0+ ma teraz tę funkcję wbudowaną. Jeśli kiedykolwiek wystąpi problem, otrzymasz powiadomienie, a Android zablokuje wszystkie połączenia internetowe, które nie przechodzą przez Twoją sieć VPN.</string>
     <string name="preference_blocking">BLOKOWANIE</string>
     <string name="preference_connect_proxy">Połącz przez proxy</string>
     <string name="preference_connect_proxy_app">Wybrana aplikacja proxy</string>
@@ -391,7 +390,7 @@
     <string name="pp_text">Zasady ochrony prywatności</string>
     <string name="website_isnt_protected">Strona internetowa nie jest chroniona.</string>
     <string name="api_check_failure_title">Błąd połączenia</string>
-    <string name="api_check_message">Nie można połączyć z Private Internet Access. Może to być spowodowane słabym połączeniem z internetem lub nasza usługa może być zablokowana w Twoim kraju.</string>
+    <string name="api_check_message">Nie można połączyć z Private Internet Access. Może to być spowodowane słabym połączeniem z internetem lub nasza usługa może być zablokowana w Twoim kraju. Upewnij się, że masz stabilne połączenie z internetem, wymuś zatrzymanie aplikacji z ustawień, uruchom ponownie aplikację i spróbuj ponownie.</string>
     <string name="invalid_qr_code">Nieprawidłowa sekwencja kodu QR. Spróbuj ponownie.</string>
     <string name="empty_qr_code">Treść kodu QR jest pusta. Spróbuj ponownie.</string>
     <string name="your_plan_will_expire_on">Twój plan wygaśnie</string>
@@ -427,10 +426,11 @@
     <string name="trusted_wifi_title">Zaufane Wi-Fi</string>
     <string name="trusted_wifi_message">VPN połączy się automatycznie przez wszystkie sieci Wi-Fi z wyłączeniem tych dodanych do białej listy przez użytkownika</string>
     <string name="trusted_wifi_enable_message">Wyłącz VPN, kiedy połączone z zaufanymi sieciami</string>
-    <string name="trusted_wifi_header">Zaufane sieci</string>
+    <string name="trusted_wifi_singular">Zaufana sieć</string>
+    <string name="trusted_wifi_plural">Zaufane sieci</string>
     <string name="available_wifi_header">Dostępne sieci</string>
     <string name="trusted_wifi_no_wifi">Włącz Wi-Fi, aby wybrać zaufane sieci.</string>
-    <string name="trusted_wifi_no_permission">Zaufana sieć Wi-Fi wymaga zezwolenia na wykrywanie sieci Wi-Fi w pobliżu. Jeśli to zezwolenie zostanie cofnięte, ta funkcja nie będzie już działać.\n\nAby użyć tej funkcji, przejdź do Ustawień&gt;Aplikacje&gt;PIA VPN, i upewnij się, że zezwolono na dostęp do lokalizacji</string>
+    <string name="trusted_wifi_no_permission">Zaufana sieć Wi-Fi wymaga zezwolenia na wykrywanie sieci Wi-Fi w pobliżu. Jeśli to zezwolenie zostanie cofnięte, ta funkcja nie będzie już działać.\n\nAby użyć tej funkcji, przejdź do Ustawień&gt;Aplikacje&gt;PIA VPN, i upewnij się, że zezwolono na dostęp do lokalizacji.</string>
     <string name="no_permission_title">Wymagane zezwolenie</string>
     <string name="trusted_wifi_not_available">Brak dostępnych sieci</string>
     <string name="trusted_wifi_no_trusted">Brak zaufanych sieci</string>
@@ -518,4 +518,44 @@
     <string name="free_trial_region_text">Ponad 3300 serwerów w 32 krajach</string>
     <string name="free_trial_start">ROZPOCZNIJ SUBSKRYPCJĘ</string>
     <string name="free_trial_see_all">Zobacz wszystkie dostępne plany</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">DRZEMKA VPN</string>
+    <string name="snooze_short">DRZEMKA 5 MINUT</string>
+    <string name="snooze_medium">DRZEMKA 15 MINUT</string>
+    <string name="snooze_long">DRZEMKA 1 GODZINA</string>
+    <string name="snooze_description">Odłącza VPN i automatycznie wznawia połączenie po upływie zadanego czasu.</string>
+    <string name="snooze_resume">WZNÓW</string>
+    <string name="snooze_paused">Wstrzymane do %s</string>
+    <string name="snooze_status">W trakcie drzemki</string>
+    <string name="snooze_notification">Uśpione</string>
+    <string name="failed_connect_status">Nie można połączyć</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">SZYBKIE USTAWIENIA</string>
+    <string name="quick_settings_network_toggle">Zarządzanie sieciami</string>
+    <string name="quick_settings_private_browser">Prywatna przeglądarka</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">SZYBKIE ŁĄCZENIE</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">ZUŻYCIE</string>
+    <string name="usage_download">Pobieranie</string>
+    <string name="usage_upload">Przesyłanie</string>
+    <!-- Settings -->
+    <string name="settings_protocol">Protokół</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">Przełączenie na WireGuard wyłączy funkcję Ustawienia aplikacji</string>
+    <string name="wg_protocol_warning">Następujące funkcje nie są dostępne w WireGuard:</string>
+    <string name="wg_connecting">Łączenie</string>
+    <string name="wg_connected">Połączono z VPN</string>
+    <string name="ks_removal_warning">Wykryliśmy, że masz włączony Killswitch. Zmieniliśmy sposób działania tej funkcji, integrując ustawienie Android „Blokuj połączenia bez VPN” zarówno dla WireGuard, jak i OpenVPN. Przejrzyj zmiany w Ustawieniach, aby upewnić się, że jesteś chroniony.</string>
+    <string name="preference_on_boot_always_on">Połącz przy starcie systemu. Zalecamy włączenie tego ustawienia, jeśli korzystasz z „Zawsze przez VPN”.</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">Tunel „%s” już istnieje</string>
+    <string name="tunnel_error_invalid_name">Nieprawidłowa nazwa</string>
+    <string name="preview">PODGLĄD</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">Sieć następnej generacji</string>
+    <string name="gen4_next_generation_network_message">VPN musi zostać odłączony, aby zmienić sieć serwerów.</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">Uwzględnij regiony geolokalizowane</string>
 </resources>

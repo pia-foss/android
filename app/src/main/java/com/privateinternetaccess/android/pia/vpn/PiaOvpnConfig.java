@@ -26,11 +26,11 @@ import androidx.annotation.NonNull;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.ui.drawer.settings.DeveloperActivity;
+import com.privateinternetaccess.core.model.PIAServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +45,8 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.ProfileManager;
+
+import static com.privateinternetaccess.android.pia.api.MaceApi.GEN4_MACE_ENABLED_DNS;
 
 public class PiaOvpnConfig {
 
@@ -93,6 +95,9 @@ public class PiaOvpnConfig {
         vp.mDNS2 = "";
 
         String dns = prefs.get(PiaPrefHandler.DNS, "");
+        if (prefs.getBoolean(PiaPrefHandler.GEN4_ACTIVE) && PiaPrefHandler.isMaceEnabled(c)) {
+            dns = GEN4_MACE_ENABLED_DNS;
+        }
         DLog.d("PiaOvpnConfig", "Custom DNS: " + dns);
         if(!TextUtils.isEmpty(dns)){
             vp.mDNS1 = dns;
@@ -102,6 +107,10 @@ public class PiaOvpnConfig {
         String secondaryDns = prefs.get(PiaPrefHandler.DNS_SECONDARY, "");
         if (!TextUtils.isEmpty(secondaryDns)) {
             vp.mDNS2 = secondaryDns;
+        }
+
+        if (prefs.get("mssfix", c.getResources().getBoolean(R.bool.usemssfix))) {
+            vp.mMssFix = 1350;
         }
 
         ProfileManager.setTemporaryProfile(c, vp);
@@ -142,12 +151,13 @@ public class PiaOvpnConfig {
         config.append("cipher ").append(prefs.get("cipher", DEFAULT_CIPHER)).append("\n");
         config.append("auth ").append(prefs.get("auth", DEFAULT_AUTH)).append("\n");
 
-
         config.append("pia-signal-settings\n");
 
-
-        String remoteip = autoserver.split(":")[0];
-        String remoteport = autoserver.split(":")[1];
+        String remoteip = autoserver;
+        String remoteport = "";
+        if (autoserver.contains(":")) {
+            remoteip = autoserver.split(":")[0];
+        }
 
         String rport = prefs.get("rport", "auto");
         if (!rport.equals("") && !rport.equals("auto")) {
@@ -161,6 +171,7 @@ public class PiaOvpnConfig {
             } else {
                 ports = handler.getInfo().getUdpPorts();
             }
+            remoteport = ports.firstElement().toString();
 
             config.append(String.format(Locale.ENGLISH, "remote %s %s\n", remoteip, remoteport));
 

@@ -18,7 +18,7 @@
 
 package com.privateinternetaccess.android.pia.api;
 
-import android.test.mock.MockContext;
+import android.content.Context;
 
 import com.privateinternetaccess.android.pia.model.exceptions.HttpResponseError;
 import com.privateinternetaccess.android.pia.model.response.ReportResponse;
@@ -28,7 +28,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -38,17 +37,14 @@ import okhttp3.mock.MockInterceptor;
 import okhttp3.mock.Rule;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReportingApiTest {
 
-
-    @Mock
-    MockContext context;
-
-    ReportingApi api;
     MockInterceptor interceptor;
+    ReportingApi api;
+    Context context;
 
     @Before
     public void setUp() throws Exception {
@@ -56,6 +52,7 @@ public class ReportingApiTest {
         interceptor = new MockInterceptor();
         PiaApi.setInterceptor(interceptor);
 
+        context = mock(Context.class);
         api = new ReportingApi(context);
     }
 
@@ -89,8 +86,9 @@ public class ReportingApiTest {
         list[1] = "test";
         try {
             ReportResponse response = api.sendReport(list);
-            Assert.assertTrue(response.getTicketId() != null);
+            Assert.assertNotNull(response.getTicketId());
         } catch (IOException e) {
+            throw new IllegalStateException("Response error");
         }
     }
 
@@ -108,6 +106,7 @@ public class ReportingApiTest {
             ReportResponse response = api.sendReport(list);
             Assert.assertTrue(response.getTicketId().matches("^[A-F0-9]+$"));
         } catch (IOException e) {
+            throw new IllegalStateException("Response error");
         }
     }
 
@@ -123,8 +122,9 @@ public class ReportingApiTest {
         list[1] = "test";
         try {
             ReportResponse response = api.sendReport(list);
-            Assert.assertTrue(response.exception == null);
+            Assert.assertNull(response.exception);
         } catch (IOException e) {
+            throw new IllegalStateException("Response error");
         }
     }
 

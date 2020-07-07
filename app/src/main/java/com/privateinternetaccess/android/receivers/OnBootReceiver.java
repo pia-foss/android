@@ -57,7 +57,7 @@ public class OnBootReceiver extends BroadcastReceiver {
         } else {
             PingDelayStartHandler handler = new PingDelayStartHandler();
             handler.setTimeDiff(PingHandler.PING_TIME_30_DIFFERENCE);
-            handler.startPings(context);
+            handler.startPings(context.getApplicationContext());
         }
     }
 }

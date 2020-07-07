@@ -18,6 +18,8 @@
 
 package com.privateinternetaccess.android.pia.model;
 
+import com.privateinternetaccess.core.model.PIAServerInfo;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -40,9 +42,10 @@ public class PIAServerInfoTest {
         try {
             JSONObject object = new JSONObject("{}");
             info.parse(object);
-            Assert.assertTrue(info.getPollInterval() == 0);
-        } catch (JSONException e){
+        } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
         }
+        Assert.assertEquals(0, info.getPollInterval());
     }
 
     @Test
@@ -51,9 +54,10 @@ public class PIAServerInfoTest {
         try {
             JSONObject object = new JSONObject(valid_JSON);
             info.parse(object);
-            Assert.assertTrue(info.getPollInterval() == 999);
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
         }
+        Assert.assertEquals(999, info.getPollInterval());
     }
 
     @Test
@@ -62,10 +66,11 @@ public class PIAServerInfoTest {
         try {
             JSONObject object = new JSONObject(valid_JSON);
             info.parse(object);
-            String ip = info.getWebIps().get(0);
-            Assert.assertTrue(ip.equals("www.privateinternetaccess.com"));
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
         }
+        String ip = info.getWebIps().get(0);
+        Assert.assertEquals("www.privateinternetaccess.com", ip);
     }
 
     @Test
@@ -74,13 +79,14 @@ public class PIAServerInfoTest {
         try {
             JSONObject object = new JSONObject(valid_JSON);
             info.parse(object);
-            int[] udpPorts = new int[]{1111, 8888, 9999, 55};
-            int pos = 0;
-            for(Integer i : info.getUdpPorts()){
-                Assert.assertTrue(udpPorts[pos] == i);
-                pos++;
-            }
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
+        }
+        int[] udpPorts = new int[]{1111, 8888, 9999, 55};
+        int pos = 0;
+        for(Integer i : info.getUdpPorts()){
+            Assert.assertEquals(udpPorts[pos], (int) i);
+            pos++;
         }
     }
 
@@ -90,13 +96,14 @@ public class PIAServerInfoTest {
         try {
             JSONObject object = new JSONObject(valid_JSON);
             info.parse(object);
-            int[] tcpPorts = new int[]{222, 111, 66};
-            int pos = 0;
-            for(Integer i : info.getTcpPorts()){
-                Assert.assertTrue(tcpPorts[pos] == i);
-                pos++;
-            }
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
+        }
+        int[] tcpPorts = new int[]{222, 111, 66};
+        int pos = 0;
+        for(Integer i : info.getTcpPorts()){
+            Assert.assertEquals(tcpPorts[pos], (int) i);
+            pos++;
         }
     }
 
@@ -106,12 +113,13 @@ public class PIAServerInfoTest {
         try {
             JSONObject object = new JSONObject(valid_JSON);
             info.parse(object);
-            Assert.assertTrue(info.getAutoRegions().contains("us2"));
-            Assert.assertTrue(info.getAutoRegions().contains("aus"));
-            Assert.assertTrue(info.getAutoRegions().contains("japan"));
-            Assert.assertFalse(info.getAutoRegions().contains("random"));
-            Assert.assertFalse(info.getAutoRegions().contains(""));
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
         }
+        Assert.assertTrue(info.getAutoRegions().contains("us2"));
+        Assert.assertTrue(info.getAutoRegions().contains("aus"));
+        Assert.assertTrue(info.getAutoRegions().contains("japan"));
+        Assert.assertFalse(info.getAutoRegions().contains("random"));
+        Assert.assertFalse(info.getAutoRegions().contains(""));
     }
 }

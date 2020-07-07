@@ -18,9 +18,9 @@
 
 package com.privateinternetaccess.android.pia.model.response;
 
-import com.privateinternetaccess.android.pia.api.AccountApi;
-import com.privateinternetaccess.android.pia.model.PIAServer;
-import com.privateinternetaccess.android.pia.model.PIAServerInfo;
+import com.privateinternetaccess.core.model.PIAServer;
+import com.privateinternetaccess.core.model.PIAServerInfo;
+import com.privateinternetaccess.core.model.ServerResponse;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -22,13 +22,13 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.AccountApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.enums.LoginResponseStatus;
 import com.privateinternetaccess.android.pia.model.events.LoginEvent;
 import com.privateinternetaccess.android.pia.model.response.LoginResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

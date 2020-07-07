@@ -19,14 +19,14 @@
 package com.privateinternetaccess.android.pia.handlers;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.events.TrustedWifiEvent;
 import com.privateinternetaccess.android.pia.model.PIAAccountData;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.PurchaseData;
 import com.privateinternetaccess.android.pia.model.TrialData;
 import com.privateinternetaccess.android.pia.model.TrialTestingData;
@@ -35,7 +35,9 @@ import com.privateinternetaccess.android.pia.subscription.Base64DecoderException
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.PasswordObfuscation;
 import com.privateinternetaccess.android.pia.utils.Prefs;
+import com.privateinternetaccess.core.model.PIAServer;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -86,6 +88,7 @@ public class PiaPrefHandler {
     public static final String LAST_IP_TIMESTAMP = "lastIPTimestamp";
     public static final String PORTFORWARINDSTATUS = "portforwarindstatus";
     public static final String PORTFORWARDING = "portforwarding";
+    private static final String PORTFORWARDING_INFO = "portforwarding_info";
 
     public static final String SNOOZE_TIME = "lastSnoozeTime";
 
@@ -95,10 +98,15 @@ public class PiaPrefHandler {
 
     public static final String AUTOSTART = "autostart";
     public static final String AUTOCONNECT = "autoconnect";
-    public static final String TRUST_WIFI = "trustWifi";
+    private static final String TRUST_WIFI = "trustWifi";
+    private static final String TRUSTED_WIFI_LIST = "trustedWifiList";
 
     public static final String MACE_ACTIVE = "mace_active";
     public static final String PIA_MACE = "pia_mace";
+
+    public static final String GEN4_ACTIVE = "gen4_active";
+
+    public static final String GEO_SERVERS_ACTIVE = "geo_servers_active";
 
     public static final String LAST_SERVER_VERSION = "last_server_version";
 
@@ -183,6 +191,7 @@ public class PiaPrefHandler {
     public static final String CUSTOM_DNS = "CUSTOM_DNS";
     public static final String CUSTOM_SECONDARY_DNS = "CUSTOM_SECONDARY_DNS";
     public static final String CUSTOM_DNS_SELECTED = "CUSTOM_SELECTED";
+    public static final String DNS_PREF = "dns_pref";
 
     public static final String CONNECTION_ENDED = "connectionEndedByUser";
     public static final String LAST_CONNECT = "lastConnect";
@@ -198,8 +207,6 @@ public class PiaPrefHandler {
     public static final String USAGE_BYTE_COUNT = "usageByteCount";
     public static final String USAGE_BYTE_COUNT_OUT = "usageByteCountOut";
 
-    public static final String TRUSTED_WIFI_LIST = "trustedWifiList";
-
     public static final String TESTING_UPDATER = "testingUpdater";
     public static final String TESTING_UPDATER_SHOW_DIALOG = "testingUpdaterDialog";
     public static final String TESTING_UPDATER_SHOW_NOTIFICATION = "testingUpdaterNotification";
@@ -210,12 +217,38 @@ public class PiaPrefHandler {
     public static final String VPN_CONNECTING = "VPNConnecting";
     private static PIAAccountData mCachedAccountInfos;
 
+    private static final String GEN4_GATEWAY_ENDPOINT = "gen4_gateway_endpoint";
+
     public static boolean isPortForwardingEnabled(Context context){
         return Prefs.with(context).getBoolean(PORTFORWARDING);
     }
 
     public static void setPortForwardingEnabled(Context context, boolean portForwarding){
         Prefs.with(context).set(PORTFORWARDING, portForwarding);
+    }
+
+    public static void setBindPortForwardInformation(Context context, String data){
+        Prefs.with(context).set(PORTFORWARDING_INFO, data);
+    }
+
+    public static String getBindPortForwardInformation(Context context) {
+        return Prefs.with(context).getString(PORTFORWARDING_INFO);
+    }
+
+    public static void clearBindPortForwardInformation(Context context) {
+        Prefs.with(context).remove(PORTFORWARDING_INFO);
+    }
+
+    public static void setGatewayEndpoint(Context context, String endpoint){
+        Prefs.with(context).set(GEN4_GATEWAY_ENDPOINT, endpoint);
+    }
+
+    public static String getGatewayEndpoint(Context context) {
+        return Prefs.with(context).getString(GEN4_GATEWAY_ENDPOINT);
+    }
+
+    public static void clearGatewayEndpoint(Context context) {
+        Prefs.with(context).remove(GEN4_GATEWAY_ENDPOINT);
     }
 
     public static boolean isHapticFeedbackEnabled(Context context){
@@ -483,10 +516,6 @@ public class PiaPrefHandler {
         }
 
         Prefs.with(c).set(QUICK_CONNECT_LIST, array.toString());
-    }
-
-    public static boolean shouldConnectOnWifi(Context context) {
-        return Prefs.with(context).get(TRUST_WIFI, false);
     }
 
     public static boolean shouldUpdateAccountCache(){
@@ -832,7 +861,7 @@ public class PiaPrefHandler {
         PIAServer server = new PIAServer();
         Prefs prefs = Prefs.with(context);
         String url = prefs.get(TESTING_SERVER_URL, "");
-        server.setPing(url + ":" + prefs.get(TESTING_SERVER_PING_PORT, 0));
+        server.setPingEndpoint(url + ":" + prefs.get(TESTING_SERVER_PING_PORT, 0));
         server.setTcpbest(url + ":" + prefs.get(TESTING_SERVER_TCP_PORT, 0));
         server.setUdpbest(url + ":" + prefs.get(TESTING_SERVER_UDP_PORT, 0));
         server.setAllowsPF(prefs.get(TESTING_SERVER_PORT_FORWARDING, false));
@@ -910,12 +939,31 @@ public class PiaPrefHandler {
         return userEnded;
     }
 
+    public static boolean getTrustWifi(Context context) {
+        return Prefs.with(context).getBoolean(TRUST_WIFI);
+    }
+
+    public static void setTrustWifi(Context context, boolean value) {
+        Prefs.with(context).set(TRUST_WIFI, value);
+        EventBus.getDefault().post(new TrustedWifiEvent());
+    }
+
+    public static void clearTrustWifi(Context context) {
+        Prefs.with(context).remove(TRUST_WIFI);
+        EventBus.getDefault().post(new TrustedWifiEvent());
+    }
+
+    public static boolean shouldConnectOnWifi(Context context) {
+        return Prefs.with(context).get(TRUST_WIFI, false);
+    }
+
     public static void addTrustedNetwork(Context context, String ssid) {
         Set<String> trustedSet = getTrustedNetworks(context);
         Set<String> newTrustedSet = new HashSet<String>(trustedSet);
         newTrustedSet.add(ssid);
 
         Prefs.with(context).set(TRUSTED_WIFI_LIST, newTrustedSet);
+        EventBus.getDefault().post(new TrustedWifiEvent());
     }
 
     public static void removeTrustedNetwork(Context context, String ssid) {
@@ -924,10 +972,16 @@ public class PiaPrefHandler {
         newTrustedSet.remove(ssid);
 
         Prefs.with(context).set(TRUSTED_WIFI_LIST, newTrustedSet);
+        EventBus.getDefault().post(new TrustedWifiEvent());
     }
 
     public static Set<String> getTrustedNetworks(Context context) {
         return Prefs.with(context).getStringSet(TRUSTED_WIFI_LIST);
+    }
+
+    public static void clearTrustedNetworks(Context context) {
+        Prefs.with(context).remove(PiaPrefHandler.TRUSTED_WIFI_LIST);
+        EventBus.getDefault().post(new TrustedWifiEvent());
     }
 
     public static void setLastDisconnection(Context context, long val) {

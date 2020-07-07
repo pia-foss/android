@@ -38,16 +38,19 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.preference.SwitchPreferenceCompat;
+import androidx.work.WorkManager;
+
 import android.text.TextUtils;
 
 import com.privateinternetaccess.android.model.exceptions.CustomExceptionHandler;
 import com.privateinternetaccess.android.pia.PIABuilder;
+import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.connection.ConnectionResponder;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.SubscriptionHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.subscription.Base64DecoderException;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.PasswordObfuscation;
@@ -64,8 +67,10 @@ import com.privateinternetaccess.android.wireguard.model.Tunnel;
 import com.privateinternetaccess.android.wireguard.model.TunnelManager;
 import com.privateinternetaccess.android.wireguard.backend.GoBackend.GhettoCompletableFuture;
 import com.privateinternetaccess.android.wireguard.util.AsyncWorker;
+import com.privateinternetaccess.core.model.PIAServer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.security.GeneralSecurityException;
 import java.util.HashSet;
@@ -77,6 +82,8 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.PRNGFixes;
 import de.blinkt.openvpn.core.VpnStatus;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
 
 /**
  * Setups up {@link PIABuilder} and updates all the old variables and issues created along the years in {@link #updateOrResetValues()}
@@ -119,6 +126,9 @@ public class PIAApplication extends Application {
             if (app.backend == null) {
                 GoBackend backend;
                 backend = new GoBackend(app.getApplicationContext());
+
+                GoBackend.setAlwaysOnCallback(() -> PIAFactory.getInstance().getVPN(get()).start());
+
                 app.backend = backend;
             }
             return app.backend;
@@ -165,11 +175,20 @@ public class PIAApplication extends Application {
         weakSelf = new WeakReference<>(this);
     }
 
+    public static InputStream getRSA4096Certificate() {
+        try {
+            return get().getApplicationContext().getAssets().open("rsa4096.pem");
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load the RSA4096 certificate. " + e);
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
 
-        asyncWorker = new AsyncWorker(AsyncTask.SERIAL_EXECUTOR, new Handler(Looper.getMainLooper()));
+        WorkManager.initialize(getApplicationContext(), new androidx.work.Configuration.Builder().build());
+        asyncWorker = new AsyncWorker(AsyncTask.THREAD_POOL_EXECUTOR, new Handler(Looper.getMainLooper()));
 
         CustomExceptionHandler crashHandler = new CustomExceptionHandler(getApplicationContext().getFilesDir().getAbsolutePath(),"");
         crashHandler.setDefaultUEH(Thread.getDefaultUncaughtExceptionHandler());
@@ -279,7 +298,7 @@ public class PIAApplication extends Application {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            Prefs.with(this).set(PiaPrefHandler.TRUST_WIFI, false);
+            PiaPrefHandler.setTrustWifi(this, false);
         }
     }
 

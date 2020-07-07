@@ -30,7 +30,6 @@ import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.exceptions.CustomExceptionHandler;
 import com.privateinternetaccess.android.model.states.VPNProtocol;
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.ReportingApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
@@ -39,6 +38,7 @@ import com.privateinternetaccess.android.pia.model.response.ReportResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

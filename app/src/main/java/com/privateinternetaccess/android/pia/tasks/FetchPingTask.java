@@ -22,10 +22,10 @@ import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.response.PingResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.core.model.PIAServer;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -63,7 +63,11 @@ public class FetchPingTask extends AsyncTask<String, Void, PingResponse> {
     @Override
     protected PingResponse doInBackground(String... addresses) {
         PingResponse response = new PingResponse();
-        String[] parts = server.getPing().split(":");
+        if (server.getPingEndpoint() == null) {
+            return response;
+        }
+
+        String[] parts = server.getPingEndpoint().split(":");
         if(parts.length == 2){
             int port = 0;
             try {

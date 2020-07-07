@@ -3,9 +3,9 @@ package com.privateinternetaccess.android.pia.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.UpdateApi;
 import com.privateinternetaccess.android.pia.model.response.CheckUpdateResponse;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

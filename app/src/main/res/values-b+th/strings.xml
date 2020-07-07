@@ -226,8 +226,6 @@
     <string name="settings_port_number_restriction"><![CDATA[หมายเลขพอร์ตต้องอยู่ระหว่าง 1024 และ 65535]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[พอร์ตระหว่าง 1024 และ 65535]]></string>
-    <string name="startup_support_title">รับรองอุปกรณ์ 5 เครื่องในคราวเดียว</string>
-    <string name="startup_support_message">ปกป้องตัวคุณบนอุปกรณ์ถึง 5 เครื่องในเวลาเดียวกัน</string>
     <string name="startup_region_title">เชื่อมต่อไปยังภูมิภาคใดก็ตามได้อย่างง่ายดาย</string>
     <string name="startup_region_message">ด้วยเซิร์ฟเวอร์ที่มีอยู่ทั่วโลก คุณจะได้รับความคุ้มครองตลอดเวลา</string>
     <string name="startup_ads_title">ปกป้องตัวคุณจากโฆษณา</string>
@@ -246,7 +244,8 @@
     <string name="done">เสร็จสิ้น</string>
     <string name="update_account">อัพเดตบัญชี</string>
     <string name="local_port_titla">พอร์ตในเครื่อง</string>
-    <string name="preference_application_settings">การตั้งค่าแอพพลิเคชั่น</string>
+    <string name="preference_application_settings">การตั้งค่าทั่วไป</string>
+    <string name="preference_vpn_settings">การตั้งค่า VPN</string>
     <string name="preference_haptic_title">ข้อคิดเห็นตอบรับแบบสัมผัสเกี่ยวกับการเชื่อมต่อ</string>
     <string name="preference_dialog_graph_title">เลือกหน่วยการวัดผลสำหรับกราฟ</string>
     <string name="preference_connect_on_boot_summary">เชื่อมต่อเมื่อเริ่มระบบ</string>
@@ -340,10 +339,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">กิจกรรมและการแจ้งเตือนทั่วไป</string>
     <string name="tv_startup_press_right">กดขวา</string>
-    <string name="androidalwayson">เปิด VPN Android เสมอ</string>
-    <string name="androidalwaysonsummary">Android 8.0+ มีสิ่งทดแทนปุ่มตัดการทำงานที่ดีกว่า คลิกสำหรับข้อมูลเพิ่มเติม</string>
+    <string name="androidalwayson">ปิดกั้นการเชื่อมต่อที่ไม่มี VPN</string>
+    <string name="androidalwaysonsummary">Android มีสิ่งทดแทนฟังก์ชั่นของปุ่มตัดการทำงานที่ดีกว่า คลิกสำหรับข้อมูลเพิ่มเติม</string>
     <string name="block_connection_wo_vpn">ปิดกั้นการเชื่อมต่อที่ไม่มี VPN</string>
-    <string name="always_oreo_message">Android ตั้งแต่ 8.0 ขึ้นไปมีตัวเลือกในการปิดกั้นการเชื่อมต่อที่ไม่มี VPN จากตัว Android เอง เนื่องจากมาจากระบบปฏิบัติการ Android เอง จึงเป็นปุ่มตัดการทำงานใน Android ที่ดีกว่า ซึ่งทำงานได้แม้ว่าแอป PIA VPN ค้างหรือหยุดการทำงาน และทำงานได้ก่อนเริ่มการทำงาน PIA อีกด้วย \n\nเราขอแนะนำให้ตั้งค่า \"เปิด VPN ตลอดเวลา\" และ \"ปิดกั้นการเชื่อมต่อที่ไม่มี VPN\" เพิ่มเติมหรือใช้แทนตัวเลือกปุ่มตัดการทำงาน</string>
+    <string name="always_oreo_message">เพื่อให้แน่ใจว่าคุณจะไม่ทำการเชื่อมต่อที่ไม่มี VPN เราขอแนะนำให้เปิดใช้งานการปิดกั้นการเชื่อมต่อที่ไม่มี VPN ในการตั้งค่า Android ของคุณ ซึ่งสามารถเปิดใช้งานได้หลังจากเลือกเปิด VPN ตลอดเวลาสำหรับ PIA ตัวเลือกนี้จะช่วยให้แน่ใจว่า Android ทำงานได้ดีที่สุดเพื่อให้ PIA VPN ของคุณทำงานอยู่ตลอดเวลาเมื่อเชื่อมต่อและการปิดกั้นการเชื่อมต่อที่ไม่มี VPN - ซึ่งก็คือ VPN killswitch การตั้งค่า Killswitch ในแอป PIA VPN ถูกเลิกใช้แล้วโดยเปลี่ยนเป็นการตั้งค่า \"ปิดกั้นการเชื่อมต่อที่ไม่มี VPN\" ที่ระดับระบบในการตั้งค่า Android ของคุณเนื่องจาก Android 8.0+ มีคุณสมบัตินี้ในตัวแล้ว หากมีปัญหา คุณจะได้รับแจ้งและ Android จะบล็อกการเชื่อมต่ออินเทอร์เน็ตทั้งหมดที่ไม่ผ่าน VPN ของคุณ</string>
     <string name="preference_blocking">กำลังปิดกั้น</string>
     <string name="preference_connect_proxy">เชื่อมต่อผ่านพร็อกซี</string>
     <string name="preference_connect_proxy_app">แอปพร็อกซีที่เลือก</string>
@@ -392,7 +391,7 @@
     <string name="pp_text">นโยบายความเป็นส่วนตัว</string>
     <string name="website_isnt_protected">เว็บไซต์ไม่ได้รับการปกป้อง</string>
     <string name="api_check_failure_title">ความล้มเหลวในการเชื่อมต่อ</string>
-    <string name="api_check_message">เราไม่สามารถเข้าถึง Private Internet Access ซึ่งอาจเป็นเพราะอินเทอร์เน็ตไม่เสถียรหรือบริการของเราถูกบล็อกในประเทศของคุณ</string>
+    <string name="api_check_message">เราไม่สามารถเข้าถึง Private Internet Access ซึ่งอาจเป็นเพราะอินเทอร์เน็ตไม่เสถียรหรือบริการของเราถูกบล็อกในประเทศของคุณ โปรดตรวจสอบให้แน่ใจว่าคุณมีการเชื่อมต่ออินเทอร์เน็ตที่เสถียร บังคับให้แอปหยุดทำงานจากการตั้งค่า รีสตาร์ทแอปแล้วลองอีกครั้ง</string>
     <string name="invalid_qr_code">ลำดับ QR โค้ดไม่ถูกต้อง กรุณาลองอีกครั้ง</string>
     <string name="empty_qr_code">เนื้อหา QR ว่างเปล่า กรุณาลองอีกครั้ง</string>
     <string name="your_plan_will_expire_on">แพ็กเกจของคุณจะหมดอายุ</string>
@@ -428,7 +427,8 @@
     <string name="trusted_wifi_title">Wifi ที่เชื่อถือ</string>
     <string name="trusted_wifi_message">VPN จะเชื่อมต่อเครือข่าย Wifi ทั้งหมดโดยอัตโนมัติยกเว้นเครือข่ายที่ผู้ใช้ยกเว้น</string>
     <string name="trusted_wifi_enable_message">ปิดใช้งาน VPN เมื่อเชื่อมต่อเครือข่ายที่เชื่อถือ</string>
-    <string name="trusted_wifi_header">เครือข่ายที่เชื่อถือ</string>
+    <string name="trusted_wifi_singular">เครือข่ายที่เชื่อถือ</string>
+    <string name="trusted_wifi_plural">เครือข่ายที่เชื่อถือ</string>
     <string name="available_wifi_header">เครือข่ายที่ใช้ได้</string>
     <string name="trusted_wifi_no_wifi">กรุณาเปิดใช้งาน Wifi เพื่อเลือกเครือข่ายที่เชื่อถือ</string>
     <string name="trusted_wifi_no_permission">คุณสมบัติ wifi ที่เชื่อถือต้องได้รับอนุญาตการเข้าถึงตำแหน่งที่ตั้งเพื่อตรวจจับเครือข่าย wifi ใกล้เคียง หากยกเลิกการอนุญาต คุณสมบัตินี้ก็จะใช้ไม่ได้อีกต่อไป ไปยังการตั้งค่า\n\nในการใช้คุณสมบัตินี้ ให้ไปยัง การตั้งค่า &gt; แอป &gt; PIA VPN และขอให้แน่ใจว่าเปิดการอนุญาตการเข้าถึงตำแหน่งที่ตั้ง</string>
@@ -519,4 +519,44 @@
     <string name="free_trial_region_text">เซิร์ฟเวอร์มากกว่า 3,200 แห่งใน 32 ประเทศ</string>
     <string name="free_trial_start">เริ่มต้นบอกรับสมาชิก</string>
     <string name="free_trial_see_all">ดูแพ็กเกจทั้งหมดที่มี</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">หยุด VPN ชั่วคราว</string>
+    <string name="snooze_short">หยุดชั่วคราว 5 นาที</string>
+    <string name="snooze_medium">หยุดชั่วคราว 15 นาที</string>
+    <string name="snooze_long">หยุดชั่วคราว 1 ชั่วโมง</string>
+    <string name="snooze_description">ยกเลิกการเชื่อมต่อ VPN และจะเชื่อมต่อใหม่โดยอัตโนมัติเมื่อเวลาผ่านไป</string>
+    <string name="snooze_resume">ดำเนินการต่อ</string>
+    <string name="snooze_paused">หยุดชั่วคราวจนถึง %s</string>
+    <string name="snooze_status">กำลังหยุดชั่วคราว</string>
+    <string name="snooze_notification">หยุดชั่วคราวแล้ว</string>
+    <string name="failed_connect_status">ไม่สามารถเชื่อมต่อ</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">การตั้งค่าด่วน</string>
+    <string name="quick_settings_network_toggle">การจัดการเครือข่าย</string>
+    <string name="quick_settings_private_browser">เบราว์เซอร์ส่วนตัว</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">เชื่อมต่อด่วน</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">การใช้งาน</string>
+    <string name="usage_download">ดาวน์โหลด</string>
+    <string name="usage_upload">อัพโหลด</string>
+    <!-- Settings -->
+    <string name="settings_protocol">โปรโตคอล</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">การเปลี่ยนเป็น WireGuard จะปิดใช้งานคุณสมบัติการตั้งค่าแอปรายตัว</string>
+    <string name="wg_protocol_warning">คุณสมบัติต่อไปนี้ไม่สามารถใช้ได้ใน WireGuard:</string>
+    <string name="wg_connecting">กำลังเชื่อมต่อ</string>
+    <string name="wg_connected">เชื่อมต่อ VPN แล้ว</string>
+    <string name="ks_removal_warning">เราตรวจพบว่าคุณเปิดใช้งาน Killswitch เราได้เปลี่ยนวิธีการทำงานของคุณสมบัตินี้โดยรวมการตั้งค่า \"ปิดกั้นการเชื่อมต่อที่ไม่มี VPN\" ของ Android สำหรับทั้ง WireGuard และ OpenVPN โปรดตรวจสอบการเปลี่ยนแปลงในการตั้งค่าเพื่อให้แน่ใจว่าคุณได้รับการปกป้อง</string>
+    <string name="preference_on_boot_always_on">เชื่อมต่อเมื่อเริ่มต้นระบบ เราขอแนะนำให้เปิดการตั้งค่านี้หากคุณเลือกให้ VPN เปิดอยู่เสมอ</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">ท่อ “%s” มีอยู่แล้ว</string>
+    <string name="tunnel_error_invalid_name">ชื่อไม่ถูกต้อง</string>
+    <string name="preview">ตัวอย่าง</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">เครือข่ายรุ่นต่อไป</string>
+    <string name="gen4_next_generation_network_message">VPN ต้องถูกตัดการเชื่อมต่อเพื่อเปลี่ยนเครือข่ายเซิร์ฟเวอร์</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">รวมภูมิภาคตามที่ตั้งทางภูมิศาสตร์</string>
 </resources>

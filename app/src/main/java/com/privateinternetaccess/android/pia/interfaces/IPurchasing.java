@@ -20,13 +20,13 @@ package com.privateinternetaccess.android.pia.interfaces;
 
 import android.app.Activity;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.model.PurchaseObj;
 import com.privateinternetaccess.android.pia.model.SkuDetailsObj;
 import com.privateinternetaccess.android.pia.model.enums.PurchasingType;
 import com.privateinternetaccess.android.pia.model.events.PurchasingInfoEvent;
 import com.privateinternetaccess.android.pia.model.events.SystemPurchaseEvent;
 import com.privateinternetaccess.android.pia.model.response.PurchasingResponse;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import java.util.List;
 

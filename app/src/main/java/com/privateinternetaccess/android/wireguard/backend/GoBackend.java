@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import androidx.annotation.NonNull;
@@ -41,7 +42,6 @@ import com.privateinternetaccess.android.model.events.VPNTrafficDataPointEvent;
 import com.privateinternetaccess.android.pia.api.PiaApi;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.tasks.FetchIPTask;
 import com.privateinternetaccess.android.pia.tasks.HitMaceTask;
@@ -60,6 +60,7 @@ import com.privateinternetaccess.android.wireguard.config.InetNetwork;
 import com.privateinternetaccess.android.wireguard.config.Peer;
 import com.privateinternetaccess.android.wireguard.crypto.Key;
 import com.privateinternetaccess.android.wireguard.crypto.KeyFormatException;
+import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
@@ -79,7 +80,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.VpnStatus;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
@@ -87,15 +87,21 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static android.content.Context.NOTIFICATION_SERVICE;
-import static androidx.core.app.NotificationCompat.PRIORITY_DEFAULT;
-import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
-import static de.blinkt.openvpn.core.OpenVPNService.NOTIFICATION_CHANNEL_BG_ID;
+import static com.privateinternetaccess.android.pia.api.MaceApi.GEN4_MACE_ENABLED_DNS;
 import static de.blinkt.openvpn.core.OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID;
 
 public final class GoBackend implements Backend {
+    private String IPV4_PUBLIC_NETWORKS =
+            "0.0.0.0/5, 8.0.0.0/7, 11.0.0.0/8, 12.0.0.0/6, 16.0.0.0/4, 32.0.0.0/3, " +
+                    "64.0.0.0/2, 128.0.0.0/3, 160.0.0.0/5, 168.0.0.0/6, 172.0.0.0/12, " +
+                    "172.32.0.0/11, 172.64.0.0/10, 172.128.0.0/9, 173.0.0.0/8, 174.0.0.0/7, " +
+                    "176.0.0.0/4, 192.0.0.0/9, 192.128.0.0/11, 192.160.0.0/13, 192.169.0.0/16, " +
+                    "192.170.0.0/15, 192.172.0.0/14, 192.176.0.0/12, 192.192.0.0/10, " +
+                    "193.0.0.0/8, 194.0.0.0/7, 196.0.0.0/6, 200.0.0.0/5, 208.0.0.0/4";
+
     private static final String TAG = "WireGuard/" + GoBackend.class.getSimpleName();
     private static GhettoCompletableFuture<VpnService> vpnService = new GhettoCompletableFuture<>();
+    @Nullable private static AlwaysOnCallback alwaysOnCallback;
 
     private final Context context;
     @Nullable private Tunnel currentTunnel;
@@ -120,6 +126,10 @@ public final class GoBackend implements Backend {
     private static native String wgVersion();
 
     static public State lastState = State.DOWN;
+
+    public static void setAlwaysOnCallback(final AlwaysOnCallback cb) {
+        alwaysOnCallback = cb;
+    }
 
     @Override
     public Set<String> getRunningTunnelNames() {
@@ -192,8 +202,7 @@ public final class GoBackend implements Backend {
     @Override
     public State setState(final Tunnel tunnel, State state) throws Exception {
         final State originalState = getState(tunnel);
-        DLog.d("Wireguard", "OriginalState: " + originalState);
-        DLog.d("Wireguard", "TargetState: " + state);
+
         if (state == State.TOGGLE)
             state = originalState == State.UP ? State.DOWN : State.UP;
         if (state == originalState)
@@ -292,9 +301,16 @@ public final class GoBackend implements Backend {
             EventBus.getDefault().postSticky(event);
             SnoozeUtils.resumeVpn(context, false);
 
-            FetchIPTask.resetValues(context);
-            FetchIPTask.execute(context, null);
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    FetchIPTask.resetValues(context);
+                    FetchIPTask.execute(context, null);
+                }
+            });
 
+            PiaPrefHandler.setGatewayEndpoint(context, currentTunnel.getConfig().getInterface().getGateway());
             boolean useMace = PiaPrefHandler.isMaceEnabled(context);
 
             if (useMace && !BuildConfig.FLAVOR_store.equals("playstore")) {
@@ -327,9 +343,16 @@ public final class GoBackend implements Backend {
                     R.string.state_exiting, ConnectionStatus.LEVEL_NOTCONNECTED);
             EventBus.getDefault().postSticky(event);
 
-            FetchIPTask.resetValues(context);
-            FetchIPTask.execute(context, null);
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    FetchIPTask.resetValues(context);
+                    FetchIPTask.execute(context, null);
+                }
+            });
 
+            PiaPrefHandler.clearGatewayEndpoint(context);
             PiaPrefHandler.setMaceActive(context, false);
 
             lastState = state;
@@ -345,11 +368,14 @@ public final class GoBackend implements Backend {
     }
 
     private void startVpnService() {
-        DLog.d("Wireguard", "Requesting to start VpnService");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             context.startForegroundService(new Intent(context, VpnService.class));
         else
             context.startService(new Intent(context, VpnService.class));
+    }
+
+    public interface AlwaysOnCallback {
+        void alwaysOnTriggered();
     }
 
     public void startVpn() {
@@ -364,7 +390,6 @@ public final class GoBackend implements Backend {
             }
             else {
                 try {
-                    DLog.d("Wireguard", "Starting Service: UP");
                     VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
                             R.string.wg_connecting, ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET);
                     EventBus.getDefault().postSticky(event);
@@ -372,7 +397,7 @@ public final class GoBackend implements Backend {
 
                     setState(PIAApplication.wireguardTunnel, State.UP);
                 }
-                catch (Exception e ) {
+                catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -383,10 +408,18 @@ public final class GoBackend implements Backend {
     }
 
     public void stopVpn() {
+        stopVpn(false);
+    }
+
+    public void stopVpn(boolean killTunnel) {
         if (PIAApplication.wireguardTunnel != null) {
             try {
-                DLog.d("Wireguard", "Stopping Service: DOWN");
                 setState(PIAApplication.wireguardTunnel, State.DOWN);
+
+                if (killTunnel) {
+                    PIAApplication.wireguardTunnel = null;
+                    currentTunnel = null;
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -400,7 +433,6 @@ public final class GoBackend implements Backend {
         EventBus.getDefault().postSticky(event);
         lastState = State.DOWN;
         isConnecting = false;
-        DLog.d("Wireguard", "Cancelling");
     }
 
     public boolean isActive() {
@@ -410,21 +442,6 @@ public final class GoBackend implements Backend {
 
         return false;
     }
-
-//    public void reconnectTunnel(Config tunnelConfig) {
-//        try {
-//            Tunnel testTunnel = new Tunnel("PIATunnel", tunnelConfig, State.DOWN);
-//            PIAApplication.wireguardTunnel = testTunnel;
-//
-//            VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
-//                    R.string.wg_connecting, ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET);
-//
-//            setState(testTunnel, State.UP);
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public void startWireguardService() {
         PIAServerHandler handler = PIAServerHandler.getInstance(context);
@@ -442,7 +459,6 @@ public final class GoBackend implements Backend {
                 e.printStackTrace();
             }
         }
-
         if (server.getWgHost() == null || server.getWgHost().length() <= 0) {
             VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
                     R.string.failed_connect_status, ConnectionStatus.LEVEL_NONETWORK);
@@ -463,7 +479,7 @@ public final class GoBackend implements Backend {
         try {
             HttpUrl httpUrl = new HttpUrl.Builder()
                     .scheme("https")
-                    .host(server.getDns().toString())
+                    .host(server.getDns())
                     .port(port)
                     .addPathSegment("addKey")
                     .addQueryParameter("pubkey", wgKeyPair.getPublicKey().toBase64())
@@ -538,11 +554,15 @@ public final class GoBackend implements Backend {
             wgSettings.add("dns=" + prefs.get(PiaPrefHandler.DNS, dns.toString()));
         }
         else {
+            if (prefs.getBoolean(PiaPrefHandler.GEN4_ACTIVE) && PiaPrefHandler.isMaceEnabled(context)) {
+                dns = GEN4_MACE_ENABLED_DNS;
+            }
             wgSettings.add("dns=" + dns);
         }
 
         wgSettings.add("mtu=1280");
         wgSettings.add("address=" + response.getString("peer_ip"));
+        wgSettings.add("gateway=" + response.getString("server_vip"));
 
         return wgSettings;
     }
@@ -553,10 +573,35 @@ public final class GoBackend implements Backend {
         wgSettings.add("publickey=" + response.getString("server_key"));
         wgSettings.add("endpoint=" + response.getString("server_ip") + ":" + response.getString("server_port"));
         wgSettings.add("persistentkeepalive=25");
-        //wgSettings.add("allowedips=" + response.getString("peer_ip"));
-        wgSettings.add("allowedips=0.0.0.0/0");
+
+        Prefs prefs = new Prefs(context);
+        if (PiaPrefHandler.getBlockLocal(context)) {
+            wgSettings.add("allowedips=0.0.0.0/0");
+        }
+        else {
+            if (prefs.getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+                if (PiaPrefHandler.isMaceEnabled(context)) {
+                    wgSettings.add("allowedips=" + getAllowedIps(GEN4_MACE_ENABLED_DNS));
+                }
+                else {
+                    wgSettings.add("allowedips=" + getAllowedIps(response.getJSONArray("dns_servers").get(0).toString()));
+                }
+            }
+            else {
+                wgSettings.add("allowedips=" + IPV4_PUBLIC_NETWORKS);
+            }
+        }
 
         return wgSettings;
+    }
+
+    private String getAllowedIps(String dnsServer) {
+        if (dnsServer != null) {
+            return IPV4_PUBLIC_NETWORKS + "," + dnsServer;
+        }
+        else {
+            return IPV4_PUBLIC_NETWORKS + "10.0.0.240/29";
+        }
     }
 
     // TODO: When we finally drop API 21 and move to API 24, delete this and replace with the ordinary CompletableFuture.
@@ -634,17 +679,14 @@ public final class GoBackend implements Backend {
 
         @Override
         public int onStartCommand(@Nullable final Intent intent, final int flags, final int startId) {
-            DLog.d("Wireguard", "Service start command");
-
             vpnService.complete(this);
-
-            showNotification(VpnStatus.getLastCleanLogMessage(this),
-                    VpnStatus.getLastCleanLogMessage(this), NOTIFICATION_CHANNEL_NEWSTATUS_ID, 0, ConnectionStatus.LEVEL_CONNECTED);
 
             if (intent == null || intent.getComponent() == null || !intent.getComponent().getPackageName().equals(getPackageName())) {
                 Log.d(TAG, "Service started by Always-on VPN feature");
-                //Application.getTunnelManager().restoreState(true).whenComplete(ExceptionLoggers.D);
+                if (alwaysOnCallback != null)
+                    alwaysOnCallback.alwaysOnTriggered();
             }
+
             return super.onStartCommand(intent, flags, startId);
         }
 
@@ -684,7 +726,6 @@ public final class GoBackend implements Backend {
                 @Override
                 public void run() {
                     if (backend == null || activeTunnel == null) {
-                        DLog.d("Wireguard", "Something is missing");
                         return;
                     }
 
@@ -700,18 +741,14 @@ public final class GoBackend implements Backend {
                             stats.totalRx() - prevStats.totalRx(),
                             stats.totalTx() - prevStats.totalTx());
 
-                    DLog.d("Wireguard", "Stats TotalRX: " + stats.totalRx() + " Stats TotalTX: " + stats.totalTx());
-                    DLog.d("Wireguard", "Diff: " + (stats.totalRx() - prevStats.totalRx()));
-
                     if (stats.totalRx() - prevStats.totalRx() == 0) {
                         staleCount += 1;
-                        DLog.d("Wireguard", "Stale Count: " + staleCount);
 
                         if (staleCount > 3) {
                             PIAServerHandler handler = PIAServerHandler.getInstance(VpnService.this);
                             PIAServer server = handler.getSelectedRegion(VpnService.this, false);
 
-                            Request request = new Request.Builder().url("http://" + server.getPing()).
+                            Request request = new Request.Builder().url("http://" + server.getPingEndpoint()).
                                             build();
 
                             PiaApi piaApi = new PiaApi();
@@ -756,7 +793,6 @@ public final class GoBackend implements Backend {
         }
 
         private void startReconnect() {
-            DLog.d("Wireguard", "Starting reconnect");
             if (backend != null && activeTunnel != null) {
                 try {
                     backend.setState(activeTunnel, State.DOWN);
@@ -765,18 +801,14 @@ public final class GoBackend implements Backend {
                     stopUsageMonitor();
 
                     reconnectHandler = new Handler(Looper.getMainLooper());
-                    reconnectRunnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            DLog.d("Wireguard", "Attempting Recconect");
-                            try {
-                                backend.startVpn();
+                    reconnectRunnable = () -> {
+                        try {
+                            backend.startVpn();
 
-                                reconnectHandler.postDelayed(reconnectRunnable, 30000);
-                            }
-                            catch(Exception e) {
-                                e.printStackTrace();
-                            }
+                            reconnectHandler.postDelayed(reconnectRunnable, 30000);
+                        }
+                        catch(Exception e) {
+                            e.printStackTrace();
                         }
                     };
 
@@ -822,6 +854,9 @@ public final class GoBackend implements Backend {
             nbuilder.setOngoing(true);
 
             nbuilder.setSmallIcon(icon);
+            nbuilder.setContentIntent(
+                    PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0)
+            );
 
             if (when != 0)
                 nbuilder.setWhen(when);
@@ -833,10 +868,6 @@ public final class GoBackend implements Backend {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 //noinspection NewApi
                 nbuilder.setChannelId(channel);
-//                if (mProfile != null)
-//                    //noinspection NewApi
-//                    nbuilder.setShortcutId(mProfile.getUUIDString());
-
             }
 
             if (tickerText != null && !tickerText.equals(""))

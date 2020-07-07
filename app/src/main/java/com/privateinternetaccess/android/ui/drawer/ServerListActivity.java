@@ -29,6 +29,7 @@ import android.view.View;
 
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler.ServerSortingType;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
@@ -61,7 +62,7 @@ public class ServerListActivity extends BaseActivity {
     public void initAppBar() {
         initHeader(true, true);
         setTitle(getString(R.string.drawer_region_selection));
-        setGreenBackground();
+        setBackground();
         setSecondaryGreenBackground();
     }
 
@@ -96,20 +97,38 @@ public class ServerListActivity extends BaseActivity {
                     Fragment frag = getSupportFragmentManager().findFragmentById(R.id.container);
                     String selectedItem = factory.getSelectedItem();
 
-                    if (frag != null && frag instanceof ServerListFragment) {
+                    if (frag instanceof ServerListFragment) {
                         ServerListFragment serverFrag = (ServerListFragment)frag;
-
-                        if (selectedItem.equals(options[1])) {
-                            serverFrag.setUpAdapter(ServerListActivity.this, true, PIAServerHandler.ServerSortingType.PING);
+                        PIAServerHandler.ServerSortingType sortingType =
+                                PIAServerHandler.ServerSortingType.valueOf(selectedItem.toUpperCase());
+                        switch (sortingType) {
+                            case NAME:
+                                serverFrag.setUpAdapter(
+                                        ServerListActivity.this,
+                                        true,
+                                        PIAServerHandler.ServerSortingType.NAME
+                                );
+                                break;
+                            case LATENCY:
+                                serverFrag.setUpAdapter(
+                                        ServerListActivity.this,
+                                        true,
+                                        PIAServerHandler.ServerSortingType.LATENCY
+                                );
+                                break;
+                            case FAVORITES:
+                                serverFrag.setUpAdapter(
+                                        ServerListActivity.this,
+                                        true,
+                                        PIAServerHandler.ServerSortingType.NAME,
+                                        PIAServerHandler.ServerSortingType.FAVORITES
+                                );
+                                break;
                         }
-                        else if (selectedItem.equals(options[2])) {
-                            serverFrag.setUpAdapter(ServerListActivity.this, true, PIAServerHandler.ServerSortingType.NAME, PIAServerHandler.ServerSortingType.FAVORITES);
-                        }
-                        else {
-                            serverFrag.setUpAdapter(ServerListActivity.this, true, PIAServerHandler.ServerSortingType.NAME);
-                        }
-
-                        Prefs.with(ServerListActivity.this).set(PiaPrefHandler.FILTERS_REGION_SORTING, selectedItem);
+                        Prefs.with(ServerListActivity.this).set(
+                                PiaPrefHandler.FILTERS_REGION_SORTING,
+                                sortingType.name()
+                        );
                     }
 
                     dialog.dismiss();
@@ -123,11 +142,22 @@ public class ServerListActivity extends BaseActivity {
                 }
             });
 
-            String selected = Prefs.with(this).get(PiaPrefHandler.FILTERS_REGION_SORTING, options[0]);
-            factory.addRadioGroup(options, selected);
-
+            String selected = Prefs.with(this).get(
+                    PiaPrefHandler.FILTERS_REGION_SORTING, options[0]
+            ).toUpperCase();
+            ServerSortingType sortingType = ServerSortingType.valueOf(selected);
+            switch (sortingType) {
+                case NAME:
+                    factory.addRadioGroup(options, options[0]);
+                    break;
+                case LATENCY:
+                    factory.addRadioGroup(options, options[1]);
+                    break;
+                case FAVORITES:
+                    factory.addRadioGroup(options, options[2]);
+                    break;
+            }
             dialog.show();
-
             return true;
         }
 

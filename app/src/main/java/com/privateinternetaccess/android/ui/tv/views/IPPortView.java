@@ -36,11 +36,11 @@ import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.FetchIPEvent;
 import com.privateinternetaccess.android.pia.model.events.PortForwardEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.tunnel.PortForwardingStatus;
+import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -175,8 +175,25 @@ public class IPPortView extends FrameLayout {
         tvPort.post(new Runnable() {
             @Override
             public void run() {
-                if (event.level == ConnectionStatus.LEVEL_NOTCONNECTED) {
-                    tvPort.setText("---");
+                switch (event.level) {
+                    case LEVEL_CONNECTED:
+                    case LEVEL_START:
+                    case LEVEL_WAITING_FOR_USER_INPUT:
+                    case LEVEL_CONNECTING_SERVER_REPLIED:
+                    case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
+                        break;
+                    case UNKNOWN_LEVEL:
+                    case LEVEL_NONETWORK:
+                    case LEVEL_VPNPAUSED:
+                    case LEVEL_AUTH_FAILED:
+                    case LEVEL_NOTCONNECTED:
+                        if (tvPort != null) {
+                            tvPort.setText("---");
+                        }
+                        if (tvIPVPN != null) {
+                            tvIPVPN.setText("---");
+                        }
+                        break;
                 }
             }
         });

@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[Bağlantı noktası 1024 ila 65535 arasında olmalı]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[1024 ila 65535 arası bağlantı noktası]]></string>
-    <string name="startup_support_title">Aynı anda 5 cihazı destekle</string>
-    <string name="startup_support_message">Aynı anda 5 cihazda koruma sağlayın.</string>
     <string name="startup_region_title">Herhangi bir bölgeye kolayca bağlanın</string>
     <string name="startup_region_message">Dünya çapındaki sunucularla daima koruma altındasınız.</string>
     <string name="startup_ads_title">Kendinizi reklamlardan koruyun</string>
@@ -245,7 +243,8 @@
     <string name="done">TAMAM</string>
     <string name="update_account">HESABI GÜNCELLE</string>
     <string name="local_port_titla">Yerel B. Noktası</string>
-    <string name="preference_application_settings">UYGULAMA AYARLARI</string>
+    <string name="preference_application_settings">GENEL AYARLAR</string>
+    <string name="preference_vpn_settings">VPN AYARLARI</string>
     <string name="preference_haptic_title">Bağlanma geri bildirimi</string>
     <string name="preference_dialog_graph_title">Grafiğin ölçüm birimini seçin</string>
     <string name="preference_connect_on_boot_summary">Sistem açıldığında bağlan</string>
@@ -339,10 +338,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">Genel etkinlikler ve bildirimler</string>
     <string name="tv_startup_press_right">SAĞA BASIN</string>
-    <string name="androidalwayson">Android VPN her zaman açık</string>
-    <string name="androidalwaysonsummary">Android 8.0+ Acil İnternet Anahtarı için daha iyi bir alternatif içerir, daha fazla bilgi için tıklayın</string>
+    <string name="androidalwayson">VPN\'siz Bağlantıları Engelle</string>
+    <string name="androidalwaysonsummary">Android, Acil İnternet Anahtarı işlevi için daha iyi bir alternatif içerir; daha fazla bilgi için tıklayın</string>
     <string name="block_connection_wo_vpn">VPN\'siz bağlantıları engelle</string>
-    <string name="always_oreo_message">Android 8.0 ve üzeri VPN\'siz bağlantıları engellemek için Android\'in kendisinden bir seçenek içerir. Bu Android İşletim Sisteminin kendisine derinden entegre edildiğinden, bu Android İşletim Sisteminin kendisinde PIA VPN uygulamasının çökmesi veya durması durumunda bile çalışan ve de PIA başlamadan önce bile çalışan daha iyi entegre edilmiş bir Acil İnternet Anahtarıdır.\n\nAcil İnternet Anahtarı seçeneğine ek olarak veya alternatif olarak \"VPN Her Zaman Açık\" ve \"VPN\'siz bağlantıları engelle\" ayarlarının yapılmasını öneriyoruz</string>
+    <string name="always_oreo_message">VPN\'ininiz olmadan asla bağlanmamanızı sağlamak için Android ayarlarınızdan VPN\'siz Bağlantıları Engelle seçeneğini etkinleştirmenizi öneririz. Bu özellik PIA Her Zaman Açık VPN özelliği açıldıktan sonra etkinleştirilebilir. Bu ise Android\'in, bağlandığınız zaman PIA VPN\'ininizin her zaman açık olmasını ve VPN\'i olmayan bağlantıları engellemesini (yani Acil İnternet Anahtarı\'nın kullanılmasını) sağlayarak, en iyi şekilde çalışmasını garanti eder. PIA VPN uygulamasındaki Acil İnternet Anahtarı devreden çıkarılmış olup, onun yerine Android 8.0 ve üstü sürümlerde sistem düzeyinde \"VPN\'siz Bağlantıları Engelle\" özelliği yerleşik bir özellik olarak devreye alınmış bulunuyor. Bir problem oluşması durumunda haber dar edileceksiniz ve Android VPN\'inizden geçmeyen tüm internet bağlantılarını engelleyecektir.</string>
     <string name="preference_blocking">ENGELLEME</string>
     <string name="preference_connect_proxy">Proxy ile bağlan</string>
     <string name="preference_connect_proxy_app">Proxy uygulaması seçildi</string>
@@ -391,7 +390,7 @@
     <string name="pp_text">Gizlilik Politikası</string>
     <string name="website_isnt_protected">Web sitesi korunmuyor.</string>
     <string name="api_check_failure_title">Bağlantı Hatası</string>
-    <string name="api_check_message">Özel İnternet Erişimi\'ne ulaşamıyoruz. Bu zayıf internet yüzünden olabilir veya hizmetimiz ülkenizde engelleniyor.</string>
+    <string name="api_check_message">Özel İnternet Erişimi\'ne ulaşamıyoruz. Bu, internet bağlantısının zayıf olması veya hizmetimizin sizin ülkenizde engellenmesi yüzünden olabilir. Lütfen istikrarlı bir internet bağlantısına sahip olduğunuzdan emin olun, Ayarlar\'dan uygulamayı Durmaya Zorla\'yın ve tekrar deneyin.</string>
     <string name="invalid_qr_code">Geçersiz QR kod sırası. Lütfen tekrar deneyin.</string>
     <string name="empty_qr_code">QR içerikleri boştu. Lütfen tekrar deneyin.</string>
     <string name="your_plan_will_expire_on">Planınızın süresi şu tarihte sona erecek:</string>
@@ -427,10 +426,11 @@
     <string name="trusted_wifi_title">Güvenilir Wifi</string>
     <string name="trusted_wifi_message">Kullanıcı tarafından beyaz listeye alınanlar hariç tüm wifi ağlarında VPN otomatik bağlanacaktır</string>
     <string name="trusted_wifi_enable_message">Güvenilir ağlara bağlanırken VPN’i devre dışı bırak</string>
-    <string name="trusted_wifi_header">Güvenilir Ağlar</string>
+    <string name="trusted_wifi_singular">Güvenilir Ağ</string>
+    <string name="trusted_wifi_plural">Güvenilir Ağlar</string>
     <string name="available_wifi_header">Mevcut Ağlar</string>
     <string name="trusted_wifi_no_wifi">Lütfen güvenilir ağları seçmek için WiFi bağlantısını etkinleştirin.</string>
-    <string name="trusted_wifi_no_permission">Güvenilir WiFi, yakındaki WiFi ağlarını tespit etmek için konum izinlerinin verilmesini gerektiriyor. Bu izin kaldırıldığı takdirde bu özellik artık çalışmayacak.\n\nBu özelliği kullanabilmek için, Ayarlar&gt;Uygulamalar&gt;PIA VPN\'e gidin ve konum izninin açık olduğundan emin olun</string>
+    <string name="trusted_wifi_no_permission">Güvenilir WiFi, yakındaki WiFi ağlarını tespit etmek için konum izinlerinin verilmesini gerektiriyor. Bu izin kaldırıldığı takdirde bu özellik artık çalışmayacak.\n\nBu özelliği kullanabilmek için, Ayarlar&gt;Uygulamalar&gt;PIA VPN\'e gidin ve konum izninin açık olduğundan emin olun.</string>
     <string name="no_permission_title">İzin Gerekli</string>
     <string name="trusted_wifi_not_available">Hiç kullanılabilir ağ yok</string>
     <string name="trusted_wifi_no_trusted">Hiç güvenilir ağ yok</string>
@@ -518,4 +518,44 @@
     <string name="free_trial_region_text">32 ülkede 3300\'den fazla sunucu</string>
     <string name="free_trial_start">ABONELİĞİ BAŞLATIN</string>
     <string name="free_trial_see_all">Mevcut planların tümünü görün</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">VPN\'İ ERTELEME</string>
+    <string name="snooze_short">5 DAKİKA ERTELE</string>
+    <string name="snooze_medium">15 DAKİKA ERTELE</string>
+    <string name="snooze_long">1 SAAT ERTELE</string>
+    <string name="snooze_description">VPN\'i devreden çıkarır ve zamanlayıcı süresi dolduğunda otomatik olarak tekrar bağlanır.</string>
+    <string name="snooze_resume">DEVAM ET</string>
+    <string name="snooze_paused">Şuna kadar duraklatıldı: %s</string>
+    <string name="snooze_status">Erteleniyor</string>
+    <string name="snooze_notification">Ertelendi</string>
+    <string name="failed_connect_status">Bağlanamıyor</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">HIZLI AYARLAR</string>
+    <string name="quick_settings_network_toggle">Ağ Yönetimi</string>
+    <string name="quick_settings_private_browser">Özel Tarayıcı</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">HIZLI BAĞLANMA</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">KULLANIM</string>
+    <string name="usage_download">İndir</string>
+    <string name="usage_upload">Yükle</string>
+    <!-- Settings -->
+    <string name="settings_protocol">Protokol</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">WireGuard\'a geçmek Tek Uygulama Ayarları özelliğini devreden çıkarır</string>
+    <string name="wg_protocol_warning">Şu özellikler WireGuard\'da  mevcut değildir:</string>
+    <string name="wg_connecting">Bağlanılıyor</string>
+    <string name="wg_connected">VPN Bağlandı</string>
+    <string name="ks_removal_warning">Acil İnternet Anahtarı\'nın etkin durumda olduğunu tespit ettik. Bu özelliğin çalışma şeklini Android\'in \"VPN\'siz bağlantıları engelle\" ayarını entegre ederek hem WireGuard hem Open VPN için değiştirmiş bulunuyoruz. Koruma altında olduğunuzdan emin olmak için lütfen bu değişiklikleri Ayarlar\'dan gözden geçirin.</string>
+    <string name="preference_on_boot_always_on">Sistem başlatıldığında bağlan. Her Zaman VPN Açık seçeneğini kullanıyorsanız bu ayarı açık konuma getirmenizi öneririz.</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">“%s” tüneli zaten mevcut</string>
+    <string name="tunnel_error_invalid_name">Geçersiz ad</string>
+    <string name="preview">ÖNİZLEME</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">Yeni Nesil ağ</string>
+    <string name="gen4_next_generation_network_message">Sunucu ağını değiştirmek için VPN bağlantısının sonlandırılması gerekiyor.</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">Coğrafi konum bölgelerini dahil et</string>
 </resources>

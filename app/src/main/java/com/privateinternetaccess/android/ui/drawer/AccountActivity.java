@@ -90,7 +90,7 @@ public class AccountActivity extends BaseActivity {
         setTitle(getString(R.string.drawer_account));
         setRightButton(getString(R.string.menu_update));
         DLog.d("AccountActivity", getString(R.string.menu_update));
-        setGreenBackground();
+        setBackground();
         setSecondaryGreenBackground();
 
         addSnippetToView();

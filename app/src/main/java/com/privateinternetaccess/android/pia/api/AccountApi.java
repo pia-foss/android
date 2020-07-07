@@ -79,7 +79,6 @@ public class AccountApi extends PiaApi {
                     build();
             Response response = getOkHttpClient().newCall(request).execute();
             int status = response.code();
-//            DLog.d("PIAAPI", "u = " + username + " p = " + password);
             DLog.d("PIAAPI", "status = " + status);
             String res = response.body().string();
             DLog.d("PIAAPI", "body = " + res);
@@ -141,7 +140,6 @@ public class AccountApi extends PiaApi {
                 return response;
             }
 
-//            readResponseToLogOut(urlConnection);
             response.setChanged(true);
             return response;
 
@@ -154,9 +152,7 @@ public class AccountApi extends PiaApi {
 
     public TokenResponse authenticate(String username, String password) {
         try {
-            //This fixes a 21 redirect crash on login
             TokenResponse ai = new TokenResponse();
-            //setAuthenticatorUP(username, password);
             RequestBody body = new FormBody.Builder().
                     add("username", username).
                     add("password", password).
@@ -167,7 +163,6 @@ public class AccountApi extends PiaApi {
                     build();
             Response response = getOkHttpClient().newCall(request).execute();
             int status = response.code();
-//            DLog.d("PIAAPI", "u = " + username + " p = " + password);
             DLog.d("PIAAPI", "status = " + status);
             String res = response.body().string();
             DLog.d("PIAAPI", "body = " + res);
@@ -187,7 +182,6 @@ public class AccountApi extends PiaApi {
         } catch (Exception e) {
             e.printStackTrace();
             TokenResponse res = new TokenResponse();
-            //res.setException(e);
             res.setLrStatus(LoginResponseStatus.AUTH_FAILED);
             return res;
         }

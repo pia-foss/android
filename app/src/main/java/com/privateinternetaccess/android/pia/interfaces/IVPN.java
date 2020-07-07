@@ -20,7 +20,6 @@ package com.privateinternetaccess.android.pia.interfaces;
 
 import android.content.Context;
 
-import com.privateinternetaccess.android.model.states.VPNProtocol.Protocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
 
 import de.blinkt.openvpn.VpnProfile;
@@ -51,6 +50,21 @@ public interface IVPN {
     void start();
 
     /**
+     * Starts the VPN with a process of clearing and updating elements related. Use this to handle if a user has explicitly hit
+     * the ConnectionSlider. Any other source should be false.
+     *
+     * Process:
+     * {@link com.privateinternetaccess.android.pia.tasks.FetchIPTask#resetValues(Context)}.
+     * Updates {@link de.blinkt.openvpn.core.VpnStatus#updateStateString(String, String, int, ConnectionStatus)}.
+     * Generates the VPN config using {@link com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig#generateVpnProfile(Context)}.
+     * calls {@link com.privateinternetaccess.android.ui.widgets.WidgetProvider#updateWidget(Context, boolean)} to attach listeners.
+     *
+     * Starts the VPN using {@link de.blinkt.openvpn.core.VPNLaunchHelper#startOpenVpn(VpnProfile, Context)} using the generated config profile in a thread.
+     *
+     */
+    void start(boolean connectPressed);
+
+    /**
      * If the Vpn is active,
      *
      * Stops the VPN by connecting with {@link de.blinkt.openvpn.core.OpenVPNService} and calling {@link de.blinkt.openvpn.core.IOpenVPNServiceInternal#stopVPN(boolean)}
@@ -60,9 +74,9 @@ public interface IVPN {
     /**
      * If the Vpn is active,
      *
-     * Optionally forces VPN to stop regardless of current state
+     * Stops the VPN. Explicitly specifies whether a user has interacted with ConnectionSlider.
      */
-    void forceStop();
+    void stop(boolean disconnectPressed);
 
     /**
      * Pauses the VPN if the VPN is connected.

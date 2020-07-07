@@ -21,7 +21,6 @@ package com.privateinternetaccess.android.pia.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.AccountApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.LoginInfo;
@@ -29,6 +28,7 @@ import com.privateinternetaccess.android.pia.model.enums.LoginResponseStatus;
 import com.privateinternetaccess.android.pia.model.events.LoginEvent;
 import com.privateinternetaccess.android.pia.model.events.TokenEvent;
 import com.privateinternetaccess.android.pia.model.response.TokenResponse;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

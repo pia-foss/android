@@ -226,8 +226,6 @@
     <string name="settings_port_number_restriction"><![CDATA[Port number must be between 1024 & 65535]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[Port between 1024 & 65535]]></string>
-    <string name="startup_support_title">Support 5 devices at once</string>
-    <string name="startup_support_message">Protect yourself on up to 5 devices at a time.</string>
     <string name="startup_region_title">Connect to any region easily</string>
     <string name="startup_region_message">With servers around the globe, you are always under protection.</string>
     <string name="startup_ads_title">Protect yourself from ads</string>
@@ -359,10 +357,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">General events and notifications</string>
     <string name="tv_startup_press_right">PRESS RIGHT</string>
-    <string name="androidalwayson">Android VPN always on</string>
-    <string name="androidalwaysonsummary">Android 8.0+ includes a better alternative to Killswitch, click for more information</string>
+    <string name="androidalwayson">Block Connections Without VPN</string>
+    <string name="androidalwaysonsummary">Android includes a better alternative to Killswitch functionality, click for more information</string>
     <string name="block_connection_wo_vpn">Block connections without VPN</string>
-    <string name="always_oreo_message">Android 8.0 and later include an option from Android itself to block connections without VPN. As this is deeply integrated in Android OS itself, it is a better integrated KillSwitch in Android itself that even works if the PIA VPN app does crash or is stopped and also works before PIA is even started.\n\nWe recommend setting up \"Always On VPN\" and \"Block connections without VPN\" in addition or as alternative to the Killswitch option</string>
+    <string name="always_oreo_message">To ensure you\'re never connected without your VPN, we suggest enabling Block Connection Without VPN in your Android settings. This can be enabled after turning on Always-on VPN for PIA. This will ensure Android does its best job to have your PIA VPN running at all times when connected and block connections without a VPN - aka a VPN killswitch. The Killswitch setting in the PIA VPN app has been deprecated in favor of setting "Block Connection without VPN" at the system level in your Android settings since Android 8.0+ has this feature built in now. If there\'s ever a problem, you\'ll be notified and Android will block all internet connections that aren\'t going through your VPN.</string>
     <string name="preference_blocking">BLOCKING</string>
     <string name="preference_connect_proxy">Connect via proxy</string>
     <string name="preference_connect_proxy_app">Selected proxy app</string>
@@ -411,7 +409,7 @@
     <string name="pp_text">Privacy Policy</string>
     <string name="website_isnt_protected">Website isn\'t protected.</string>
     <string name="api_check_failure_title">Connection Failure</string>
-    <string name="api_check_message">We are unable to reach Private Internet Access. This may due to poor internet or our service is blocked in your country.</string>
+    <string name="api_check_message">We are unable to reach Private Internet Access. This may due to poor internet or our service is blocked in your country. Please ensure you have a stable internet connection, Force Stop the app from Settings, restart the app, and try again.</string>
     <string name="invalid_qr_code">Invalid QR code sequence. Please try again.</string>
     <string name="empty_qr_code">QR contents were empty. Please try again.</string>
     <string name="your_plan_will_expire_on">Your plan will expire on</string>
@@ -447,7 +445,8 @@
     <string name="trusted_wifi_title">Trusted Wifi</string>
     <string name="trusted_wifi_message">The VPN will autoconnect on all wifi networks except those whitelisted by the user</string>
     <string name="trusted_wifi_enable_message">Disable VPN when connecting to trusted networks</string>
-    <string name="trusted_wifi_header">Trusted Networks</string>
+    <string name="trusted_wifi_singular">Trusted Network</string>
+    <string name="trusted_wifi_plural">Trusted Networks</string>
     <string name="available_wifi_header">Available Networks</string>
     <string name="trusted_wifi_no_wifi">Please enable WiFi in order to select trusted networks.</string>
     <string name="trusted_wifi_no_permission">Trusted wifi requires location permissions to detect nearby wifi networks. If that permission is revoked, this feature will no longer work.\n\nTo use this feature, go to Settings>Apps>PIA VPN, and ensure the location permission is toggled on.</string>
@@ -606,9 +605,20 @@
     <string name="wg_connecting">Connecting</string>
     <string name="wg_connected">VPN Connected</string>
 
+    <string name="ks_removal_warning">We have detected that you have the Killswitch enabled. We have changed how this feature works by integrating the Android "Block connections without VPN" setting for both WireGuard and OpenVPN. Please review the changes in Settings to ensure you remain protected.</string>
+
+    <string name="preference_on_boot_always_on">Connect on system start. We recommend to turn on this setting if you are using VPN Always On.</string>
+
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Tunnel “%s” already exists</string>
     <string name="tunnel_error_invalid_name">Invalid name</string>
     <string name="preview">PREVIEW</string>
+
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">Next generation network</string>
+    <string name="gen4_next_generation_network_message">The VPN has to be disconnected to change the server network.</string>
+
+    <!-- GEO Servers -->
+    <string name="geo_servers">Include geo-located regions</string>
 
 </resources>

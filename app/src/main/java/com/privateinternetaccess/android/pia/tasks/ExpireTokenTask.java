@@ -22,11 +22,11 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.AccountApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.response.ExpireTokenResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 public class ExpireTokenTask extends AsyncTask<Void, Void, ExpireTokenResponse> {
     private Context context;

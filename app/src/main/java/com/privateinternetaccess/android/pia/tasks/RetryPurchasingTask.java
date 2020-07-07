@@ -22,13 +22,13 @@ import android.content.Context;
 import android.os.Handler;
 
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.PurchasingApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.PurchasingTestingData;
 import com.privateinternetaccess.android.pia.model.events.PurchasingEvent;
 import com.privateinternetaccess.android.pia.model.response.PurchasingResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

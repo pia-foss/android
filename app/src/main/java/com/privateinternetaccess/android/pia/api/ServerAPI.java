@@ -23,9 +23,8 @@ import android.util.Base64;
 
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
-import com.privateinternetaccess.android.pia.model.response.ServerResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.core.model.ServerResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,7 +69,7 @@ public class ServerAPI extends PiaApi {
             "IQIDAQAB\n" +
             "-----END PUBLIC KEY-----";
 
-    public static final int SERVER_FILE_NUMBER = 1001;
+    public static final int SERVER_FILE_NUMBER = 1002;
 
     private Context context;
     private static boolean testing;
@@ -93,10 +92,8 @@ public class ServerAPI extends PiaApi {
         } catch (Exception e) {
         }
 
-        String baseUrl = getBaseURL(context);
-        //baseUrl = baseUrl.replaceFirst("https", "http");
-
         try {
+            String baseUrl = getBaseURL(context);
             Request request = new Request.Builder()
                     .url(baseUrl + "vpninfo/servers?version=" + SERVER_FILE_NUMBER + "&os=android")
                     .header("User-Agent", ANDROID_HTTP_CLIENT)

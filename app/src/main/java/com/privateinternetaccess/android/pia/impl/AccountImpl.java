@@ -21,7 +21,6 @@ package com.privateinternetaccess.android.pia.impl;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.model.LoginInfo;
@@ -42,6 +41,7 @@ import com.privateinternetaccess.android.pia.tasks.TokenTask;
 import com.privateinternetaccess.android.pia.tasks.TrialCreationTask;
 import com.privateinternetaccess.android.pia.tasks.UpdateEmailTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 
 /**

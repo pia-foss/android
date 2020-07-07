@@ -10,13 +10,13 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.response.CheckUpdateResponse;
 import com.privateinternetaccess.android.pia.tasks.CheckUpdateTask;
 import com.privateinternetaccess.android.pia.utils.NotificationHelper;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.receivers.UpdateCheckReceiver;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 public class UpdateHandler {
 

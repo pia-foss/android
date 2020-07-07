@@ -27,17 +27,12 @@ import com.privateinternetaccess.android.PIAOpenVPNTunnelLibrary;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.model.states.VPNProtocol.Protocol;
-import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.tasks.FetchIPTask;
-import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig;
-import com.privateinternetaccess.android.receivers.OnAutoConnectNetworkReceiver;
-import com.privateinternetaccess.android.receivers.OnNetworkChangeReceiver;
 import com.privateinternetaccess.android.ui.widgets.WidgetBaseProvider;
 import com.privateinternetaccess.android.utils.SnoozeUtils;
-import com.privateinternetaccess.android.wireguard.model.Tunnel;
 
 import java.io.IOException;
 
@@ -65,7 +60,7 @@ public class VPNImpl implements IVPN {
     }
 
     @Override
-    public void start() {
+    public void start(boolean connectPressed) {
         SnoozeUtils.resumeVpn(context, false);
         PiaPrefHandler.setLastConnection(context, System.currentTimeMillis());
 
@@ -75,7 +70,6 @@ public class VPNImpl implements IVPN {
 
                 VpnStatus.updateStateString("GEN_CONFIG", "", R.string.state_gen_config,
                         ConnectionStatus.LEVEL_START);
-                DLog.d("VPNImpl","Starting!");
 
                 final VpnProfile vp = PiaOvpnConfig.generateVpnProfile(context);
 
@@ -98,7 +92,12 @@ public class VPNImpl implements IVPN {
     }
 
     @Override
-    public void stop() {
+    public void start() {
+        start(false);
+    }
+
+    @Override
+    public void stop(boolean disconnectPressed) {
         PiaPrefHandler.setUserEndedConnection(context, true);
         PiaPrefHandler.setLastDisconnection(context, System.currentTimeMillis());
 
@@ -114,31 +113,14 @@ public class VPNImpl implements IVPN {
                 PIAApplication.getAsyncWorker().runAsync(PIAApplication.getWireguard()::cancel);
             }
             else if (PIAApplication.getWireguard() != null) {
-                PIAApplication.getAsyncWorker().runAsync(PIAApplication.getWireguard()::stopVpn);
+                PIAApplication.getAsyncWorker().runAsync(() -> PIAApplication.getWireguard().stopVpn(disconnectPressed));
             }
         }
     }
 
     @Override
-    public void forceStop() {
-        PiaPrefHandler.setUserEndedConnection(context, true);
-        PiaPrefHandler.setLastDisconnection(context, System.currentTimeMillis());
-
-        if (PiaPrefHandler.getProtocol(context).equals(context.getResources().getStringArray(R.array.protocol_options)[0])) {
-            if (VpnStatus.isVPNActive()) {
-                Intent i = new Intent(context, OpenVPNService.class);
-                i.setAction(OpenVPNService.DISCONNECT_VPN);
-                context.startService(i);
-            }
-        }
-        else {
-            if (PIAApplication.getWireguard() != null && PIAApplication.getWireguard().isConnecting) {
-                PIAApplication.getAsyncWorker().runAsync(PIAApplication.getWireguard()::cancel);
-            }
-            else if (PIAApplication.getWireguard() != null) {
-                PIAApplication.getAsyncWorker().runAsync(PIAApplication.getWireguard()::stopVpn);
-            }
-        }
+    public void stop() {
+        stop(false);
     }
 
     @Override

@@ -34,9 +34,10 @@ import com.privateinternetaccess.android.model.listModel.ServerItem;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
+import com.privateinternetaccess.android.utils.ServerUtils;
+import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -144,12 +145,18 @@ public class QuickConnectView extends FrameLayout {
 
             if (PiaPrefHandler.isFavorite(getContext(), ps.getName())) {
                 favorites[currentIndex++].setVisibility(View.VISIBLE);
-                validServers.add(new ServerItem(
-                        ps.getKey(),
-                        PIAServerHandler.getInstance(getContext()).getFlagResource(ps),
-                        ps.getName(),
-                        false,
-                        ps.isAllowsPF()));
+                String latency = ServerUtils.getLatencyForActiveSetting(getContext(), ps.getLatencies());
+                validServers.add(
+                        new ServerItem(
+                                ps.getKey(),
+                                PIAServerHandler.getInstance(getContext()).getFlagResource(ps),
+                                ps.getName(),
+                                false,
+                                ps.isAllowsPF(),
+                                ps.isGeo(),
+                                latency
+                        )
+                );
             }
         }
 
@@ -158,12 +165,18 @@ public class QuickConnectView extends FrameLayout {
                 PIAServer server = fetchServer(savedServers[i]);
 
                 if (server != null && !PiaPrefHandler.isFavorite(getContext(), server.getName())) {
-                    validServers.add(new ServerItem(
-                            server.getKey(),
-                            PIAServerHandler.getInstance(getContext()).getFlagResource(server),
-                            server.getName(),
-                            false,
-                            server.isAllowsPF()));
+                    String latency = ServerUtils.getLatencyForActiveSetting(getContext(), server.getLatencies());
+                    validServers.add(
+                            new ServerItem(
+                                    server.getKey(),
+                                    PIAServerHandler.getInstance(getContext()).getFlagResource(server),
+                                    server.getName(),
+                                    false,
+                                    server.isAllowsPF(),
+                                    server.isGeo(),
+                                    latency
+                            )
+                    );
                 }
             }
         }

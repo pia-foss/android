@@ -20,6 +20,8 @@ package com.privateinternetaccess.android.pia.api;
 
 import androidx.annotation.Nullable;
 
+import com.privateinternetaccess.android.pia.utils.DLog;
+
 import java.io.IOException;
 
 import okhttp3.Credentials;
@@ -35,6 +37,7 @@ import okhttp3.Route;
 
 public class PIAAuthenticator implements okhttp3.Authenticator{
 
+    private static final String TAG = "PIAAuthenticator";
     private static final String AUTHORIZATION = "Authorization";
     private String username;
     private String password;
@@ -45,17 +48,20 @@ public class PIAAuthenticator implements okhttp3.Authenticator{
     @Override
     public Request authenticate(Route route, Response response) {
         if (response.request().header(AUTHORIZATION) != null) {
+            DLog.d(TAG, "Authentication aborted. Already tried to authenticate with proper header.");
             return null; // Give up, we've already failed to authenticate.
         }
 
-        if(token != null) {
+        if (token != null) {
+            DLog.d(TAG, "Authenticating with token");
             String credential = "Token " + token;
             return response.request().newBuilder()
-                    .header("Authorization", credential)
+                    .header(AUTHORIZATION, credential)
                     .build();
-        } else {
-            return response.request().newBuilder().build();
         }
+
+        DLog.d(TAG, "Authentication aborted. No available credentials.");
+        return null;
     }
 
     public String getUsername() {

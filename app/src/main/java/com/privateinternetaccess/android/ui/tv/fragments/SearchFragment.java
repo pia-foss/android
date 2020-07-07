@@ -41,11 +41,12 @@ import com.privateinternetaccess.android.model.events.ServerClickedEvent;
 import com.privateinternetaccess.android.model.listModel.ServerItem;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.ServerPingEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.ui.adapters.ServerListAdapter;
 import com.privateinternetaccess.android.ui.tv.views.ServerSelectionItemDecoration;
+import com.privateinternetaccess.android.utils.ServerUtils;
+import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -120,11 +121,18 @@ public class SearchFragment extends Fragment {
         mServerItems = new ArrayList<>();
 
         for (PIAServer ps : handler.getServers(context, PIAServerHandler.ServerSortingType.NAME, PIAServerHandler.ServerSortingType.FAVORITES)) {
-            mServerItems.add(new ServerItem(ps.getKey(),
-                    handler.getFlagResource(ps),
-                    ps.getName(),
-                    false,
-                    ps.isAllowsPF()));
+            String latency = ServerUtils.getLatencyForActiveSetting(context, ps.getLatencies());
+            mServerItems.add(
+                    new ServerItem(
+                            ps.getKey(),
+                            handler.getFlagResource(ps),
+                            ps.getName(),
+                            false,
+                            ps.isAllowsPF(),
+                            ps.isGeo(),
+                            latency
+                    )
+            );
         }
 
         mAdapter = new ServerListAdapter(mServerItems, getActivity());

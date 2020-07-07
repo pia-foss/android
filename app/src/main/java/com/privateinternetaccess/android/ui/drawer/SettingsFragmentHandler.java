@@ -50,14 +50,13 @@ import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig;
 import com.privateinternetaccess.android.ui.DialogFactory;
 import com.privateinternetaccess.android.ui.adapters.SettingsAdapter;
-import com.privateinternetaccess.android.ui.widgets.WidgetBaseProvider;
 import com.privateinternetaccess.android.wireguard.backend.GoBackend;
 
 import java.util.Locale;
 import java.util.Vector;
 
-import de.blinkt.openvpn.core.VpnStatus;
-
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEN4_ACTIVE;
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEO_SERVERS_ACTIVE;
 import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_AUTH;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_CIPHER;
@@ -264,10 +263,6 @@ public class SettingsFragmentHandler {
                 }
 
                 adapter.setDisplayNames(array);
-
-                if (Prefs.with(context).get(PiaPrefHandler.PIA_MACE, false)) {
-                    //adapter.setWarning(context.getString(R.string.custom_dns_disabling_mace));
-                }
 
                 final String[] dnsCustomArray = dnsArray;
 
@@ -892,114 +887,58 @@ public class SettingsFragmentHandler {
         }
     }
 
-    public static void resetToDefault(Context ctx, SettingsFragment fragment){
+    public static void resetToDefault(Context ctx){
         Prefs prefs = new Prefs(ctx);
 
         // Connection Area
         prefs.set(PiaPrefHandler.USE_TCP, false);
-        ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.USE_TCP)).setChecked(false);
-
         prefs.set(PiaPrefHandler.PORTFORWARDING, false);
-        ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.PORTFORWARDING)).setChecked(false);
-
         prefs.set(PiaPrefHandler.RPORT, "");
-        fragment.setRportSummary("");
-
         prefs.set(PiaPrefHandler.LPORT, "");
-        fragment.setLportSummary("");
-
-        prefs.set(PiaPrefHandler.PACKET_SIZE, fragment.getResources().getBoolean(R.bool.usemssfix));
-        ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.PACKET_SIZE)).setChecked(false);
+        prefs.set(PiaPrefHandler.PACKET_SIZE, ctx.getResources().getBoolean(R.bool.usemssfix));
+        prefs.set(GEN4_ACTIVE, false);
+        prefs.set(GEO_SERVERS_ACTIVE, true);
 
         if (!PIAApplication.isAndroidTV(ctx)) {
             prefs.set(PiaPrefHandler.PROXY_PORT, "8080");
-            fragment.findPreference(PiaPrefHandler.PROXY_PORT).setSummary("8080");
             prefs.set(PiaPrefHandler.PROXY_APP, "");
-            ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.PROXY_ENABLED)).setChecked(false);
-            fragment.resetProxyArea(fragment.findPreference(PiaPrefHandler.PROXY_ENABLED), false);
-
             prefs.set(PiaPrefHandler.PIA_MACE, false);
-            try {
-                ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.PIA_MACE)).setChecked(false);
-            } catch (Exception e) {
-            }
-
             prefs.set(KILLSWITCH, false);
-            ((SwitchPreferenceCompat) fragment.findPreference(KILLSWITCH)).setChecked(false);
         }
 
         //Blocking
-        prefs.set(PiaPrefHandler.IPV6, fragment.getResources().getBoolean(R.bool.useblockipv6));
-        ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.IPV6)).setChecked(false);
-
-        ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.BLOCK_LOCAL_LAN)).setChecked(true);
+        prefs.set(PiaPrefHandler.IPV6, ctx.getResources().getBoolean(R.bool.useblockipv6));
         prefs.set(PiaPrefHandler.BLOCK_LOCAL_LAN, true);
 
         // Encryption
-        String cipher = fragment.getResources().getStringArray(R.array.ciphers_values)[0];
-        String auth = fragment.getResources().getStringArray(R.array.auth_values)[0];
-        String tls = fragment.getResources().getStringArray(R.array.tls_values)[0];
+        String cipher = ctx.getResources().getStringArray(R.array.ciphers_values)[0];
+        String auth = ctx.getResources().getStringArray(R.array.auth_values)[0];
+        String tls = ctx.getResources().getStringArray(R.array.tls_values)[0];
 
         prefs.set(PiaPrefHandler.CIPHER, cipher);
-        fragment.findPreference(PiaPrefHandler.CIPHER).setSummary(cipher);
-
         prefs.set(PiaPrefHandler.AUTH, auth);
-        fragment.findPreference(PiaPrefHandler.AUTH).setSummary(auth);
-
         prefs.set(PiaPrefHandler.TLSCIPHER, tls);
-        fragment.findPreference(PiaPrefHandler.TLSCIPHER).setSummary(tls);
 
         // Protocol
         prefs.set(PiaPrefHandler.VPN_PROTOCOL, ctx.getResources().getStringArray(R.array.protocol_options)[0]);
 
         // Application Settings
         prefs.set(PiaPrefHandler.AUTOCONNECT, false);
-        ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.AUTOCONNECT)).setChecked(false);
         prefs.set(PiaPrefHandler.AUTOSTART, false);
-        ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.AUTOSTART)).setChecked(false);
         prefs.set(PiaPrefHandler.HAPTIC_FEEDBACK, true);
-        if(fragment.findPreference(PiaPrefHandler.HAPTIC_FEEDBACK) != null)
-            ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.HAPTIC_FEEDBACK)).setChecked(true);
-
         prefs.set(PiaPrefHandler.CONNECT_ON_APP_UPDATED, false);
-        ((SwitchPreferenceCompat) fragment.findPreference(PiaPrefHandler.CONNECT_ON_APP_UPDATED)).setChecked(false);
-
-        // We aren't going to reset the theme as that doesn't make sense for 99.9% of cases.
-
-//        prefs.set(PiaPrefHandler.GRAPHUNIT, "8192");
-//        String current = SettingsFragmentHandler.getSummaryItem(getActivity(), PiaPrefHandler.GRAPHUNIT, "8192", getResources().getStringArray(R.array.preference_graph_titles), getResources().getStringArray(R.array.preference_graph_values));
-//        findPreference(PiaPrefHandler.GRAPHUNIT).setSummary(current);
-
         prefs.set(PiaPrefHandler.WIDGET_BACKGROUND_COLOR, ContextCompat.getColor(ctx, R.color.widget_background_default));
-
         prefs.set(PiaPrefHandler.WIDGET_TEXT_COLOR, ContextCompat.getColor(ctx, R.color.widget_text_default));
-
         prefs.set(PiaPrefHandler.WIDGET_UPLOAD_COLOR, ContextCompat.getColor(ctx, R.color.widget_upload_default));
-
         prefs.set(PiaPrefHandler.WIDGET_DOWNLOAD_COLOR, ContextCompat.getColor(ctx, R.color.widget_download_default));
-
         prefs.set(PiaPrefHandler.WIDGET_RADIUS, 8);
-
         prefs.set(PiaPrefHandler.WIDGET_ALPHA, 100);
-
         prefs.remove(PiaPrefHandler.DNS);
         prefs.remove(PiaPrefHandler.DNS_SECONDARY);
         prefs.remove(PiaPrefHandler.CUSTOM_SECONDARY_DNS);
         prefs.remove(PiaPrefHandler.CUSTOM_DNS);
 
-        prefs.remove(PiaPrefHandler.TRUST_WIFI);
-        prefs.remove(PiaPrefHandler.TRUSTED_WIFI_LIST);
-
-        fragment.setDNSSummary();
-        fragment.setProtocolSummary();
-
-        if(PIAFactory.getInstance().getVPN(ctx).isVPNActive()) {
-            Toaster.l(fragment.getActivity().getApplicationContext(), R.string.reconnect_vpn);
-        }
-        else {
-            Toaster.s(ctx, fragment.getString(R.string.settings_reset));
-        }
-        WidgetBaseProvider.updateWidget(fragment.getActivity(), false);
+        PiaPrefHandler.clearTrustWifi(ctx);
+        PiaPrefHandler.clearTrustedNetworks(ctx);
     }
-
 }

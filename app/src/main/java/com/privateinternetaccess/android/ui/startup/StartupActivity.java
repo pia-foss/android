@@ -131,8 +131,8 @@ public class StartupActivity extends AppCompatActivity {
 
 
 
-        list.add(StartupFragment.newInstance(getString(R.string.startup_support_title),
-                getString(R.string.startup_support_message),
+        list.add(StartupFragment.newInstance(getString(R.string.free_trial_devices_header),
+                getString(R.string.free_trial_devices_text),
                 R.drawable.ic_walkthrough_devices,
                 ContextCompat.getColor(getApplicationContext(), R.color.transparent),
                 ContextCompat.getColor(getApplicationContext(), R.color.pia_text_dark_primary),

@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[端口号必须在 1024 和 65535 之间]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[端口在 1024 和 65535 之间]]></string>
-    <string name="startup_support_title">一次支持 5 台设备</string>
-    <string name="startup_support_message">一次在多达 5 台设备上保护自己。</string>
     <string name="startup_region_title">轻松连接到任何地区</string>
     <string name="startup_region_message">服务器遍布世界各地，您始终受到保护。</string>
     <string name="startup_ads_title">让自己远离广告</string>
@@ -245,7 +243,8 @@
     <string name="done">完成</string>
     <string name="update_account">更新帐户</string>
     <string name="local_port_titla">本地端口</string>
-    <string name="preference_application_settings">应用程序设置</string>
+    <string name="preference_application_settings">通用设置</string>
+    <string name="preference_vpn_settings">VPN 设置</string>
     <string name="preference_haptic_title">连接时的触觉反馈</string>
     <string name="preference_dialog_graph_title">选择图表的测量单位</string>
     <string name="preference_connect_on_boot_summary">系统启动时连接</string>
@@ -339,10 +338,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">一般事件和通知</string>
     <string name="tv_startup_press_right">按右键</string>
-    <string name="androidalwayson">安卓版VPN始终开启</string>
-    <string name="androidalwaysonsummary">安卓8.0以上系统包含Killswitch的替代功能，性能更佳，点击了解更多信息</string>
+    <string name="androidalwayson">屏蔽非 VPN 连接</string>
+    <string name="androidalwaysonsummary">安卓系统包含 Killswitch 的替代功能，性能更佳，点击了解更多信息</string>
     <string name="block_connection_wo_vpn">屏蔽非VPN连接</string>
-    <string name="always_oreo_message">安卓8.0及更高版本提供直接使用安卓系统屏蔽非VPN连接的功能。该功能深度集成至安卓系统，是比安卓版KillSwitch更佳的选择，在PIA VPN崩溃或中止后仍能继续运行，在PIA启动前同样有效。\n\n我们建议设置“始终开启VPN”和“屏蔽非VPN连接”，用作为Killswitch的补充或替代</string>
+    <string name="always_oreo_message">为确保您绝不会在未使用 VPN 时连接，建议您在 Android 设置中启用“阻止未使用 VPN 时的连接”。可以在针对 PIA 打开“永远在线 VPN”后启用此功能。这将确保 Android 尽力让您的 PIA VPN 在连接后使用运行，并且会阻止未使用 VPN 时的连接（也称为 VPN Killswitch）。不建议使用 PIA VPN 应用程序中的 Killswitch 设置，我们建议在 Android 设置的系统级别上设置“阻止未使用 VPN 时的连接”，因为 Android 8.0+ 已内置此功能。如果发生问题，系统就会通知您，并且 Android 会阻止所有不通过 VPN 的互联网连接。</string>
     <string name="preference_blocking">屏蔽中</string>
     <string name="preference_connect_proxy">通过代理连接</string>
     <string name="preference_connect_proxy_app">已选代理应用</string>
@@ -391,7 +390,7 @@
     <string name="pp_text">隐私政策</string>
     <string name="website_isnt_protected">网站未受保护。</string>
     <string name="api_check_failure_title">连接失败</string>
-    <string name="api_check_message">我们无法接入Private Internet Access。原因可能是互联网连接不良或者我们的服务在您的国家遭到屏蔽。</string>
+    <string name="api_check_message">我们无法接入 Private Internet Access。原因可能是互联网连接不良或者我们的服务在您的国家遭到屏蔽。请确保您的网络连接状况稳定，从设置中“强制停止”应用程序，重启应用程序，然后重试。</string>
     <string name="invalid_qr_code">二维码序列无效。请重试。</string>
     <string name="empty_qr_code">二维码为空。请重试。</string>
     <string name="your_plan_will_expire_on">您的套餐到期时间为</string>
@@ -427,10 +426,11 @@
     <string name="trusted_wifi_title">受信任 Wifi</string>
     <string name="trusted_wifi_message">VPN 将在所有 Wifi 网络上自动连接，但用户列入白名单的网络除外</string>
     <string name="trusted_wifi_enable_message">连接到受信任网络时禁用 VPN</string>
-    <string name="trusted_wifi_header">受信任网络</string>
+    <string name="trusted_wifi_singular">受信任网络</string>
+    <string name="trusted_wifi_plural">受信任网络</string>
     <string name="available_wifi_header">可用网络</string>
     <string name="trusted_wifi_no_wifi">请启用 WiFi 以选择受信任网络。</string>
-    <string name="trusted_wifi_no_permission">受信任 WiFi 需要有位置权限才能检测附近的 WiFi 网络。如果撤消该权限，则此功能将不再有效。\n\n要使用此功能，请前往“设置”&gt;“应用”&gt;“ PIA VPN”，并确保已启用“位置”权限</string>
+    <string name="trusted_wifi_no_permission">受信任 WiFi 需要有位置权限才能检测附近的 WiFi 网络。如果撤消该权限，则此功能将不再有效。\n\n要使用此功能，请前往“设置”&gt;“应用”&gt;“ PIA VPN”，并确保已启用“位置”权限。</string>
     <string name="no_permission_title">需要权限</string>
     <string name="trusted_wifi_not_available">无可用网络</string>
     <string name="trusted_wifi_no_trusted">没有受信任网络</string>
@@ -518,4 +518,44 @@
     <string name="free_trial_region_text">3300多个服务器遍布32个国家</string>
     <string name="free_trial_start">开始订阅</string>
     <string name="free_trial_see_all">查看全部可用套餐</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">VPN 暂停</string>
+    <string name="snooze_short">暂停 5 分钟</string>
+    <string name="snooze_medium">暂停 15 分钟</string>
+    <string name="snooze_long">暂停 1 小时</string>
+    <string name="snooze_description">断开 VPN 连接，并在计时器结束时自动重新连接。</string>
+    <string name="snooze_resume">恢复</string>
+    <string name="snooze_paused">暂停到 %s</string>
+    <string name="snooze_status">正在暂停</string>
+    <string name="snooze_notification">已暂停</string>
+    <string name="failed_connect_status">无法连接</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">快速设置</string>
+    <string name="quick_settings_network_toggle">网络管理</string>
+    <string name="quick_settings_private_browser">专用浏览器</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">快速连接</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">使用情况</string>
+    <string name="usage_download">下载</string>
+    <string name="usage_upload">上传</string>
+    <!-- Settings -->
+    <string name="settings_protocol">协议</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">切换到 WireGuard 将禁用“按应用程序设置”功能</string>
+    <string name="wg_protocol_warning">以下功能将在 WireGuard 上失效：</string>
+    <string name="wg_connecting">正在连接</string>
+    <string name="wg_connected">VPN 已连接</string>
+    <string name="ks_removal_warning">我们检测到您已启用 Killswitch。通过为 WireGuard 和 OpenVPN 集成 Android“阻止未使用 VPN 时的连接”设置，我们已经更改了此功能的运作方式。请查看“设置”中的更改，以确保您仍受到保护。</string>
+    <string name="preference_on_boot_always_on">在系统启动时连接。如果您使用的是“VPN 始终打开”，则建议您打开此设置。</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">隧道“%s”已存在</string>
+    <string name="tunnel_error_invalid_name">名称无效</string>
+    <string name="preview">预览</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">下一代网络</string>
+    <string name="gen4_next_generation_network_message">必须断开 VPN 才能更改服务器网络。</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">包括地理定位区域</string>
 </resources>

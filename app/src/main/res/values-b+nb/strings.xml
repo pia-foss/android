@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[Portnummeret må være mellom 1024 og 65535]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[Port mellom 1024 og 65535]]></string>
-    <string name="startup_support_title">Støtter fem enheter samtidig</string>
-    <string name="startup_support_message">Beskytt deg på opptil fem apper samtidig.</string>
     <string name="startup_region_title">Koble til hvilken som helst region på en enkel måte</string>
     <string name="startup_region_message">Med serverer fra hele verden, er du alltid beskyttet.</string>
     <string name="startup_ads_title">Beskytt deg selv om reklame</string>
@@ -245,7 +243,8 @@
     <string name="done">FERDIG</string>
     <string name="update_account">OPPDATER KONTO</string>
     <string name="local_port_titla">Lokal port</string>
-    <string name="preference_application_settings">APPINNSTILLINGER</string>
+    <string name="preference_application_settings">GENERELLE INNSTILLINGER</string>
+    <string name="preference_vpn_settings">VPN-INNSTILLINGER</string>
     <string name="preference_haptic_title">Haptikktilbakemelding ved tilkobling</string>
     <string name="preference_dialog_graph_title">Velg målenhet for grafen</string>
     <string name="preference_connect_on_boot_summary">Koble til ved systemoppstart</string>
@@ -339,10 +338,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">Generelle hendelser og varsler</string>
     <string name="tv_startup_press_right">TRYKK HØYRE</string>
-    <string name="androidalwayson">Android VPN alltid på</string>
-    <string name="androidalwaysonsummary">Android 8.0+ har et bedre alternativ for killswitch. Klikk for mer informasjon</string>
+    <string name="androidalwayson">Blokker tilkoblinger uten VPN</string>
+    <string name="androidalwaysonsummary">Android har et bedre alternativ for killswitch-funksjonalitet. Klikk for mer informasjon</string>
     <string name="block_connection_wo_vpn">Blokker tilkoblinger uten VPN</string>
-    <string name="always_oreo_message">Android 8.0 og nyere har i muligheten til å blokkere tilkoblinger uten VPN. Siden dette er dypt integrert i selve Android-operativsystemet, er det en bedre integrert killswitch i Android, som fungerer selv om PIA VPN-appen krasjer eller stopper, og fungerer til og med før PIA startes.\n\nVi anbefaler deg å bruke innstillingen «VPN alltid på» og «Blokker tilkoblinger uten VPN» i tillegg, eller som alternativ til, killswitch-alternativet.</string>
+    <string name="always_oreo_message">For å sikre at du aldri er koblet til uten VPN, foreslår vi at du aktiverer Blokker tilkobling uten VPN i Android-innstillingene. Dette kan aktiveres etter at du har slått på alltid VPN for PIA. Det sikrer at Android prøver å alltid å ha PIA VPN på til enhver tid når du er tilkoblet og blokkerer tilkoblinger uten VPN, altså en VPN-killswitch. Killswitch-innstillingen i PIA VPN-appen er utarbeidet for å stille inn «Blokker tilkoblinger uten VPN» på systemnivå i Android-innstillingene, siden Android 8.0+ nå har denne funksjonen innebygd. Hvis det noen gang er et problem, vil du bli varslet og Android vil blokkere alle internettforbindelser som ikke går gjennom VPN.</string>
     <string name="preference_blocking">BLOKKERING</string>
     <string name="preference_connect_proxy">Koble til via proxy</string>
     <string name="preference_connect_proxy_app">Valgt proxyapp</string>
@@ -391,7 +390,7 @@
     <string name="pp_text">retningslinjene om personvern</string>
     <string name="website_isnt_protected">Nettsted er ikke beskyttet.</string>
     <string name="api_check_failure_title">Feil med tilkobling</string>
-    <string name="api_check_message">Vi klarer ikke nå Private Internet Access. Dette kan skyldes dårlig Internett eller at tjenesten vår i landet ditt er blokkert.</string>
+    <string name="api_check_message">Vi kan ikke koble til Private Internet Access. Dette kan skyldes dårlig Internett eller at tjenesten vår i landet ditt er blokkert. Sørg for at du har en stabil nettforbindelse, tving stopp fra appens innstillinger, start appen på nytt, og prøv igjen.</string>
     <string name="invalid_qr_code">Ugyldig QR-kodesekvens. Prøv igjen.</string>
     <string name="empty_qr_code">QR-innhold var tomt. Prøv igjen.</string>
     <string name="your_plan_will_expire_on">Planen din utløper</string>
@@ -427,10 +426,11 @@
     <string name="trusted_wifi_title">Pålitelig WiFi</string>
     <string name="trusted_wifi_message">VPN-tilkoblingen kobler automatisk til alle trådløse nettverk, med mindre de er hvitelistet av brukeren</string>
     <string name="trusted_wifi_enable_message">Deaktiver VPN-tilkoblingen når koblet til pålitelige nettverk</string>
-    <string name="trusted_wifi_header">Pålitelige nettverk</string>
+    <string name="trusted_wifi_singular">Klarert nettverk</string>
+    <string name="trusted_wifi_plural">Klarerte nettverk</string>
     <string name="available_wifi_header">Tilgjengelige nettverk</string>
     <string name="trusted_wifi_no_wifi">Aktiver WiFi for å velge pålitelige nettverk.</string>
-    <string name="trusted_wifi_no_permission">Pålitelig WiFi krever posisjonstillatelse for å finne WiFi-nettverk i nærheten. Hvis tillatelsen trekkes tilbake, vil ikke denne funksjonen lenger fungere.\n\nFor å bruke denne funksjonen går du til Innstillinger&gt;Apper&gt;PIA VPN, og deretter må du sjekke at poisjonstillatelsen er på</string>
+    <string name="trusted_wifi_no_permission">Klarert Wi-Fi krever posisjonstillatelse for å finne Wi-Fi-nettverk i nærheten. Hvis tillatelsen trekkes tilbake, virker ikke denne funksjonene lenger.\n\nFor å bruke denne funksjonen går du til Innstillinger &gt; Apper &gt; PIA VPN, og deretter må du sjekke at poisjonstillatelsen er på.</string>
     <string name="no_permission_title">Tillatelse kreves</string>
     <string name="trusted_wifi_not_available">Ingen tilgjengelige nettverk</string>
     <string name="trusted_wifi_no_trusted">Det finnes ingen pålitelige nettverk</string>
@@ -526,4 +526,44 @@
     <string name="free_trial_region_text">Mer enn 3300 servere i 32 land</string>
     <string name="free_trial_start">START ABONNEMENT</string>
     <string name="free_trial_see_all">Se alle abonnementene</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">VPN-SLUMRING</string>
+    <string name="snooze_short">SLUMRE I 5 MINUTTER</string>
+    <string name="snooze_medium">SLUMRE I 15 MINUTTER</string>
+    <string name="snooze_long">SLUMRE I 1 TIME</string>
+    <string name="snooze_description">Kobler fra VPN-en og kobler automatisk til når tidtakeren er ferdig.</string>
+    <string name="snooze_resume">GJENOPPTA</string>
+    <string name="snooze_paused">Satt på pause til %s</string>
+    <string name="snooze_status">Slumrer</string>
+    <string name="snooze_notification">Slumret</string>
+    <string name="failed_connect_status">Kan ikke koble til</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">HURTIGINNSTILLINGER</string>
+    <string name="quick_settings_network_toggle">Nettverksadministrering</string>
+    <string name="quick_settings_private_browser">Privat nettleser</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">HURTIGTILKOBLING</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">BRUK</string>
+    <string name="usage_download">Last ned</string>
+    <string name="usage_upload">Last opp</string>
+    <!-- Settings -->
+    <string name="settings_protocol">Protokoll</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">Bytte til WireGuard deaktiverer funksjonen per appinnstillinger</string>
+    <string name="wg_protocol_warning">Følgende funksjoner er ikke tilgjengelige på WireGuard:</string>
+    <string name="wg_connecting">Kobler til</string>
+    <string name="wg_connected">VPN-tilkoblet</string>
+    <string name="ks_removal_warning">Vi har oppdaget at du har aktivert Killswitch. Vi har endret hvordan denne funksjonen fungerer ved å integrere Android-blokkeringsforbindelser uten VPN-innstillingen for både WireGuard og OpenVPN. Les endringene i Innstillinger for å sikre at du forblir beskyttet.</string>
+    <string name="preference_on_boot_always_on">Koble til ved systemstart. Vi anbefaler å slå på denne innstillingen hvis du bruker VPN Always On.</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">Tunnelen «%s» eksisterer allerede</string>
+    <string name="tunnel_error_invalid_name">Ugyldig navn</string>
+    <string name="preview">FORHÅNDSVIS</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">Neste generasjons nettverk</string>
+    <string name="gen4_next_generation_network_message">VPN-en må kobles fra for å endre servernettverket.</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">Inkluder geo-lokaliserte regioner</string>
 </resources>

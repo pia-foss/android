@@ -18,7 +18,11 @@
 
 package com.privateinternetaccess.android.pia.api;
 
+import android.content.Context;
+
+import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.response.MaceResponse;
+import com.privateinternetaccess.android.pia.utils.Prefs;
 
 import java.io.IOException;
 
@@ -33,6 +37,7 @@ import okhttp3.Response;
 
 public class MaceApi extends PiaApi {
 
+    public static final String GEN4_MACE_ENABLED_DNS = "10.0.0.241";
 
     public MaceApi() {
         super();
@@ -45,17 +50,24 @@ public class MaceApi extends PiaApi {
      *
      * @return {@link MaceResponse}
      */
-    public MaceResponse hitMace(){
+    public MaceResponse hitMace(Context context){
         String url = "http://209.222.18.222:1111";
         boolean hitUrl = false;
-        try {
-            Request request = new Request.Builder()
-                    .header("User-Agent", ANDROID_HTTP_CLIENT)
-                    .url(url).build();
-            Response httpResponse = getOkHttpClient().newCall(request).execute(); // THIS IS GOING TO CREATE A ECONNREFUSED so expect it.
-            int code = httpResponse.code();
+        // TODO (juan.docal) GEN4 Mace has nothing to do with this and the dns is rather set on
+        //  the connection object. However, there is a lot of MACE state leaking from the old
+        //  implementation. This the least regression prone approach.
+        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
             hitUrl = true;
-        } catch (IOException e) {
+        } else {
+            try {
+                Request request = new Request.Builder()
+                        .header("User-Agent", ANDROID_HTTP_CLIENT)
+                        .url(url).build();
+                Response httpResponse = getOkHttpClient().newCall(request).execute(); // THIS IS GOING TO CREATE A ECONNREFUSED so expect it.
+                int code = httpResponse.code();
+                hitUrl = true;
+            } catch (IOException e) {
+            }
         }
         return new MaceResponse(hitUrl);
     }

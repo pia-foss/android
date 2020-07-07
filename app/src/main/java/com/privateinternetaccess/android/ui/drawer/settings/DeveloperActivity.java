@@ -46,7 +46,6 @@ import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.PingHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.ReportEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.model.response.ReportResponse;
@@ -175,7 +174,7 @@ public class DeveloperActivity extends BaseActivity {
         setContentView(R.layout.activity_developer);
         ButterKnife.bind(this);
         initHeader(true, true);
-        setGreenBackground();
+        setBackground();
         bindView(savedInstanceState);
     }
 
@@ -254,6 +253,7 @@ public class DeveloperActivity extends BaseActivity {
                 Prefs prefs = Prefs.with(getApplicationContext());
                 prefs.remove(PIAServerHandler.LAST_SERVER_GRAB);
                 prefs.remove(PIAServerHandler.LAST_SERVER_BODY);
+                prefs.remove(PIAServerHandler.GEN4_LAST_SERVER_BODY);
                 Prefs.with(getApplicationContext(), PingHandler.PREFS_PINGS).remove(PingHandler.LAST_PING_GRAB);
             }
         });

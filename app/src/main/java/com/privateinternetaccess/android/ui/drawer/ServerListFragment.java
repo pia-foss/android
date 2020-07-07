@@ -22,10 +22,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -39,18 +42,24 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.ServerClickedEvent;
+import com.privateinternetaccess.android.model.events.SeverListUpdateEvent;
 import com.privateinternetaccess.android.model.events.TVAppBarExpandEvent;
 import com.privateinternetaccess.android.model.listModel.ServerItem;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler.ServerSortingType;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
+import com.privateinternetaccess.android.pia.handlers.PingHandler;
+import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.model.events.ServerPingEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.adapters.ServerListAdapter;
 import com.privateinternetaccess.android.ui.tv.views.ServerSelectionItemDecoration;
+import com.privateinternetaccess.android.utils.ServerUtils;
+import com.privateinternetaccess.core.model.PIAServer;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -60,23 +69,29 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 import static android.app.Activity.RESULT_OK;
 import static com.privateinternetaccess.android.ui.drawer.ServerListActivity.RESULT_SERVER_CHANGED;
 
-public class ServerListFragment extends Fragment {
+public class ServerListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String SERVER_SEARCH_KEY = "server_search";
 
     @Nullable @BindView(R.id.appbar) AppBarLayout appBar;
+    @BindView(R.id.server_list_refresh_layout) SwipeRefreshLayout rvServerRefreshLayout;
     @BindView(android.R.id.list) RecyclerView rvServerList;
 
     @Nullable @BindView(R.id.server_select_no_results) ImageView ivNoResults;
     @Nullable @BindView(R.id.cancel_icon) ImageView ivCancelSearch;
     @Nullable @BindView(R.id.search) EditText etSearchBar;
 
-    private List<ServerItem> mServerItems;
+    @Nullable @BindView(R.id.connect_server_list_progress_bar) View progressBar;
+    @Nullable @BindView(R.id.header_icon_button) AppCompatImageView ivIconButton;
+
     private ServerListAdapter mAdapter;
+    PIAServerHandler mHandler;
 
     private GridLayoutManager mLayoutManager;
 
@@ -133,7 +148,7 @@ public class ServerListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
-        initView();
+        initView(getContext());
     }
 
     @Override
@@ -142,13 +157,67 @@ public class ServerListFragment extends Fragment {
         EventBus.getDefault().unregister(this);
     }
 
-    private void initView() {
-        if (PIAApplication.isAndroidTV(getContext())) {
-            mServerItems = null;
+    @Override
+    public void onRefresh() {
+        Context context = getContext();
+        Function1<Error, Unit> completionCallback = new Function1<Error, Unit>() {
+            @Override
+            public Unit invoke(Error error) {
+                rvServerRefreshLayout.setRefreshing(false);
+                if (error == null) {
+                    mAdapter.itemsUpdated(getServerItems(context, getRegionsFilterSelection(context)));
+                }
+                if (!Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+                    PingHandler.getInstance(context).setCallback(null);
+                }
+                return Unit.INSTANCE;
+            }
+        };
+
+        if (PIAFactory.getInstance().getVPN(context).isVPNActive()) {
+            DLog.e("ServerListFragment", "Error when updating latencies. Connected to the VPN.");
+            completionCallback.invoke(new Error("Connected to the VPN"));
+            return;
         }
 
-        int selectedPosition = setUpAdapter(getContext());
+        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+            PIAServerHandler.getInstance(context).triggerFetchServers(new Function1<Error, Unit>() {
+                @Override
+                public Unit invoke(Error error) {
+                    // Stop the spinner after fetching the servers.
+                    rvServerRefreshLayout.setRefreshing(false);
+                    PIAServerHandler.getInstance(context).triggerLatenciesUpdate(completionCallback);
+                    return null;
+                }
+            });
+        } else {
+            PIAServerHandler.getInstance(context).fetchServers(context, true, new Function1<Error, Unit>() {
+                @Override
+                public Unit invoke(Error error) {
+                    // Stop the spinner after fetching the servers.
+                    rvServerRefreshLayout.setRefreshing(false);
+                    PingHandler.getInstance(context).setCallback(new IPIACallback<ServerPingEvent>() {
+                        @Override
+                        public void apiReturn(ServerPingEvent serverPingEvent) {
+                            completionCallback.invoke(null);
+                        }
+                    });
+                    PingHandler.getInstance(context).fetchPings();
+                    return Unit.INSTANCE;
+                }
+            });
+        }
+    }
+
+    private void initView(Context context) {
+        int selectedPosition = setUpAdapter(context);
         setAdapterPosition(selectedPosition);
+
+        if (ivIconButton != null) {
+            ivIconButton.setVisibility(View.GONE);
+        }
+
+        handleServerListUpdateState(context, PIAServerHandler.getServerListFetchState());
         searchRegions();
     }
 
@@ -181,49 +250,21 @@ public class ServerListFragment extends Fragment {
     }
 
     public int setUpAdapter(Context context, boolean reset, PIAServerHandler.ServerSortingType... types) {
-        if (reset) {
-            mServerItems = null;
-        }
-
-        PIAServerHandler handler = PIAServerHandler.getInstance(getContext());
+        mHandler = PIAServerHandler.getInstance(getContext());
         DLog.d("ServerListFragment", "Types: " + types);
 
-        PIAServer selectedServer = handler.getSelectedRegion(context, true);
+        List<ServerItem> serverItems = getServerItems(context, types);
+        PIAServer selectedServer = mHandler.getSelectedRegion(context, true);
         int selectedPosition = -1;
-        if (mServerItems == null) {
-            mServerItems = new ArrayList<>();
-
-            //add search option
-            if (PIAApplication.isAndroidTV(getContext())) {
-                mServerItems.add(new ServerItem(SERVER_SEARCH_KEY,
-                        R.drawable.ic_search_tv,
-                        getString(R.string.server_search),
-                        false,
-                        false
-                ));
-            }
-
-            //add auto option
-            mServerItems.add(new ServerItem("",
-                    R.drawable.flag_world,
-                    getString(R.string.automatic_server_selection_main),
-                    handler.isSelectedRegionAuto(context),
-                    false
-            ));
-
+        if (reset) {
             //Add other options
-            for (PIAServer ps : handler.getServers(context, types)) {
-                mServerItems.add(new ServerItem(ps.getKey(),
-                        handler.getFlagResource(ps),
-                        ps.getName(),
-                        ps == selectedServer,
-                        ps.isAllowsPF()));
+            for (PIAServer ps : mHandler.getServers(context, types)) {
                 if(ps == selectedServer){
-                    selectedPosition = mServerItems.size() - 1;
+                    selectedPosition = serverItems.size() - 1;
                 }
             }
             //set up adapter
-            mAdapter = new ServerListAdapter(mServerItems, getActivity());
+            mAdapter = new ServerListAdapter(serverItems, getActivity());
             mAdapter.setSearchMode(true);
 
             mLayoutManager = new GridLayoutManager(context, getResources().getInteger(R.integer.server_selection_grid_size));
@@ -249,11 +290,23 @@ public class ServerListFragment extends Fragment {
             rvServerList.setHasFixedSize(true);
             rvServerList.addItemDecoration(getItemDecoration());
             rvServerList.setAdapter(mAdapter);
+            rvServerRefreshLayout.setOnRefreshListener(this);
+            ThemeHandler.Theme theme =ThemeHandler.getPrefTheme(getActivity());
+            switch (theme) {
+                case DAY:
+                    rvServerRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.white);
+                    rvServerRefreshLayout.setColorSchemeResources(R.color.green);
+                    break;
+                case NIGHT:
+                    rvServerRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.dark);
+                    rvServerRefreshLayout.setColorSchemeResources(R.color.greendark20);
+                    break;
+            }
         } else {
-            for(int i = 0; i < mServerItems.size(); i++){
-                ServerItem item = mServerItems.get(i);
+            for(int i = 0; i < serverItems.size(); i++){
+                ServerItem item = serverItems.get(i);
                 if(i == 0){
-                    item.setSelected(handler.isSelectedRegionAuto(context));
+                    item.setSelected(mHandler.isSelectedRegionAuto(context));
                 } else {
                     if(selectedServer != null)
                         item.setSelected(item.getName().equals(selectedServer.getName()));
@@ -261,27 +314,86 @@ public class ServerListFragment extends Fragment {
                         item.setSelected(false);
                     }
                 }
-                mServerItems.set(i, item);
+                serverItems.set(i, item);
             }
-
             mAdapter.notifyDataSetChanged();
         }
         return selectedPosition;
     }
 
-    private int setUpAdapter(Context context) {
-        final String[] options = getResources().getStringArray(R.array.region_filters);
-        String selected = Prefs.with(context).get(PiaPrefHandler.FILTERS_REGION_SORTING, "");
+    private ServerSortingType getRegionsFilterSelection(Context context) {
+        String selected = Prefs.with(context).get(
+                PiaPrefHandler.FILTERS_REGION_SORTING, ""
+        ).toUpperCase();
 
-        if (selected.equals(options[0])){
-            return setUpAdapter(context, true, PIAServerHandler.ServerSortingType.NAME);
+        // If there is no selection. Default to name.
+        if (selected.isEmpty()) {
+            return ServerSortingType.NAME;
         }
-        else if (selected.equals(options[1])) {
-            return setUpAdapter(context, true, PIAServerHandler.ServerSortingType.PING);
+
+        return ServerSortingType.valueOf(selected);
+    }
+
+    private int setUpAdapter(Context context) {
+        ServerSortingType sortingType = getRegionsFilterSelection(context);
+        int adapter = setUpAdapter(context, true, ServerSortingType.LATENCY);
+        switch (sortingType) {
+            case NAME:
+                adapter = setUpAdapter(context, true, ServerSortingType.NAME);
+                break;
+            case LATENCY:
+                adapter = setUpAdapter(context, true, ServerSortingType.LATENCY);
+                break;
+            case FAVORITES:
+                adapter = setUpAdapter(context, true, ServerSortingType.NAME, ServerSortingType.LATENCY);
+                break;
         }
-        else {
-            return setUpAdapter(context, true, PIAServerHandler.ServerSortingType.NAME, PIAServerHandler.ServerSortingType.FAVORITES);
+        return adapter;
+    }
+
+    private List<ServerItem> getServerItems(Context context, PIAServerHandler.ServerSortingType... types) {
+        List<ServerItem> items = new ArrayList<>();
+        PIAServer selectedServer = mHandler.getSelectedRegion(context, true);
+
+        //add search option
+        if (PIAApplication.isAndroidTV(context)) {
+            items.add(new ServerItem(SERVER_SEARCH_KEY,
+                    R.drawable.ic_search_tv,
+                    getString(R.string.server_search),
+                    false,
+                    false,
+                    false,
+                    ""
+            ));
         }
+
+        //add auto option
+        items.add(new ServerItem("",
+                R.drawable.flag_world,
+                context.getString(R.string.automatic_server_selection_main),
+                mHandler.isSelectedRegionAuto(context),
+                false,
+                false,
+                ""
+        ));
+
+        //Add other options
+        for (PIAServer ps : mHandler.getServers(context, types)) {
+            if (!Prefs.with(context).getBoolean(PiaPrefHandler.GEO_SERVERS_ACTIVE) && ps.isGeo()) {
+                continue;
+            }
+            String latency = ServerUtils.getLatencyForActiveSetting(context, ps.getLatencies());
+            items.add(new ServerItem(
+                    ps.getKey(),
+                    mHandler.getFlagResource(ps),
+                    ps.getName(),
+                    ps == selectedServer,
+                    ps.isAllowsPF(),
+                    ps.isGeo(),
+                    latency
+            ));
+        }
+        return items;
     }
 
     private RecyclerView.ItemDecoration getItemDecoration() {
@@ -289,6 +401,41 @@ public class ServerListFragment extends Fragment {
         int spacing = 3;
 
         return new ServerSelectionItemDecoration(spanCount, spacing, 1);
+    }
+
+    private void handleServerListUpdateState(
+            Context context,
+            SeverListUpdateEvent.ServerListUpdateState event
+    ) {
+        if (context == null) {
+            return;
+        }
+
+        switch (event) {
+            case STARTED:
+                // TV Layout specific
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
+                break;
+            case FETCH_SERVERS_FINISHED:
+            case GEN4_PING_SERVERS_FINISHED:
+                // TV Layout specific
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.GONE);
+                }
+                mAdapter.itemsUpdated(getServerItems(context, getRegionsFilterSelection(context)));
+                break;
+        }
+    }
+
+    @Subscribe
+    public void serverListUpdateEvent(SeverListUpdateEvent event) {
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        handleServerListUpdateState(context, event.getState());
     }
 
     @Subscribe

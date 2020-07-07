@@ -18,26 +18,12 @@
 
 package com.privateinternetaccess.android.pia.utils;
 
-
-
-import com.privateinternetaccess.android.pia.utils.PasswordObfuscation;
-
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 
-/**
- * Created by hfrede on 11/6/17.
- */
 public class PasswordObfuscationTest {
-
-    @Before
-    public void setup() throws Exception {
-
-    }
 
     @Test
     public void passwordObfuscationCreation(){

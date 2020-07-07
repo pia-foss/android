@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[ポート番号は1024から65535の間で指定してください]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[1024から65535の間のポート]]></string>
-    <string name="startup_support_title">一度に5台の端末をサポート</string>
-    <string name="startup_support_message">一度に最大5台の端末を保護して自分を守ることができます。</string>
     <string name="startup_region_title">すべての地域に簡単に接続</string>
     <string name="startup_region_message">世界中にサーバがあるので、あなたはいつでも保護されています。</string>
     <string name="startup_ads_title">広告から自分を守りましょう</string>
@@ -245,7 +243,8 @@
     <string name="done">完了</string>
     <string name="update_account">アカウントをアップデート</string>
     <string name="local_port_titla">ローカルポート</string>
-    <string name="preference_application_settings">アプリ設定</string>
+    <string name="preference_application_settings">一般設定</string>
+    <string name="preference_vpn_settings">VPN設定</string>
     <string name="preference_haptic_title">接続時の触覚フィードバック</string>
     <string name="preference_dialog_graph_title">グラフに使用する計測単位を選択</string>
     <string name="preference_connect_on_boot_summary">システム開始時に接続</string>
@@ -339,10 +338,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">イベント一般と通知</string>
     <string name="tv_startup_press_right">右に押す</string>
-    <string name="androidalwayson">常にAndroid VPNをオン</string>
-    <string name="androidalwaysonsummary">Android 8.0以上には、キルスイッチの代わりとして、より優れた機能が導入されています。詳細はこちらをクリックしてください</string>
+    <string name="androidalwayson">VPNなしで接続をブロック</string>
+    <string name="androidalwaysonsummary">Androidには、キルスイッチに代わるより優れた機能が導入されています。クリックして詳細をご確認ください</string>
     <string name="block_connection_wo_vpn">VPNなしで接続をブロック</string>
-    <string name="always_oreo_message">Android 8.0以上には、Android本体より、VPNなしで接続をブロックするオプションが導入されています。これはAndroid OSそのものと一体化したものであるため、より優れた統合型のキルスイッチであり、PIA VPNアプリがクラッシュまたは停止した場合にも機能します。また、PIAがスタートする前にも機能します。\n\nキルスイッチのオプションへの追加または代わりとして、「常にVPNをオン」と「VPNなしで接続をブロック」を設定することをお勧めします。</string>
+    <string name="always_oreo_message">VPNなしで接続が行われないようにするため、お使いのAndroidの設定で「VPN 以外の接続のブロック」をオンに設定することを推奨しています。この設定は、PIAのVPNを「常にオン」に設定するとオンに設定できます。これにより、接続中、常にPIAのVPNを実行し、VPNなしの接続をブロックするため、Androidに最適な機能（すなわちVPNキルスイッチの機能）を発揮させることができます。8.0以降のAndroidにはこの機能が内蔵されているため、お使いのAndroidの設定のシステムレベルでの「VPN 以外の接続のブロック」の設定が導入され、PIA VPNアプリのキルスイッチの設定は廃止されています。問題がある場合は、問題が通知され、お使いのVPNを通過しないAndroidによってすべてのインターネット接続がブロックされます。</string>
     <string name="preference_blocking">ブロックしています</string>
     <string name="preference_connect_proxy">プロキシ経由で接続</string>
     <string name="preference_connect_proxy_app">選択したプロキシアプリ</string>
@@ -391,7 +390,7 @@
     <string name="pp_text">プライバシーポリシー</string>
     <string name="website_isnt_protected">ウェブサイトは保護されていません。</string>
     <string name="api_check_failure_title">接続失敗</string>
-    <string name="api_check_message">Private Internet Accessに接続できませんでした。インターネットの接続速度に問題があるか、お住まいの国で当社のサービスがブロックされている可能性があります。</string>
+    <string name="api_check_message">Private Internet Accessに接続できませんでした。インターネットの接続状態が不安定、もしくはお住まいの国で当社のサービスがブロックされている可能性があります。安定した接続を確保し、「設定」からアプリを「強制終了」し、アプリを再起動してもう一度お試しください。</string>
     <string name="invalid_qr_code">無効なQRコードシーケンスです。もう一度お試しください。</string>
     <string name="empty_qr_code">QRのコンテンツがありません。もう一度お試しください。</string>
     <string name="your_plan_will_expire_on">プランの有効期限:</string>
@@ -427,10 +426,11 @@
     <string name="trusted_wifi_title">信頼されたW-Fi</string>
     <string name="trusted_wifi_message">ユーザーにより安全であるとされたもの以外のすべてのWi-FiネットワークでVPNが自動接続します</string>
     <string name="trusted_wifi_enable_message">信頼されたネットワークへの接続時にVPNを無効にします</string>
-    <string name="trusted_wifi_header">信頼されたネットワーク</string>
+    <string name="trusted_wifi_singular">信頼されたネットワーク</string>
+    <string name="trusted_wifi_plural">信頼されたネットワーク</string>
     <string name="available_wifi_header">利用可能なネットワーク</string>
     <string name="trusted_wifi_no_wifi">信頼されたネットワークを選択するにはWi-Fiを有効にしてください。</string>
-    <string name="trusted_wifi_no_permission">信頼されたWi-Fiを使用して周囲のWi-Fiネットワークを検出するには、位置情報へのアクセス許可が必要です。許可が無効になっていると、この機能は動作しません。\n\nこの機能を利用するには、「設定」&gt;「アプリ」&gt;「PIA VPN」を開き、位置情報の許可がオンになっていることを確認してください。</string>
+    <string name="trusted_wifi_no_permission">信頼されたWi-Fiを使用して周囲のWi-Fiネットワークを検出するには、位置情報へのアクセス許可が必要です。許可されない限り、この機能は動作しません。\n\nこの機能を利用するには、「設定」&gt;「アプリ」&gt;「PIA VPN」を開き、位置情報の許可がオンになっていることを確認してください。</string>
     <string name="no_permission_title">アクセス許可が必要です</string>
     <string name="trusted_wifi_not_available">ネットワークがありません</string>
     <string name="trusted_wifi_no_trusted">信頼されたネットワークがありません</string>
@@ -518,4 +518,44 @@
     <string name="free_trial_region_text">32か国に3300を超えるサーバー</string>
     <string name="free_trial_start">サブスクリプションを開始</string>
     <string name="free_trial_see_all">利用できるプランすべてを表示</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">VPNスヌーズ</string>
+    <string name="snooze_short">5分間スヌーズ</string>
+    <string name="snooze_medium">15分間スヌーズ</string>
+    <string name="snooze_long">1時間スヌーズ</string>
+    <string name="snooze_description">VPN接続を切断し、タイマーが終了すると自動的に再接続します。</string>
+    <string name="snooze_resume">再開</string>
+    <string name="snooze_paused">%sまで一時停止</string>
+    <string name="snooze_status">スヌーズ中</string>
+    <string name="snooze_notification">スヌーズ済み</string>
+    <string name="failed_connect_status">接続できません</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">クイック設定</string>
+    <string name="quick_settings_network_toggle">ネットワーク管理</string>
+    <string name="quick_settings_private_browser">プライベートブラウザ</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">クイック接続</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">使用状況</string>
+    <string name="usage_download">ダウンロード</string>
+    <string name="usage_upload">アップロード</string>
+    <!-- Settings -->
+    <string name="settings_protocol">プロトコル</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">WireGuardに切り替えると、アプリ別の設定機能がオフになります。</string>
+    <string name="wg_protocol_warning">WireGuardでは次の機能をご利用いただけます。</string>
+    <string name="wg_connecting">接続中</string>
+    <string name="wg_connected">VPN接続済み</string>
+    <string name="ks_removal_warning">キルスイッチがオンに設定されていることが検出されました。当社はWireGuardとOpenVPNの両方でAndroidの「VPN 以外の接続のブロック」設定を統合することで、この機能の動作を変更しました。保護された状態を継続するため「設定」で変更を確認してください。</string>
+    <string name="preference_on_boot_always_on">システム起動時に接続します。PNを「常にオン」に設定している場合は、この設定をオンに設定することが推奨されます。</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">トンネル「%s」はすでに存在します</string>
+    <string name="tunnel_error_invalid_name">無効な名前</string>
+    <string name="preview">プレビュー</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">次世代ネットワーク</string>
+    <string name="gen4_next_generation_network_message">サーバーネットワークを変更するにはVPNを切断してください。</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">ジオロケーション地域を含める</string>
 </resources>

@@ -83,8 +83,8 @@ public class TrustedWifiActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         initHeader(true, true);
-        setTitle(getString(R.string.trusted_wifi_header));
-        setGreenBackground();
+        setTitle(getString(R.string.trusted_wifi_plural));
+        setBackground();
         setSecondaryGreenBackground();
 
         wifiScanList = new ArrayList<>();
@@ -125,7 +125,7 @@ public class TrustedWifiActivity extends BaseActivity {
                     autoConnectToggle.setChecked(false);
                 }
                 else {
-                    Prefs.with(TrustedWifiActivity.this).set(PiaPrefHandler.TRUST_WIFI, b);
+                    PiaPrefHandler.setTrustWifi(TrustedWifiActivity.this, b);
                 }
             }
         });
@@ -136,8 +136,7 @@ public class TrustedWifiActivity extends BaseActivity {
         super.onResume();
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        autoConnectToggle.setChecked(Prefs.with(this).get(PiaPrefHandler.TRUST_WIFI, false) &&
-                checkPermissions());
+        autoConnectToggle.setChecked(PiaPrefHandler.getTrustWifi(this) && checkPermissions());
 
         updateUi();
 

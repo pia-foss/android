@@ -25,6 +25,7 @@ import android.content.Intent;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PingHandler;
+import com.privateinternetaccess.android.pia.handlers.SubscriptionHandler;
 import com.privateinternetaccess.android.pia.interfaces.IConnection;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.utils.DLog;

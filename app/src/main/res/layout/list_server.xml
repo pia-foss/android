@@ -65,6 +65,14 @@
                 tools:text="Japan"/>
 
             <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/list_server_geo"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginLeft="10dp"
+                app:srcCompat="@drawable/ic_geo_unselected"
+                android:visibility="gone"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/list_server_allows_port_forwarding"
                 android:layout_width="18dp"
                 android:layout_height="20dp"

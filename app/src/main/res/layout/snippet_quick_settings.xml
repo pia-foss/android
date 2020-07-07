@@ -27,6 +27,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/snippet_quick_settings_killswitch_layout"
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatImageView

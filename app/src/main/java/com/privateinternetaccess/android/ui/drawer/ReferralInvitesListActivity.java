@@ -51,7 +51,7 @@ public class ReferralInvitesListActivity extends BaseActivity {
         setContentView(R.layout.activity_secondary);
 
         initHeader(true, true);
-        setGreenBackground();
+        setBackground();
         setSecondaryGreenBackground();
 
         addSnippetToView();

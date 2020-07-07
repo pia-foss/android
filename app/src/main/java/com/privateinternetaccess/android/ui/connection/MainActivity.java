@@ -32,7 +32,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -58,7 +57,6 @@ import com.privateinternetaccess.android.ui.drawer.AccountActivity;
 import com.privateinternetaccess.android.ui.drawer.AllowedAppsActivity;
 import com.privateinternetaccess.android.ui.drawer.SettingsActivity;
 import com.privateinternetaccess.android.ui.drawer.settings.AboutActivity;
-import com.privateinternetaccess.android.ui.drawer.settings.PrivacyPolicyActivity;
 import com.privateinternetaccess.android.ui.features.WebviewActivity;
 import com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity;
 import com.privateinternetaccess.android.ui.drawer.ServerListActivity;
@@ -73,6 +71,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.blinkt.openvpn.core.LogItem;
+
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
 
 public class MainActivity extends BaseActivity {
 
@@ -231,7 +231,8 @@ public class MainActivity extends BaseActivity {
                 } else if (iden == MainActivityHandler.IDEN_RENEW) {
                     onRenewClicked();
                 } else if (iden == MainActivityHandler.IDEN_PRIVACY) {
-                    Intent i = new Intent(getApplicationContext(), PrivacyPolicyActivity.class);
+                    Intent i = new Intent(MainActivity.this, WebviewActivity.class);
+                    i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com/pages/privacy-policy/");
                     startActivity(i);
                 }
                 if (finishing) {
@@ -241,10 +242,6 @@ public class MainActivity extends BaseActivity {
                 return true;
             }
         });
-
-//        if (mDrawer != null) {
-//            mDrawer.getDrawerLayout().setFitsSystemWindows(false);
-//        }
     }
 
     @Override

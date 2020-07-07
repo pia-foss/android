@@ -21,12 +21,12 @@ package com.privateinternetaccess.android.pia.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.AccountApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.UpdateAccountInfo;
 import com.privateinternetaccess.android.pia.model.events.UpdateEmailEvent;
 import com.privateinternetaccess.android.pia.model.response.UpdateEmailResponse;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

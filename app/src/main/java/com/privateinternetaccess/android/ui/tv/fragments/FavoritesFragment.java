@@ -35,9 +35,10 @@ import android.widget.ImageView;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.listModel.ServerItem;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.ui.tv.adapters.FavoritesAdapter;
 import com.privateinternetaccess.android.ui.tv.views.FavoriteSelectionItemDecoration;
+import com.privateinternetaccess.android.utils.ServerUtils;
+import com.privateinternetaccess.core.model.PIAServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,11 +99,18 @@ public class FavoritesFragment extends Fragment {
         mServerItems = new ArrayList<>();
 
         for (PIAServer ps : handler.getServers(context, PIAServerHandler.ServerSortingType.NAME, PIAServerHandler.ServerSortingType.FAVORITES)) {
-            mServerItems.add(new ServerItem(ps.getKey(),
-                    handler.getFlagResource(ps),
-                    ps.getName(),
-                    false,
-                    ps.isAllowsPF()));
+            String latency = ServerUtils.getLatencyForActiveSetting(context, ps.getLatencies());
+            mServerItems.add(
+                    new ServerItem(
+                            ps.getKey(),
+                            handler.getFlagResource(ps),
+                            ps.getName(),
+                            false,
+                            ps.isAllowsPF(),
+                            ps.isGeo(),
+                            latency
+                    )
+            );
         }
 
         mAdapter = new FavoritesAdapter(mServerItems, getActivity());

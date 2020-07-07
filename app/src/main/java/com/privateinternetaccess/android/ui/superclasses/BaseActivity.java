@@ -34,6 +34,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -45,7 +46,7 @@ import android.widget.TextView;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.handlers.PurchasingHandler;
-import com.privateinternetaccess.android.pia.IPIACallback;
+import com.privateinternetaccess.android.model.events.TrustedWifiEvent;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.LogoutHandler;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
@@ -54,7 +55,6 @@ import com.privateinternetaccess.android.pia.handlers.PingHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.model.PIAAccountData;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.enums.LoginResponseStatus;
 import com.privateinternetaccess.android.pia.model.enums.PurchasingType;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
@@ -68,6 +68,9 @@ import com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivit
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
 import com.privateinternetaccess.android.ui.views.SwipeBackLayout;
 import com.privateinternetaccess.android.utils.SnoozeUtils;
+import com.privateinternetaccess.android.utils.TrustedWifiUtils;
+import com.privateinternetaccess.core.model.PIAServer;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -79,18 +82,18 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity.EXTRA_GOTO_PURCHASING;
 
-
 /**
- * Created by arne on 02.12.2014.
+ * Created by arne on 02.12.2014.diff
+ *
  */
 public abstract class BaseActivity extends SwipeBackBaseActivity {
 
     protected Toolbar toolbar;
 
     private TextView tvTitle;
+    private TextView connectionText;
     private Button bTextButton;
     private AppCompatImageView ivIconButton;
-
     private ImageView ivBackground;
 
     private boolean showTitle = false;
@@ -98,13 +101,11 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
     private int iconResId = -1;
     private int iconResIdDisconnected = -1;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home){
-            onBackPressed();
-            overridePendingTransition(R.anim.right_to_left_exit, R.anim.left_to_right_exit);
-        }
-        return super.onOptionsItemSelected(item);
+    private enum UiState {
+        GREY,
+        RED,
+        YELLOW,
+        GREEN
     }
 
     @Override
@@ -148,6 +149,15 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
         if(ivBackground != null){
             ivBackground.setImageDrawable(null);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home){
+            onBackPressed();
+            overridePendingTransition(R.anim.right_to_left_exit, R.anim.left_to_right_exit);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     protected void onRenewClicked() {
@@ -194,6 +204,7 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
         bTextButton = findViewById(R.id.header_text_button);
         ivIconButton = findViewById(R.id.header_icon_button);
         ivBackground = findViewById(R.id.background);
+        connectionText = findViewById(R.id.header_connection_status);
 
         setSupportActionBar(toolbar);
 
@@ -255,7 +266,6 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
 
     private void setHeaderTints(int tintColor) {
         Toolbar toolbar = findViewById(R.id.header_toolbar);
-        TextView connectionText = findViewById(R.id.header_connection_status);
 
         toolbar.getNavigationIcon().setColorFilter(tintColor, PorterDuff.Mode.SRC_ATOP);
         toolbar.getOverflowIcon().setColorFilter(tintColor, PorterDuff.Mode.SRC_ATOP);
@@ -266,10 +276,6 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
 
         if (bTextButton != null) {
             bTextButton.setTextColor(tintColor);
-        }
-
-        if (connectionText != null) {
-            connectionText.setTextColor(tintColor);
         }
     }
 
@@ -284,106 +290,146 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
             findViewById(R.id.header_logo).setVisibility(View.GONE);
     }
 
+    private void setUiState(UiState colourState) {
+        switch (colourState) {
+            case GREY:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    getWindow().setStatusBarColor(
+                            ContextCompat.getColor(this, R.color.windowBackground)
+                    );
+                }
+                toolbar.setBackgroundColor(getResources().getColor(R.color.transparent));
+                connectionText.setVisibility(View.GONE);
+                showIcon();
+                setHeaderTints();
+
+                if (iconResIdDisconnected != -1 && iconResId != -1 && ivIconButton != null) {
+                    ivIconButton.setImageResource(iconResIdDisconnected);
+                }
+                break;
+            case RED:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    getWindow().setStatusBarColor(
+                            ContextCompat.getColor(this, R.color.failed_start)
+                    );
+                }
+                toolbar.setBackground(
+                        getResources().getDrawable(R.drawable.actionbar_gradient_failed)
+                );
+                connectionText.setVisibility(View.VISIBLE);
+                removeIcon();
+                setHeaderTints(getResources().getColor(R.color.white));
+                break;
+            case YELLOW:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    getWindow().setStatusBarColor(
+                            ContextCompat.getColor(this, R.color.connecting_yellow)
+                    );
+                }
+                toolbar.setBackground(
+                        getResources().getDrawable(R.drawable.actionbar_gradient_connecting)
+                );
+                connectionText.setVisibility(View.VISIBLE);
+                removeIcon();
+                setHeaderTints(getResources().getColor(R.color.grey15));
+                break;
+            case GREEN:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    getWindow().setStatusBarColor(
+                            ContextCompat.getColor(this, R.color.greendark20)
+                    );
+                }
+                toolbar.setBackground(getResources().getDrawable(R.drawable.actionbar_gradient));
+                connectionText.setVisibility(View.VISIBLE);
+                removeIcon();
+                setHeaderTints(getResources().getColor(R.color.white));
+                break;
+        }
+    }
+
     protected void setBackground() {
-        DLog.d("BaseActivity", "Setting background");
-        VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
-        ConnectionStatus status = event.getLevel();
-
         Toolbar toolbar = findViewById(R.id.header_toolbar);
-        TextView connectionText = findViewById(R.id.header_connection_status);
-
         if (toolbar == null) {
             return;
         }
 
         if (iconResIdDisconnected != -1 && iconResId != -1 && ivIconButton != null) {
             ivIconButton.setImageResource(iconResId);
-            DLog.d("BaseActivity", "Setting connected res");
         }
 
-        if (status == ConnectionStatus.LEVEL_CONNECTED) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.greendark20));
+        VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
+        ConnectionStatus status = event.getLevel();
 
-            toolbar.setBackground(getResources().getDrawable(R.drawable.actionbar_gradient));
-            connectionText.setVisibility(View.VISIBLE);
-            removeIcon();
-            setHeaderTints(getResources().getColor(R.color.white));
-        }
-        else if (status == ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET || status == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.connecting_yellow));
-
-            toolbar.setBackground(getResources().getDrawable(R.drawable.actionbar_gradient_connecting));
-            connectionText.setVisibility(View.VISIBLE);
-            removeIcon();
-            setHeaderTints(getResources().getColor(R.color.grey15));
-        }
-        else if (status == ConnectionStatus.LEVEL_AUTH_FAILED || status == ConnectionStatus.LEVEL_NONETWORK ||
-                status == null) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.failed_start));
-
-            toolbar.setBackground(getResources().getDrawable(R.drawable.actionbar_gradient_failed));
-            connectionText.setVisibility(View.VISIBLE);
-            removeIcon();
-            setHeaderTints(getResources().getColor(R.color.white));
-        }
-        else if (status == ConnectionStatus.LEVEL_NOTCONNECTED && SnoozeUtils.hasActiveAlarm(this)) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.connecting_yellow));
-
-            toolbar.setBackground(getResources().getDrawable(R.drawable.actionbar_gradient_connecting));
-            connectionText.setVisibility(View.VISIBLE);
-            removeIcon();
-            setHeaderTints(getResources().getColor(R.color.grey15));
-        }
-        else {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.windowBackground));
-
-            toolbar.setBackgroundColor(getResources().getColor(R.color.transparent));
-            connectionText.setVisibility(View.GONE);
-            showIcon();
-            setHeaderTints();
-
-            if (iconResIdDisconnected != -1 && iconResId != -1 && ivIconButton != null) {
-                ivIconButton.setImageResource(iconResIdDisconnected);
-                DLog.d("BaseActivity", "Setting disconnected res");
-            }
+        boolean disconnectedSpecialCase =
+                status == ConnectionStatus.LEVEL_NOTCONNECTED &&
+                (SnoozeUtils.hasActiveAlarm(this) || TrustedWifiUtils.isEnabledAndConnected(this));
+        switch (status) {
+            case LEVEL_CONNECTED:
+                setUiState(UiState.GREEN);
+                break;
+            case LEVEL_CONNECTING_SERVER_REPLIED:
+            case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
+                setUiState(UiState.YELLOW);
+                break;
+            case LEVEL_NONETWORK:
+            case LEVEL_AUTH_FAILED:
+                setUiState(UiState.RED);
+                break;
+            case LEVEL_NOTCONNECTED:
+            case LEVEL_VPNPAUSED:
+            case LEVEL_START:
+            case LEVEL_WAITING_FOR_USER_INPUT:
+            case UNKNOWN_LEVEL:
+                if (disconnectedSpecialCase) {
+                    setUiState(UiState.YELLOW);
+                } else {
+                    setUiState(UiState.GREY);
+                }
+                break;
         }
 
         int lastStateResId = event.getLocalizedResId();
-
+        String text = connectionText.getText().toString();
         if (lastStateResId != 0) {
-            if (lastStateResId == de.blinkt.openvpn.R.string.state_waitconnectretry)
-                connectionText.setText(VpnStatus.getLastCleanLogMessage(this));
-            else if (event.getLevel() == ConnectionStatus.LEVEL_NONETWORK) {
-                connectionText.setText(getString(R.string.failed_connect_status));
+            if (lastStateResId == de.blinkt.openvpn.R.string.state_waitconnectretry) {
+                text = VpnStatus.getLastCleanLogMessage(this);
+            } else {
+                switch (status) {
+                    case LEVEL_CONNECTED:
+                        PIAServer server =
+                                PIAServerHandler.getInstance(this).getSelectedRegion(this, false);
+                        text = getString(R.string.state_connected) + ": " + server.getName();
+                        break;
+                    case LEVEL_NONETWORK:
+                        text = getString(R.string.failed_connect_status);
+                        break;
+                    case LEVEL_NOTCONNECTED:
+                    case LEVEL_VPNPAUSED:
+                    case LEVEL_CONNECTING_SERVER_REPLIED:
+                    case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
+                    case LEVEL_START:
+                    case LEVEL_AUTH_FAILED:
+                    case LEVEL_WAITING_FOR_USER_INPUT:
+                    case UNKNOWN_LEVEL:
+                        if (disconnectedSpecialCase) {
+                            text = this.getString(R.string.snooze_status);
+                            if (TrustedWifiUtils.isEnabledAndConnected(this)) {
+                                text = getString(R.string.state_exiting) + ": " +
+                                        getString(R.string.trusted_wifi_singular);
+                            }
+                        } else {
+                            text = this.getString(lastStateResId);
+                        }
+                        break;
+                }
             }
-            else if (event.getLevel() == ConnectionStatus.LEVEL_CONNECTED){
-                PIAServer server = PIAServerHandler.getInstance(this).getSelectedRegion(this, false);
-                StringBuilder sb = new StringBuilder();
-                sb.append(this.getString(R.string.state_connected));
-                sb.append(": ");
-                sb.append(server.getName());
-                connectionText.setText(sb.toString());
-            }
-            else if (SnoozeUtils.hasActiveAlarm(this) && event.getLevel() == ConnectionStatus.LEVEL_NOTCONNECTED) {
-                connectionText.setText(this.getString(R.string.snooze_status));
-            }
-            else
-                connectionText.setText(this.getString(lastStateResId));
         }
 
+        connectionText.setText(text);
         if (showTitle) {
             removeIcon();
             connectionText.setVisibility(View.GONE);
         }
-    }
-
-    protected void setGreenBackground(){
-        setBackground();
     }
 
     protected void setSecondaryGreenBackground(){
@@ -394,10 +440,9 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
 
     protected void showTopExtraArea(){
         View extraArea = findViewById(R.id.activity_secondary_top_card_view);
-        if(extraArea instanceof CardView) {
+        if (extraArea instanceof CardView) {
             CardView card = (CardView) extraArea;
             card.setCardBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.windowBackground));
-        } else {
         }
         extraArea.setVisibility(View.VISIBLE);
     }
@@ -420,19 +465,17 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
         }
     }
 
-    public void setIconButton(int resourceId) {
-        if (ivIconButton != null) {
-            ivIconButton.setImageResource(resourceId);
-            ivIconButton.setVisibility(View.VISIBLE);
-        }
-    }
-
     public void setIconButton(int resId, int resIdDisconnected) {
         iconResId = resId;
         iconResIdDisconnected = resIdDisconnected;
 
         ivIconButton.setImageResource(iconResId);
         ivIconButton.setVisibility(View.VISIBLE);
+    }
+
+    public void hideIconButton() {
+        if (ivIconButton != null)
+            ivIconButton.setVisibility(View.GONE);
     }
 
     protected IPIACallback<Boolean> getLogoutCallback() {
@@ -510,6 +553,11 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateState(VpnStateEvent event) {
+        setBackground();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onTrustedWifiStateEvent(TrustedWifiEvent event) {
         setBackground();
     }
 }

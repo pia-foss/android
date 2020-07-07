@@ -18,7 +18,6 @@
 
 package com.privateinternetaccess.android.pia.interfaces;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.model.LoginInfo;
 import com.privateinternetaccess.android.pia.model.PIAAccountData;
 import com.privateinternetaccess.android.pia.model.PurchaseData;
@@ -31,6 +30,7 @@ import com.privateinternetaccess.android.pia.model.response.TrialResponse;
 import com.privateinternetaccess.android.pia.model.response.UpdateEmailResponse;
 import com.privateinternetaccess.android.pia.tasks.RetryPurchasingTask;
 import com.privateinternetaccess.android.pia.tasks.TrialCreationTask;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 /**
  * This is how you interact with the PIA account information and purchasing and login backend services.

@@ -83,7 +83,7 @@ public class ReferralActivity extends BaseActivity {
 
         initHeader(true, true);
         setTitle(getString(R.string.drawer_refer_friend));
-        setGreenBackground();
+        setBackground();
         setSecondaryGreenBackground();
 
         addSnippetToView();

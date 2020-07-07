@@ -18,10 +18,14 @@
 
 package com.privateinternetaccess.android.ui.loginpurchasing;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -39,7 +43,6 @@ import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.handlers.PurchasingHandler;
 import com.privateinternetaccess.android.handlers.UpdateHandler;
 import com.privateinternetaccess.android.model.events.PricingLoadedEvent;
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
@@ -57,6 +60,7 @@ import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.features.WebviewActivity;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 import com.privateinternetaccess.android.pia.model.SkuDetailsObj;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -124,6 +128,29 @@ public class LoginPurchaseActivity extends BaseActivity {
         }
     }
 
+    public void showConnectionError() {
+        Activity act = this;
+        AlertDialog.Builder builder = new AlertDialog.Builder(act);
+        builder.setTitle(R.string.api_check_failure_title);
+        builder.setMessage(R.string.api_check_message);
+        builder.setPositiveButton(R.string.drawer_contact_support, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent i = new Intent(LoginPurchaseActivity.this, WebviewActivity.class);
+                i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com/helpdesk/new-ticket/");
+                startActivity(i);
+                dialog.dismiss();
+            }
+        });
+        builder.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -158,25 +185,6 @@ public class LoginPurchaseActivity extends BaseActivity {
                 trans.commit();
             }
         }
-
-        processEvent();
-    }
-
-    private void processEvent() {
-//        LoginEvent event = EventBus.getDefault().getStickyEvent(LoginEvent.class);
-//        if(event != null){
-//            Fragment frag = getSupportFragmentManager().findFragmentById(R.id.container);
-//            if(!(frag instanceof LoginFragment)){
-//                // pop backstack
-//                FragmentManager manager = getSupportFragmentManager();
-//                int backstack = manager.getBackStackEntryCount();
-//                DLog.d(TAG, "backstack = " + backstack);
-//                if(backstack > 0) {
-//                    FragmentManager.BackStackEntry entry = manager.getBackStackEntryAt(0);
-//                    manager.popBackStack(entry.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
-//                }
-//            }
-//        }
     }
 
     @Override
@@ -190,6 +198,11 @@ public class LoginPurchaseActivity extends BaseActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (!BuildConfig.FLAVOR_store.equals("playstore")) {
+                    navigateToBuyVpnSite();
+                    return;
+                }
+
                 Fragment frag = new FreeTrialFragment();
                 FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
                 trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
@@ -204,6 +217,11 @@ public class LoginPurchaseActivity extends BaseActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (!BuildConfig.FLAVOR_store.equals("playstore")) {
+                    navigateToBuyVpnSite();
+                    return;
+                }
+
                 Fragment frag = new PurchasingFragment();
                 FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
                 trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
@@ -286,6 +304,11 @@ public class LoginPurchaseActivity extends BaseActivity {
     }
 
     public void onConfirmEmailClicked(String email, String subscriptionType) {
+        if (TextUtils.isEmpty(mMonthlyCost)) {
+            showConnectionError();
+            return;
+        }
+
         PurchasingFinalizeFragment finalizeFragment = new PurchasingFinalizeFragment();
         finalizeFragment.email = email;
         PurchasingFinalizeFragment.PRODUCT_ID_SELECTED = subscriptionType;
@@ -295,10 +318,6 @@ public class LoginPurchaseActivity extends BaseActivity {
         trans.replace(R.id.container, finalizeFragment);
         trans.addToBackStack("finalize");
         trans.commit();
-    }
-
-    public void onFinalizePurchasingClicked(String email, String subscriptionType) {
-
     }
 
     public void goToMainActivity(){
@@ -435,8 +454,7 @@ public class LoginPurchaseActivity extends BaseActivity {
         String[] splitPP = tosPPText.split(ppText);
         int tosStart = splitTos[0].length();
         int ppStart = splitPP[0].length();
-        SpannableStringBuilder spanTxt = new SpannableStringBuilder(
-                tosPPText);
+        SpannableStringBuilder spanTxt = new SpannableStringBuilder(tosPPText);
         spanTxt.setSpan(new ClickableSpan() {
             @Override
             public void onClick(View widget) {
@@ -461,4 +479,9 @@ public class LoginPurchaseActivity extends BaseActivity {
         tv.setText(spanTxt, TextView.BufferType.SPANNABLE);
     }
 
+    public void navigateToBuyVpnSite() {
+        Intent i = new Intent(getApplicationContext(), WebviewActivity.class);
+        i.putExtra(WebviewActivity.EXTRA_URL, getString(R.string.buyvpn_url_localized));
+        startActivity(i);
+    }
 }

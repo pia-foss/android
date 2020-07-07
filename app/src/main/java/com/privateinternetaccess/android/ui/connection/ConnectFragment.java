@@ -93,12 +93,6 @@ public class ConnectFragment extends Fragment {
         });
     }
 
-    private void checkForMACE() {
-        Prefs prefs = new Prefs(getContext());
-        boolean useMace = prefs.getBoolean("pia_mace");
-        DLog.d(TAG, "checkingMace = " + useMace);
-    }
-
     private void setConnectStatus() {
         VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
         int lastStateResId = event.getLocalizedResId();

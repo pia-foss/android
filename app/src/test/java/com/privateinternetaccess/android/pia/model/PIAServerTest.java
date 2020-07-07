@@ -18,16 +18,16 @@
 
 package com.privateinternetaccess.android.pia.model;
 
+import com.privateinternetaccess.core.model.PIAServer;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
 
 public class PIAServerTest {
-
 
     @Test
     public void creationTest(){
@@ -40,9 +40,8 @@ public class PIAServerTest {
         try {
             JSONObject object = new JSONObject("");
             server.parse(object, null);
-        } catch (JSONException e) {
-        }
-        Assert.assertFalse(server.getName() != null);
+        } catch (JSONException e) { }
+        Assert.assertNull(server.getName());
     }
 
     @Test
@@ -51,9 +50,8 @@ public class PIAServerTest {
         try {
             JSONObject object = new JSONObject("");
             server.parse(object, null);
-        } catch (JSONException e) {
-        }
-        Assert.assertFalse(server.getKey() != null);
+        } catch (JSONException e) { }
+        Assert.assertNull(server.getKey());
     }
 
     @Test
@@ -62,9 +60,8 @@ public class PIAServerTest {
         try {
             JSONObject object = new JSONObject("");
             server.parse(object, "");
-        } catch (JSONException e) {
-        }
-        Assert.assertFalse(server.getKey() != null);
+        } catch (JSONException e) { }
+        Assert.assertNull(server.getKey());
     }
 
     @Test
@@ -74,8 +71,9 @@ public class PIAServerTest {
             JSONObject object = new JSONObject("{\"name\":\"testServer\"}");
             server.parse(object, "");
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
         }
-        Assert.assertTrue(server.getName().equals("testServer"));
+        Assert.assertEquals("testServer", server.getName());
     }
 
     @Test
@@ -85,6 +83,7 @@ public class PIAServerTest {
             JSONObject object = new JSONObject("{\"port_forward\": true}");
             server.parse(object, "");
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
         }
         Assert.assertTrue(server.isAllowsPF());
     }
@@ -96,8 +95,9 @@ public class PIAServerTest {
             JSONObject object = new JSONObject("{\"openvpn_udp\": {\"best\": \"0.0.0.0\"}}");
             server.parse(object, "");
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
         }
-        Assert.assertTrue(server.getUdpbest().equals("0.0.0.0"));
+        Assert.assertEquals("0.0.0.0", server.getUdpbest());
     }
 
     @Test
@@ -107,7 +107,8 @@ public class PIAServerTest {
             JSONObject object = new JSONObject("{\"openvpn_udp\": {\"best\": \"0.0.0.0\"}}");
             server.parse(object, "");
         } catch (JSONException e) {
+            throw new IllegalStateException("Error parsing");
         }
-        Assert.assertTrue(server.getTcpbest() == null);
+        Assert.assertNull(server.getTcpbest());
     }
 }

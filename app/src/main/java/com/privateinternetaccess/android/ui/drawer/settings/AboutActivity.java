@@ -51,7 +51,7 @@ public class AboutActivity extends BaseActivity {
 
         initHeader(true, true);
         setTitle(getString(R.string.menu_about));
-        setGreenBackground();
+        setBackground();
         setSecondaryGreenBackground();
         addSnippetToView();
         ButterKnife.bind(this);

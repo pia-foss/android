@@ -22,7 +22,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.connection.ConnectionResponder;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IConnection;
@@ -33,6 +32,7 @@ import com.privateinternetaccess.android.pia.tasks.FetchIPTask;
 import com.privateinternetaccess.android.pia.tasks.HitMaceTask;
 import com.privateinternetaccess.android.pia.tasks.PortForwardTask;
 import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

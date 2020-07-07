@@ -21,11 +21,9 @@ package com.privateinternetaccess.android.pia.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.ServerAPI;
-import com.privateinternetaccess.android.pia.model.response.ServerResponse;
-
-import org.greenrobot.eventbus.EventBus;
+import com.privateinternetaccess.core.model.ServerResponse;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 public class FetchServersTask extends AsyncTask<String, Void, ServerResponse> {
 
@@ -47,13 +45,8 @@ public class FetchServersTask extends AsyncTask<String, Void, ServerResponse> {
     @Override
     protected void onPostExecute(ServerResponse serverResponse) {
         super.onPostExecute(serverResponse);
-        EventBus.getDefault().post(serverResponse);
         if(callback != null){
             callback.apiReturn(serverResponse);
         }
-    }
-
-    public void setCallback(IPIACallback<ServerResponse> callback) {
-        this.callback = callback;
     }
 }

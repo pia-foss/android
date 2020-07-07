@@ -21,16 +21,15 @@ package com.privateinternetaccess.android.pia.api;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
 import androidx.annotation.NonNull;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.utils.DLog;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -83,33 +82,30 @@ public class PiaApi {
     public PiaApi() {
         X509TrustManager trustManager = null;
         SSLSocketFactory sslSocketFactory = null;
-        try {
-            trustManager = getX509TrustManager();
-            sslSocketFactory = getSslSocketFactory(trustManager);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        }
-
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
         AUTHENTICATOR = new PIAAuthenticator();
         builder.authenticator(AUTHENTICATOR);
         builder.connectTimeout(8, TimeUnit.SECONDS);
 
-        if (INTERCEPTOR != null)
+        if (INTERCEPTOR != null) {
             builder.addInterceptor(INTERCEPTOR);
+        }
 
-        if (trustManager != null && sslSocketFactory != null)
+        try {
+            trustManager = getX509TrustManager();
+            sslSocketFactory = getSslSocketFactory(trustManager);
+        } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
+            e.printStackTrace();
+        }
+
+        if (trustManager != null && sslSocketFactory != null) {
             builder.sslSocketFactory(sslSocketFactory, trustManager);
+        }
 
         OKHTTPCLIENT = builder.build();
     }
 
-    // these next two methods are for helping create the SSL factory in okhttp3
     @NonNull
     private X509TrustManager getX509TrustManager() throws NoSuchAlgorithmException, KeyStoreException {
         TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -124,19 +120,6 @@ public class PiaApi {
         SSLContext sslContext = SSLContext.getInstance("SSL");
         sslContext.init(null, new TrustManager[] { trustManager }, null);
         return sslContext.getSocketFactory();
-    }
-
-    static void readResponseToLogOut(HttpURLConnection urlConnection) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-
-        final StringBuilder out = new StringBuilder();
-
-        char[] buffer = new char[1024];
-        int length;
-        while ((length = reader.read(buffer)) != -1) {
-            out.append(buffer, 0, length);
-        }
-        DLog.d("PIA", out.toString());
     }
 
     /**

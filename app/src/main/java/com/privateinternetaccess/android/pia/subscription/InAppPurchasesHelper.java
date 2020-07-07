@@ -19,6 +19,7 @@
 package com.privateinternetaccess.android.pia.subscription;
 
 import com.privateinternetaccess.android.pia.handlers.SubscriptionHandler;
+import com.privateinternetaccess.android.pia.model.response.SubscriptionAvailableResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
 
 /**
@@ -34,7 +35,6 @@ public class InAppPurchasesHelper
 
     public static String getMontlySubscriptionId() {
         if (SubscriptionHandler.subscriptionResponse != null) {
-            DLog.d("InAppPurchasesHelper", SubscriptionHandler.subscriptionResponse.getActiveMonthlySubscription());
             return SubscriptionHandler.subscriptionResponse.getActiveMonthlySubscription();
         }
 
@@ -43,7 +43,6 @@ public class InAppPurchasesHelper
 
     public static String getYearlySubscriptionId() {
         if (SubscriptionHandler.subscriptionResponse != null) {
-            DLog.d("InAppPurchasesHelper", SubscriptionHandler.subscriptionResponse.getActiveYearlySubscription());
             return SubscriptionHandler.subscriptionResponse.getActiveYearlySubscription();
         }
 
@@ -51,26 +50,23 @@ public class InAppPurchasesHelper
     }
 
     public static SubscriptionType getType(String key) {
-        if (SubscriptionHandler.subscriptionResponse != null) {
-            if (key.equals(SubscriptionHandler.subscriptionResponse.getActiveMonthlySubscription())) {
+        if (key == null){
+            return null;
+        }
+
+        SubscriptionAvailableResponse response = SubscriptionHandler.subscriptionResponse;
+        if (response != null) {
+            if (response.getActiveMonthlySubscription() != null &&
+                    key.equals(response.getActiveMonthlySubscription())) {
                 return SubscriptionType.MONTHLY;
             }
-            else if (key.equals(SubscriptionHandler.subscriptionResponse.getActiveYearlySubscription())) {
+            else if (response.getActiveYearlySubscription() != null &&
+                    key.equals(SubscriptionHandler.subscriptionResponse.getActiveYearlySubscription())) {
                 return SubscriptionType.YEARLY;
             }
         }
 
         return null;
     }
-
-//    public static String getMontlySubscriptionId(){
-//        String id = SUBSCRIPTION_MONTHLY_ID;
-//        return id;
-//    }
-//
-//    public static String getYearlySubscriptionId(){
-//        String id = SUBSCRIPTION_YEARLY_ID;
-//        return id;
-//    }
 
 }

@@ -18,12 +18,12 @@
 
 package com.privateinternetaccess.android.pia.interfaces;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.model.events.FetchIPEvent;
 import com.privateinternetaccess.android.pia.model.events.PortForwardEvent;
 import com.privateinternetaccess.android.pia.model.response.MaceResponse;
 import com.privateinternetaccess.android.pia.tasks.HitMaceTask;
 import com.privateinternetaccess.android.pia.tasks.PortForwardTask;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 /**
  *

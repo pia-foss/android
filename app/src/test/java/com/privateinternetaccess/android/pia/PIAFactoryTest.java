@@ -18,8 +18,7 @@
 
 package com.privateinternetaccess.android.pia;
 
-
-import android.test.mock.MockContext;
+import android.content.Context;
 
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.interfaces.IConnection;
@@ -29,21 +28,21 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PIAFactoryTest {
 
-    @Mock
-    MockContext context;
+    Context context;
 
     @Before
     public void setup(){
         MockitoAnnotations.initMocks(this);
+        context = mock(Context.class);
     }
 
     @Test
@@ -65,6 +64,4 @@ public class PIAFactoryTest {
     public void creationTest_getAccount() {
         Assert.assertThat(PIAFactory.getInstance().getVPN(context), instanceOf(IVPN.class));
     }
-
-
 }

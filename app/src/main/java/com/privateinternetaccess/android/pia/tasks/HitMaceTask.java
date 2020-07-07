@@ -23,7 +23,6 @@ import android.os.AsyncTask;
 import android.os.Handler;
 
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.api.MaceApi;
 import com.privateinternetaccess.android.pia.api.PiaApi;
@@ -32,6 +31,7 @@ import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.events.HitMaceEvent;
 import com.privateinternetaccess.android.pia.model.response.MaceResponse;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -62,7 +62,7 @@ public class HitMaceTask extends AsyncTask<Integer, Void, MaceResponse> {
         } catch (InterruptedException ignored) {
         }
         MaceApi api = new MaceApi();
-        MaceResponse hitUrl = api.hitMace();
+        MaceResponse hitUrl = api.hitMace(context);
         return hitUrl;
     }
 

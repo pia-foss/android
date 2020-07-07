@@ -21,13 +21,13 @@ package com.privateinternetaccess.android.pia.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.api.AccountApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.TrialData;
 import com.privateinternetaccess.android.pia.model.TrialTestingData;
 import com.privateinternetaccess.android.pia.model.events.TrialEvent;
 import com.privateinternetaccess.android.pia.model.response.TrialResponse;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 

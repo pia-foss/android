@@ -33,7 +33,6 @@ import android.text.TextUtils;
 
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
@@ -48,6 +47,7 @@ import com.privateinternetaccess.android.ui.connection.VPNPermissionActivity;
 import com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity;
 import com.privateinternetaccess.android.ui.startup.StartupActivity;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 public class LauncherActivity extends AppCompatActivity {
 

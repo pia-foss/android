@@ -81,6 +81,8 @@ public class PurchasingFragment extends Fragment {
 
     public static String PRODUCT_ID_SELECTED;
 
+    private boolean pricesLoaded = false;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -141,27 +143,6 @@ public class PurchasingFragment extends Fragment {
         }
 
         LoginPurchaseActivity.setupToSPPText(getActivity(), tvToS);
-
-        toggleInternet(false);
-
-//        aNoInternet.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                toggleInternet(false);
-//                ((LoginPurchaseActivity) getActivity()).noInternetReInit();
-//            }
-//        });
-    }
-
-    private void toggleInternet(boolean forceShow) {
-//        DLog.d(TAG, "connected = " + PIAApplication.isNetworkAvailable(aNoInternet.getContext()));
-//        if(!PIAApplication.isNetworkAvailable(aNoInternet.getContext()) && !forceShow){
-//            aChoices.setVisibility(View.GONE);
-//            aNoInternet.setVisibility(View.VISIBLE);
-//        } else {
-//            aChoices.setVisibility(View.VISIBLE);
-//            aNoInternet.setVisibility(View.GONE);
-//        }
     }
 
     @Override
@@ -172,29 +153,10 @@ public class PurchasingFragment extends Fragment {
 
     @Subscribe
     public void apiCheckReceive(APICheckEvent event) {
-        if(event.getResponse().canConnect()) {
+        if(event.getResponse().canConnect() && pricesLoaded) {
             onSignUpClicked(bSubmit);
         } else {
-            Activity act = getActivity();
-            AlertDialog.Builder builder = new AlertDialog.Builder(act);
-            builder.setTitle(R.string.api_check_failure_title);
-            builder.setMessage(R.string.api_check_message);
-            builder.setPositiveButton(R.string.drawer_contact_support, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent i = new Intent(getActivity(), WebviewActivity.class);
-                    i.putExtra(WebviewActivity.EXTRA_URL, "https://helpdesk.privateinternetaccess.com/");
-                    startActivity(i);
-                    dialog.dismiss();
-                }
-            });
-            builder.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            builder.show();
+            ((LoginPurchaseActivity) getActivity()).showConnectionError();
         }
         progress.setVisibility(View.GONE);
         bSubmit.setVisibility(View.VISIBLE);
@@ -215,17 +177,6 @@ public class PurchasingFragment extends Fragment {
             i.putExtra(WebviewActivity.EXTRA_URL, Uri.parse(getString(R.string.buyvpn_url_localized)));
             startActivity(i);
         }
-//        if (PIAApplication.isPlayStoreSupported(v.getContext().getPackageManager())) {
-//            Editable eMail = tvSubscribeEmail.getText();
-//            if (!AppUtilities.isValidEmail(eMail)) {
-//                tilEmail.setError(getString(R.string.invalid_email_signup));
-//                return;
-//            } else {
-//                tilEmail.setError(null);
-//            }
-//            PiaPrefHandler.saveLoginEmail(tvSubscribeEmail.getContext(), tvSubscribeEmail.getText().toString());
-//            ((LoginPurchaseActivity) getActivity()).onSubscribeClicked(eMail.toString(), PRODUCT_ID_SELECTED);
-//        }
     }
 
     void changeBackgrounds(){
@@ -249,10 +200,11 @@ public class PurchasingFragment extends Fragment {
 
     public void setUpCosts(String monthly, String yearly){
         DLog.d("PurchasingFragment", "monthly = " + monthly + " yearly = " + yearly);
-        toggleInternet(true);
         tvMonthlyText.setText(String.format(getString(R.string.purchasing_monthly_ending), monthly));
         tvYearlyText.setText(getString(R.string.yearly_sub_text, yearly));
         if(!TextUtils.isEmpty(yearly)){
+            pricesLoaded = true;
+
             StringBuilder sb = new StringBuilder();
             sb.append("#");
             Currency c = Currency.getInstance(Locale.getDefault());

@@ -18,7 +18,7 @@
 
 package com.privateinternetaccess.android.pia.api;
 
-import android.test.mock.MockContext;
+import android.content.Context;
 
 import com.privateinternetaccess.android.pia.model.exceptions.PortForwardingError;
 import com.privateinternetaccess.android.pia.model.response.PortForwardResponse;
@@ -27,7 +27,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import okhttp3.ResponseBody;
@@ -37,14 +36,13 @@ import okhttp3.mock.Rule;
 import static org.hamcrest.CoreMatchers.instanceOf;
 
 import static okhttp3.mock.MediaTypes.MEDIATYPE_JSON;
+import static org.mockito.Mockito.mock;
 
 public class PortForwardApiTest {
 
-    @Mock
-    MockContext context;
-
-    PortForwardApi api;
     MockInterceptor interceptor;
+    PortForwardApi api;
+    Context context;
 
     @Before
     public void setUp() throws Exception {
@@ -53,6 +51,7 @@ public class PortForwardApiTest {
         PiaApi.setInterceptor(interceptor);
 
         api = new PortForwardApi();
+        context = mock(Context.class);
     }
 
     @Test
@@ -64,7 +63,7 @@ public class PortForwardApiTest {
 
         try {
             PortForwardResponse response = api.getPort(context);
-            Assert.assertTrue(response.getPort() == -1);
+            Assert.assertEquals((int) response.getPort(), -1);
         } catch (Exception portForwardingError) {
             Assert.assertThat(portForwardingError, instanceOf(PortForwardingError.class));
         }
@@ -80,9 +79,8 @@ public class PortForwardApiTest {
 
         try {
             PortForwardResponse response = api.getPort(context);
-            Assert.assertTrue(response.getPort() == -1);
-        } catch (Exception portForwardingError) {
-        }
+            Assert.assertEquals((int) response.getPort(), -1);
+        } catch (Exception portForwardingError) { }
     }
 
     @Test
@@ -96,9 +94,8 @@ public class PortForwardApiTest {
 
         try {
             PortForwardResponse response = api.getPort(context);
-            Assert.assertTrue(response.getPort() == -1);
-        } catch (Exception portForwardingError) {
-        }
+            Assert.assertEquals((int) response.getPort(), -1);
+        } catch (Exception portForwardingError) { }
     }
 
     @Test
@@ -112,9 +109,8 @@ public class PortForwardApiTest {
 
         try {
             PortForwardResponse response = api.getPort(context);
-            Assert.assertTrue(response.getPort() == 999);
-        } catch (Exception portForwardingError) {
-        }
+            Assert.assertEquals(999, (int) response.getPort());
+        } catch (Exception portForwardingError) {  }
     }
 
     @After

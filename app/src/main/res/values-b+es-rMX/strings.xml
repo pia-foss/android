@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[El número de puerto debe estar entre 1024 y 65535]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[Puerto entre 1024 & 65535]]></string>
-    <string name="startup_support_title">Admite 5 dispositivos a la vez</string>
-    <string name="startup_support_message">Protégete en hasta 5 dispositivos a la vez.</string>
     <string name="startup_region_title">Conéctate a cualquier región con facilidad</string>
     <string name="startup_region_message">Con servidores en todo el mundo, siempre estarás protegido.</string>
     <string name="startup_ads_title">Protégete de la publicidad</string>
@@ -245,7 +243,8 @@
     <string name="done">TERMINADO</string>
     <string name="update_account">ACTUALIZAR CUENTA</string>
     <string name="local_port_titla">Puerto local</string>
-    <string name="preference_application_settings">AJUSTES DE APLICACIÓN</string>
+    <string name="preference_application_settings">AJUSTES GENERALES</string>
+    <string name="preference_vpn_settings">AJUSTES DE VPN</string>
     <string name="preference_haptic_title">Respuesta táctil al conectar</string>
     <string name="preference_dialog_graph_title">Seleccionar unidad de medida para el gráfico</string>
     <string name="preference_connect_on_boot_summary">Conectar al iniciar el sistema</string>
@@ -339,10 +338,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">Eventos generales y notificaciones</string>
     <string name="tv_startup_press_right">PULSA DERECHA</string>
-    <string name="androidalwayson">VPN de Android siempre encendida</string>
-    <string name="androidalwaysonsummary">Android 8.0+ incluye una mejor alternativa de interruptor de emergencia, haz clic para tener más información</string>
+    <string name="androidalwayson">Bloquear conexiones sin VPN</string>
+    <string name="androidalwaysonsummary">Android incluye una mejor alternativa de la  funcionalidad de interruptor de emergencia, haga clic para tener más información</string>
     <string name="block_connection_wo_vpn">Bloquear conexiones sin VPN</string>
-    <string name="always_oreo_message">Android 8.0 y posteriores incluyen una opción del propio Android para bloquear conexiones sin VPN. Ya que esto está integrado en el mismo sistema operativo de Android, es un mejor interruptor de emergencia integrado en Android y funciona aunque la aplicación PIA VPN se detenga y también funciona antes de iniciar PIA.\n\nRecomendamos configurar \"Siempre en VPN\" y \"Bloquear conexiones sin VPN\" además o como alternativa a la opción del interruptor de seguridad</string>
+    <string name="always_oreo_message">Para que nunca se conecte sin su VPN, sugerimos habilitar Bloquear conexión sin VPN en la configuración de su Android. Esto se puede habilitar después de encender Siempre en VPN para PIA. Esto garantizará que Android haga lo mejor posible para tener en ejecución su PIA VPN en todo momento cuando esté conectado y bloquear las conexiones sin una VPN, es decir, un interruptor de emergencia de VPN. El ajuste del interruptor de emergencia en la aplicación PIA VPN ha quedado obsoleto en favor del ajuste \"Bloquear conexión sin VPN\" a nivel del sistema en su configuración de Android debido a que ahora Android 8.0+ tiene esta función integrada. Si hay algún problema, será notificado y Android bloqueará todas las conexiones a Internet que no sean a través de su VPN.</string>
     <string name="preference_blocking">BLOQUEANDO</string>
     <string name="preference_connect_proxy">Conectar vía proxy</string>
     <string name="preference_connect_proxy_app">Aplicación proxy seleccionada</string>
@@ -391,7 +390,7 @@
     <string name="pp_text">Política de privacidad</string>
     <string name="website_isnt_protected">El sitio web no está protegido.</string>
     <string name="api_check_failure_title">Falla en la conexión</string>
-    <string name="api_check_message">No pudimos conectar con Private Internet Access. Esto puede deberse a una mala conexión a Internet o que nuestro servicio está bloqueado en tu país.</string>
+    <string name="api_check_message">No pudimos conectar con Private Internet Access. Esto puede deberse a una mala conexión a Internet o que nuestro servicio está bloqueado en su país. Asegúrese de que tiene una conexión estable a Internet, detenga la ejecución de la aplicación desde la Configuración, reinicie la aplicación e inténtelo de nuevo.</string>
     <string name="invalid_qr_code">No es válida la secuencia del código QR. Inténtelo de nuevo.</string>
     <string name="empty_qr_code">El contenido del QR estaba vacío. Inténtelo de nuevo.</string>
     <string name="your_plan_will_expire_on">Su plan va a expirar el</string>
@@ -427,10 +426,11 @@
     <string name="trusted_wifi_title">Wi-Fi confiable</string>
     <string name="trusted_wifi_message">La VPN se conectará automáticamente en todas las redes Wi-Fi, excepto aquellas en la lista blanca del usuario</string>
     <string name="trusted_wifi_enable_message">Deshabilitar la VPN cuando te conectes a redes confiables</string>
-    <string name="trusted_wifi_header">Redes confiables</string>
+    <string name="trusted_wifi_singular">Red confiable</string>
+    <string name="trusted_wifi_plural">Redes confiables</string>
     <string name="available_wifi_header">Redes disponibles</string>
     <string name="trusted_wifi_no_wifi">Habilita Wi-Fi para seleccionar redes confiables.</string>
-    <string name="trusted_wifi_no_permission">Wi-Fi confiable requiere permisos de localización para detectar redes Wi-Fi cercanas. Si el permiso es revocado, esta función no funcionará más.\n\nPara usar esta función, ve a Configuración&gt;Aplicaciones&gt;PIA VPN y asegúrate de que el permiso de localización está activado</string>
+    <string name="trusted_wifi_no_permission">Wi-Fi confiable requiere permisos de localización para detectar redes Wi-Fi cercanas. Si el permiso es revocado, esta función no funcionará más.\n\nPara usar esta función, vaya a Configuración&gt;Aplicaciones&gt;PIA VPN y asegúrese de que el permiso de localización está activado.</string>
     <string name="no_permission_title">Se requieren permisos</string>
     <string name="trusted_wifi_not_available">No hay redes disponibles</string>
     <string name="trusted_wifi_no_trusted">No hay redes confiables</string>
@@ -518,4 +518,44 @@
     <string name="free_trial_region_text">Más de 3,300 servidores en 32 países</string>
     <string name="free_trial_start">INICAR LA SUSCRIPCIÓN</string>
     <string name="free_trial_see_all">Checa todos los planes disponibles</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">SUSPENDER VPN</string>
+    <string name="snooze_short">SUSPENDER 5 MINUTOS</string>
+    <string name="snooze_medium">SUSPENDER 15 MINUTOS</string>
+    <string name="snooze_long">SUSPENDER 1 HORA</string>
+    <string name="snooze_description">Desconecta la VPN y se vuelve a conectar automáticamente cuando finaliza el tiempo establecido.</string>
+    <string name="snooze_resume">REANUDAR</string>
+    <string name="snooze_paused">Pausar hasta %s</string>
+    <string name="snooze_status">Suspendiendo</string>
+    <string name="snooze_notification">Suspendida</string>
+    <string name="failed_connect_status">No es posible conectarse</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">CONFIGURACIÓN RÁPIDA</string>
+    <string name="quick_settings_network_toggle">Gestión de la red</string>
+    <string name="quick_settings_private_browser">Navegador privado</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">CONEXIÓN RÁPIDA</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">USO</string>
+    <string name="usage_download">Descargar</string>
+    <string name="usage_upload">Cargar</string>
+    <!-- Settings -->
+    <string name="settings_protocol">Protocolo</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">Si cambia a WireGuard se deshabilitará la función de configuración por aplicación</string>
+    <string name="wg_protocol_warning">Las siguientes funciones no están disponibles en WireGuard:</string>
+    <string name="wg_connecting">Conectando</string>
+    <string name="wg_connected">VPN conectada</string>
+    <string name="ks_removal_warning">Detectamos que tiene habilitado el interruptor de emergencia. Hemos cambiado el funcionamiento de esta función mediante la integración del ajuste \"Bloquear conexiones sin VPN\" de Android en WireGuard y en OpenVPN. Revise los cambios en Configuración para asegurarse de que sigue protegido.</string>
+    <string name="preference_on_boot_always_on">Conectar al iniciar el sistema. Recomendamos encender este ajuste si está usando VPN siempre encendido.</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">Ya existe el túnel \"%s\"</string>
+    <string name="tunnel_error_invalid_name">El nombre no es válido</string>
+    <string name="preview">VISTA PREVIA</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">Red de nueva generación</string>
+    <string name="gen4_next_generation_network_message">La VPN tuvo que desconectarse para cambiar la red del servidor.</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">Incluye regiones geolocalizadas</string>
 </resources>

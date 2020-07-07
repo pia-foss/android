@@ -48,7 +48,7 @@ public class SettingsActivity extends BaseActivity {
         if (!PIAApplication.isAndroidTV(this)) {
             initHeader(true, true);
             setTitle(getString(R.string.menu_settings));
-            setGreenBackground();
+            setBackground();
             setSecondaryGreenBackground();
             appBar = findViewById(R.id.appbar);
         }

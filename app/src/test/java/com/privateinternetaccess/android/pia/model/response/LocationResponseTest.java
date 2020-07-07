@@ -21,8 +21,6 @@ package com.privateinternetaccess.android.pia.model.response;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class LocationResponseTest {
 
     private String valid_JSON = "{\"lat\": 38.9072, \"long\": 77.0369, \"country\": \"USA\", \"region\": \"DC\", \"city\":\"Washington, DC\"}";
@@ -31,55 +29,55 @@ public class LocationResponseTest {
     public void parse_empty() {
         LocationResponse response = new LocationResponse();
         response.parse("");
-        Assert.assertTrue(response.getBody() == null);
+        Assert.assertNull(response.getBody());
     }
 
     @Test
     public void parse_emptyJSON() {
         LocationResponse response = new LocationResponse();
         response.parse("{}");
-        Assert.assertTrue(response.getBody() != null);
+        Assert.assertNotNull(response.getBody());
     }
 
     @Test
     public void parse_validReturn_city() {
         LocationResponse response = new LocationResponse();
         response.parse(valid_JSON);
-        Assert.assertTrue(response.getCity().equals("Washington, DC"));
+        Assert.assertEquals("Washington, DC", response.getCity());
     }
 
     @Test
     public void parse_validReturn_country() {
         LocationResponse response = new LocationResponse();
         response.parse(valid_JSON);
-        Assert.assertTrue(response.getCountry().equals("USA"));
+        Assert.assertEquals("USA", response.getCountry());
     }
 
     @Test
     public void parse_validReturn_region() {
         LocationResponse response = new LocationResponse();
         response.parse(valid_JSON);
-        Assert.assertTrue(response.getRegion().equals("DC"));
+        Assert.assertEquals("DC", response.getRegion());
     }
 
     @Test
     public void parse_validReturn_lat() {
         LocationResponse response = new LocationResponse();
         response.parse(valid_JSON);
-        Assert.assertTrue(response.getLat() == 38.9072);
+        Assert.assertEquals(38.9072, response.getLat(), 0.0);
     }
 
     @Test
     public void parse_validReturn_long() {
         LocationResponse response = new LocationResponse();
         response.parse(valid_JSON);
-        Assert.assertTrue(response.getLon() == 77.0369);
+        Assert.assertEquals(77.0369, response.getLon(), 0.0);
     }
 
     @Test
     public void parse_validReturn_BodyCheck() {
         LocationResponse response = new LocationResponse();
         response.parse(valid_JSON);
-        Assert.assertTrue(response.getBody().equals(valid_JSON));
+        Assert.assertEquals(response.getBody(), valid_JSON);
     }
 }

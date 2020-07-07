@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[Poortnummer moet tussen 1024 en 65535 liggen]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[Poort tussen 1024 en 65535]]></string>
-    <string name="startup_support_title">Ondersteun tot 5 apparaten tegelijk</string>
-    <string name="startup_support_message">Bescherm uzelf op tot wel 5 apparaten tegelijk.</string>
     <string name="startup_region_title">Maak eenvoudig verbinding met elke regio</string>
     <string name="startup_region_message">Met servers over de hele wereld wordt u altijd beschermd.</string>
     <string name="startup_ads_title">Bescherm uzelf tegen advertenties</string>
@@ -245,7 +243,8 @@
     <string name="done">GEREED</string>
     <string name="update_account">ACCOUNT BIJWERKEN</string>
     <string name="local_port_titla">Lokale poort</string>
-    <string name="preference_application_settings">TOEPASSINGSINSTELLINGEN</string>
+    <string name="preference_application_settings">ALGEMENE INSTELLINGEN</string>
+    <string name="preference_vpn_settings">VPN-INSTELLINGEN</string>
     <string name="preference_haptic_title">Haptische feedback bij verbinding</string>
     <string name="preference_dialog_graph_title">Meeteenheid selecteren voor de grafiek</string>
     <string name="preference_connect_on_boot_summary">Verbinden bij opstarten van systeem</string>
@@ -339,10 +338,10 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">Algemene evenementen en meldingen</string>
     <string name="tv_startup_press_right">DRUK OP RECHTS</string>
-    <string name="androidalwayson">Android VPN altijd ingeschakeld</string>
-    <string name="androidalwaysonsummary">Android 8.0+ heeft een beter alternatief voor Killswitch. Klik hier voor meer informatie</string>
+    <string name="androidalwayson">Verbindingen zonder VPN blokkeren</string>
+    <string name="androidalwaysonsummary">Android heeft een beter alternatief voor de Killswitch-functionaliteit. Klik hier voor meer informatie</string>
     <string name="block_connection_wo_vpn">Verbindingen zonder VPN blokkeren</string>
-    <string name="always_oreo_message">Android 8.0 en later bevatten een optie van Android zelf om verbindingen zonder VPN te blokkeren. Aangezien deze optie diep zit ingebed in het Android OS, is het een beter geïntegreerde KillSwitch in Android die zelfs werkt wanneer de PIA VPN-app crasht of wordt uitgeschakeld. Het werkt zelfs voordat PIA is opgestart.\n\nWe raden aan \"Always On VPN\" en \"Block connections without VPN\" in te stellen naast of als alternatief voor de Killswitch-optie</string>
+    <string name="always_oreo_message">Om ervoor te zorgen dat u nooit verbonden bent zonder uw VPN, raden wij u aan om \'Verbindingen zonder VPN blokkeren\' in te schakelen in uw Android-instellingen. Dit kan na het inschakelen van \'Altijd VPN gebruiken\' voor PIA. Zo zorgt u ervoor dat Android PIA VPN te allen tijde gebruikt wanneer u verbonden bent en dat verbindingen zonder VPN worden geblokkeerd. Dit wordt ook wel een VPN-killswitch genoemd. De Killswitch-instelling in de PIA VPN-app is achterhaald omdat Android 8.0+ de functie \'Verbindingen zonder VPN blokkeren\' nu heeft ingebouwd. Als er een probleem is, wordt u hiervan op de hoogte gesteld en zal Android alle internetverbindingen die niet via uw VPN gaan, blokkeren.</string>
     <string name="preference_blocking">BLOKKEREN</string>
     <string name="preference_connect_proxy">Verbinden via proxy</string>
     <string name="preference_connect_proxy_app">Proxy-app selecteren</string>
@@ -391,7 +390,7 @@
     <string name="pp_text">Privacybeleid</string>
     <string name="website_isnt_protected">Website is niet beschermd.</string>
     <string name="api_check_failure_title">Verbindingsfout</string>
-    <string name="api_check_message">We kunnen Private Internet Access niet bereiken. Dit kan komen door een slechte internetverbinding of omdat onze dienst in uw land is geblokkeerd.</string>
+    <string name="api_check_message">We kunnen Private Internet Access niet bereiken. Dit kan komen door een slechte internetverbinding of omdat onze dienst in uw land is geblokkeerd. Zorg dat u een stabiele internetverbinding hebt, sluit de app af via Instellingen, start de app opnieuw op en probeer het nog een keer.</string>
     <string name="invalid_qr_code">Ongeldige QR-code. Probeer het opnieuw.</string>
     <string name="empty_qr_code">QR-inhoud was leeg. Probeer het opnieuw.</string>
     <string name="your_plan_will_expire_on">Uw abonnement verloopt op</string>
@@ -427,7 +426,8 @@
     <string name="trusted_wifi_title">Vertrouwde wifi</string>
     <string name="trusted_wifi_message">De VPN maakt automatisch verbinding op alle wifinetwerken, behalve de netwerken die door de gebruiker zijn goedgekeurd.</string>
     <string name="trusted_wifi_enable_message">VPN uitschakelen als er verbinding wordt gemaakt met vertrouwde netwerken</string>
-    <string name="trusted_wifi_header">Vertrouwde netwerken</string>
+    <string name="trusted_wifi_singular">Vertrouwd netwerk</string>
+    <string name="trusted_wifi_plural">Vertrouwde netwerken</string>
     <string name="available_wifi_header">Beschikbare netwerken</string>
     <string name="trusted_wifi_no_wifi">Schakel wifi in om vertrouwde netwerken te selecteren.</string>
     <string name="trusted_wifi_no_permission">Voor vertrouwde wifi is locatietoestemming vereist om wifinetwerken in de buurt te detecteren. Als deze toestemming wordt ingetrokken, werkt de functie niet meer. \n\nGa naar instellingen &gt; Apps &gt; PIA VPN en zorg ervoor dat locatietoestemming is ingeschakeld om deze functie te gebruiken.</string>
@@ -518,4 +518,44 @@
     <string name="free_trial_region_text">Meer dan 3300 servers in 32 landen</string>
     <string name="free_trial_start">START ABONNEMENT</string>
     <string name="free_trial_see_all">Bekijk alle beschikbare abonnementen</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">VPN SNOOZE</string>
+    <string name="snooze_short">5 MINUTEN SNOOZEN</string>
+    <string name="snooze_medium">15 MINUTEN SNOOZEN</string>
+    <string name="snooze_long">1 UUR SNOOZEN</string>
+    <string name="snooze_description">Verbreekt de VPN en maakt automatisch opnieuw verbinding als de timer is afgelopen.</string>
+    <string name="snooze_resume">HERVATTEN</string>
+    <string name="snooze_paused">Gepauzeerd tot %s</string>
+    <string name="snooze_status">Snoozen</string>
+    <string name="snooze_notification">Gesnoozed</string>
+    <string name="failed_connect_status">Kan geen verbinding maken</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">SNELLE INSTELLINGEN</string>
+    <string name="quick_settings_network_toggle">Netwerkbeheer</string>
+    <string name="quick_settings_private_browser">Privébrowser</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">SNEL VERBINDEN</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">GEBRUIK</string>
+    <string name="usage_download">Downloaden</string>
+    <string name="usage_upload">Uploaden</string>
+    <!-- Settings -->
+    <string name="settings_protocol">Protocol</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">Als u naar WireGuard overschakelt, wordt de functie \'Per app-instellingen\' uitgeschakeld.</string>
+    <string name="wg_protocol_warning">De volgende functies zijn niet beschikbaar op WireGuard:</string>
+    <string name="wg_connecting">Verbinden</string>
+    <string name="wg_connected">VPN verbonden</string>
+    <string name="ks_removal_warning">U heeft de Killswitch ingeschakeld. We hebben de werking van deze functie gewijzigd door de Android-instelling \'Verbindingen zonder VPN blokkeren\' voor zowel WireGuard als OpenVPN te integreren. Bekijk de wijzigingen in Instellingen om ervoor te zorgen dat u beschermd blijft.</string>
+    <string name="preference_on_boot_always_on">Verbinden bij opstarten van systeem. We raden u aan deze instelling in te schakelen als u \'Altijd VPN gebruiken\' gebruikt.</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">Tunnel \'%s\' bestaat al</string>
+    <string name="tunnel_error_invalid_name">Ongeldige naam</string>
+    <string name="preview">VOORBEELD</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">Volgende-generatienetwerk</string>
+    <string name="gen4_next_generation_network_message">De VPN-verbinding moet worden verbroken om het servernetwerk te wijzigen.</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">Geolocatie-regio\'s opnemen</string>
 </resources>

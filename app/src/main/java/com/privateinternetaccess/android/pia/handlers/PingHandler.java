@@ -25,15 +25,14 @@ import android.content.ReceiverCallNotAllowedException;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.interfaces.IVPN;
-import com.privateinternetaccess.android.pia.model.PIAServer;
 import com.privateinternetaccess.android.pia.model.events.ServerPingEvent;
 import com.privateinternetaccess.android.pia.model.response.PingResponse;
 import com.privateinternetaccess.android.pia.tasks.FetchPingTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
+import com.privateinternetaccess.core.model.PIAServer;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -107,6 +106,16 @@ public class PingHandler {
     }
 
     public boolean fetchPings(long difference) {
+        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+            DLog.d(TAG, "Next generation network enabled. Cancelling ping to legacy.");
+            return false;
+        }
+
+        if (PIAFactory.getInstance().getVPN(context).isVPNActive()) {
+            DLog.e(TAG, "Error when updating latencies. Connected to the VPN.");
+            return false;
+        }
+
         Prefs prefs = Prefs.with(context, PREFS_PINGS);
         long lastGrab = prefs.get(LAST_PING_GRAB, 0L);
         long now = Calendar.getInstance().getTimeInMillis();

@@ -31,13 +31,19 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.listModel.PIALogItem;
+import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.adapters.VpnLogAdapter;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 import de.blinkt.openvpn.core.LogItem;
@@ -60,7 +66,7 @@ public class VpnLogActivity extends BaseActivity {
         setContentView(R.layout.activity_secondary_list);
         initHeader(true, true);
         setTitle(getString(R.string.vpn_activity_title));
-        setGreenBackground();
+        setBackground();
         setSecondaryGreenBackground();
 
         bindView();
@@ -104,13 +110,46 @@ public class VpnLogActivity extends BaseActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                LogItem[] items = VpnStatus.getlogbuffer();
-                final Vector<LogItem> logs = new Vector<LogItem>();
-                Collections.addAll(logs, items);
-                Collections.reverse(logs);
+                List<PIALogItem> items = new ArrayList();
+
+                if (VPNProtocol.activeProtocol(VpnLogActivity.this) == VPNProtocol.Protocol.OpenVPN) {
+                    LogItem[] ovpnItems = VpnStatus.getlogbuffer();
+
+                    for (LogItem item : ovpnItems) {
+                        items.add(new PIALogItem(item, VpnLogActivity.this));
+                    }
+                }
+                else if (VPNProtocol.activeProtocol(VpnLogActivity.this) == VPNProtocol.Protocol.Wireguard) {
+                    try {
+                        final Process process = Runtime.getRuntime().exec(new String[]{
+                                "logcat", "-b", "all", "-t", "2000",  "-d", "-v", "threadtime", "*:V"});
+                        try (final BufferedReader stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                             final BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream())))
+                        {
+                            String line;
+                            while ((line = stdout.readLine()) != null) {
+                                if (line.contains("Wire"))
+                                    items.add(new PIALogItem(getLogMessage(line), getLogTime(line)));
+                            }
+
+                            stdout.close();
+                            if (process.waitFor() != 0) {
+                                final StringBuilder errors = new StringBuilder();
+                                errors.append("Unable to run logcat:");
+                                while ((line = stderr.readLine()) != null)
+                                    errors.append(line);
+                                throw new Exception(errors.toString());
+                            }
+                        }
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                Collections.reverse(items);
 
                 recyclerView.post(() -> {
-                    adapter = new VpnLogAdapter(recyclerView.getContext(), logs);
+                    adapter = new VpnLogAdapter(recyclerView.getContext(), items);
                     recyclerView.setAdapter(adapter);
                     showHideProgress(false);
                 });
@@ -123,10 +162,31 @@ public class VpnLogActivity extends BaseActivity {
     }
 
     @Subscribe
-    public void newLog(LogItem logItem) {
+    public void newLog(PIALogItem logItem) {
         int scrollPosition = manager.findFirstVisibleItemPosition();
         adapter.addLog(logItem);
         if(scrollPosition == 0)
             manager.scrollToPositionWithOffset(0, 0);
+    }
+
+    private String getLogTime(String line) {
+        String split[] = line.split(" ");
+
+        if (split[0] != null && split[1] != null) {
+            return split[0] + " " + split[1];
+        }
+
+        return "";
+    }
+
+    private String getLogMessage(String line) {
+        String split[] = line.split(" ");
+        String message = "";
+
+        for (int i = 5; i < split.length; i++) {
+            message += split[i] + " ";
+        }
+
+        return message.trim();
     }
 }

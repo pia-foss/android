@@ -225,8 +225,6 @@
     <string name="settings_port_number_restriction"><![CDATA[포트 번호는 1024 ~ 65535 사이이어야 합니다]]></string>
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[1024 ~ 65535 사이의 포트]]></string>
-    <string name="startup_support_title">한 번의 5개의 장치 지원</string>
-    <string name="startup_support_message">한 번에 최대 5개의 장치를 지원합니다.</string>
     <string name="startup_region_title">모든 지역에 쉽게 연결</string>
     <string name="startup_region_message">전 세계에 있는 서버를 통해 언제나 보호를 받습니다.</string>
     <string name="startup_ads_title">광고로부터 보호</string>
@@ -245,7 +243,8 @@
     <string name="done">완료</string>
     <string name="update_account">계정 업데이트</string>
     <string name="local_port_titla">로컬 포트</string>
-    <string name="preference_application_settings">애플리케이션 설정</string>
+    <string name="preference_application_settings">일반 설정</string>
+    <string name="preference_vpn_settings">VPN 설정</string>
     <string name="preference_haptic_title">연결 시 햅틱 피드백</string>
     <string name="preference_dialog_graph_title">그래프의 측정 단위 선택</string>
     <string name="preference_connect_on_boot_summary">시스템 시작 시 연결</string>
@@ -339,10 +338,12 @@
     <string name="pia_channel_name">PIA</string>
     <string name="pia_channel_description">일반 이벤트 및 알림</string>
     <string name="tv_startup_press_right">오른쪽 누르기</string>
-    <string name="androidalwayson">Android에서 VPN 항상 켜기</string>
-    <string name="androidalwaysonsummary">Android 8.0 이상에는 킬 스위치보다 더 나은 대안이 있습니다. 클릭하여 자세히 알아보세요.</string>
+    <string name="androidalwayson">VPN 없는 연결 차단</string>
+    <string name="androidalwaysonsummary">Android에는 킬스위치 기능보다 더 좋은 대체 기능이 포함되어 있습니다. 클릭하여 자세히 알아보세요</string>
     <string name="block_connection_wo_vpn">VPN 없는 커넥션 차단</string>
-    <string name="always_oreo_message">Android 8.0 이상에는 Android 자체에서 VPN이 없는 연결을 차단하는 옵션이 포함되어 있습니다. 이 기능은 Android OS 자체에 탑재되어 있기 때문에, PIA VPN 앱이 충돌하거나 중단되었을 경우에도 킬 스위치보다 더 효과적으로 작동하며, 심지어 PIA가 시작하기 전에도 작동합니다.\n\n\'VPN 항상 켜기\' 및 \'VPN 없는 연결 차단\'을 추가로 또는 킬 스위치 옵션의 대안으로 설정할 것을 권장합니다.</string>
+    <string name="always_oreo_message">"VPN 없이는 절대로 연결되지 않도록 Android 설정에서 VPN 없는 연결 차단을 활성화하실 것을 권장합니다. 이 옵션은 PIA에 대하여 VPN 항상 켜기를 선택한 후에 활성화할 수 있습니다. 이 옵션은 연결 시 Android가 항상 PIA VPN을 실행하도록 하며 VPN 없는 연결은 차단(즉, VPN 킬스위치)하도록 합니다. Android 8.0 이후 이 기능이 내장됨에 따라 Android 설정에서 시스템 수준으로 \"VPN 없는 연결 차단\"을 설정하도록 PIA VPN 앱의 킬스위치 설정은 사용이 중단되었습니다. 문제가 있을 경우 Android가 VPN을 거치지 않는 모든 인터넷 연결을 차단하게 됩니다.
+
+"</string>
     <string name="preference_blocking">차단</string>
     <string name="preference_connect_proxy">프록시를 통해 연결</string>
     <string name="preference_connect_proxy_app">선택된 프록시 앱</string>
@@ -391,7 +392,7 @@
     <string name="pp_text">개인정보 취급방침</string>
     <string name="website_isnt_protected">웹사이트가 보호되지 않았습니다.</string>
     <string name="api_check_failure_title">연결 실패</string>
-    <string name="api_check_message">Private Internet Access에 접속할 수 없습니다. 인터넷 연결 상태가 좋지 않거나 귀하의 국가에서 당사의 서비스가 차단된 것 같습니다.</string>
+    <string name="api_check_message">Private Internet Access에 접속할 수 없습니다. 인터넷 연결 상태가 좋지 않거나 귀하의 국가에서 당사의 서비스가 차단된 것 같습니다. 인터넷 연결 상태가 안정적인지 확인하고, 설정에서 앱을 강제 종료한 후 앱을 다시 시작해 보세요.</string>
     <string name="invalid_qr_code">QR 코드 시퀀스가 유효하지 않습니다. 다시 시도하세요.</string>
     <string name="empty_qr_code">QR 내용이 비어 있습니다. 다시 시도하세요.</string>
     <string name="your_plan_will_expire_on">현재 플랜 만료일:</string>
@@ -427,10 +428,11 @@
     <string name="trusted_wifi_title">신뢰하는 WiFi</string>
     <string name="trusted_wifi_message">사용자가 화이트리스트에 추가한 WiFi를 제외하고 VPN이 모든 WiFi 네트워크에서 자동으로 연결됩니다</string>
     <string name="trusted_wifi_enable_message">신뢰하는 네트워크에 연결될 때 VPN 비활성화</string>
-    <string name="trusted_wifi_header">신뢰하는 네트워크</string>
+    <string name="trusted_wifi_singular">신뢰할 수 있는 네트워크</string>
+    <string name="trusted_wifi_plural">신뢰할 수 있는 네트워크</string>
     <string name="available_wifi_header">이용 가능한 네트워크</string>
     <string name="trusted_wifi_no_wifi">신뢰하는 네트워크를 선택하려면 WiFi를 활성화하세요.</string>
-    <string name="trusted_wifi_no_permission">신뢰할 수 있는 WiFi가 근처에 있는 WiFi 네트워크를 검색하려면 위치 권한이 필요합니다. 이 권한을 철회하면, 이 기능은 더 이상 작동하지 않습니다.\n\n이 기능을 사용하려면 설정&gt;앱&gt;PIA VPN으로 이동해서 위치 권한이 켜져 있는지 확인하세요</string>
+    <string name="trusted_wifi_no_permission">신뢰할 수 있는 WiFi가 근처에 있는 WiFi 네트워크를 검색하려면 위치 권한이 필요합니다. 이 권한을 철회하면, 이 기능은 더 이상 작동하지 않습니다.\n\n이 기능을 사용하려면 설정&gt;앱&gt;PIA VPN으로 이동해서 위치 권한이 켜져 있는지 확인하세요.</string>
     <string name="no_permission_title">접근 권한 필요</string>
     <string name="trusted_wifi_not_available">이용 가능한 네트워크 없음</string>
     <string name="trusted_wifi_no_trusted">신뢰하는 네트워크가 없습니다</string>
@@ -518,4 +520,44 @@
     <string name="free_trial_region_text">32개국 3300대 이상의 서버</string>
     <string name="free_trial_start">구독 시작</string>
     <string name="free_trial_see_all">이용 가능한 모든 플랜 보기</string>
+    <!-- Tiles Strings -->
+    <string name="snooze_vpn_title">VPN 스누즈</string>
+    <string name="snooze_short">5분 스누즈</string>
+    <string name="snooze_medium">15분 스누즈</string>
+    <string name="snooze_long">1시간 스누즈</string>
+    <string name="snooze_description">타이머가 경과될 때 VPN 연결을 해제하고 자동으로 다시 연결합니다.</string>
+    <string name="snooze_resume">재개</string>
+    <string name="snooze_paused">%s까지 일시 중지</string>
+    <string name="snooze_status">스누즈 중</string>
+    <string name="snooze_notification">스누즈됨</string>
+    <string name="failed_connect_status">연결할 수 없음</string>
+    <!-- Quick Settings Strings -->
+    <string name="quick_settings_title">빠른 설정</string>
+    <string name="quick_settings_network_toggle">네트워크 관리</string>
+    <string name="quick_settings_private_browser">개인 브라우저</string>
+    <!-- Quick Connect String -->
+    <string name="quick_connect_title">빠른 연결</string>
+    <!-- Usage Strings -->
+    <string name="usage_title">사용 현황</string>
+    <string name="usage_download">다운로드</string>
+    <string name="usage_upload">업로드</string>
+    <!-- Settings -->
+    <string name="settings_protocol">프로토콜</string>
+    <string name="protocol_ovpn">OpenVPN</string>
+    <string name="protocol_wireguard">WireGuard</string>
+    <string name="wg_per_app_warning">WireGuard로 전환하면 앱당 설정 기능이 비활성화됩니다</string>
+    <string name="wg_protocol_warning">다음 기능은 WireGuard에서 사용할 수 없습니다.</string>
+    <string name="wg_connecting">연결 중</string>
+    <string name="wg_connected">VPN 연결됨</string>
+    <string name="ks_removal_warning">킬스위치가 활성화되었음을 발견했습니다. WireGuard 및 OpenVPN 모두에 대하여 Android의 \"VPN 없는 연결 차단\" 설정을 통합함으로써 이 기능의 작동 방식을 변경하였습니다. 설정에서 변경 사항을 확인하여 계속 보호되고 있는지 확인하세요.</string>
+    <string name="preference_on_boot_always_on">시스템 시작 시 연결. VPN 항상 켜기를 사용하고 있으면 이 설정을 활성화하실 것을 권장합니다.</string>
+    <!-- Wireguard -->
+    <string name="tunnel_error_already_exists">“%s” 터널은 이미 존재합니다</string>
+    <string name="tunnel_error_invalid_name">유효하지 않은 이름</string>
+    <string name="preview">미리 보기</string>
+    <!-- GEN4 -->
+    <string name="gen4_next_generation_network">차세대 네트워크</string>
+    <string name="gen4_next_generation_network_message">서버 네트워크를 변경하려면 VPN의 연결을 해제해야 합니다.</string>
+    <!-- GEO Servers -->
+    <string name="geo_servers">지리적 위치 기반 지역 포함</string>
 </resources>

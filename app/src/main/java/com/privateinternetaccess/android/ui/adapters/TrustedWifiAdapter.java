@@ -130,7 +130,7 @@ public class TrustedWifiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             }
             else {
-                hHolder.tvHeader.setText(R.string.trusted_wifi_header);
+                hHolder.tvHeader.setText(R.string.trusted_wifi_plural);
 
                 if (!isLoading) {
                     hHolder.tvDescription.setText(R.string.trusted_wifi_no_trusted);

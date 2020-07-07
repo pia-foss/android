@@ -21,13 +21,16 @@ package com.privateinternetaccess.android.pia.connection;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.PIAKillSwitchStatus;
 import com.privateinternetaccess.android.PIAOpenVPNTunnelLibrary;
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.IPIACallback;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.api.PiaApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
@@ -42,8 +45,11 @@ import com.privateinternetaccess.android.pia.tasks.FetchIPTask;
 import com.privateinternetaccess.android.pia.tasks.HitMaceTask;
 import com.privateinternetaccess.android.pia.tasks.PortForwardTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.android.pia.utils.Prefs;
+import com.privateinternetaccess.android.pia.workers.PortForwardingWorker;
 import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.tunnel.PortForwardingStatus;
+import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -54,6 +60,8 @@ import java.util.concurrent.TimeUnit;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
+
+import static de.blinkt.openvpn.core.OpenVpnManagementThread.GATEWAY;
 
 /**
  *
@@ -80,6 +88,7 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
     private Context context;
     private static ConnectionResponder mInstance;
     private static PortForwardTask portTask;
+    private PeriodicWorkRequest portForwardingWorker;
     private static FetchIPTask ipTask;
     private static HitMaceTask maceTask;
 
@@ -118,15 +127,15 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
     }
 
     @Override
-    public void updateState(String state, String logmessage, int localizedResId, final ConnectionStatus level) {
+    public void updateState(String state, String message, int localizedResId, final ConnectionStatus level) {
         new Thread(new Runnable() { // Threading this as the amount of work has bloated overtime.
             public void run() {
-                handleStateChange(level);
+                handleStateChange(state, message, level);
             }
         }).start();
     }
 
-    private synchronized void handleStateChange(ConnectionStatus level) {
+    private synchronized void handleStateChange(String state, String message, ConnectionStatus level) {
         DLog.d(TAG, level + "");
         if (level == ConnectionStatus.LEVEL_CONNECTED) {
             if(executor == null || (executor != null && executor.isShutdown())) {
@@ -135,7 +144,13 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
                 executor = new ThreadPoolExecutor(number_of_cores, number_of_cores, 30, TimeUnit.SECONDS, workQueue);
             }
 
-            startupPortForwarding();
+            if (state.equals(GATEWAY)) {
+                PiaPrefHandler.setGatewayEndpoint(context, message);
+            }
+
+            if (PiaPrefHandler.isPortForwardingEnabled(context)) {
+                startPortForwarding();
+            }
 
             startupIP();
 
@@ -172,9 +187,9 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
             if(!revivingVPN && !vpn.isKillswitchActive()){
                 connection.fetchIP(ipCallback);
             }
+            clearPortForwarding();
         } else if(level == ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET || level == ConnectionStatus.LEVEL_NONETWORK){
             PiaPrefHandler.setMaceActive(context, false);
-            PIAVpnStatus.setPortForwardingStatus(PortForwardingStatus.NO_PORTFWD, "");
             PiaPrefHandler.setVPNConnecting(context, true);
             VPN_REVOKED = false;
             if (ipTask != null) {
@@ -183,10 +198,7 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
                 IConnection connection = PIAFactory.getInstance().getConnection(context);
                 connection.resetFetchIP();
             }
-            if (portTask != null) {
-                portTask.cancel(true);
-                portTask = null;
-            }
+            clearPortForwarding();
         }
     }
 
@@ -294,16 +306,45 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
         }
     }
 
-    private void startupPortForwarding() {
-        // Port forwarding
-        if (PiaPrefHandler.isPortForwardingEnabled(context)) {
-            PIAVpnStatus.setPortForwardingStatus(PortForwardingStatus.REQUESTING, context.getString(REQUESTING_PORT_STRING));
+    private void startPortForwarding() {
+        PIAVpnStatus.setPortForwardingStatus(PortForwardingStatus.REQUESTING, context.getString(REQUESTING_PORT_STRING));
+        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE))  {
+            if (portForwardingWorker != null) {
+                return;
+            }
+            portForwardingWorker = new PeriodicWorkRequest.Builder(
+                    PortForwardingWorker.class,
+                    15,
+                    TimeUnit.MINUTES
+            ).build();
+            WorkManager.getInstance(context).enqueue(portForwardingWorker);
+        } else {
             if(portTask == null) {
-                portTask = new PortForwardTask(context, R.string.portfwderror, R.string.n_a_port_forwarding);
+                portTask = new PortForwardTask(
+                        context,
+                        R.string.portfwderror,
+                        R.string.n_a_port_forwarding
+                );
                 portTask.executeOnExecutor(executor, "");
             }
+        }
+    }
+
+    private void clearPortForwarding() {
+        PiaPrefHandler.clearGatewayEndpoint(context);
+        PIAVpnStatus.setPortForwardingStatus(PortForwardingStatus.NO_PORTFWD, "");
+        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+            if (portForwardingWorker == null) {
+                return;
+            }
+            PiaPrefHandler.clearBindPortForwardInformation(context);
+            WorkManager.getInstance(context).cancelWorkById(portForwardingWorker.getId());
+            portForwardingWorker = null;
         } else {
-            PIAVpnStatus.setPortForwardingStatus(PortForwardingStatus.NO_PORTFWD, "");
+            if (portTask != null) {
+                portTask.cancel(true);
+                portTask = null;
+            }
         }
     }
 

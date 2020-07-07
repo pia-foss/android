@@ -26,14 +26,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.listModel.PIALogItem;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Vector;
-
-import de.blinkt.openvpn.core.LogItem;
+import java.util.List;
 
 /**
  * Created by hfrede on 3/23/18.
@@ -42,9 +38,9 @@ import de.blinkt.openvpn.core.LogItem;
 public class VpnLogAdapter extends RecyclerView.Adapter<VpnLogAdapter.LogItemHolder> {
 
     Context context;
-    LinkedList<LogItem> logs;
+    LinkedList<PIALogItem> logs;
 
-    public VpnLogAdapter(Context context, Vector<LogItem> logs) {
+    public VpnLogAdapter(Context context, List<PIALogItem> logs) {
         this.context = context;
         this.logs = new LinkedList<>(logs);
     }
@@ -57,16 +53,9 @@ public class VpnLogAdapter extends RecyclerView.Adapter<VpnLogAdapter.LogItemHol
 
     @Override
     public void onBindViewHolder(LogItemHolder holder, int position) {
-        LogItem item = logs.get(position);
-        holder.text.setText(item.getString(context).trim());
-        holder.datetime.setText(getTime(item));
-    }
-
-    private String getTime(LogItem le) {
-        Date d = new Date(le.getLogtime());
-        java.text.DateFormat timeformat;
-        timeformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        return timeformat.format(d) + " ";
+        PIALogItem item = logs.get(position);
+        holder.text.setText(item.message);
+        holder.datetime.setText(item.timeString);
     }
 
     @Override
@@ -86,7 +75,7 @@ public class VpnLogAdapter extends RecyclerView.Adapter<VpnLogAdapter.LogItemHol
         }
     }
 
-    public void addLog(LogItem log){
+    public void addLog(PIALogItem log){
         logs.push(log);
         notifyItemInserted(0);
         if(logs.size() > 1000){
