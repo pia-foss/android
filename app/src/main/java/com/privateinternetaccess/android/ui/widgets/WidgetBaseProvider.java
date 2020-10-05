@@ -176,7 +176,7 @@ public class WidgetBaseProvider extends AppWidgetProvider  {
         if(intent != null && intent.getAction() != null) {
             if (intent.getAction().equals(LAUNCH)) {
                 IAccount account = PIAFactory.getInstance().getAccount(context);
-                if(!account.isLoggedIn()){
+                if(!account.loggedIn()){
                     Intent i = new Intent(context.getApplicationContext(), LauncherActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     i.setAction(MainActivity.START_VPN_SHORTCUT);

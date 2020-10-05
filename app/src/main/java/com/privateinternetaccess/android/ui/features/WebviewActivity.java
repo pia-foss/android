@@ -54,13 +54,13 @@ public class WebviewActivity extends BaseActivity {
 
     private static final String[] WHITELIST_URLS = {
             "https://www.privateinternetaccess.com",
-            "https://helpdesk.privateinternetaccess.com/",
+            "https://www.privateinternetaccess.com/helpdesk/",
             "https://www.privateinternetaccess.com/pages/privacy-policy/",
             "https://www.privateinternetaccess.com/pages/terms-of-service/",
             "https://www.privateinternetaccess.com/pages/buy-vpn/",
             "https://bra.privateinternetaccess.com/pages/buy-vpn/",
             "https://www.privateinternetaccess.com/helpdesk/new-ticket/",
-            "https://helpdesk.privateinternetaccess.com"
+            "https://www.privateinternetaccess.com/blog/wireguide-all-about-the-wireguard-vpn-protocol/"
             };
 
     private WebView mWebView;
@@ -176,7 +176,7 @@ public class WebviewActivity extends BaseActivity {
         super.onResume();
 
         if(TextUtils.isEmpty(mURL))
-            mURL = "https://helpdesk.privateinternetaccess.com";
+            mURL = "https://www.privateinternetaccess.com/helpdesk/";
 
         if(mWebView.getUrl() == null) {
             if (isWhitelisted(mURL))

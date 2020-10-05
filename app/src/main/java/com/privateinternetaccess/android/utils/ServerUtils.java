@@ -32,8 +32,7 @@ public class ServerUtils {
             Context context,
             Map<PIAServer.Protocol, String> latencies
     ) {
-        // TODO juan.docal Remove condition when dropping legacy system.
-        if (!Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE) || latencies == null) {
+        if (latencies == null) {
             return "";
         }
         return latencies.get(getUserSelectedProtocol(context));

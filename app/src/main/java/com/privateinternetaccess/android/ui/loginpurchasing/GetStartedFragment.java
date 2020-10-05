@@ -18,19 +18,37 @@
 
 package com.privateinternetaccess.android.ui.loginpurchasing;
 
+import android.animation.LayoutTransition;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.Guideline;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import android.text.TextUtils;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.github.mmin18.widget.RealtimeBlurView;
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.events.PricingLoadedEvent;
 import com.privateinternetaccess.android.ui.drawer.settings.DeveloperActivity;
+import com.privateinternetaccess.android.ui.startup.StartupContainerFragment;
+import com.privateinternetaccess.android.utils.SubscriptionsUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,7 +57,27 @@ import butterknife.OnClick;
 public class GetStartedFragment extends Fragment {
 
     @BindView(R.id.activity_login_purchasing_dev_button) View bDev;
-    @BindView(R.id.activity_login_purchasing_version_text) TextView tvVersion;
+    @BindView(R.id.activity_login_purchasing_button_layout) RelativeLayout lButtons;
+
+    @Nullable
+    @BindView(R.id.activity_login_purchasing_buy_button) Button bSignup;
+    @Nullable
+    @BindView(R.id.activity_login_purchasing_all_plans_button) Button bAllPlans;
+    @Nullable
+    @BindView(R.id.activity_login_purchasing_free_trial_text) TextView tvFreeTrial;
+
+    @BindView(R.id.activity_login_purchasing_yearly_text) TextView tvYearly;
+    @BindView(R.id.activity_login_purchasing_blur) RealtimeBlurView bView;
+
+    @BindView(R.id.guideline) Guideline glClosed;
+    @BindView(R.id.guideline2) Guideline glOpen;
+
+    private GestureDetectorCompat gestureListener;
+    private int SWIPE_THRESHOLD = 50;
+    private int SWIPE_VELOCITY_THRESHOLD = 100;
+
+    private boolean isButtonLayoutOpen = false;
+    private boolean pricesLoaded = false;
 
     @Nullable
     @Override
@@ -47,46 +85,111 @@ public class GetStartedFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_get_started, container, false);
         ButterKnife.bind(this, view);
 
+        gestureListener = new GestureDetectorCompat(getContext(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
+                float diffY = event2.getY() - event1.getY();
+
+                if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (diffY < 0) {
+                        openLayout();
+                    }
+                    else {
+                        closeLayout();
+                    }
+                }
+
+                return true;
+            }
+        });
+
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
+        EventBus.getDefault().register(this);
         initView();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
+    }
+
     private void initView() {
+        isButtonLayoutOpen = false;
         if(!PIAApplication.isRelease()){
             bDev.setVisibility(View.VISIBLE);
-            bDev.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent i = new Intent(getContext(), DeveloperActivity.class);
-                    startActivity(i);
-                }
+            bDev.setOnClickListener(v -> {
+                Intent i = new Intent(getContext(), DeveloperActivity.class);
+                startActivity(i);
             });
         } else {
             bDev.setVisibility(View.GONE);
         }
 
-        String version = BuildConfig.VERSION_NAME;
-        int versionCode = BuildConfig.VERSION_CODE;
-        tvVersion.setText(String.format(getString(R.string.drawer_version), version, versionCode + ""));
+        if (BuildConfig.FLAVOR_store.equals("amazonstore") && !PIAApplication.isAndroidTV(getContext())) {
+            bAllPlans.setVisibility(View.GONE);
+            bSignup.setVisibility(View.GONE);
+            tvYearly.setVisibility(View.GONE);
+            tvFreeTrial.setVisibility(View.GONE);
+        }
+
+        lButtons.setOnTouchListener((v, event) -> {
+            gestureListener.onTouchEvent(event);
+            return false;
+        });
+        lButtons.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+
+        Fragment frag = new StartupContainerFragment();
+        FragmentTransaction trans = getChildFragmentManager().beginTransaction();
+        trans.replace(R.id.activity_login_purchasing_container, frag);
+        trans.commit();
     }
 
-    @OnClick(R.id.activity_login_purchasing_redeem_button)
-    public void trialPressed() {
-        if (getActivity() instanceof LoginPurchaseActivity) {
-            ((LoginPurchaseActivity) getActivity()).switchToTrialAccount();
-        }
+    private void openLayout() {
+        if (isButtonLayoutOpen)
+            return;
+
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)lButtons.getLayoutParams();
+        params.topToBottom = glOpen.getId();
+        lButtons.requestLayout();
+
+        isButtonLayoutOpen = true;
+    }
+
+    private void closeLayout() {
+        if (!isButtonLayoutOpen)
+            return;
+
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)lButtons.getLayoutParams();
+        params.topToBottom = glClosed.getId();
+        lButtons.requestLayout();
+
+        isButtonLayoutOpen = false;
+    }
+
+    private void setUpCosts(String yearly){
+        tvYearly.setText(getString(R.string.getstarted_trial_price, yearly));
+    }
+
+    @Subscribe(sticky = true)
+    public void loadPricing(PricingLoadedEvent event) {
+        pricesLoaded = !TextUtils.isEmpty(event.yearlyCost);
+        setUpCosts(event.yearlyCost);
     }
 
     @OnClick(R.id.activity_login_purchasing_buy_button)
     public void buyPressed() {
-        if (getActivity() instanceof LoginPurchaseActivity) {
-            ((LoginPurchaseActivity) getActivity()).switchToFreeTrial();
+        if (pricesLoaded) {
+            ((LoginPurchaseActivity) getActivity()).onSubscribeClicked(
+                    SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(getContext())
+            );
+        } else {
+            ((LoginPurchaseActivity) getActivity()).showConnectionError();
         }
     }
 
@@ -94,6 +197,22 @@ public class GetStartedFragment extends Fragment {
     public void loginPressed() {
         if (getActivity() instanceof LoginPurchaseActivity) {
             ((LoginPurchaseActivity) getActivity()).switchToLogin();
+        }
+    }
+
+    @OnClick(R.id.activity_login_purchasing_all_plans_button)
+    public void allPlansPressed() {
+        if (pricesLoaded) {
+            ((LoginPurchaseActivity) getActivity()).switchToPurchasing();
+        } else {
+            ((LoginPurchaseActivity) getActivity()).showConnectionError();
+        }
+    }
+
+    @OnClick(R.id.activity_login_purchasing_redeem_button)
+    public void trialPressed() {
+        if (getActivity() instanceof LoginPurchaseActivity) {
+            ((LoginPurchaseActivity) getActivity()).switchToTrialAccount();
         }
     }
 }

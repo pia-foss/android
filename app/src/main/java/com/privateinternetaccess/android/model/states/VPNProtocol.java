@@ -31,14 +31,14 @@ public class VPNProtocol {
     }
 
     public static Protocol activeProtocol(Context context) {
-        String protocols[] = context.getResources().getStringArray(R.array.protocol_options);
-        String protocol = PiaPrefHandler.getProtocol(context);
-
-        if (protocol.equals(protocols[0])) {
-            return Protocol.OpenVPN;
+        String persistedProtocol = PiaPrefHandler.getProtocol(context);
+        Protocol result = Protocol.Wireguard;
+        for (Protocol protocol : Protocol.values()) {
+            if (protocol.name().equals(persistedProtocol)) {
+                result = protocol;
+                break;
+            }
         }
-        else {
-            return Protocol.Wireguard;
-        }
+        return result;
     }
 }

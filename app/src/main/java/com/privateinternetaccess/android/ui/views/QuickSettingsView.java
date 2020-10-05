@@ -129,16 +129,16 @@ public class QuickSettingsView extends FrameLayout {
     }
 
     public void onNetworkClicked() {
-        boolean networking = PiaPrefHandler.shouldConnectOnWifi(getContext());
+        boolean networking = Prefs.with(getContext()).getBoolean(PiaPrefHandler.NETWORK_MANAGEMENT);
 
         if (networking) {
-            PiaPrefHandler.setTrustWifi(getContext(), false);
+            Prefs.with(getContext()).set(PiaPrefHandler.NETWORK_MANAGEMENT, false);
         }
         else {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
             ) {
-                PiaPrefHandler.setTrustWifi(getContext(), true);
+                Prefs.with(getContext()).set(PiaPrefHandler.NETWORK_MANAGEMENT, true);
             }
             else {
                 Intent i = new Intent(getContext(), TrustedWifiActivity.class);
@@ -158,37 +158,22 @@ public class QuickSettingsView extends FrameLayout {
                     PiaPrefHandler.isKillswitchEnabled(getContext()));
             lIcons.addView(view);
 
-            view.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onKillSwitchClicked();
-                }
-            });
+            view.setOnClickListener(view1 -> onKillSwitchClicked());
         }
 
         if (PiaPrefHandler.getQuickSettingsNetwork(getContext())) {
             View view = getView(QuickSettings.SETTING_NETWORK,
-                    PiaPrefHandler.shouldConnectOnWifi(getContext()));
+                    Prefs.with(getContext()).getBoolean(PiaPrefHandler.NETWORK_MANAGEMENT));
             lIcons.addView(view);
 
-            view.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onNetworkClicked();
-                }
-            });
+            view.setOnClickListener(view12 -> onNetworkClicked());
         }
 
         if (PiaPrefHandler.getQuickSettingsPrivateBrowser(getContext())) {
             View view = getView(QuickSettings.SETTING_BROWSER, false);
             lIcons.addView(view);
 
-            view.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onBrowserClicked();
-                }
-            });
+            view.setOnClickListener(view13 -> onBrowserClicked());
         }
     }
 

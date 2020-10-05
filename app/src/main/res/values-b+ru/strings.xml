@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"Ошибка при покупке: %1$s "</string>
     <string name="error_active_subscription">У вас уже есть активная подписка!</string>
+    <string name="error_invalid_auth">Что-то пошло не так. Попробуйте выполнить вход еще раз.</string>
     <string name="usemssfix">Размер IP-пакета будет слегка уменьшен, чтобы улучшить совместимость с некоторыми роутерами и мобильными сетями.</string>
     <string name="mssfixsummary">Использовать маленькие пакеты</string>
     <string name="settings_account_bottom_text">Установите приложение Private Internet Access на других устройствах и используйте указанное выше имя пользователя для входа в учетную запись и защиты соединения.</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">О программе</string>
     <string name="reconnect_vpn">Чтобы изменение вступило в силу, переподключитесь к VPN</string>
     <string name="error_account_info">Не удалось найти данные учетной записи</string>
+    <string name="error_pinging_while_connected">Нельзя обновить задержку при подключении к VPN</string>
     <string name="allows_port_forwarding">Разрешает переадресацию порта</string>
     <string name="about_privacy_policy">Политика конфиденциальности</string>
     <string name="version">Версия</string>
@@ -168,7 +170,7 @@
     <string name="save">Сохранить</string>
     <string name="saved">Сохранено</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Показана скорость для трафика через ваше VPN-подключение</string>
-    <string name="ip_short">IP-адрес</string>
+    <string name="ip_short">Общедоступный IP-адрес</string>
     <string name="login_throttled_text">Слишком много неудачных попыток входа с использованием этого имени пользователя. Повторите попытку позже.</string>
     <string name="tap_to_connect">КОСНИТЕСЬ ДЛЯ ПОДКЛЮЧЕНИЯ</string>
     <string name="building_configration">Формирование конфигурации...</string>
@@ -187,7 +189,7 @@
     <string name="submit">Отправить</string>
     <string name="please_enter_your_email_address">Введите свой адрес эл. почты</string>
     <string name="select_vpn_plan">Выберите план VPN</string>
-    <string name="_7_day_money_back_guarantee">7-дневная гарантия возврата денег</string>
+    <string name="_7_day_money_back_guarantee">30-дневная гарантия возврата денег</string>
     <string name="monthly">Ежемесячно</string>
     <string name="yearly">Ежегодно</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -226,11 +228,11 @@
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[Номер порта от 1024 до 65535]]></string>
     <string name="startup_region_title">Простое подключение к любому региону</string>
-    <string name="startup_region_message">У нас есть серверы по всему миру, так что вы всегда будете под защитой.</string>
+    <string name="startup_region_message">У нас есть серверы по всему миру, поэтому вы всегда будете защищены.</string>
     <string name="startup_ads_title">Защита от рекламы</string>
     <string name="startup_ads_message">Активация PIA MACE позволяет блокировать всю рекламу в Интернете.</string>
     <string name="startup_connection_title">Защита по каждому приложению</string>
-    <string name="startup_connection_message">Настраивайте все сами, задавая приложения, которые используют нашу службу (требуется Android 5.0+).</string>
+    <string name="startup_connection_message">Настраивайте всё сами, задавая приложения, которые используют нашу службу (требуется Android 5.0+).</string>
     <string name="speed_graph">СКОРОСТЬ РАБОТЫ</string>
     <string name="data_usage_over_time">ТРАФИК ДАННЫХ ПО ВРЕМЕНИ</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -501,15 +503,13 @@
     <string name="refer_signups_title">Регистрации</string>
     <string name="refer_email_required">Требуется адрес эл. почты</string>
     <string name="refer_terms_required">Для отправки приглашений нужно принять условия и положения</string>
-    <string-array name="region_filters">
-        <item>Название</item>
-        <item>Задержка</item>
-        <item>Избранное</item>
-    </string-array>
+    <string name="region_filter_name">Имя</string>
+    <string name="region_filter_latency">Задержка</string>
+    <string name="region_filter_favorites">Избранное</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">7 дней бесплатно!</string>
     <string name="free_trial_cost">Всего %s в год</string>
-    <string name="free_trial_guarantee">Гарантия возврата денег на 7 дней</string>
+    <string name="free_trial_guarantee">30-дневная гарантия возврата денег</string>
     <string name="free_trial_protection_header">1 год безопасности и защиты данных</string>
     <string name="free_trial_protection_text">Скрывайте IP, пользуйтесь Интернетом анонимно</string>
     <string name="free_trial_devices_header">Поддержка до 10 устройств</string>
@@ -558,4 +558,49 @@
     <string name="gen4_next_generation_network_message">Необходимо отключить VPN для смены сети сервера.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Включать регионы, определенные по местоположению</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">Вам нравится PIA VPN?</string>
+    <string name="rating_enjoy_message">Надеемся, что наш продукт VPN соответствует вашим ожиданиям</string>
+    <string name="rating_review_title">Не могли бы вы оставить отзыв в Google Play?</string>
+    <string name="rating_review_message">Благодарим за согласие поделиться своими впечатлениями</string>
+    <string name="rating_feedback_title">Что пошло не так?</string>
+    <string name="rating_feedback_message">Хотите оставить отзыв? Мы сделаем всё возможное, чтобы ваши впечатления от PIA стали лучше.</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">ПОДПИСАТЬСЯ СЕЙЧАС</string>
+    <string name="getstarted_free_trial">Начните 7-дневный бесплатный пробный период</string>
+    <string name="getstarted_trial_price">Затем %s в год</string>
+    <string name="purchasing_email_reason">Нам нужен ваш электронный адрес, чтобы мы могли прислать вам имя пользователя и пароль.</string>
+    <string name="purchasing_all_plans">Смотреть все доступные планы</string>
+    <string name="purchasing_login_receipt">Вход по квитанции о покупке</string>
+    <string name="purchasing_no_subscription">У вас нет активной подписки</string>
+    <string name="purchasing_sure">Вы уверены?</string>
+    <string name="purchasing_return">Хотите вернуться на домашний экран? Процесс подписки можно продолжить в любой момент, нажав Вход-&gt;Вход по квитанции о покупке.</string>
+    <string name="purchasing_magic_link">Войти через волшебную ссылку из письма</string>
+    <string name="purchasing_magic_send">ОТПРАВИТЬ ССЫЛКУ</string>
+    <string name="purchasing_magic_success">Поищите ссылку для входа на почте</string>
+    <string name="connection_tile_header">СОЕДИНЕНИЕ</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">Последние новости</string>
+    <string name="update_3_7_1_header">Попробуйте WireGuard® сегодня!</string>
+    <string name="update_3_7_1_description">Это новый, более эффективный протокол VPN с более высокой производительностью, меньшей нагрузкой на процессор и увеличенным временем автономной работы.</string>
+    <string name="update_3_7_1_cta_1">Попробуйте WireGuard®</string>
+    <string name="update_3_7_1_cta_2"><u>Подробнее</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">Безопасный Wi-Fi</string>
+    <string name="nmt_open_wifi">Wi-Fi</string>
+    <string name="nmt_mobile_data">Мобильная сеть</string>
+    <string name="nmt_disconnect">Всегда отключать VPN</string>
+    <string name="nmt_connect">Всегда подключать VPN</string>
+    <string name="nmt_retain">Сохранять статус VPN</string>
+    <string name="nmt_manage_title">Настроить автоматизацию</string>
+    <string name="nmt_manage_description">Настройте поведение PIA при подключении к Wi-Fi или мобильным сетям. Это исключает возможность отключения вручную.</string>
+    <string name="nmt_add_description">Выберите Wi-Fi сеть, чтобы добавить новое правило.</string>
+    <string name="nmt_rule_for">Правило для %s</string>
+    <string name="nmt_remove_rule">Удалить правило</string>
+    <string name="nmt_add_new_rule">Добавить правило</string>
+    <string name="nmt_settings_title">Управление сетями</string>
+    <string name="nmt_settings_description">Настройте правила автоматического подключения для надежных и ненадежных сетей.</string>
+    <string name="nmt_management_title">Настроить автоматизацию</string>
 </resources>

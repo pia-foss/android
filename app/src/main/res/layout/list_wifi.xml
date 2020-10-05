@@ -33,8 +33,7 @@
         android:layout_marginTop="14dp"
         android:layout_marginBottom="14dp"
         android:layout_marginRight="14dp"
-        android:tint="@color/pia_gen_green"
-        app:srcCompat="@drawable/ic_wifi_3_bar"/>
+        app:srcCompat="@drawable/ic_wifi"/>
 
     <TextView
         android:id="@+id/list_wifi_name"
@@ -48,15 +47,15 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/list_wifi_add_remove"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_centerVertical="true"
         android:layout_marginTop="14dp"
         android:layout_marginBottom="14dp"
         android:layout_marginLeft="14dp"
-        android:tint="@color/pia_gen_green"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        app:srcCompat="@drawable/ic_plus"/>
+        app:srcCompat="@drawable/ic_checkmark"
+        android:visibility="gone"/>
 
 </RelativeLayout>

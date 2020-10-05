@@ -29,7 +29,6 @@ import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.model.states.VPNProtocol.Protocol;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
-import com.privateinternetaccess.android.pia.tasks.FetchIPTask;
 import com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig;
 import com.privateinternetaccess.android.ui.widgets.WidgetBaseProvider;
 import com.privateinternetaccess.android.utils.SnoozeUtils;
@@ -53,6 +52,7 @@ import de.blinkt.openvpn.core.VpnStatus;
 
 public class VPNImpl implements IVPN {
 
+    private static final String TAG = "VPNImpl";
     private Context context;
 
     public VPNImpl(Context context) {
@@ -63,17 +63,15 @@ public class VPNImpl implements IVPN {
     public void start(boolean connectPressed) {
         SnoozeUtils.resumeVpn(context, false);
         PiaPrefHandler.setLastConnection(context, System.currentTimeMillis());
+        PiaPrefHandler.clearLastIPVPN(context);
+        WidgetBaseProvider.updateWidget(context, true);
 
         if (VPNProtocol.activeProtocol(context) == Protocol.OpenVPN) {
             try {
-                FetchIPTask.resetValues(context);
-
                 VpnStatus.updateStateString("GEN_CONFIG", "", R.string.state_gen_config,
                         ConnectionStatus.LEVEL_START);
 
                 final VpnProfile vp = PiaOvpnConfig.generateVpnProfile(context);
-
-                WidgetBaseProvider.updateWidget(context, true);
 
                 new Thread() {
                     @Override
@@ -160,8 +158,6 @@ public class VPNImpl implements IVPN {
                 PIAApplication.getWireguard() != null && PIAApplication.getWireguard().isActive()) {
             return true;
         }
-
         return VpnStatus.isVPNActive();
     }
-
 }

@@ -155,4 +155,15 @@
     <!-- Snooze Widget -->
     <color name="snooze_border">@color/grey40</color>
 
+    <!-- Calling Card -->
+    <color name="calling_background">@color/white</color>
+
+    <!-- Onboarding -->
+    <color name="purchase_panel_blur">#88eeeeee</color>
+
+    <!-- Network Rules -->
+    <color name="rule_retain">#1EAEAE</color>
+    <color name="rule_disconnect">#D64003</color>
+    <color name="rule_connect">#39B54B</color>
+
 </resources>

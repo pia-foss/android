@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"Fejl ved køb: %1$s "</string>
     <string name="error_active_subscription">Du har allerede et aktivt abonnement!</string>
+    <string name="error_invalid_auth">Noget gik galt. Prøv at logge ind igen.</string>
     <string name="usemssfix">Vil sænker IP-pakkens størrelse en smule, for at forbedre kompatibiliteten med nogle routere og mobilnet.</string>
     <string name="mssfixsummary">Brug små pakker</string>
     <string name="settings_account_bottom_text">Få Private Internet Access app\'en til dine andre enheder og brug ovenstående brugernavn til at logge ind og sikre din forbindelse.</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">Om</string>
     <string name="reconnect_vpn">Opret forbindelse til VPN igen, for at anvende denne ændring</string>
     <string name="error_account_info">Kunne ikke finde konto-information</string>
+    <string name="error_pinging_while_connected">Kunne ikke opdatere forsinkelse, mens der er forbindelse til VPN</string>
     <string name="allows_port_forwarding">Tillader videresendelse af porte</string>
     <string name="about_privacy_policy">Fortrolighedspolitik</string>
     <string name="version">Version</string>
@@ -168,7 +170,7 @@
     <string name="save">Gem</string>
     <string name="saved">Gemt</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Hastigheder vist er på trafik på din VPN-forbindelse</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">Offentlig IP</string>
     <string name="login_throttled_text">For mange mislykkede forsøg på at logge ind med dette brugernavn. Prøv venligst igen senere.</string>
     <string name="tap_to_connect">TRYK FOR AT FORBINDE</string>
     <string name="building_configration">Bygger konfiguration...</string>
@@ -187,7 +189,7 @@
     <string name="submit">Indsend</string>
     <string name="please_enter_your_email_address">Indtast venligst din emailadresse</string>
     <string name="select_vpn_plan">Vælg en VPN-plan</string>
-    <string name="_7_day_money_back_guarantee">7-dages pengene tilbage garanti</string>
+    <string name="_7_day_money_back_guarantee">30-dages pengene tilbage garanti</string>
     <string name="monthly">Månedligt</string>
     <string name="yearly">Årligt</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -501,15 +503,13 @@
     <string name="refer_signups_title">Tilmeldinger</string>
     <string name="refer_email_required">E-mail er påkrævet</string>
     <string name="refer_terms_required">Du skal acceptere vilkår og betingelser for at sende henvisningsinvitationer</string>
-    <string-array name="region_filters">
-        <item>Navn</item>
-        <item>Ventetid</item>
-        <item>Favoritter</item>
-    </string-array>
+    <string name="region_filter_name">Navn</string>
+    <string name="region_filter_latency">Forsinkelse</string>
+    <string name="region_filter_favorites">Favoritter</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">Prøv gratis i 7 dage!</string>
     <string name="free_trial_cost">Betal kun %s årligt</string>
-    <string name="free_trial_guarantee">7 dages pengene tilbage-garanti</string>
+    <string name="free_trial_guarantee">30 dages pengene tilbage-garanti</string>
     <string name="free_trial_protection_header">1 års beskyttelse af personlige oplysninger og identitet</string>
     <string name="free_trial_protection_text">Browse anonymt og skjul din IP</string>
     <string name="free_trial_devices_header">Understøtt 10 enheder på én gang</string>
@@ -558,4 +558,49 @@
     <string name="gen4_next_generation_network_message">VPN\'en skal afbrydes for at skifte servernetværk.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Inkluder geo-placerede områder</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">Har du glæde af PIA VPN?</string>
+    <string name="rating_enjoy_message">Vi håber, at vores VPN lever op til dine forventninger</string>
+    <string name="rating_review_title">Hvad syntes du om at vurdere os på Google Play?</string>
+    <string name="rating_review_message">Vi sætter pris på, at du deler din oplevelse</string>
+    <string name="rating_feedback_title">Hvad gik galt?</string>
+    <string name="rating_feedback_message">Vil du give noget feedback? Vi kan hjælpe dig med at forbedre din oplevelse med PIA</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">TILMELD DIG NU</string>
+    <string name="getstarted_free_trial">Start din 7-dages gratis prøveperiode</string>
+    <string name="getstarted_trial_price">Derefter %s per år</string>
+    <string name="purchasing_email_reason">Vi har brug for din e-mail for at sende dit brugernavn og din adgangskode.</string>
+    <string name="purchasing_all_plans">Se alle tilgængelige planer</string>
+    <string name="purchasing_login_receipt">Log ind med købskvittering</string>
+    <string name="purchasing_no_subscription">Du har intet aktivt abonnement</string>
+    <string name="purchasing_sure">Er du sikker?</string>
+    <string name="purchasing_return">Vil du vende tilbage til startskærmen? Du kan til enhver tid genoptage abonnementsprocessen ved at klikke på Log ind-&gt; Log ind med købskvittering.</string>
+    <string name="purchasing_magic_link">Log ind ved hjælp af magisk e-maillink</string>
+    <string name="purchasing_magic_send">SEND LINK</string>
+    <string name="purchasing_magic_success">Se i din e-mail for et login-link.</string>
+    <string name="connection_tile_header">FORBINDELSE</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">Seneste nyt</string>
+    <string name="update_3_7_1_header">Prøv WireGuard® i dag!</string>
+    <string name="update_3_7_1_description">Det er en ny, mere effektiv VPN-protokol, der giver bedre ydelse, lavere CPU-forbrug og længere batterilevetid.</string>
+    <string name="update_3_7_1_cta_1">Prøv WireGuard® nu</string>
+    <string name="update_3_7_1_cta_2"><u>Lær mere</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">Sikker wifi</string>
+    <string name="nmt_open_wifi">Wifi</string>
+    <string name="nmt_mobile_data">Mobildata</string>
+    <string name="nmt_disconnect">Afbryd altid VPN</string>
+    <string name="nmt_connect">Forbind altid VPN</string>
+    <string name="nmt_retain">Bevar VPN-tilstand</string>
+    <string name="nmt_manage_title">Administrer automatisering</string>
+    <string name="nmt_manage_description">Konfigurer, hvordan PIA vil opføre sig ved forbindelse til wifi eller mobilnetværk. Dette ekskluderer manuel afbrydelse.</string>
+    <string name="nmt_add_description">Vælg et wifi-netværk for at tilføje en ny regel.</string>
+    <string name="nmt_rule_for">Regel for %s</string>
+    <string name="nmt_remove_rule">Fjern regel</string>
+    <string name="nmt_add_new_rule">Tilføj ny regel</string>
+    <string name="nmt_settings_title">Netværksstyring</string>
+    <string name="nmt_settings_description">Opsæt regler til håndtering af regler for automatisk forbindelse til pålidelige og ikke-pålidelige netværk.</string>
+    <string name="nmt_management_title">Administrer automatisering</string>
 </resources>

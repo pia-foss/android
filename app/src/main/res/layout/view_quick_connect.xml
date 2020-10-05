@@ -51,7 +51,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="40dp"
-            android:layout_height="26dp"
+            android:layout_height="35dp"
             android:layout_weight="1"
             android:layout_centerVertical="true">
 
@@ -61,7 +61,7 @@
                 android:layout_height="22dp"
                 android:scaleType="fitCenter"
                 tools:background="@drawable/flag_canada"
-                android:layout_marginRight="8dp"
+                android:gravity="center_horizontal"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -78,11 +78,28 @@
                 app:layout_constraintTop_toTopOf="@id/quick_server_flag_1"
                 />
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/quick_server_name_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/grey20_white"
+                android:ellipsize="end"
+                android:textSize="10sp"
+                android:maxLines="1"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="1dp"
+                android:layout_marginHorizontal="1dp"
+                android:layout_centerHorizontal="true"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/quick_server_flag_1"
+                app:textAllCaps="true"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="40dp"
-            android:layout_height="26dp"
+            android:layout_height="35dp"
             android:layout_weight="1"
             android:layout_centerVertical="true">
 
@@ -92,7 +109,7 @@
                 android:layout_height="22dp"
                 android:scaleType="fitCenter"
                 tools:background="@drawable/flag_canada"
-                android:layout_marginRight="8dp"
+                android:gravity="center_horizontal"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -109,11 +126,28 @@
                 app:layout_constraintTop_toTopOf="@id/quick_server_flag_2"
                 />
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/quick_server_name_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/grey20_white"
+                android:ellipsize="end"
+                android:textSize="10sp"
+                android:maxLines="1"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="1dp"
+                android:layout_marginHorizontal="1dp"
+                android:layout_centerHorizontal="true"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/quick_server_flag_2"
+                app:textAllCaps="true"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="40dp"
-            android:layout_height="26dp"
+            android:layout_height="35dp"
             android:layout_weight="1"
             android:layout_centerVertical="true">
 
@@ -123,7 +157,7 @@
                 android:layout_height="22dp"
                 android:scaleType="fitCenter"
                 tools:background="@drawable/flag_canada"
-                android:layout_marginRight="8dp"
+                android:gravity="center_horizontal"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -140,11 +174,28 @@
                 app:layout_constraintTop_toTopOf="@id/quick_server_flag_3"
                 />
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/quick_server_name_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/grey20_white"
+                android:ellipsize="end"
+                android:textSize="10sp"
+                android:maxLines="1"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="1dp"
+                android:layout_marginHorizontal="1dp"
+                android:layout_centerHorizontal="true"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/quick_server_flag_3"
+                app:textAllCaps="true"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="40dp"
-            android:layout_height="26dp"
+            android:layout_height="35dp"
             android:layout_weight="1"
             android:layout_centerVertical="true">
 
@@ -154,7 +205,7 @@
                 android:layout_height="22dp"
                 android:scaleType="fitCenter"
                 tools:background="@drawable/flag_canada"
-                android:layout_marginRight="8dp"
+                android:gravity="center_horizontal"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -171,11 +222,28 @@
                 app:layout_constraintTop_toTopOf="@id/quick_server_flag_4"
                 />
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/quick_server_name_4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/grey20_white"
+                android:ellipsize="end"
+                android:textSize="10sp"
+                android:maxLines="1"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="1dp"
+                android:layout_marginHorizontal="1dp"
+                android:layout_centerHorizontal="true"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/quick_server_flag_4"
+                app:textAllCaps="true"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="40dp"
-            android:layout_height="26dp"
+            android:layout_height="35dp"
             android:layout_weight="1"
             android:layout_centerVertical="true">
 
@@ -185,7 +253,7 @@
                 android:layout_height="22dp"
                 android:scaleType="fitCenter"
                 tools:background="@drawable/flag_canada"
-                android:layout_marginRight="8dp"
+                android:gravity="center_horizontal"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -202,11 +270,28 @@
                 app:layout_constraintTop_toTopOf="@id/quick_server_flag_5"
                 />
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/quick_server_name_5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/grey20_white"
+                android:ellipsize="end"
+                android:textSize="10sp"
+                android:maxLines="1"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="1dp"
+                android:layout_marginHorizontal="1dp"
+                android:layout_centerHorizontal="true"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/quick_server_flag_5"
+                app:textAllCaps="true"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="40dp"
-            android:layout_height="26dp"
+            android:layout_height="35dp"
             android:layout_weight="1"
             android:layout_centerVertical="true">
 
@@ -216,7 +301,7 @@
                 android:layout_height="22dp"
                 android:scaleType="fitCenter"
                 tools:background="@drawable/flag_canada"
-                android:layout_marginRight="8dp"
+                android:gravity="center_horizontal"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -232,6 +317,23 @@
                 app:layout_constraintLeft_toLeftOf="@id/quick_server_flag_6"
                 app:layout_constraintTop_toTopOf="@id/quick_server_flag_6"
                 />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/quick_server_name_6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/grey20_white"
+                android:ellipsize="end"
+                android:textSize="10sp"
+                android:maxLines="1"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="1dp"
+                android:layout_marginHorizontal="1dp"
+                android:layout_centerHorizontal="true"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/quick_server_flag_6"
+                app:textAllCaps="true"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

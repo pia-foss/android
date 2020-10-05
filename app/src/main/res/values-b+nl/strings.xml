@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"Fout bij aankoop: %1$s "</string>
     <string name="error_active_subscription">U heeft al een actief abonnement!</string>
+    <string name="error_invalid_auth">Er is iets misgegaan. Probeer opnieuw in te loggen.</string>
     <string name="usemssfix">Maakt het IP-pakket iets kleiner om de compatibiliteit met sommige routers en mobiele netwerken te verbeteren.</string>
     <string name="mssfixsummary">Kleine pakketten gebruiken</string>
     <string name="settings_account_bottom_text">Download de Private Internet Access-app voor uw andere apparaten en gebruik de gebruikersnaam hierboven om in te loggen en uw verbinding te beveiligen.</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">Over</string>
     <string name="reconnect_vpn">Maak opnieuw verbinding met de VPN om deze wijziging toe te passen</string>
     <string name="error_account_info">Kan accountinformatie niet vinden</string>
+    <string name="error_pinging_while_connected">De latentie kon niet worden bijgewerkt tijdens de VPN-verbinding.</string>
     <string name="allows_port_forwarding">Staat port forwarding toe</string>
     <string name="about_privacy_policy">Privacybeleid</string>
     <string name="version">Versie</string>
@@ -168,7 +170,7 @@
     <string name="save">Opslaan</string>
     <string name="saved">Opgeslagen</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">De getoonde snelheden zijn van verkeer via uw VPN-verbinding</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">OPENBARE IP</string>
     <string name="login_throttled_text">Te veel mislukte inlogpogingen met deze gebruikersnaam. Probeer het later opnieuw.</string>
     <string name="tap_to_connect">TIK OM TE VERBINDEN</string>
     <string name="building_configration">Configuratie bouwen...</string>
@@ -187,7 +189,7 @@
     <string name="submit">Versturen</string>
     <string name="please_enter_your_email_address">Vul uw e-mailadres in</string>
     <string name="select_vpn_plan">Selecteer een VPN-abonnement</string>
-    <string name="_7_day_money_back_guarantee">7 dagen lang niet-goed-geld-teruggarantie</string>
+    <string name="_7_day_money_back_guarantee">30 dagen lang niet-goed-geld-teruggarantie</string>
     <string name="monthly">Maandelijks</string>
     <string name="yearly">Jaarlijks</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -230,7 +232,7 @@
     <string name="startup_ads_title">Bescherm uzelf tegen advertenties</string>
     <string name="startup_ads_message">Door PIA MACE in te schakelen, verhindert u dat u waar dan ook advertenties te zien krijgt.</string>
     <string name="startup_connection_title">Bescherming per app</string>
-    <string name="startup_connection_message">Pas uw ervaring op maat aan door te regelen welke apps via onze dienst lopen (vereist Android 5.0+).</string>
+    <string name="startup_connection_message">Pas uw ervaring op maat aan door te regelen welke apps via onze dienst lopen (vereist Android 5.0 of hoger).</string>
     <string name="speed_graph">PRESTATIE</string>
     <string name="data_usage_over_time">DATAVERBRUIK OVER TIJD</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -501,15 +503,13 @@
     <string name="refer_signups_title">Aanmeldingen</string>
     <string name="refer_email_required">E-mailadres is vereist</string>
     <string name="refer_terms_required">Je moet de algemene voorwaarden accepteren om verwijzingsuitnodigingen te kunnen verzenden</string>
-    <string-array name="region_filters">
-        <item>Naam</item>
-        <item>Latentie</item>
-        <item>Favorieten</item>
-    </string-array>
+    <string name="region_filter_name">Naam</string>
+    <string name="region_filter_latency">Latentie</string>
+    <string name="region_filter_favorites">Favorieten</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">Probeer 7 dagen gratis!</string>
     <string name="free_trial_cost">Betaal slechts % per jaar</string>
-    <string name="free_trial_guarantee">7 dagen lang niet-goed-geld-teruggarantie</string>
+    <string name="free_trial_guarantee">30 dagen lang niet-goed-geld-teruggarantie</string>
     <string name="free_trial_protection_header">1 jaar privacy- en identiteitsbescherming</string>
     <string name="free_trial_protection_text">Browse anoniem en verberg uw IP</string>
     <string name="free_trial_devices_header">Ondersteuning voor 10 apparaten tegelijkertijd</string>
@@ -558,4 +558,49 @@
     <string name="gen4_next_generation_network_message">De VPN-verbinding moet worden verbroken om het servernetwerk te wijzigen.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Geolocatie-regio\'s opnemen</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">Bevalt PIA VPN?</string>
+    <string name="rating_enjoy_message">We hopen dat ons VPN-product aan uw verwachtingen voldoet</string>
+    <string name="rating_review_title">Zou u een recensie op Google Play willen schrijven?</string>
+    <string name="rating_review_message">We stellen het op prijs dat u uw ervaring deelt</string>
+    <string name="rating_feedback_title">Wat is er fout gegaan?</string>
+    <string name="rating_feedback_message">Wilt u feedback geven? We kunnen u helpen met het verbeteren van uw ervaring met PIA.</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">NU ABONNEREN</string>
+    <string name="getstarted_free_trial">Start uw gratis proefabonnement van 7 dagen</string>
+    <string name="getstarted_trial_price">Daarna %s per jaar</string>
+    <string name="purchasing_email_reason">We hebben uw e-mailadres nodig om uw gebruikersnaam en wachtwoord te versturen.</string>
+    <string name="purchasing_all_plans">Bekijk de beschikbare abonnementen</string>
+    <string name="purchasing_login_receipt">Inloggen met aankoopbewijs</string>
+    <string name="purchasing_no_subscription">U hebt geen actief abonnement</string>
+    <string name="purchasing_sure">Weet u het zeker?</string>
+    <string name="purchasing_return">Wilt u teruggaan naar het beginscherm? U kunt het aankoopproces op elk moment hervatten door te klikken op Inloggen &gt; Inloggen met aankoopbewijs.</string>
+    <string name="purchasing_magic_link">Inloggen met de magische link in je e-mail</string>
+    <string name="purchasing_magic_send">LINK VERZENDEN</string>
+    <string name="purchasing_magic_success">Controleer je Postvak IN voor een inloglink.</string>
+    <string name="connection_tile_header">VERBINDING</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">Laatste nieuws</string>
+    <string name="update_3_7_1_header">Probeer WireGuard® vandaag nog!</string>
+    <string name="update_3_7_1_description">Het is een nieuw, efficiënter VPN-protocol met betere prestaties, een lager CPU-gebruik en een langere levensduur van de batterij.</string>
+    <string name="update_3_7_1_cta_1">Probeer WireGuard® nu</string>
+    <string name="update_3_7_1_cta_2"><u>Meer informatie</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">Beveiligd wifinetwerk</string>
+    <string name="nmt_open_wifi">Wifi</string>
+    <string name="nmt_mobile_data">Mobiele gegevens</string>
+    <string name="nmt_disconnect">VPN-verbinding altijd verbreken</string>
+    <string name="nmt_connect">Altijd verbinden met VPN</string>
+    <string name="nmt_retain">VPN-status behouden</string>
+    <string name="nmt_manage_title">Automatisering beheren</string>
+    <string name="nmt_manage_description">Configureer hoe PIA zich gedraagt bij verbinding via wifi of mobiele netwerken. Dit geldt niet wanneer de verbinding handmatig wordt verbroken.</string>
+    <string name="nmt_add_description">Kies een wifinetwerk om een nieuwe regel toe te voegen.</string>
+    <string name="nmt_rule_for">Regel voor %s</string>
+    <string name="nmt_remove_rule">Regel verwijderen</string>
+    <string name="nmt_add_new_rule">Nieuwe regel toevoegen</string>
+    <string name="nmt_settings_title">Netwerkbeheer</string>
+    <string name="nmt_settings_description">Configuratieregels voor regels voor automatische verbinding voor vertrouwde en niet-vertrouwde netwerken.</string>
+    <string name="nmt_management_title">Automatisering beheren</string>
 </resources>

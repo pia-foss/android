@@ -7,15 +7,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.NotificationCompat;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.response.CheckUpdateResponse;
 import com.privateinternetaccess.android.pia.tasks.CheckUpdateTask;
-import com.privateinternetaccess.android.pia.utils.NotificationHelper;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.receivers.UpdateCheckReceiver;
+import com.privateinternetaccess.android.ui.notifications.PIANotifications;
 import com.privateinternetaccess.core.utils.IPIACallback;
 
 public class UpdateHandler {
@@ -98,21 +99,23 @@ public class UpdateHandler {
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationHelper.createPiaNotificationChannel(context,
+            PIANotifications.Companion.getSharedInstance().createNotificationChannel(
+                    context,
                     UPDATE_NOTIFICATION_CHANNEL,
                     context.getResources().getString(R.string.pia_update_channel_title),
-                    context.getResources().getString(R.string.pia_update_channel_description));
+                    context.getResources().getString(R.string.pia_update_channel_description)
+            );
         }
 
-        NotificationHelper.createNotification(context,
+        PIANotifications.Companion.getSharedInstance().showNotification(
+                context,
                 UPDATE_NOTIFICATION_ID,
+                UPDATE_NOTIFICATION_CHANNEL,
                 title,
+                message,
                 R.drawable.ic_update,
-                true, message,
-                download,
-                R.drawable.ic_download_white,
-                pendingIntent,
-                UPDATE_NOTIFICATION_CHANNEL);
+                new NotificationCompat.Action(R.drawable.ic_download_white, download, pendingIntent)
+        );
     }
 
     private static boolean shouldShowUpdateDialog(Context context, int nextVersionCode) {

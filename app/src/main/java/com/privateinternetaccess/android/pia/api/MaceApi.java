@@ -56,7 +56,7 @@ public class MaceApi extends PiaApi {
         // TODO (juan.docal) GEN4 Mace has nothing to do with this and the dns is rather set on
         //  the connection object. However, there is a lot of MACE state leaking from the old
         //  implementation. This the least regression prone approach.
-        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+        if (Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
             hitUrl = true;
         } else {
             try {

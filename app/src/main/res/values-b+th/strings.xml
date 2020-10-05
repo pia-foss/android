@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"การซื้อล้มเหลว: %1$s "</string>
     <string name="error_active_subscription">คุณมีการสมัครสมาชิกที่ใช้งานอยู่แล้ว!</string>
+    <string name="error_invalid_auth">บางอย่างผิดปกติ โปรดลองลงชื่อเข้าใช้อีกครั้ง</string>
     <string name="usemssfix">จะค่อยๆ ลดขนาดแพ็กเกต IP เพื่อปรับปรุงให้สามารถทำงานร่วมกับเราเตอร์และเครือข่ายโทรศัพท์บางประเภทได้</string>
     <string name="mssfixsummary">ใช้แพ็กเกตขนาดเล็ก</string>
     <string name="settings_account_bottom_text">รับแอพ Private Internet Access สำหรับอุปกรณ์อื่นของคุณและใช้ชื่อผู้ใช้ด้านบนเพื่อเข้าสู่ระบบและปกป้องการเชื่อมต่อของคุณ</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">เกี่ยวกับ</string>
     <string name="reconnect_vpn">เชื่อมต่อ VPN ใหม่เพื่อใช้การเปลี่ยนแปลงนี้</string>
     <string name="error_account_info">การค้นหาข้อมูลบัญชีล้มเหลว</string>
+    <string name="error_pinging_while_connected">ไม่สามารถอัปเดตเวลาแฝงขณะเชื่อมต่อ VPN</string>
     <string name="allows_port_forwarding">อนุญาตการฟอร์เวิร์ดพอร์ต</string>
     <string name="about_privacy_policy">นโยบายความเป็นส่วนตัว</string>
     <string name="version">รุ่น</string>
@@ -168,7 +170,7 @@
     <string name="save">บันทึก</string>
     <string name="saved">บันทึกแล้ว</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">ความเร็วที่แสดงอยู่คือการใช้งานผ่านการเชื่อมต่อ VPN ของคุณ</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">IP สาธารณะ</string>
     <string name="login_throttled_text">มีการเข้าสู่ระบบผิดพลาดมากเกินไปด้วยชื่อผู้ใช้นี้ กรุณาลองใหม่อีกครั้งภายหลัง</string>
     <string name="tap_to_connect">แตะเพื่อเชื่อมต่อ</string>
     <string name="building_configration">กำลังสร้างการปรับแต่ง...</string>
@@ -187,7 +189,7 @@
     <string name="submit">ส่ง</string>
     <string name="please_enter_your_email_address">กรุณาใส่ที่อยู่อีเมลของคุณ</string>
     <string name="select_vpn_plan">เลือกแผน VPN</string>
-    <string name="_7_day_money_back_guarantee">รับประกันการคืนเงินภายใน 7 วัน</string>
+    <string name="_7_day_money_back_guarantee">รับประกันการคืนเงินภายใน 30 วัน</string>
     <string name="monthly">รายเดือน</string>
     <string name="yearly">รายปี</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -231,7 +233,7 @@
     <string name="startup_ads_title">ปกป้องตัวคุณจากโฆษณา</string>
     <string name="startup_ads_message">การเปิดใช้งาน PIA MACE จะปกป้องคุณจากการแสดงโฆษณาไม่ว่าคุณจะไปที่ใด</string>
     <string name="startup_connection_title">การปกป้องรายแอพ</string>
-    <string name="startup_connection_message">ให้ประสบการณ์ของคุณเป็นไปตามต้องการด้วยการควบคุมว่าแอพพลิเคชั่นใดจะถูกใช้งานผ่านบริการของเรา (ต้องใช้แอนดรอยด์รุ่น 5.0+)</string>
+    <string name="startup_connection_message">ออกแบบประสบการณ์ของคุณเองด้วยการควบคุมว่าแอพพลิเคชั่นใดจะถูกใช้งานผ่านบริการของเรา (ต้องใช้แอนดรอยด์รุ่น 5.0+)</string>
     <string name="speed_graph">ประสิทธิภาพ</string>
     <string name="data_usage_over_time">การใช้งานข้อมูลเกินเวลา</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -502,15 +504,13 @@
     <string name="refer_signups_title">สมัครสมาชิก</string>
     <string name="refer_email_required">ต้องการอีเมล</string>
     <string name="refer_terms_required">คุณต้องยอมรับข้อกำหนดและเงื่อนไขเพื่อส่งคำเชิญแนะนำ</string>
-    <string-array name="region_filters">
-        <item>ชื่อ</item>
-        <item>เวลาแฝง</item>
-        <item>รายการโปรด</item>
-    </string-array>
+    <string name="region_filter_name">ชื่อ</string>
+    <string name="region_filter_latency">เวลาแฝง</string>
+    <string name="region_filter_favorites">รายการโปรด</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">ทดลองใช้ฟรี 7 วัน!</string>
     <string name="free_trial_cost">จ่ายเพียง %s ต่อปี</string>
-    <string name="free_trial_guarantee">รับประกันคืนเงิน 7 วัน</string>
+    <string name="free_trial_guarantee">รับประกันคืนเงิน 30 วัน</string>
     <string name="free_trial_protection_header">ปกป้องความเป็นส่วนตัวและตัวตนของคุณ 1 ปี</string>
     <string name="free_trial_protection_text">ท่องเว็บไม่ระบุตัวตนและซ่อน IP</string>
     <string name="free_trial_devices_header">รองรับ 10 เครื่องพร้อมกัน</string>
@@ -559,4 +559,49 @@
     <string name="gen4_next_generation_network_message">VPN ต้องถูกตัดการเชื่อมต่อเพื่อเปลี่ยนเครือข่ายเซิร์ฟเวอร์</string>
     <!-- GEO Servers -->
     <string name="geo_servers">รวมภูมิภาคตามที่ตั้งทางภูมิศาสตร์</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">คุณชอบใช้ PIA VPN หรือไม่</string>
+    <string name="rating_enjoy_message">เราหวังว่าผลิตภัณฑ์ VPN ของเราจะตอบโจทย์ความต้องการของคุณ</string>
+    <string name="rating_review_title">เขียนรีวิวใน Google Play ดีไหม</string>
+    <string name="rating_review_message">ขอขอบคุณที่คุณช่วยแชร์ประสบการณ์</string>
+    <string name="rating_feedback_title">มีอะไรผิดปกติเหรอ</string>
+    <string name="rating_feedback_message">คุณอยากที่จะให้ข้อเสนอแนะไหม เราช่วยปรับปรุงประสบการณ์การใช้งาน PIA ของคุณได้</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">สมัครสมาชิกตอนนี้</string>
+    <string name="getstarted_free_trial">เริ่มทดลองใช้ฟรี 7 วัน</string>
+    <string name="getstarted_trial_price">จากนั้น %s ต่อปี</string>
+    <string name="purchasing_email_reason">โปรดแจ้งอีเมลสำหรับส่งชื่อผู้ใช้และรหัสผ่านของคุณ</string>
+    <string name="purchasing_all_plans">ดูแผนทั้งหมดที่มี</string>
+    <string name="purchasing_login_receipt">เข้าสู่ระบบโดยใช้ใบเสร็จรับเงิน</string>
+    <string name="purchasing_no_subscription">คุณไม่มีการสมัครสมาชิก</string>
+    <string name="purchasing_sure">คุณแน่ใจหรือไม่</string>
+    <string name="purchasing_return">คุณต้องการกลับไปที่หน้าจอหลักหรือไม่ คุณสามารถดำเนินการสมัครต่อได้ตลอดเวลาโดยคลิกเข้าสู่ระบบ - เข้าสู่ระบบโดยใช้ใบเสร็จรับเงิน</string>
+    <string name="purchasing_magic_link">เข้าสู่ระบบโดยใช้ลิงก์อีเมลวิเศษ</string>
+    <string name="purchasing_magic_send">ส่งลิงก์</string>
+    <string name="purchasing_magic_success">กรุณาตรวจสอบอีเมลเพื่อดูลิงก์เข้าสู่ระบบ</string>
+    <string name="connection_tile_header">การเชื่อมต่อ</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">ข่าวล่าสุด</string>
+    <string name="update_3_7_1_header">ลองใช้ WireGuard® ได้แล้ววันนี้!</string>
+    <string name="update_3_7_1_description">นี่คือโปรโตคอล VPN ใหม่ที่มีประสิทธิภาพมากขึ้น เพิ่มสมรรถภาพ ลดการใช้ CPU และยืดอายุแบตเตอรี่</string>
+    <string name="update_3_7_1_cta_1">ลอง WireGuard® ได้แล้วตอนนี้</string>
+    <string name="update_3_7_1_cta_2"><u>เรียนรู้เพิ่มเติม</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">Wi-Fi ปลอดภัย</string>
+    <string name="nmt_open_wifi">Wi-Fi</string>
+    <string name="nmt_mobile_data">ข้อมูลเซลลูลาร์</string>
+    <string name="nmt_disconnect">เลิกเชื่อมต่อ VPN ทุกครั้ง</string>
+    <string name="nmt_connect">เชื่อมต่อ VPN ทุกครั้ง</string>
+    <string name="nmt_retain">รักษาสถานะ VPN</string>
+    <string name="nmt_manage_title">จัดการระบบอัตโนมัติ</string>
+    <string name="nmt_manage_description">กำหนดค่าวิธีการทำงานของ PIA ในการเชื่อมต่อกับ WiFi หรือเครือข่ายเซลลูลาร์ ซึ่งไม่ได้รวมถึงการยกเลิกการเชื่อมต่อด้วยตนเอง</string>
+    <string name="nmt_add_description">เลือกเครือข่าย WiFi เพื่อเพิ่มกฎใหม่</string>
+    <string name="nmt_rule_for">กฎของ %s</string>
+    <string name="nmt_remove_rule">ลบกฎ</string>
+    <string name="nmt_add_new_rule">เพิ่มกฎใหม่</string>
+    <string name="nmt_settings_title">การจัดการเครือข่าย</string>
+    <string name="nmt_settings_description">ตั้งค่ากฎเพื่อใช้กับกฎการเชื่อมต่ออัตโนมัติของเครือข่ายที่เชื่อถือและไม่เชื่อถือ</string>
+    <string name="nmt_management_title">จัดการระบบอัตโนมัติ</string>
 </resources>

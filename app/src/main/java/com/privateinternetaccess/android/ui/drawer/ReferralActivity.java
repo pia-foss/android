@@ -36,15 +36,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.model.events.InviteEvent;
-import com.privateinternetaccess.android.pia.model.events.SendInviteEvent;
-import com.privateinternetaccess.android.pia.model.response.InvitesResponse;
-import com.privateinternetaccess.android.pia.tasks.FetchInvitesTask;
-import com.privateinternetaccess.android.pia.tasks.SendInviteTask;
+import com.privateinternetaccess.android.pia.PIAFactory;
+import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
+import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 import com.privateinternetaccess.android.ui.views.PiaxEditText;
-
-import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -72,8 +68,8 @@ public class ReferralActivity extends BaseActivity {
     @BindView(R.id.fragment_referral_status_header) TextView tvStatusHeader;
     @BindView(R.id.fragment_referral_terms_required) TextView tvTermsRequired;
 
+    private static final String TAG = "ReferralActivity";
     private boolean processingInvite;
-
     private String referralUrl;
 
     @Override
@@ -91,8 +87,43 @@ public class ReferralActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         setupViews();
+    }
 
-        new FetchInvitesTask(this).execute();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Context context = getBaseContext();
+        String token = PiaPrefHandler.getAuthToken(context);
+        PIAFactory.getInstance().getAccount(context).invites(token, (details, requestResponseStatus) -> {
+            boolean successful = false;
+            switch (requestResponseStatus) {
+                case SUCCEEDED:
+                    successful = true;
+                    break;
+                case AUTH_FAILED:
+                case THROTTLED:
+                case OP_FAILED:
+                    break;
+            }
+
+            if (!successful) {
+                DLog.d(TAG, "sendInvite unsuccessful " + requestResponseStatus);
+                showFailure();
+                return null;
+            }
+
+            PiaPrefHandler.setInvitesDetails(context, details);
+            if (details.getInvites().size() > 0) {
+                lInvite.setVisibility(View.VISIBLE);
+            } else {
+                lInvite.setVisibility(View.GONE);
+            }
+
+            referralUrl = details.getUniqueReferralLink();
+            tvShareLink.setText(referralUrl);
+
+            return null;
+        });
     }
 
     private void addSnippetToView() {
@@ -137,36 +168,6 @@ public class ReferralActivity extends BaseActivity {
         tvStatusHeader.setText(R.string.refer_send_fail_title);
         tvStatusDescription.setText(R.string.refer_send_fail_desc);
         bStatus.setText(R.string.refer_send_fail_button);
-    }
-
-    @Subscribe(sticky = true)
-    public void onReceivedInvites(InviteEvent event) {
-        InvitesResponse response = event.getResponse();
-
-        if (response != null) {
-            if (response.getNumberInvites() > 0) {
-                lInvite.setVisibility(View.VISIBLE);
-            }
-            else {
-                lInvite.setVisibility(View.GONE);
-            }
-
-            tvShareLink.setText(response.getReferralLink());
-            referralUrl = response.getReferralLink();
-        }
-    }
-
-    @Subscribe
-    public void onInviteSent(SendInviteEvent event) {
-        processingInvite = false;
-
-        if (event.getResponse().isSuccessStatus()) {
-            new FetchInvitesTask(this).execute();
-            showSuccess();
-        }
-        else {
-            showFailure();
-        }
     }
 
     @OnClick(R.id.fragment_referral_invite_layout)
@@ -227,14 +228,38 @@ public class ReferralActivity extends BaseActivity {
 
     @OnClick(R.id.fragment_refer_invite_button)
     public void onInviteClicked() {
+        Context context = getBaseContext();
         if (!processingInvite) {
             if (!cbTerms.isChecked()) {
                 tvTermsRequired.setVisibility(View.VISIBLE);
-            }
-            else if (!TextUtils.isEmpty(etEmail.getText())) {
-                new SendInviteTask(this, etEmail.getText(), etFullName.getText()).execute();
-                processingInvite = true;
+            } else if (!TextUtils.isEmpty(etEmail.getText())) {
                 showProcessing();
+                processingInvite = true;
+                String token = PiaPrefHandler.getAuthToken(context);
+                PIAFactory.getInstance().getAccount(context).sendInvite(
+                        token, etEmail.getText(), etFullName.getText(), requestResponseStatus -> {
+                            processingInvite = false;
+                            boolean successful = false;
+                            switch (requestResponseStatus) {
+                                case SUCCEEDED:
+                                    successful = true;
+                                    break;
+                                case AUTH_FAILED:
+                                case THROTTLED:
+                                case OP_FAILED:
+                                    break;
+                            }
+
+                            if (!successful) {
+                                DLog.d(TAG, "sendInvite unsuccessful " + requestResponseStatus);
+                                showFailure();
+                                return null;
+                            }
+
+                            showSuccess();
+                            return null;
+                        }
+                );
             }
             else {
                 etEmail.setError(getString(R.string.refer_email_required));

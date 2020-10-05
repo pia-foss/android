@@ -51,12 +51,6 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/PiaTextSubheading"
                 android:textSize="12sp"/>
-
-            <ProgressBar
-                android:id="@+id/fragment_connect_ip_progress"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:visibility="gone" />
         </FrameLayout>
 
     </LinearLayout>

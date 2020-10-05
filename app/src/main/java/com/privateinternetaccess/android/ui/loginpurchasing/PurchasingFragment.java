@@ -18,14 +18,11 @@
 
 package com.privateinternetaccess.android.ui.loginpurchasing;
 
-import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -39,11 +36,9 @@ import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.PricingLoadedEvent;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
-import com.privateinternetaccess.android.pia.model.events.APICheckEvent;
-import com.privateinternetaccess.android.pia.subscription.InAppPurchasesHelper;
-import com.privateinternetaccess.android.pia.tasks.APICheckTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.features.WebviewActivity;
+import com.privateinternetaccess.android.utils.SubscriptionsUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -99,48 +94,39 @@ public class PurchasingFragment extends Fragment {
     }
 
     private void initView() {
-        if(PRODUCT_ID_SELECTED == null)
-            PRODUCT_ID_SELECTED = InAppPurchasesHelper.getYearlySubscriptionId();
+        if (PRODUCT_ID_SELECTED == null) {
+            PRODUCT_ID_SELECTED =
+                    SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(getContext());
+        }
 
         changeBackgrounds();
-        aMonthly.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PRODUCT_ID_SELECTED = InAppPurchasesHelper.getMontlySubscriptionId();
-                changeBackgrounds();
-            }
+        aMonthly.setOnClickListener(v -> {
+            PRODUCT_ID_SELECTED =
+                    SubscriptionsUtils.INSTANCE.getMonthlySubscriptionId(getContext());
+            changeBackgrounds();
         });
 
-        aYearly.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PRODUCT_ID_SELECTED = InAppPurchasesHelper.getYearlySubscriptionId();
-                changeBackgrounds();
-            }
+        aYearly.setOnClickListener(v -> {
+            PRODUCT_ID_SELECTED =
+                    SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(getContext());
+            changeBackgrounds();
         });
 
-        bSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bSubmit.setVisibility(View.INVISIBLE);
-                progress.setVisibility(View.VISIBLE);
-                new APICheckTask(null, v.getContext()).execute();
+        bSubmit.setOnClickListener(v -> {
+            if (pricesLoaded) {
+                onSignUpClicked();
             }
         });
 
         if(!PIAApplication.isRelease())
-            bSubmit.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true,false);
-                    return true;
-                }
+            bSubmit.setOnLongClickListener(view -> {
+                ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true, false, false);
+                return true;
             });
 
         try {
             ((LoginPurchaseActivity) getActivity()).refreshCurrencyTexts();
-        } catch (Exception e) {
-        }
+        } catch (Exception e) { }
 
         LoginPurchaseActivity.setupToSPPText(getActivity(), tvToS);
     }
@@ -151,28 +137,15 @@ public class PurchasingFragment extends Fragment {
         EventBus.getDefault().unregister(this);
     }
 
-    @Subscribe
-    public void apiCheckReceive(APICheckEvent event) {
-        if(event.getResponse().canConnect() && pricesLoaded) {
-            onSignUpClicked(bSubmit);
-        } else {
-            ((LoginPurchaseActivity) getActivity()).showConnectionError();
-        }
-        progress.setVisibility(View.GONE);
-        bSubmit.setVisibility(View.VISIBLE);
-    }
-
     @Subscribe(sticky = true)
     public void loadPricing(PricingLoadedEvent event) {
-        DLog.d(TAG, "Loading prices");
         setUpCosts(event.monthlyCost, event.yearlyCost);
     }
 
-    public void onSignUpClicked(View v) {
-        if (PIAApplication.isPlayStoreSupported(v.getContext().getPackageManager())) {
-            ((LoginPurchaseActivity) getActivity()).onContinuePurchasingClicked(PRODUCT_ID_SELECTED);
-        }
-        else {
+    public void onSignUpClicked() {
+        if (PIAApplication.isPlayStoreSupported(getContext().getPackageManager())) {
+            ((LoginPurchaseActivity) getActivity()).onSubscribeClicked(PRODUCT_ID_SELECTED);
+        } else {
             Intent i = new Intent(getContext(), WebviewActivity.class);
             i.putExtra(WebviewActivity.EXTRA_URL, Uri.parse(getString(R.string.buyvpn_url_localized)));
             startActivity(i);
@@ -181,9 +154,9 @@ public class PurchasingFragment extends Fragment {
 
     void changeBackgrounds(){
         ThemeHandler.Theme theme = ThemeHandler.getCurrentTheme(aYearly.getContext());
-        String productId = InAppPurchasesHelper.getMontlySubscriptionId();
+        String productId = SubscriptionsUtils.INSTANCE.getMonthlySubscriptionId(getContext());
 
-        if(productId != null && PRODUCT_ID_SELECTED.equals(productId)){
+        if (productId != null && PRODUCT_ID_SELECTED.equals(productId)){
             aYearly.setSelected(false);
             aMonthly.setSelected(true);
 
@@ -231,5 +204,4 @@ public class PurchasingFragment extends Fragment {
             }
         }
     }
-
 }

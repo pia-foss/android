@@ -11,7 +11,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class UpdateApi extends PiaApi {
-    public static final String TAG = "AccountAPI";
+    public static final String TAG = "UpdateApi";
 
     private Context context;
 

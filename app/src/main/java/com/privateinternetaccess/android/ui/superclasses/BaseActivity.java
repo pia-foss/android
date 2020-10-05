@@ -35,6 +35,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.Toolbar;
 
+import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -48,17 +49,18 @@ import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.handlers.PurchasingHandler;
 import com.privateinternetaccess.android.model.events.TrustedWifiEvent;
 import com.privateinternetaccess.android.pia.PIAFactory;
+import com.privateinternetaccess.android.pia.api.PIAAuthenticator.PIAAuthenticatorFailureEvent;
 import com.privateinternetaccess.android.pia.handlers.LogoutHandler;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.PingHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
-import com.privateinternetaccess.android.pia.model.PIAAccountData;
-import com.privateinternetaccess.android.pia.model.enums.LoginResponseStatus;
+import com.privateinternetaccess.android.pia.model.AccountInformation;
+import com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus;
 import com.privateinternetaccess.android.pia.model.enums.PurchasingType;
+import com.privateinternetaccess.android.pia.model.events.FetchIPEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.model.response.LoginResponse;
 import com.privateinternetaccess.android.pia.services.ExpiryNotificationService;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Toaster;
@@ -78,15 +80,22 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
+import kotlin.jvm.functions.Function0;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity.EXTRA_GOTO_PURCHASING;
+import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
+import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NOTCONNECTED;
 
 /**
  * Created by arne on 02.12.2014.diff
  *
  */
 public abstract class BaseActivity extends SwipeBackBaseActivity {
+
+    private static final String TAG = "BaseActivity";
+
+    private static final int CLIENT_STATUS_DELAY = 1000;
 
     protected Toolbar toolbar;
 
@@ -97,6 +106,7 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
     private ImageView ivBackground;
 
     private boolean showTitle = false;
+    private ConnectionStatus lastKnownConnectionStatus = null;
 
     private int iconResId = -1;
     private int iconResIdDisconnected = -1;
@@ -162,20 +172,20 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
 
     protected void onRenewClicked() {
         IAccount account = PIAFactory.getInstance().getAccount(this);
-        PIAAccountData pai = account.getAccountInfo();
+        AccountInformation pai = account.persistedAccountInformation();
         boolean logout = false;
-        if (!pai.isRenewable()) {
-            if (PIAAccountData.PLAN_TRIAL.equals(pai.getPlan())) {
+        if (!pai.getRenewable()) {
+            if (AccountInformation.PLAN_TRIAL.equals(pai.getPlan())) {
                 Toaster.l(this.getApplicationContext(), R.string.error_renew_trial);
                 logout = true;
-            } else if (pai.isExpired()) {
+            } else if (pai.getExpired()) {
                 Toaster.l(this.getApplicationContext(), R.string.error_renew_expired);
                 logout = true;
             } else {
                 Toaster.l(this.getApplicationContext(), R.string.account_not_renewable);
             }
         }
-        if(logout){
+        if (logout){
             PurchasingHandler handler = new PurchasingHandler();
             Context context = this;
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -224,21 +234,11 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
         }
 
         if (bTextButton != null) {
-            bTextButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onRightButtonClicked(view);
-                }
-            });
+            bTextButton.setOnClickListener(view -> onRightButtonClicked(view));
         }
 
         if (ivIconButton != null) {
-            ivIconButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onIconButtonClicked(view);
-                }
-            });
+            ivIconButton.setOnClickListener(view -> onIconButtonClicked(view));
         }
     }
 
@@ -361,7 +361,7 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
         ConnectionStatus status = event.getLevel();
 
         boolean disconnectedSpecialCase =
-                status == ConnectionStatus.LEVEL_NOTCONNECTED &&
+                status == LEVEL_NOTCONNECTED &&
                 (SnoozeUtils.hasActiveAlarm(this) || TrustedWifiUtils.isEnabledAndConnected(this));
         switch (status) {
             case LEVEL_CONNECTED:
@@ -473,57 +473,63 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
         ivIconButton.setVisibility(View.VISIBLE);
     }
 
+    public void showIconButton() {
+        if (ivIconButton != null)
+            ivIconButton.setVisibility(View.VISIBLE);
+    }
+
     public void hideIconButton() {
         if (ivIconButton != null)
             ivIconButton.setVisibility(View.GONE);
     }
 
     protected IPIACallback<Boolean> getLogoutCallback() {
-        return new IPIACallback<Boolean>() {
-            @Override
-            public void apiReturn(Boolean gotoPurchasing) {
-                Intent intent = new Intent(BaseActivity.this, LoginPurchaseActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                if (gotoPurchasing) {
-                    intent.putExtra(EXTRA_GOTO_PURCHASING, true);
-                }
-                startActivity(intent);
-                finish();
-                overridePendingTransition(R.anim.right_to_left_exit, R.anim.left_to_right_exit);
+        return gotoPurchasing -> {
+            Intent intent = new Intent(BaseActivity.this, LoginPurchaseActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            if (gotoPurchasing) {
+                intent.putExtra(EXTRA_GOTO_PURCHASING, true);
             }
+            startActivity(intent);
+            finish();
+            overridePendingTransition(R.anim.right_to_left_exit, R.anim.left_to_right_exit);
         };
     }
 
-    protected IPIACallback<LoginResponse> getLoginCallback() {
-        return new IPIACallback<LoginResponse>() {
-            @Override
-            public void apiReturn(LoginResponse ai) {
-                if(ai.getException() == null) {
-                    if(ai.getStatus() == LoginResponseStatus.CONNECTED) {
-                        PiaPrefHandler.saveAccountInformation(getApplicationContext(), ai);
-                        ExpiryNotificationService.armReminders(getApplicationContext());
-                    } else if(ai.getStatus() == LoginResponseStatus.AUTH_FAILED){
-                        DLog.d("FetchAccountTask", "ai = " + ai.toString());
-                        if(!ai.isActive() && ai.getException() == null) {
-                            Toaster.s(getApplicationContext(), R.string.account_termination);
-                        } else if(ai.isExpired()) {
-                            Toaster.s(getApplicationContext(), R.string.subscription_expired + " " + getString(R.string.timeleft_expired));
-                        } else {
-                            Toaster.s(getApplicationContext(), R.string.login_operation_failed);
-                        }
-                        new LogoutHandler(BaseActivity.this, getLogoutCallback()).logoutLogic(true);
-                        Intent i = new Intent(getApplicationContext(), LoginPurchaseActivity.class);
-                        startActivity(i);
-                        finish();
-                        overridePendingTransition(R.anim.right_to_left_exit, R.anim.left_to_right_exit);
-                    }
-                }
-            }
+    protected void handleAccountInformation(
+            AccountInformation accountInformation,
+            RequestResponseStatus requestResponseStatus
+    ) {
+        if (accountInformation == null) {
+            DLog.d(TAG, "Invalid account information");
+            return;
+        }
+
+        Function0 navigateToLogin = () -> {
+            new LogoutHandler(BaseActivity.this, getLogoutCallback()).logoutLogic(true);
+            Intent i = new Intent(getApplicationContext(), LoginPurchaseActivity.class);
+            startActivity(i);
+            finish();
+            overridePendingTransition(R.anim.right_to_left_exit, R.anim.left_to_right_exit);
+            return null;
         };
+
+        PiaPrefHandler.saveAccountInformation(getApplicationContext(), accountInformation);
+        if (accountInformation.getActive()) {
+            if (accountInformation.getExpired()) {
+                Toaster.s(getApplicationContext(), R.string.subscription_expired + " " + getString(R.string.timeleft_expired));
+                navigateToLogin.invoke();
+                return;
+            }
+            ExpiryNotificationService.armReminders(getApplicationContext());
+        } else {
+            Toaster.s(getApplicationContext(), R.string.account_termination);
+            navigateToLogin.invoke();
+        }
     }
 
-    /*
-        Attaching Calligraphy to base context for font handling.
+    /**
+     * Attaching Calligraphy to base context for font handling.
      */
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -551,9 +557,82 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
         }
     }
 
+    public void fetchClientStatus() {
+        fetchClientStatus(null);
+    }
+
+    private void fetchClientStatus(ConnectionStatus connectionStatus) {
+        Context context = getBaseContext();
+
+        // Due to events over-reporting. Validate this is a delta on the status.
+        if (connectionStatus != null && connectionStatus == lastKnownConnectionStatus) {
+            return;
+        }
+        lastKnownConnectionStatus = connectionStatus;
+
+        // Only trigger an update on final states. Avoid transitional ones.
+        if (connectionStatus != null && connectionStatus != LEVEL_NOTCONNECTED && connectionStatus != LEVEL_CONNECTED) {
+            return;
+        }
+
+        // Events are often reported before the tunnel is up/down which means the request timing out
+        // Add a delay prior to the request to avoid it.
+        new Handler(context.getMainLooper()).postDelayed(() -> {
+            PIAFactory.getInstance().getAccount(context).clientStatus(
+                    (status, requestResponseStatus) -> {
+                        boolean successful = false;
+                        switch (requestResponseStatus) {
+                            case SUCCEEDED:
+                                successful = true;
+                                break;
+                            case AUTH_FAILED:
+                            case THROTTLED:
+                            case OP_FAILED:
+                                break;
+                        }
+
+                        if (!successful) {
+                            DLog.d(TAG, "clientStatus unsuccessful " + requestResponseStatus);
+                            return null;
+                        }
+
+                        if (status.getConnected()) {
+                            PiaPrefHandler.saveLastIPVPN(context, status.getIp());
+                        } else {
+                            PiaPrefHandler.saveLastIP(context, status.getIp());
+                        }
+                        EventBus.getDefault().post(new FetchIPEvent(status.getIp()));
+                        return null;
+                    }
+            );
+        }, CLIENT_STATUS_DELAY);
+    }
+
+    private void handleAuthenticationFailure(ConnectionStatus connectionStatus) {
+        switch (connectionStatus) {
+            case LEVEL_CONNECTED:
+            case LEVEL_START:
+            case LEVEL_WAITING_FOR_USER_INPUT:
+            case LEVEL_CONNECTING_SERVER_REPLIED:
+            case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
+            case LEVEL_NONETWORK:
+            case LEVEL_VPNPAUSED:
+            case LEVEL_NOTCONNECTED:
+            case UNKNOWN_LEVEL:
+                break;
+            case LEVEL_AUTH_FAILED:
+                EventBus.getDefault().post(
+                        new PIAAuthenticatorFailureEvent(401, "VPN State Event: Auth Failed")
+                );
+                break;
+        }
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateState(VpnStateEvent event) {
         setBackground();
+        fetchClientStatus(event.level);
+        handleAuthenticationFailure(event.level);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

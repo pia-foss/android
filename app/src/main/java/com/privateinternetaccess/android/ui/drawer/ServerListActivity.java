@@ -23,6 +23,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +37,9 @@ import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.DialogFactory;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServerListActivity extends BaseActivity {
 
@@ -85,8 +89,6 @@ public class ServerListActivity extends BaseActivity {
         DLog.d("ServerListActivity", "Menu id: " + id);
 
         if (id == R.id.action_filters) {
-            final String[] options = getResources().getStringArray(R.array.region_filters);
-
             final DialogFactory factory = new DialogFactory(this);
             final Dialog dialog = factory.buildDialog();
             factory.setHeader(getString(R.string.region_dialog_header));
@@ -95,13 +97,11 @@ public class ServerListActivity extends BaseActivity {
                 @Override
                 public void onClick(View view) {
                     Fragment frag = getSupportFragmentManager().findFragmentById(R.id.container);
-                    String selectedItem = factory.getSelectedItem();
-
                     if (frag instanceof ServerListFragment) {
                         ServerListFragment serverFrag = (ServerListFragment)frag;
-                        PIAServerHandler.ServerSortingType sortingType =
-                                PIAServerHandler.ServerSortingType.valueOf(selectedItem.toUpperCase());
-                        switch (sortingType) {
+                        ServerSortingType selectedSortingType =
+                                serverFrag.getSortedServerSortingTypeForId(factory.getSelectedItem());
+                        switch (selectedSortingType) {
                             case NAME:
                                 serverFrag.setUpAdapter(
                                         ServerListActivity.this,
@@ -126,8 +126,8 @@ public class ServerListActivity extends BaseActivity {
                                 break;
                         }
                         Prefs.with(ServerListActivity.this).set(
-                                PiaPrefHandler.FILTERS_REGION_SORTING,
-                                sortingType.name()
+                                PiaPrefHandler.REGION_PREFERRED_SORTING,
+                                selectedSortingType.name()
                         );
                     }
 
@@ -142,21 +142,16 @@ public class ServerListActivity extends BaseActivity {
                 }
             });
 
-            String selected = Prefs.with(this).get(
-                    PiaPrefHandler.FILTERS_REGION_SORTING, options[0]
-            ).toUpperCase();
-            ServerSortingType sortingType = ServerSortingType.valueOf(selected);
-            switch (sortingType) {
-                case NAME:
-                    factory.addRadioGroup(options, options[0]);
-                    break;
-                case LATENCY:
-                    factory.addRadioGroup(options, options[1]);
-                    break;
-                case FAVORITES:
-                    factory.addRadioGroup(options, options[2]);
-                    break;
-            }
+            List<Pair<Integer, String>> options = new ArrayList();
+            options.add(new Pair(ServerSortingType.NAME.name().hashCode(), getString(R.string.region_filter_name)));
+            options.add(new Pair(ServerSortingType.LATENCY.name().hashCode(), getString(R.string.region_filter_latency)));
+            options.add(new Pair(ServerSortingType.FAVORITES.name().hashCode(), getString(R.string.region_filter_favorites)));
+
+            String selectedServerSortingTypeName = Prefs.with(this).get(
+                    PiaPrefHandler.REGION_PREFERRED_SORTING,
+                    ServerSortingType.NAME.name()
+            );
+            factory.addRadioGroup(options, selectedServerSortingTypeName.hashCode());
             dialog.show();
             return true;
         }

@@ -20,16 +20,19 @@ package com.privateinternetaccess.android.ui.adapters;
 
 import android.content.Context;
 
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.net.wifi.ScanResult;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
+import com.privateinternetaccess.android.model.listModel.NetworkItem;
+import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.drawer.TrustedWifiActivity;
 
 import java.util.List;
@@ -42,18 +45,19 @@ public class TrustedWifiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
 
-    private List<String> wifiItems;
-    private List<String> trustedItems;
+    private List<ScanResult> wifiItems;
+    private List<NetworkItem> networkItemList;
 
     private Context mContext;
 
     private RecyclerView mRecyclerView;
 
     public boolean isLoading = false;
+    public boolean isAddingRule = false;
 
-    public TrustedWifiAdapter(Context context, List<String> wifi, List<String> trusted) {
+    public TrustedWifiAdapter(Context context, List<ScanResult> wifi, List<NetworkItem> networkItems) {
         wifiItems = wifi;
-        trustedItems = trusted;
+        networkItemList = networkItems;
 
         mContext = context;
     }
@@ -61,12 +65,12 @@ public class TrustedWifiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_HEADER) {
-            View v = LayoutInflater.from(mContext).inflate(R.layout.list_header, parent, false);
-            return new HeaderHolder(v);
+            View v = LayoutInflater.from(mContext).inflate(R.layout.list_wifi, parent, false);
+            return new WifiHolder(v);
         }
 
-        View v = LayoutInflater.from(mContext).inflate(R.layout.list_wifi, parent, false);
-        return new WifiHolder(v);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.list_network_item, parent, false);
+        return new NetworkItemHolder(v);
     }
 
     @Override
@@ -79,70 +83,74 @@ public class TrustedWifiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof WifiHolder) {
             WifiHolder wHolder = (WifiHolder) holder;
-            final String item;
+            String ssid = "";
 
-            if (position < wifiItems.size() + 1) {
-                item = wifiItems.get(position - 1);
+            if (position < wifiItems.size()) {
+                ssid = wifiItems.get(position).SSID;
 
-                wHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        PiaPrefHandler.addTrustedNetwork(mContext, item);
-
-                        if (mContext instanceof TrustedWifiActivity) {
-                            ((TrustedWifiActivity)mContext).setupLists();
-                        }
+                ScanResult finalItem = wifiItems.get(position);
+                wHolder.itemView.setOnClickListener(view -> {
+                    if (mContext instanceof TrustedWifiActivity) {
+                        ((TrustedWifiActivity)mContext).addRuleForNetwork(finalItem);
                     }
                 });
-
-                wHolder.ivAddRemove.setImageResource(R.drawable.ic_plus);
-            }
-            else {
-                item = trustedItems.get(position - wifiItems.size() - 2);
-
-                wHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        PiaPrefHandler.removeTrustedNetwork(mContext, item);
-
-                        if (mContext instanceof TrustedWifiActivity) {
-                            ((TrustedWifiActivity)mContext).setupLists();
-                        }
-                    }
-                });
-
-                wHolder.ivAddRemove.setImageResource(R.drawable.ic_minus);
             }
 
-            wHolder.tvWifiName.setText(item);
+            wHolder.tvWifiName.setText(ssid);
         }
-        else if (holder instanceof HeaderHolder) {
-            HeaderHolder hHolder = (HeaderHolder) holder;
+        else if (holder instanceof NetworkItemHolder) {
+            NetworkItemHolder nHolder = (NetworkItemHolder) holder;
+            final NetworkItem item = networkItemList.get(position);
 
-            hHolder.pbLoading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            applyStatus(item, nHolder);
+            nHolder.tvTitle.setText(item.networkName);
 
-            if (position == 0) {
-                hHolder.tvHeader.setText(R.string.available_wifi_header);
-
-                if (!isLoading) {
-                    hHolder.tvDescription.setText(R.string.trusted_wifi_not_available);
-                    hHolder.tvDescription.setVisibility(wifiItems.size() == 0 ? View.VISIBLE : View.GONE);
+            nHolder.ivOptionsButton.setOnClickListener(v -> {
+                if (mContext instanceof TrustedWifiActivity) {
+                    ((TrustedWifiActivity)mContext).updateNetworkRule(item);
                 }
-            }
-            else {
-                hHolder.tvHeader.setText(R.string.trusted_wifi_plural);
+            });
+        }
+    }
 
-                if (!isLoading) {
-                    hHolder.tvDescription.setText(R.string.trusted_wifi_no_trusted);
-                    hHolder.tvDescription.setVisibility(trustedItems.size() == 0 ? View.VISIBLE : View.GONE);
-                }
-            }
+    private void applyStatus(NetworkItem item, NetworkItemHolder holder) {
+        switch (item.behavior) {
+            case ALWAYS_CONNECT:
+                holder.vColor.setBackgroundColor(mContext.getResources().getColor(R.color.rule_connect));
+                holder.ivStatusIcon.setColorFilter(mContext.getResources().getColor(R.color.rule_connect));
+                holder.tvStatus.setText(R.string.nmt_connect);
+                break;
+            case ALWAYS_DISCONNECT:
+                holder.vColor.setBackgroundColor(mContext.getResources().getColor(R.color.rule_disconnect));
+                holder.ivStatusIcon.setColorFilter(mContext.getResources().getColor(R.color.rule_disconnect));
+                holder.tvStatus.setText(R.string.nmt_disconnect);
+                break;
+            case RETAIN_STATE:
+                holder.vColor.setBackgroundColor(mContext.getResources().getColor(R.color.rule_retain));
+                holder.ivStatusIcon.setColorFilter(mContext.getResources().getColor(R.color.rule_retain));
+                holder.tvStatus.setText(R.string.nmt_retain);
+                break;
+        }
+
+        switch(item.type) {
+            case WIFI_OPEN:
+                holder.ivStatusIcon.setImageResource(R.drawable.ic_open_wifi_connect);
+                break;
+            case WIFI_SECURE:
+                holder.ivStatusIcon.setImageResource(R.drawable.ic_secure_wifi_connect);
+                break;
+            case MOBILE_DATA:
+                holder.ivStatusIcon.setImageResource(R.drawable.ic_mobile_data_connect);
+                break;
+            case WIFI_CUSTOM:
+                holder.ivStatusIcon.setImageResource(R.drawable.ic_custom_wifi_connect);
+                break;
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position == 0 || position == wifiItems.size() + 1) {
+        if (isAddingRule) {
             return TYPE_HEADER;
         }
 
@@ -151,7 +159,39 @@ public class TrustedWifiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public int getItemCount() {
-        return wifiItems.size() + trustedItems.size() + 2;
+        if (isAddingRule) {
+            return wifiItems.size();
+        }
+        else {
+            return networkItemList.size();
+        }
+    }
+
+//    private boolean hasRule(String ssid) {
+//        List<String> networkRules = PiaPrefHandler.getNetworkRules(mContext);
+//
+//        for (String rule : networkRules) {
+//            NetworkItem networkRule = NetworkItem.fromString(rule);
+//
+//            if (networkRule != null && networkRule.networkName.equals(ssid)) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
+
+    class NetworkItemHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.list_network_color_view) View vColor;
+        @BindView(R.id.list_network_status_icon) AppCompatImageView ivStatusIcon;
+        @BindView(R.id.list_network_options_button) AppCompatImageView ivOptionsButton;
+        @BindView(R.id.list_network_status_text) TextView tvStatus;
+        @BindView(R.id.list_network_title_text) TextView tvTitle;
+
+        public NetworkItemHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
     }
 
     class WifiHolder extends RecyclerView.ViewHolder {
@@ -164,14 +204,4 @@ public class TrustedWifiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-    class HeaderHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.list_header_text) TextView tvHeader;
-        @BindView(R.id.list_header_description) TextView tvDescription;
-        @BindView(R.id.list_header_progress) ProgressBar pbLoading;
-
-        public HeaderHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-    }
 }

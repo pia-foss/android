@@ -66,24 +66,9 @@ public class LogoutHandler {
         AlertDialog.Builder ab = new AlertDialog.Builder(context);
         ab.setTitle(R.string.logout_confirmation);
         ab.setMessage(R.string.logout_confirmation_text);
-        ab.setPositiveButton(R.string.logout, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                logoutLogic(false);
-            }
-        });
-        ab.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        ab.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                onDestroy();
-            }
-        });
+        ab.setPositiveButton(R.string.logout, (dialogInterface, i) -> logoutLogic(false));
+        ab.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+        ab.setOnCancelListener(dialog -> onDestroy());
         ab.show();
     }
 
@@ -97,16 +82,18 @@ public class LogoutHandler {
             if(vpn.isKillswitchActive()){
                 vpn.stopKillswitch();
             }
-            removeInfoAndListener();
-            callback.apiReturn(goToPurchasing);
         } else {
             vpn.stop();
         }
+
+        removeInfoAndListener();
+        callback.apiReturn(goToPurchasing);
         SettingsFragmentHandler.resetToDefault(activity);
     }
 
     private void removeInfoAndListener() {
         PIAFactory.getInstance().getAccount(activity).logout(PiaPrefHandler.getAuthToken(activity));
+        PiaPrefHandler.clearAccountInformation(activity);
         EventBus.getDefault().unregister(this);
     }
 

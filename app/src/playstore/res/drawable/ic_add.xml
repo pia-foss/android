@@ -1,0 +1,30 @@
+<!--
+  ~  Copyright (c) 2020 Private Internet Access, Inc.
+  ~
+  ~  This file is part of the Private Internet Access Android Client.
+  ~
+  ~  The Private Internet Access Android Client is free software: you can redistribute it and/or
+  ~  modify it under the terms of the GNU General Public License as published by the Free
+  ~  Software Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~  The Private Internet Access Android Client is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  ~  details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with the Private
+  ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="18"
+    android:viewportHeight="18">
+  <path
+      android:pathData="M8.9954,18C13.9247,18 18,13.9247 18,8.9954C18,4.0753 13.9154,0 8.9954,0C4.066,0 0,4.0753 0,8.9954C0,13.9247 4.0753,18 8.9954,18ZM8.9954,16.3636C4.9091,16.3636 1.6364,13.093 1.6364,9C1.6364,4.9163 4.8998,1.6364 8.9954,1.6364C13.0816,1.6364 16.3636,4.9163 16.3636,9C16.3729,13.093 13.0909,16.3636 8.9954,16.3636ZM8.9868,13.0909C9.4536,13.0909 9.7266,12.7683 9.7266,12.2664L9.7266,9.811L12.2807,9.811C12.7562,9.811 13.0909,9.5422 13.0909,9.0851C13.0909,8.6102 12.7738,8.3324 12.2807,8.3324L9.7266,8.3324L9.7266,5.7336C9.7266,5.2317 9.4536,4.9091 8.9868,4.9091C8.5376,4.9091 8.2734,5.2496 8.2734,5.7336L8.2734,8.3324L5.7282,8.3324C5.235,8.3324 4.9091,8.6102 4.9091,9.0851C4.9091,9.5422 5.2526,9.811 5.7282,9.811L8.2734,9.811L8.2734,12.2664C8.2734,12.7504 8.5376,13.0909 8.9868,13.0909Z"
+      android:strokeWidth="1"
+      android:fillColor="#39B54B"
+      android:fillType="nonZero"
+      android:strokeColor="#00000000"/>
+</vector>

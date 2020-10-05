@@ -18,7 +18,14 @@
 
 package com.privateinternetaccess.android.pia.handler;
 
+import android.content.Context;
+
+import androidx.test.core.app.ApplicationProvider;
+
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
+import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
+import com.privateinternetaccess.android.pia.utils.Prefs;
+import com.privateinternetaccess.android.utils.KeyStoreUtils;
 import com.privateinternetaccess.core.model.PIAServer;
 
 import org.junit.After;
@@ -27,8 +34,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class PiaServerComparatorsTest {
 
     List<PIAServer> servers;
@@ -68,6 +76,12 @@ public class PiaServerComparatorsTest {
     public void setup(){
         MockitoAnnotations.initMocks(this);
         initLists();
+
+        Context context = ApplicationProvider.getApplicationContext();
+        Prefs.setKeyStoreUtils(Mockito.mock(KeyStoreUtils.class));
+        Prefs prefsSpy = Mockito.spy(Prefs.with(context));
+        Mockito.when(prefsSpy.get(PiaPrefHandler.GEN4_ACTIVE, true)).thenReturn(false);
+        PIAServerHandler.setPrefs(prefsSpy);
     }
 
     public void initLists(){
@@ -121,7 +135,15 @@ public class PiaServerComparatorsTest {
 
     //creation test fails due to needing context
 
-    @Ignore("Waiting for the changes coming down to master with 3.7.0. Specifically MR #399")
+    @Test
+    public void sortingPingTest_validateAgainstNullPings(){
+        List<PIAServer> sortedByPing = new ArrayList<>(servers);
+        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator(null));
+        PIAServer first = sortedByPing.get(0);
+        Assert.assertEquals("us_san_francisco", first.getKey());
+    }
+
+    @Test
     public void sortingPingTest_firstPosition(){
         List<PIAServer> sortedByPing = new ArrayList<>(servers);
         Collections.sort(sortedByPing, new PIAServerHandler.PingComperator(pings));

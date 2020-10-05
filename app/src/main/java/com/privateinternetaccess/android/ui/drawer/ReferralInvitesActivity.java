@@ -18,19 +18,25 @@
 
 package com.privateinternetaccess.android.ui.drawer;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.model.events.InviteEvent;
-import com.privateinternetaccess.android.pia.model.response.InviteResponse;
-import com.privateinternetaccess.android.pia.model.response.InvitesResponse;
-import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import org.greenrobot.eventbus.Subscribe;
+import com.privateinternetaccess.account.model.response.InvitesDetailsInformation;
+import com.privateinternetaccess.android.PIAApplication;
+import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
+import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
+import com.privateinternetaccess.android.utils.InvitesUtils;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,8 +48,6 @@ public class ReferralInvitesActivity extends BaseActivity {
     @BindView(R.id.fragment_invites_pending_count) TextView tvPending;
     @BindView(R.id.fragment_invites_sent_count) TextView tvSent;
     @BindView(R.id.fragment_invites_signup_count) TextView tvSignups;
-
-    private InvitesResponse activeResponse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,41 +64,52 @@ public class ReferralInvitesActivity extends BaseActivity {
         ButterKnife.bind(this);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        processInvites();
+    }
+
     private void addSnippetToView() {
         FrameLayout container = findViewById(R.id.activity_secondary_container);
         View view = getLayoutInflater().inflate(R.layout.fragment_referrals_sent, container, false);
         container.addView(view);
     }
 
-    @Subscribe(sticky = true)
-    public void onReceivedInvites(InviteEvent event) {
-        InvitesResponse response = event.getResponse();
+    private void processInvites() {
+        Context context = getBaseContext();
+        InvitesDetailsInformation invitesDetails = PiaPrefHandler.invitesDetails(context);
+        if (invitesDetails != null) {
+            tvFreeDays.setText(
+                    String.format(getResources().getString(R.string.refer_free_count), Integer.toString(invitesDetails.getTotalFreeDaysGiven()))
+            );
 
-        if (response != null) {
-            tvFreeDays.setText(String.format(getResources().getString(R.string.refer_free_count),
-                    Integer.toString(response.getFreeDays())));
-
-            if (response.getNumberInvites() == 1) {
-                tvSent.setText(String.format(getResources().getString(R.string.refer_sent_invite),
-                        Integer.toString(response.getNumberInvites())));
-            }
-            else {
-                tvSent.setText(String.format(getResources().getString(R.string.refer_sent_invites),
-                        Integer.toString(response.getNumberInvites())));
+            int invitesSent = invitesDetails.getTotalInvitesSent();
+            if (invitesSent == 1) {
+                tvSent.setText(String.format(getResources().getString(R.string.refer_sent_invite), Integer.toString(invitesSent)));
+            } else {
+                tvSent.setText(String.format(getResources().getString(R.string.refer_sent_invites), Integer.toString(invitesSent)));
             }
 
+            List<InvitesDetailsInformation.Invite> pendingInvites =
+                    InvitesUtils.INSTANCE.pendingInvitesFromInvitesList(invitesDetails.getInvites());
             tvPending.setText(String.format(getResources().getString(R.string.refer_pending_invites),
-                    Integer.toString(response.getSentInvites().size())));
-            tvSignups.setText(String.format(getResources().getString(R.string.refer_signed_up),
-                    Integer.toString(response.getSignupInvites().size())));
-        }
+                    Integer.toString(pendingInvites.size())));
 
-        activeResponse = response;
+            List<InvitesDetailsInformation.Invite> acceptedInvites =
+                    InvitesUtils.INSTANCE.acceptedInvitesFromInvitesList(invitesDetails.getInvites());
+            tvSignups.setText(String.format(getResources().getString(R.string.refer_signed_up),
+                    Integer.toString(acceptedInvites.size())));
+        }
     }
 
     @OnClick(R.id.fragment_invites_pending_layout)
     public void onPendingClicked() {
-        if (activeResponse != null && activeResponse.getSentInvites().size() > 0) {
+        Context context = getBaseContext();
+        InvitesDetailsInformation invitesDetails = PiaPrefHandler.invitesDetails(context);
+        List<InvitesDetailsInformation.Invite> pendingInvites =
+                InvitesUtils.INSTANCE.pendingInvitesFromInvitesList(invitesDetails.getInvites());
+        if (pendingInvites.size() > 0) {
             Intent intent = new Intent(this, ReferralInvitesListActivity.class);
             intent.putExtra("showAccepted", false);
             startActivity(intent);
@@ -104,7 +119,11 @@ public class ReferralInvitesActivity extends BaseActivity {
 
     @OnClick(R.id.fragment_invites_signup_layout)
     public void onSignupsClicked() {
-        if (activeResponse != null && activeResponse.getSignupInvites().size() > 0) {
+        Context context = getBaseContext();
+        InvitesDetailsInformation invitesDetails = PiaPrefHandler.invitesDetails(context);
+        List<InvitesDetailsInformation.Invite> acceptedInvites =
+                InvitesUtils.INSTANCE.acceptedInvitesFromInvitesList(invitesDetails.getInvites());
+        if (acceptedInvites.size() > 0) {
             Intent intent = new Intent(this, ReferralInvitesListActivity.class);
             intent.putExtra("showAccepted", true);
             startActivity(intent);

@@ -26,6 +26,7 @@ public class ServerItem {
     private String key;
     private int flagId;
     private String name;
+    private String iso;
     private boolean selected;
     private boolean allowsPF;
     private boolean geo;
@@ -35,6 +36,7 @@ public class ServerItem {
             String key,
             int flagId,
             String name,
+            String iso,
             boolean selected,
             boolean allowsPF,
             boolean geo,
@@ -43,6 +45,7 @@ public class ServerItem {
         this.key = key;
         this.flagId = flagId;
         this.name = name;
+        this.iso = iso;
         this.selected = selected;
         this.allowsPF = allowsPF;
         this.geo = geo;
@@ -63,6 +66,10 @@ public class ServerItem {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getIso() {
+        return iso;
     }
 
     public int getHash() {
@@ -91,5 +98,9 @@ public class ServerItem {
 
     public String getLatency() {
         return latency;
+    }
+
+    public void setLatency(String latency) {
+        this.latency = latency;
     }
 }

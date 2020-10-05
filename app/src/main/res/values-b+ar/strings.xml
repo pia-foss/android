@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"خطأ في الشراء: %1$s "</string>
     <string name="error_active_subscription">لديك اشتراك نشط بالفعل!</string>
+    <string name="error_invalid_auth">حدث خطأ. يرجى محاولة تسجيل الدخول مرة أخرى.</string>
     <string name="usemssfix">سيخفض حجم حزمة IP قليلًا لتحسين التوافق مع بعض أنواع الموجهات وشبكات الجوَّال.</string>
     <string name="mssfixsummary">استخدم حزم صغيرة</string>
     <string name="settings_account_bottom_text">احصل على تطبيق Private Internet Access لأجهزتك الأخرى واستخدم اسم المستخدم الموجود أعلاه لتسجيل الدخول وتأمين اتصالك.</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">نبذة</string>
     <string name="reconnect_vpn">إعادة اتصال خدمة VPN لتطبيق هذا التغيير</string>
     <string name="error_account_info">تعذَّر العثور على معلومات الحساب</string>
+    <string name="error_pinging_while_connected">يتعذر تحديث زمن الانتقال أثناء الاتصال بشبكة VPN</string>
     <string name="allows_port_forwarding">سماح بإعادة توجيه المنافذ</string>
     <string name="about_privacy_policy">سياسة الخصوصية</string>
     <string name="version">الإصدار</string>
@@ -168,7 +170,7 @@
     <string name="save">حفظ</string>
     <string name="saved">تم الحفظ</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">السرعات المعروضة هي حركة المرور عبر اتصال VPN الخاصة بك</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">IP عمومي</string>
     <string name="login_throttled_text">لقد أجريت الكثير من المحاولات الفاشلة باسم المستخدم هذا. يرجى إعادة المحاولة لاحقًا.</string>
     <string name="tap_to_connect">اضغط للاتصال</string>
     <string name="building_configration">جارٍ إنشاء التكوين…</string>
@@ -187,7 +189,7 @@
     <string name="submit">إرسال</string>
     <string name="please_enter_your_email_address">يرجى إدخال عنوان بريدك الإلكتروني</string>
     <string name="select_vpn_plan">حدد خطة VPN</string>
-    <string name="_7_day_money_back_guarantee">ضمان استرداد المال لمدة 7 أيام</string>
+    <string name="_7_day_money_back_guarantee">ضمان استرداد المال لمدة 30 يوم</string>
     <string name="monthly">شهريًا</string>
     <string name="yearly">سنويًا</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -226,11 +228,11 @@
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[المنفذ بين 1024 و65535]]></string>
     <string name="startup_region_title">اتصل بأي منطقة بسهولة</string>
-    <string name="startup_region_message">مع خوادم في جميع أنحاء العالم، أنت دائما تحت الحماية.</string>
+    <string name="startup_region_message">مع خوادم في جميع أنحاء العالم، أنت دائما محميًا.</string>
     <string name="startup_ads_title">احمي نفسك من الإعلانات</string>
     <string name="startup_ads_message">تمكين ميزة PIA MACE يمنع الإعلانات من الظهور أينما كنت.</string>
     <string name="startup_connection_title">حماية لكل تطبيق</string>
-    <string name="startup_connection_message">تأكد من أن تجربتك مخصصة لأجلك عن طريق التحكم في التطبيقات التي تعمل من عليها خدمتنا (مطلوب Android 5.0 أو أعلى).</string>
+    <string name="startup_connection_message">خصّص تجربتك عن طريق التحكم في التطبيقات التي تعمل من عليها خدمتنا (مطلوب Android 5.0 أو أعلى).</string>
     <string name="speed_graph">الأداء</string>
     <string name="data_usage_over_time">استخدام البيانات على مدار الوقت</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -501,15 +503,13 @@
     <string name="refer_signups_title">التسجيلات</string>
     <string name="refer_email_required">البريد الإلكتروني مطلوب</string>
     <string name="refer_terms_required">يجب عليك قبول الشروط والأحكام لإرسال دعوات الإحالة</string>
-    <string-array name="region_filters">
-        <item>الاسم</item>
-        <item>زمن الانتقال</item>
-        <item>التفضيلات</item>
-    </string-array>
+    <string name="region_filter_name">الاسم</string>
+    <string name="region_filter_latency">زمن الانتقال</string>
+    <string name="region_filter_favorites">التفضيلات</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">جربه مجانًا لمدة 7 أيام!</string>
     <string name="free_trial_cost">ادفع %s فقط سنويًا</string>
-    <string name="free_trial_guarantee">ضمان استعادة الاموال لمدة 7 أيام</string>
+    <string name="free_trial_guarantee">ضمان استعادة الاموال لمدة 30 يوم</string>
     <string name="free_trial_protection_header">سنة من الخصوصية وحماية الهوية</string>
     <string name="free_trial_protection_text">تصفح مجهول الهوية وإخفاء رقم IP الخاص بك</string>
     <string name="free_trial_devices_header">يدعم 10 أجهزة في وقت واحد</string>
@@ -558,4 +558,49 @@
     <string name="gen4_next_generation_network_message">يجب قطع اتصال VPN لتغيير شبكة الخادم.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">تضمين المناطق المحدد موقعها جغرافيًا</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">هل تستمتع بـ PIA VPN؟</string>
+    <string name="rating_enjoy_message">نأمل أن يلبي منتجنا لشبكات VPN توقعاتك</string>
+    <string name="rating_review_title">ما رأيك في ترك مراجعة لنا على Google Play؟</string>
+    <string name="rating_review_message">نقدّر لك مشاركة تجربتك</string>
+    <string name="rating_feedback_title">ما الخلل الذي حصل؟</string>
+    <string name="rating_feedback_message">هل لديك أي ملاحظات؟ يمكننا مساعدتك على تحسين تجربتك في استخدام PIA</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">اشتراك الآن</string>
+    <string name="getstarted_free_trial">ابدأ تجربتك المجانية لمدة 7 ايام</string>
+    <string name="getstarted_trial_price">ثم %s في السنة</string>
+    <string name="purchasing_email_reason">نحتاج إلى بريدك الإلكتروني لإرسال اسم المستخدم وكلمة المرور.</string>
+    <string name="purchasing_all_plans">مشاهدة جميع الخطط المتاحة</string>
+    <string name="purchasing_login_receipt">تسجيل الدخول باستخدام إيصال الشراء</string>
+    <string name="purchasing_no_subscription">ليس لديك اشتراكات نشطة</string>
+    <string name="purchasing_sure">هل أنت متأكد؟</string>
+    <string name="purchasing_return">هل ترغب في العودة إلى الشاشة الرئيسية؟ يمكنك استئناف عملية الاشتراك في أي وقت بالضغط فوق تسجيل الدخول -&gt; تسجيل الدخول باستخدام إيصال الشراء.</string>
+    <string name="purchasing_magic_link">تسجيل الدخول باستخدام رابط البريد الإلكتروني السحري</string>
+    <string name="purchasing_magic_send">إرسال الرابط</string>
+    <string name="purchasing_magic_success">يرجى إلقاء نظرة على بريدك الإلكتروني للحصول على رابط تسجيل الدخول.</string>
+    <string name="connection_tile_header">الاتصال</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">آخر الأخبار</string>
+    <string name="update_3_7_1_header">جرّب ®WireGuard اليوم!</string>
+    <string name="update_3_7_1_description">إنه بروتوكول VPN جديد وأكثر كفاءة يوفر أداءً أفضل واستخدامًا أقل للمعالج وعمرًا أطول للبطارية.</string>
+    <string name="update_3_7_1_cta_1">جرّب ®WireGuard الآن</string>
+    <string name="update_3_7_1_cta_2"><u>معرفة المزيد</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">تأمين Wi-Fi</string>
+    <string name="nmt_open_wifi">Wi-Fi</string>
+    <string name="nmt_mobile_data">بيانات الموبايل</string>
+    <string name="nmt_disconnect">قطع اتصال VPN دائمًا</string>
+    <string name="nmt_connect">اتصال بـ VPN دائمًا</string>
+    <string name="nmt_retain">احتفاظ بحالة VPN</string>
+    <string name="nmt_manage_title">أتمتة الإدارة</string>
+    <string name="nmt_manage_description">قم بتكوين سلوك PIA عند الاتصال بشبكات WiFi أو الشبكات الخلوية. هذا مستثنى منه قطع الاتصال يدويًا.</string>
+    <string name="nmt_add_description">اختر شبكة WiFi لإضافة قاعدة جديدة.</string>
+    <string name="nmt_rule_for">قاعدة لـ %s</string>
+    <string name="nmt_remove_rule">إزالة القاعدة</string>
+    <string name="nmt_add_new_rule">إضافة قاعدة جديدة</string>
+    <string name="nmt_settings_title">إدارة الشبكات</string>
+    <string name="nmt_settings_description">قم بإعداد القواعد للتعامل مع قواعد الاتصال التلقائي للشبكات الموثوقة وغير الموثوق بها.</string>
+    <string name="nmt_management_title">أتمتة الإدارة</string>
 </resources>

@@ -22,7 +22,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 
-import androidx.core.view.ViewCompat;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +34,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -70,39 +72,42 @@ public class DialogFactory {
         return builder.create();
     }
 
-    public void addRadioGroup(String[] options, String selected) {
+    /**
+     *
+     * @param options List<Pair<Integer, String>>. List of pair objects where the first parameter is
+     *               the identifier and the second one the text to be used on the widget.
+     * @param selectedId Integer. The identifier to be selected
+     */
+    public void addRadioGroup(
+            List<Pair<Integer, String>> options,
+            Integer selectedId
+    ) {
         View radioLayout = LayoutInflater.from(mContext).inflate(R.layout.snippet_radio_group, null);
         RadioGroup group = radioLayout.findViewById(R.id.dialog_radio_group);
 
-        for (String option : options) {
-            int buttonId = ViewCompat.generateViewId();
-            RadioButton button = (RadioButton) LayoutInflater.from(mContext).inflate(R.layout.snippet_dialog_radio_button, null);
-
+        for (Pair<Integer, String> option : options) {
+            //RadioButton button = (RadioButton) LayoutInflater.from(mContext).inflate(R.layout.snippet_dialog_radio_button, null);
+            RadioButton button = new RadioButton(mContext);
             RadioGroup.LayoutParams params = new RadioGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins(0, 20, 0, 0);
             button.setLayoutParams(params);
 
-            button.setText(option);
-            button.setId(buttonId);
+            button.setText(option.second);
+            button.setId(option.first.hashCode());
             group.addView(button);
-
-            if (option.equals(selected)) {
-                group.check(buttonId);
-            }
         }
+        group.check(selectedId);
 
         bodyView.addView(radioLayout);
-
         radioGroup = group;
     }
 
-    public String getSelectedItem() {
-        if (radioGroup == null) {
-            return "";
-        }
-
-        RadioButton button  = radioGroup.findViewById(radioGroup.getCheckedRadioButtonId());
-        return button.getText().toString();
+    /**
+     *
+     * @return Integer. The identifier for the selected item
+     */
+    public Integer getSelectedItem() {
+        return radioGroup.getCheckedRadioButtonId();
     }
 
     public void setBody(View view) {

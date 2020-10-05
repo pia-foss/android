@@ -92,6 +92,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"購買時發生錯誤：%1$s "</string>
     <string name="error_active_subscription">您已經擁有一個使用中的訂購計劃！</string>
+    <string name="error_invalid_auth">發生錯誤，請稍後再嘗試登入。</string>
     <string name="usemssfix">將稍微降低 IP 封包大小以提高與部分路由器及行動網路的相容性。</string>
     <string name="mssfixsummary">使用小封包</string>
     <string name="settings_account_bottom_text">您只要在您的其他裝置上安裝 Private Internet Access App，然後使用以上的使用者名稱登入，即可保障您的網路連線安全。</string>
@@ -122,6 +123,7 @@
     <string name="menu_about">關於</string>
     <string name="reconnect_vpn">重新連接 VPN 以套用此變更</string>
     <string name="error_account_info">找不到帳戶資料</string>
+    <string name="error_pinging_while_connected">連線到 VPN 時，無法更新延遲</string>
     <string name="allows_port_forwarding">允許連接埠轉送</string>
     <string name="about_privacy_policy">隱私權政策</string>
     <string name="version">版本</string>
@@ -169,7 +171,7 @@
     <string name="save">儲存</string>
     <string name="saved">已儲存</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">所顯示的速度為您的 VPN 連線流量</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">公開 IP</string>
     <string name="login_throttled_text">此使用者名稱登入失敗次數太多，請稍後再試。</string>
     <string name="tap_to_connect">點一下以連線</string>
     <string name="building_configration">正在建立配置…</string>
@@ -188,7 +190,7 @@
     <string name="submit">提交</string>
     <string name="please_enter_your_email_address">請輸入您的電子郵件地址</string>
     <string name="select_vpn_plan">選擇 VPN 方案</string>
-    <string name="_7_day_money_back_guarantee">7 天退款保證</string>
+    <string name="_7_day_money_back_guarantee">30 天退款保證</string>
     <string name="monthly">月繳</string>
     <string name="yearly">年繳</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -231,7 +233,7 @@
     <string name="startup_ads_title">免受廣告滋擾</string>
     <string name="startup_ads_message">只要啟用 PIA MACE，廣告立馬消失。</string>
     <string name="startup_connection_title">個別 App 安全防護</string>
-    <string name="startup_connection_message">您可以透過管控哪些 App 能通過我們的服務，來自訂您的使用體驗（需要 Android 5.0 以上）。</string>
+    <string name="startup_connection_message">您可以透過管控哪些 App 可通過我們的服務，來自訂您的使用體驗（需要 Android 5.0 以上版本）。</string>
     <string name="speed_graph">效能</string>
     <string name="data_usage_over_time">使用統計資料</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -503,15 +505,13 @@
     <string name="refer_signups_title">註冊</string>
     <string name="refer_email_required">電郵為必須</string>
     <string name="refer_terms_required">您必須同意條件與條款以傳送推薦邀請。</string>
-    <string-array name="region_filters">
-        <item>名稱</item>
-        <item>延遲</item>
-        <item>收藏</item>
-    </string-array>
+    <string name="region_filter_name">名稱</string>
+    <string name="region_filter_latency">延遲</string>
+    <string name="region_filter_favorites">收藏</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">免費試用 7 天！</string>
     <string name="free_trial_cost">每年只需 %s</string>
-    <string name="free_trial_guarantee">7 天退款保證</string>
+    <string name="free_trial_guarantee">30 天退款保證</string>
     <string name="free_trial_protection_header">1 年隱私和身份保護</string>
     <string name="free_trial_protection_text">匿名瀏覽並隱藏您的 IP</string>
     <string name="free_trial_devices_header">同時支援 10 台裝置</string>
@@ -560,4 +560,49 @@
     <string name="gen4_next_generation_network_message">必須斷開 VPN 才能更改服務器網絡。</string>
     <!-- GEO Servers -->
     <string name="geo_servers">包括地理位置區域</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">您喜歡 PIA VPN 嗎？</string>
+    <string name="rating_enjoy_message">希望我們的 VPN 產品符合您的期望</string>
+    <string name="rating_review_title">是否要前往 Google Play 留下評論？</string>
+    <string name="rating_review_message">我們非常感謝您分享使用體驗</string>
+    <string name="rating_feedback_title">發生了什麼錯誤？</string>
+    <string name="rating_feedback_message">您想提供意見反應嗎？我們可以幫助您改善使用 PIA 的體驗</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">立即訂閱</string>
+    <string name="getstarted_free_trial">開始 7 天免費試用</string>
+    <string name="getstarted_trial_price">試用結束後，每年收費 %s</string>
+    <string name="purchasing_email_reason">請提供電子郵件以便我們傳送使用者名稱及密碼。</string>
+    <string name="purchasing_all_plans">查看所有可用方案</string>
+    <string name="purchasing_login_receipt">使用購買收據登入</string>
+    <string name="purchasing_no_subscription">您沒有使用中的訂閱</string>
+    <string name="purchasing_sure">您確定嗎？</string>
+    <string name="purchasing_return">您想要回到主畫面嗎？點擊「登入」-&gt;「使用購買收據登入」即可隨時恢復訂閱程序。</string>
+    <string name="purchasing_magic_link">使用神奇的電子郵件連結登入</string>
+    <string name="purchasing_magic_send">傳送連結</string>
+    <string name="purchasing_magic_success">請確認電子信箱是否已收到登入連結。</string>
+    <string name="connection_tile_header">連線</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">最新消息</string>
+    <string name="update_3_7_1_header">立即體驗 WireGuard®！</string>
+    <string name="update_3_7_1_description">這是款全新且高效率的 VPN 通訊協定，具備更佳的性能、更低的 CPU 使用率和更長的電池壽命。</string>
+    <string name="update_3_7_1_cta_1">立即體驗 WireGuard®</string>
+    <string name="update_3_7_1_cta_2"><u>深入了解</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">安全 Wi-Fi</string>
+    <string name="nmt_open_wifi">Wi-Fi</string>
+    <string name="nmt_mobile_data">行動數據</string>
+    <string name="nmt_disconnect">永遠解除 VPN 連線</string>
+    <string name="nmt_connect">永遠連線至 VPN</string>
+    <string name="nmt_retain">保留 VPN 狀態</string>
+    <string name="nmt_manage_title">管理自動功能</string>
+    <string name="nmt_manage_description">配置 PIA 在與 WiFi 或行動網路連線時所執行的操作。不含手動解除連線。</string>
+    <string name="nmt_add_description">選擇 WiFi 網路以加入新規則。</string>
+    <string name="nmt_rule_for">%s 規則</string>
+    <string name="nmt_remove_rule">移除規則</string>
+    <string name="nmt_add_new_rule">加入新規則</string>
+    <string name="nmt_settings_title">網路管理</string>
+    <string name="nmt_settings_description">設定規則，以處理信任和不信任網路的自動連線規則</string>
+    <string name="nmt_management_title">管理自動功能</string>
 </resources>

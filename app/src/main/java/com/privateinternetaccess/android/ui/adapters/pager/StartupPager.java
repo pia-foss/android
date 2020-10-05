@@ -35,7 +35,7 @@ public class StartupPager extends FragmentStatePagerAdapter {
     private List<StartupFragment> fragments;
 
     public StartupPager(FragmentManager fm, List<StartupFragment> fragments) {
-        super(fm);
+        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         this.fragments = fragments;
     }
 

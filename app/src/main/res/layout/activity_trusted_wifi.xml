@@ -18,9 +18,10 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -106,37 +107,56 @@
                     android:layout_marginTop="16dp"
                     android:visibility="visible"
                     >
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/trusted_wifi_switch"
+
+                    <TextView
+                        android:id="@+id/trusted_wifi_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/Style02"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        android:text="@string/nmt_manage_title"
+                        tools:text="Manage Automation"/>
+
+                    <TextView
+                        android:id="@+id/trusted_wifi_description"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/Style13"
+                        android:text="@string/nmt_manage_description"
+                        tools:text="Configure how PIA behave on connection to WiFi or cellular networks. This excludes disconnecting manually."/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/network_recyclerview"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/trusted_wifi_enable_message"
-                        android:textSize="13sp"/>
+                        android:layout_marginTop="16dp"/>
 
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                    <LinearLayout
+                        android:id="@+id/network_add_rule_button"
+                        android:layout_marginTop="32dp"
+                        android:layout_marginBottom="32dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center_horizontal" >
 
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/trusted_wifi_list"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:paddingTop="20dp"
-                            android:visibility="gone"/>
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_gravity="center_vertical"
+                            app:srcCompat="@drawable/ic_add"/>
 
                         <TextView
-                            android:id="@+id/trusted_wifi_warning_message"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:textAppearance="@style/PiaTextBody1"
-                            android:text="@string/trusted_wifi_no_wifi"
-                            android:visibility="gone"
-                            android:paddingTop="20dp"
-                            android:paddingBottom="20dp"
-                            />
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginLeft="8dp"
+                            android:paddingBottom="1dp"
+                            style="@style/Style04"
+                            android:text="@string/nmt_add_new_rule" />
 
-                    </RelativeLayout>
+                    </LinearLayout>
 
                 </LinearLayout>
 

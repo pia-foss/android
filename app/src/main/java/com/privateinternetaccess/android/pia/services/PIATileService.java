@@ -61,7 +61,7 @@ public class PIATileService extends TileService {
     private void clickAction() {
         IAccount account = PIAFactory.getInstance().getAccount(this);
         IVPN vpn = PIAFactory.getInstance().getVPN(this);
-        if(account.isLoggedIn()) {
+        if(account.loggedIn()) {
             if (vpn.isVPNActive()) {
                 vpn.stop();
             } else if (vpn.isKillswitchActive()) {
@@ -97,7 +97,7 @@ public class PIATileService extends TileService {
                 if(!ivpn.isKillswitchActive()) {
                     IAccount account = PIAFactory.getInstance().getAccount(this);
                     // No login
-                    if (!account.isLoggedIn()) {
+                    if (!account.loggedIn()) {
                         t.setLabel(getString(R.string.not_logged_in));
                         t.setState(Tile.STATE_UNAVAILABLE);
                     } else {

@@ -22,12 +22,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.privateinternetaccess.android.PIAApplication;
-import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PingHandler;
-import com.privateinternetaccess.android.pia.handlers.SubscriptionHandler;
-import com.privateinternetaccess.android.pia.interfaces.IConnection;
-import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.utils.DLog;
 
 public class OnNetworkChangeReceiver extends BroadcastReceiver {
@@ -35,12 +30,6 @@ public class OnNetworkChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         DLog.d("OnNetworkChangeReceiver","Network changed!");
-        boolean fired = PingHandler.getInstance(context).fetchPings(PingHandler.PING_TIME_3_DIFFERENCE); //Update every 3m when network changes
-        IConnection connection = PIAFactory.getInstance().getConnection(context);
-        IVPN vpn = PIAFactory.getInstance().getVPN(context);
-        if(fired && !vpn.isVPNActive() && !vpn.isKillswitchActive() && PIAApplication.isNetworkAvailable(context)) {
-            connection.resetFetchIP();
-            connection.fetchIP(null);
-        }
+        PingHandler.getInstance(context).fetchPings(PingHandler.PING_TIME_3_DIFFERENCE);
     }
 }

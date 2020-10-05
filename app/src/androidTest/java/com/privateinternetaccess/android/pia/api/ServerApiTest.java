@@ -22,7 +22,7 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.privateinternetaccess.android.pia.model.response.ServerResponse;
+import com.privateinternetaccess.core.model.ServerResponse;
 
 import org.junit.After;
 import org.junit.Assert;

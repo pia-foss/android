@@ -1,26 +1,13 @@
-/*
- *  Copyright (c) 2020 Private Internet Access, Inc.
- *
- *  This file is part of the Private Internet Access Android Client.
- *
- *  The Private Internet Access Android Client is free software: you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License as published by the Free
- *  Software Foundation, either version 3 of the License, or (at your option) any later version.
- *
- *  The Private Internet Access Android Client is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
- *  details.
- *
- *  You should have received a copy of the GNU General Public License along with the Private
- *  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package com.privateinternetaccess.core.model;
 
 import org.json.JSONObject;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import kotlin.Pair;
 
 public class PIAServer {
 
@@ -48,10 +35,13 @@ public class PIAServer {
     private String wgHost;
     private String pingEndpoint;
     private Map<Protocol, String> latencies;
+    private Map<Protocol, List<Pair<String, String>>> certCommonNames;
     private String tcpbest;
     private String udpbest;
     private String key;
     private String tlsRemote;
+    private String latitude;
+    private String longitude;
     private boolean geo;
     private boolean allowsPF;
     private boolean testing;
@@ -65,10 +55,13 @@ public class PIAServer {
             String wgHost,
             String pingEndpoint,
             Map<Protocol, String> latencies,
+            Map<Protocol, List<Pair<String, String>>> certCommonNames,
             String tcpbest,
             String udpbest,
             String key,
             String tlsRemote,
+            String latitude,
+            String longitude,
             boolean geo,
             boolean allowsPF,
             boolean testing
@@ -79,10 +72,13 @@ public class PIAServer {
         this.wgHost = wgHost;
         this.pingEndpoint = pingEndpoint;
         this.latencies = latencies;
+        this.certCommonNames = certCommonNames;
         this.tcpbest = tcpbest;
         this.udpbest = udpbest;
         this.key = key;
         this.tlsRemote = tlsRemote;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.geo = geo;
         this.allowsPF = allowsPF;
         this.testing = testing;
@@ -97,15 +93,44 @@ public class PIAServer {
         pingEndpoint = json.optString("ping");
         tlsRemote = json.optString("serial");
         iso = json.optString("country");
+        certCommonNames = new HashMap<>();
         JSONObject udp = json.optJSONObject("openvpn_udp");
-        if(udp != null)
+        if(udp != null) {
             udpbest = udp.optString("best");
+            certCommonNames.put(
+                    Protocol.OPENVPN_UDP,
+                    Collections.singletonList(
+                            new Pair<>(udpbest.split(":")[0], tlsRemote)
+                    )
+            );
+
+        }
         JSONObject tcp = json.optJSONObject("openvpn_tcp");
-        if(tcp != null)
+        if(tcp != null) {
             tcpbest = tcp.optString("best");
+            certCommonNames.put(
+                    Protocol.OPENVPN_TCP,
+                    Collections.singletonList(
+                            new Pair<>(tcpbest.split(":")[0], tlsRemote)
+                    )
+            );
+        }
         JSONObject wg = json.optJSONObject("wireguard");
-        if (wg != null)
+        if (wg != null) {
             wgHost = wg.optString("host");
+            certCommonNames.put(
+                    Protocol.WIREGUARD,
+                    Collections.singletonList(
+                            new Pair<>(wgHost.split(":")[0], tlsRemote)
+                    )
+            );
+        }
+    }
+
+    public boolean isValid() {
+        return tcpbest != null && !tcpbest.equals("") &&
+                udpbest != null && !udpbest.equals("") &&
+                wgHost != null && !wgHost.equals("");
     }
 
     @Override
@@ -146,6 +171,10 @@ public class PIAServer {
 
     public void setDns(String dns) {
         this.dns = dns;
+    }
+
+    public Map<Protocol, List<Pair<String, String>>> getCommonNames() {
+        return certCommonNames;
     }
 
     public String getPingEndpoint() {
@@ -198,6 +227,14 @@ public class PIAServer {
 
     public void setTlsRemote(String tlsRemote) {
         this.tlsRemote = tlsRemote;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
     }
 
     public boolean isGeo() {

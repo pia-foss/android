@@ -47,21 +47,6 @@ public class PIAAPITest {
     }
 
     @Test
-    public void creationTest_accountApi(){
-        Assert.assertThat(new AccountApi(context), instanceOf(AccountApi.class));
-    }
-
-    @Test
-    public void creationTest_ipApi(){
-        Assert.assertThat(new IpApi(context), instanceOf(IpApi.class));
-    }
-
-    @Test
-    public void creationTest_localtionApi(){
-        Assert.assertThat(new LocationApi(), instanceOf(LocationApi.class));
-    }
-
-    @Test
     public void creationTest_maceApi(){
         Assert.assertThat(new MaceApi(), instanceOf(MaceApi.class));
     }
@@ -74,11 +59,6 @@ public class PIAAPITest {
     @Test
     public void creationTest_portForwardApi(){
         Assert.assertThat(new PortForwardApi(), instanceOf(PortForwardApi.class));
-    }
-
-    @Test
-    public void creationTest_purchasingApi(){
-        Assert.assertThat(new PurchasingApi(context), instanceOf(PurchasingApi.class));
     }
 
     @Test

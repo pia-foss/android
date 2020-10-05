@@ -105,6 +105,7 @@ public class FavoritesFragment extends Fragment {
                             ps.getKey(),
                             handler.getFlagResource(ps),
                             ps.getName(),
+                            ps.getIso(),
                             false,
                             ps.isAllowsPF(),
                             ps.isGeo(),

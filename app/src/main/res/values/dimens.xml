@@ -85,6 +85,7 @@
 
     <!-- PIAX Dimenisons -->
     <dimen name="piax_button_radius">6dp</dimen>
+    <dimen name="piax_button_large_radius">15dp</dimen>
     <dimen name="piax_button_small_radius">2dp</dimen>
 
     <dimen name="card_padding">10dp</dimen>

@@ -186,10 +186,15 @@
             android:defaultValue="false"
             app:iconSpaceReserved="false"/>
 
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="networkManagement"
+            android:title="@string/nmt_settings_title"
+            android:summary="@string/nmt_settings_description"
+            app:iconSpaceReserved="false"/>
+
         <androidx.preference.PreferenceScreen
-            android:key="trustWifi"
-            android:title="@string/trusted_wifi_title"
-            android:summary="@string/trusted_wifi_message"
+            android:key="networkAutomation"
+            android:title="@string/nmt_manage_title"
             app:iconSpaceReserved="false"/>
 
         <androidx.preference.SwitchPreferenceCompat
@@ -210,6 +215,18 @@
             android:title="@string/preference_app_theme"
             android:defaultValue="false"
             app:iconSpaceReserved="false"/>
+
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="gen4_active_default"
+            android:title="@string/gen4_next_generation_network"
+            android:defaultValue="true"
+            app:iconSpaceReserved="false"/>
+
+        <PreferenceScreen
+            android:key="updates"
+            android:title="@string/settings_calling_header"
+            app:iconSpaceReserved="false"
+            />
 
         <PreferenceScreen
             android:key="vpn_log"
@@ -232,19 +249,6 @@
         <androidx.preference.PreferenceScreen
             android:key="resetToDefault"
             android:title="@string/preference_reset_settings"
-            app:iconSpaceReserved="false"/>
-
-    </com.privateinternetaccess.android.ui.views.PIAPreferenceCategory>
-
-    <com.privateinternetaccess.android.ui.views.PIAPreferenceCategory
-        android:key="app_settings"
-        android:title="@string/preview"
-        app:iconSpaceReserved="false">
-
-        <androidx.preference.SwitchPreferenceCompat
-            android:key="gen4_active"
-            android:title="@string/gen4_next_generation_network"
-            android:defaultValue="false"
             app:iconSpaceReserved="false"/>
 
     </com.privateinternetaccess.android.ui.views.PIAPreferenceCategory>

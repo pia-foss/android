@@ -106,42 +106,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:text="@string/email_address"
-                tools:text="Email address"
-                />
-
-            <TextView
-                android:id="@+id/fragment_finalize_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:fontFamily="sans-serif"
-                android:textStyle="normal"
-                android:textColor="?attr/grey20_white"
-                android:lineSpacingExtra="0sp"
-                android:layout_marginTop="7dp"
-                android:layout_marginBottom="20dp"
-                tools:text="test@gmail.com"
-                />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:background="?attr/purchasing_finalize_background"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp"
-            android:paddingLeft="22dp"
-            android:paddingRight="22dp">
-
-            <TextView
-                style="@style/Style08"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
                 android:text="@string/total_cost"
                 tools:text="Total Cost"
                 />

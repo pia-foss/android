@@ -18,6 +18,7 @@
 
 package com.privateinternetaccess.android.ui.tv;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -26,10 +27,8 @@ import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.VPNTrafficDataPointEvent;
-import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.model.events.FetchIPEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.ui.connection.GraphFragmentHandler;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
@@ -45,6 +44,8 @@ import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
 
 public class GraphActivity extends BaseActivity {
+
+    private static final String TAG = "GraphActivity";
 
     @BindView(R.id.activity_graph_connected_status) TextView tvConnectedStatus;
     @BindView(R.id.activity_graph_ip_status) TextView tvIPStatus;
@@ -65,14 +66,10 @@ public class GraphActivity extends BaseActivity {
         String lastIP = PiaPrefHandler.getLastIP(getApplicationContext());
         if (!TextUtils.isEmpty(lastIP)) {
             tvIPStatus.setText(lastIP);
-        } else {
-            PIAFactory.getInstance().getConnection(getApplicationContext()).fetchIP(null);
         }
 
         VpnStateEvent vpnEvent = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
-
         setVPNTextAndTrafficVisibility(vpnEvent);
-
         VPNTrafficDataPointEvent event = EventBus.getDefault().getStickyEvent(VPNTrafficDataPointEvent.class);
         onVPNSpeedReceived(event);
     }
@@ -121,11 +118,6 @@ public class GraphActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onVPNReceive(VpnStateEvent event){
         setVPNTextAndTrafficVisibility(event);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onIPEventReceived(FetchIPEvent event){
-        tvIPStatus.setText(event.getIp());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

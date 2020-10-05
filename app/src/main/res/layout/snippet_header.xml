@@ -79,6 +79,7 @@
         app:autoSizeTextType="uniform"
         app:autoSizeMaxTextSize="@dimen/text_pia_app_bar"
         app:autoSizeMinTextSize="8sp"
+        android:maxLines="1"
         android:paddingBottom="5dp"
         style="@style/PiaTextAppbar"
         android:textColor="@color/white"

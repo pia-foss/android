@@ -18,9 +18,12 @@
 
 package com.privateinternetaccess.android.ui.loginpurchasing;
 
+import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,29 +32,22 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.privateinternetaccess.account.model.response.SignUpInformation;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
-import com.privateinternetaccess.android.pia.model.LoginInfo;
-import com.privateinternetaccess.android.pia.model.enums.LoginResponseStatus;
-import com.privateinternetaccess.android.pia.model.events.LoginEvent;
-import com.privateinternetaccess.android.pia.model.events.PurchasingEvent;
-import com.privateinternetaccess.android.pia.model.events.TokenEvent;
-import com.privateinternetaccess.android.pia.model.events.TrialEvent;
-import com.privateinternetaccess.android.pia.model.response.LoginResponse;
-import com.privateinternetaccess.android.pia.model.response.PurchasingResponse;
-import com.privateinternetaccess.android.pia.model.response.TokenResponse;
-import com.privateinternetaccess.android.pia.model.response.TrialResponse;
+import com.privateinternetaccess.android.pia.model.TrialData;
+import com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus;
+import com.privateinternetaccess.android.pia.utils.AppUtilities;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
+import com.privateinternetaccess.android.ui.views.PiaxEditText;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by hfrede on 8/24/17.
@@ -64,6 +60,7 @@ public class PurchasingProcessFragment extends Fragment {
     @BindView(R.id.fragment_purchase_process_progress_area) LinearLayout aProgress;
     @BindView(R.id.fragment_purchase_process_success_area) View aSuccess;
     @BindView(R.id.fragment_purchase_process_failure_area) View aFailure;
+    @BindView(R.id.fragment_purchase_process_email_area) LinearLayout aEmail;
 
     @BindView(R.id.fragment_purchase_process_button) Button button;
     @BindView(R.id.fragment_purchase_process_button_progress) View progress;
@@ -73,9 +70,14 @@ public class PurchasingProcessFragment extends Fragment {
 
     @BindView(R.id.fragment_purchase_process_failure_title) TextView tvFailureTitle;
     @BindView(R.id.fragment_purchase_process_failure_text) TextView tvFailureMessage;
+    @BindView(R.id.fragment_purchasing_email) PiaxEditText etEmail;
 
     private boolean firePurchasing;
     private boolean isTrial;
+
+    private boolean hasEmail = true;
+    private boolean hasPassword = false;
+    private boolean loggingIn = false;
 
     @Nullable
     @Override
@@ -83,48 +85,41 @@ public class PurchasingProcessFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_purchase_process, container, false);
         ButterKnife.bind(this, view);
 
+        etEmail.etMain.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        EventBus.getDefault().register(this);
         initView();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        EventBus.getDefault().unregister(this);
-    }
-
     private void initView() {
-        PurchasingEvent purchasingEvent = EventBus.getDefault().getStickyEvent(PurchasingEvent.class);
-        TrialEvent trialEvent = EventBus.getDefault().getStickyEvent(TrialEvent.class);
-        if (purchasingEvent != null || trialEvent != null) {
-            int status = 0;
-            if(!isTrial) {
-                PurchasingResponse purchasingResponse = purchasingEvent.getResponse();
-                status = purchasingResponse.getResponseNumber();
-            } else {
-                TrialResponse trialResponse = trialEvent.getResponse();
-                status = trialResponse.getStatus();
-            }
-            if (status == 200) {
-                onSuccess();
-            } else if ((purchasingEvent != null && purchasingEvent.getResponse() != null && purchasingEvent.getResponse().wasLastAttempt())
-                    || (trialEvent != null)) {
-                onFailure();
-            } else {
-                showProgress();
-            }
-        } else {
+        boolean hasToken = !TextUtils.isEmpty(PiaPrefHandler.getAuthToken(getContext()));
+        boolean hasUsername = !TextUtils.isEmpty(PiaPrefHandler.getLogin(getContext()));
+        hasEmail = PiaPrefHandler.hasSetEmail(getContext());
+
+        if (loggingIn) {
+            return;
+        }
+
+        if (!hasToken) {
             showProgress();
             if (firePurchasing) {
                 firePurchasing = false;
                 notifySubscriptionToBackend();
             }
+        }
+        else if (!hasEmail) {
+            onSubscriptionSuccess();
+        }
+        else if (hasUsername){
+            onSuccess();
+        }
+        else {
+            onFailure();
         }
     }
 
@@ -132,190 +127,297 @@ public class PurchasingProcessFragment extends Fragment {
         aProgress.setVisibility(View.VISIBLE);
         aSuccess.setVisibility(View.GONE);
         aFailure.setVisibility(View.GONE);
+        aEmail.setVisibility(View.GONE);
         button.setVisibility(View.GONE);
+    }
 
-        PurchasingEvent purchasingEvent = EventBus.getDefault().getStickyEvent(PurchasingEvent.class);
-        if (PIAApplication.isQA() && purchasingEvent != null && purchasingEvent.getResponse() != null && purchasingEvent.getResponse().getAttempt() > 0) {
-            PurchasingResponse response = purchasingEvent.getResponse();
-        }
+    private void onSubscriptionSuccess() {
+        aProgress.setVisibility(View.GONE);
+        aSuccess.setVisibility(View.GONE);
+        aFailure.setVisibility(View.GONE);
+        aEmail.setVisibility(View.VISIBLE);
+        button.setVisibility(View.GONE);
     }
 
     private void onSuccess() {
-        TrialEvent trialEvent = EventBus.getDefault().getStickyEvent(TrialEvent.class);
-        PurchasingEvent purchasingEvent = EventBus.getDefault().getStickyEvent(PurchasingEvent.class);
-        if(!isTrial) {
-            PurchasingResponse response = purchasingEvent.getResponse();
-            String username = response.getUsername();
-            String password = response.getPassword();
-            String email = PiaPrefHandler.getEmail(aSuccess.getContext());
+        String username = PiaPrefHandler.getLogin(getContext());
+        String password = PiaPrefHandler.getSavedPassword(getContext());
 
-            tvUsername.setText(username);
-            tvPassword.setText(password);
+        tvUsername.setText(username);
+        tvPassword.setText(password);
 
-            button.setText(R.string.get_started);
-            button.setVisibility(View.VISIBLE);
+        button.setVisibility(View.VISIBLE);
+        button.setText(R.string.get_started);
 
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    PurchasingEvent event = EventBus.getDefault().getStickyEvent(PurchasingEvent.class);
-                    PurchasingResponse response = event.getResponse();
-                    if (!TextUtils.isEmpty(response.getPassword())) {
-                        IAccount account = PIAFactory.getInstance().getAccount(view.getContext());
-                        LoginInfo info = new LoginInfo(response.getUsername(), response.getPassword());
-                        account.login(info, null);
-                        button.setVisibility(View.INVISIBLE);
-                        progress.setVisibility(View.VISIBLE);
-                    } else {
-                        LoginResponse loginResponse = new LoginResponse();
-                        loginResponse.setLrStatus(LoginResponseStatus.OP_FAILED);
-                        EventBus.getDefault().postSticky(new LoginEvent(loginResponse));
-                    }
-                }
+        button.setOnClickListener(v -> {
+            IAccount account = PIAFactory.getInstance().getAccount(v.getContext());
+            account.loginWithCredentials(username, password, (token, requestResponseStatus) -> {
+                handleAuthenticationResponse(token, requestResponseStatus);
+                return null;
             });
-        } else {
-            TrialResponse trialResp = trialEvent.getResponse();
-            tvUsername.setText(trialResp.getUsername());
-            tvPassword.setText(trialResp.getPassword());
+            button.setVisibility(View.INVISIBLE);
+            progress.setVisibility(View.VISIBLE);
+        });
 
-            button.setVisibility(View.VISIBLE);
-            button.setText(R.string.get_started);
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    TrialEvent event = EventBus.getDefault().getStickyEvent(TrialEvent.class);
-                    TrialResponse response = event.getResponse();
-                    if (!TextUtils.isEmpty(response.getPassword())) {
-                        IAccount account = PIAFactory.getInstance().getAccount(v.getContext());
-                        LoginInfo info = new LoginInfo(response.getUsername(), response.getPassword());
-                        account.login(info, null);
-                        button.setVisibility(View.INVISIBLE);
-                        progress.setVisibility(View.VISIBLE);
-                    } else {
-                        LoginResponse loginResponse = new LoginResponse();
-                        loginResponse.setLrStatus(LoginResponseStatus.OP_FAILED);
-                        EventBus.getDefault().postSticky(new LoginEvent(loginResponse));
-                    }
-                }
-            });
-        }
+        loggingIn = true;
 
         aProgress.setVisibility(View.GONE);
         aSuccess.setVisibility(View.VISIBLE);
         aFailure.setVisibility(View.GONE);
+        aEmail.setVisibility(View.GONE);
     }
 
     private void onFailure() {
-        boolean connected = PIAApplication.isNetworkAvailable(aProgress.getContext());
-        if(!isTrial) {
-            if (!connected) {
-                tvFailureTitle.setText(R.string.no_internet_title);
-                tvFailureMessage.setText(R.string.no_internet_message);
-
-                button.setText(R.string.try_again);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        aFailure.setVisibility(View.GONE);
-                        aSuccess.setVisibility(View.GONE);
-                        aProgress.setVisibility(View.VISIBLE);
-                        button.setVisibility(View.INVISIBLE);
-                        notifySubscriptionToBackend();
-                    }
-                });
-            } else {
-                tvFailureTitle.setText(R.string.account_creation_failure);
-                tvFailureMessage.setText(getString(R.string.account_creation_failure_message_no_ticket_id));
-
-                button.setText(R.string.go_to_login);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        LoginResponse response = new LoginResponse();
-                        response.setLrStatus(LoginResponseStatus.OP_FAILED);
-                        EventBus.getDefault().postSticky(new LoginEvent(response));
-                    }
-                });
-
-            }
+        if (isTrial) {
+            onTrialFailure(null);
         } else {
-            TrialEvent event = EventBus.getDefault().getStickyEvent(TrialEvent.class);
-            String message = event.getResponse().getResponse();
-            if(message != null){
-                int imageResId = R.drawable.ic_account_creation_failed;
-                int titleResId = R.string.account_creation_failure;
-                int messageResId = R.string.account_creation_failure_message;
-                if(message.equals("bad_email")) { //Invalid email address
-                    titleResId = R.string.trial_failure_email_title;
-                    messageResId = R.string.trial_failure_email_message;
-                } else if(message.equals("redeemed")) { // Pin code already redeemed
-                    titleResId = R.string.trial_failure_redeemed_title;
-                    messageResId = R.string.trial_failure_redeemed_message;
-                    imageResId = R.drawable.ic_trial_account_claimed;
-                } else if(message.equals("not_found") || message.equals("canceled")) { // Pin code not found or pin code canceled
-                    titleResId = R.string.trial_failure_invalid_title;
-                    messageResId = R.string.trial_failure_invalid_message;
-                    imageResId = R.drawable.ic_invalid_card;
-                } else { // throttled
-                    titleResId = R.string.trial_failure_throttled_title;
-                    messageResId = R.string.trial_failure_throttled_message;
-                }
+            onPurchaseFailure();
+        }
+    }
 
-                tvFailureTitle.setText(titleResId);
-                tvFailureMessage.setText(messageResId);
-            }
+    private void onPurchaseFailure() {
+        Context context = getContext();
+        boolean connected = PIAApplication.isNetworkAvailable(context);
+        if (!connected) {
+            tvFailureTitle.setText(R.string.no_internet_title);
+            tvFailureMessage.setText(R.string.no_internet_message);
 
             button.setText(R.string.try_again);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    EventBus.getDefault().removeStickyEvent(TrialEvent.class);
-                    getActivity().onBackPressed();
+                public void onClick(View view) {
+                    aFailure.setVisibility(View.GONE);
+                    aSuccess.setVisibility(View.GONE);
+                    aProgress.setVisibility(View.VISIBLE);
+                    button.setVisibility(View.INVISIBLE);
+                    notifySubscriptionToBackend();
                 }
             });
+        } else {
+            tvFailureTitle.setText(R.string.account_creation_failure);
+            tvFailureMessage.setText(getString(R.string.account_creation_failure_message_no_ticket_id));
+
+            button.setText(R.string.go_to_login);
+            button.setOnClickListener(view -> {
+                if (getActivity() instanceof LoginPurchaseActivity) {
+                    ((LoginPurchaseActivity) getActivity()).switchToStart();
+                    PiaPrefHandler.clearAccountInformation(context);
+                    PiaPrefHandler.clearPurchasingInfo(context);
+                }
+            });
+
         }
+
         button.setVisibility(View.VISIBLE);
         aProgress.setVisibility(View.GONE);
         aSuccess.setVisibility(View.GONE);
         aFailure.setVisibility(View.VISIBLE);
     }
 
+    private void onTrialFailure(String code) {
+        if (code != null){
+            int titleResId;
+            int messageResId;
+            switch (code) {
+                case "bad_email":  // Invalid email address
+                    titleResId = R.string.trial_failure_email_title;
+                    messageResId = R.string.trial_failure_email_message;
+                    break;
+                case "redeemed":  // Pin code already redeemed
+                    titleResId = R.string.trial_failure_redeemed_title;
+                    messageResId = R.string.trial_failure_redeemed_message;
+                    break;
+                case "not_found":
+                case "canceled":  // Pin code not found or pin code canceled
+                    titleResId = R.string.trial_failure_invalid_title;
+                    messageResId = R.string.trial_failure_invalid_message;
+                    break;
+                default:  // throttled
+                    titleResId = R.string.trial_failure_throttled_title;
+                    messageResId = R.string.trial_failure_throttled_message;
+                    break;
+            }
+
+            tvFailureTitle.setText(titleResId);
+            tvFailureMessage.setText(messageResId);
+        }
+
+        button.setText(R.string.try_again);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
+
+        button.setVisibility(View.VISIBLE);
+        aProgress.setVisibility(View.GONE);
+        aSuccess.setVisibility(View.GONE);
+        aFailure.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.fragment_purchasing_email_submit)
+    public void submitEmail() {
+        Context context = getContext();
+        String email = etEmail.getText();
+        if (!AppUtilities.isValidEmail(email)) {
+            etEmail.setError(getString(R.string.invalid_email_signup));
+            return;
+        } else {
+            etEmail.setError(null);
+        }
+
+        PiaPrefHandler.saveLoginEmail(context, email);
+        hasPassword = !TextUtils.isEmpty(PiaPrefHandler.getSavedPassword(context));
+
+        boolean resetPassword = !hasPassword;
+        String token = PiaPrefHandler.getAuthToken(context);
+        PIAFactory.getInstance().getAccount(context).updateEmail(
+                token,
+                email,
+                resetPassword,
+                (temporaryPassword, requestResponseStatus) -> {
+                    boolean successful = false;
+                    switch (requestResponseStatus) {
+                        case SUCCEEDED:
+                            successful = true;
+                            break;
+                        case AUTH_FAILED:
+                        case THROTTLED:
+                        case OP_FAILED:
+                            break;
+                    }
+
+                    if (!successful) {
+                        DLog.d(TAG, "updateEmail unsuccessful " + requestResponseStatus);
+                        onFailure();
+                        return null;
+                    }
+
+                    if (resetPassword) {
+                        PiaPrefHandler.setSavedPassword(context, temporaryPassword);
+                    }
+
+                    PiaPrefHandler.setHasSetEmail(context, true);
+                    initView();
+                    return null;
+                }
+        );
+        showProgress();
+    }
+
     /**
      * notifies the backend. It will check if the email is valid.
      */
     public void notifySubscriptionToBackend() {
-        if(!isTrial)
-            PIAFactory.getInstance().getAccount(aProgress.getContext()).startPurchaseProcess(null);
-        else
-            PIAFactory.getInstance().getAccount(aProgress.getContext()).createTrialAccount(null);
-    }
+        Context context = getContext();
+        IAccount account = PIAFactory.getInstance().getAccount(context);
+        if (isTrial) {
+            TrialData data = PiaPrefHandler.getTempTrialData(context);
+            account.createTrialAccount(
+                    data.getEmail(),
+                    data.getPin(),
+                    (username, password, message, requestResponseStatus) -> {
+                        boolean successful = false;
+                        switch (requestResponseStatus) {
+                            case SUCCEEDED:
+                                successful = true;
+                                break;
+                            case AUTH_FAILED:
+                            case THROTTLED:
+                            case OP_FAILED:
+                                break;
+                        }
 
-    @Subscribe
-    public void onLogin(TokenEvent event) {
-        TokenResponse response = event.getResponse();
-        // this will handle signing in. Might have to go back to the login page.
-        if (response.getStatus() == LoginResponseStatus.CONNECTED) {
-            ((BaseActivity) getActivity()).goToMainActivity();
-            if(isTrial)
-                EventBus.getDefault().removeStickyEvent(TrialEvent.class);
+                        if (!successful) {
+                            DLog.d(TAG, "createTrialAccount unsuccessful " + requestResponseStatus);
+                            onTrialFailure(message);
+                            return null;
+                        }
 
-            EventBus.getDefault().removeStickyEvent(TokenEvent.class);
+                        PiaPrefHandler.cleanTempTrialData(context);
+                        initView();
+                        return null;
+                    }
+            );
         } else {
-            ((LoginPurchaseActivity) getActivity()).switchToLogin();
+            String orderId = PiaPrefHandler.getPurchasingOrderId(context);
+            String token = PiaPrefHandler.getPurchasingToken(context);
+            String sku = PiaPrefHandler.getPurchasingSku(context);
+            account.signUp(orderId, token, sku, (signUpInformation, requestResponseStatus) -> {
+                handleSignUpResponse(signUpInformation, requestResponseStatus);
+                return null;
+            });
         }
-        EventBus.getDefault().removeStickyEvent(PurchasingEvent.class);
     }
 
+    private void handleAuthenticationResponse(
+            String token,
+            RequestResponseStatus requestResponseStatus
+    ) {
+        Context context = getContext();
+        boolean successful = false;
+        switch (requestResponseStatus) {
+            case SUCCEEDED:
+                successful = !TextUtils.isEmpty(token);
+                break;
+            case AUTH_FAILED:
+            case THROTTLED:
+            case OP_FAILED:
+                break;
+        }
 
-    @Subscribe
-    public void onSignUp(PurchasingEvent event) {
-        DLog.d(TAG, "event = " + event.getResponse().toString());
+        if (!successful) {
+            DLog.d(TAG, "handleAuthenticationResponse unsuccessful " + requestResponseStatus);
+            onFailure();
+            ((LoginPurchaseActivity) getActivity()).switchToLogin();
+            return;
+        }
+
+        PiaPrefHandler.saveAuthToken(context, token);
+        PiaPrefHandler.clearPurchasingInfo(context);
         initView();
+
+        if (!hasPassword) {
+            return;
+        }
+
+        PiaPrefHandler.setUserIsLoggedIn(getContext(), true);
+        PiaPrefHandler.clearUserData(getContext());
+        ((BaseActivity) getActivity()).goToMainActivity();
     }
 
-    @Subscribe
-    public void onTrialCreation(TrialEvent response){
-        initView();
+    private void handleSignUpResponse(
+            SignUpInformation information,
+            RequestResponseStatus signUpRequestResponseStatus
+    ) {
+        Context context = getContext();
+        boolean successful = false;
+        switch (signUpRequestResponseStatus) {
+            case SUCCEEDED:
+                successful = true;
+                break;
+            case AUTH_FAILED:
+            case THROTTLED:
+            case OP_FAILED:
+                break;
+        }
+
+        if (!successful) {
+            DLog.d(TAG, "handleSignUpResponse unsuccessful " + signUpRequestResponseStatus);
+            onFailure();
+            return;
+        }
+
+        PiaPrefHandler.saveUserPW(context, information.getUsername(), information.getPassword());
+        PIAFactory.getInstance().getAccount(context).loginWithReceipt(
+                PiaPrefHandler.getPurchasingToken(context),
+                PiaPrefHandler.getPurchasingSku(context),
+                (token, loginRequestResponseStatus) -> {
+                    handleAuthenticationResponse(token, loginRequestResponseStatus);
+                    return null;
+                }
+        );
     }
 
     public void setFirePurchasing(boolean firePurchasing) {
@@ -325,4 +427,6 @@ public class PurchasingProcessFragment extends Fragment {
     public void setTrial(boolean trial) {
         isTrial = trial;
     }
+
+    public void setShowEmail(boolean showEmail) { hasEmail = false; }
 }

@@ -23,7 +23,6 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.os.Bundle;
 import android.widget.RemoteViews;
 
 import com.privateinternetaccess.android.R;
@@ -62,23 +61,6 @@ public class WidgetProvider extends WidgetBaseProvider {
                 appWidgetManager.updateAppWidget(appWidgetId, views);
             }
         }
-    }
-
-    @Override
-    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
-        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
-//        if(newOptions != null){
-//            int minWidth = newOptions.getInt("appWidgetMinWidth");
-//            int minHeight = newOptions.getInt("appWidgetMinHeight");
-//            int maxWidth = newOptions.getInt("appWidgetMaxWidth");
-//            int maxHeight = newOptions.getInt("appWidgetMaxHeight");
-////             see what we want to do with this as min widths and heights are keep in xml.
-//            DLog.d("AppWidgetOptionsChanged", "minWidth = " + minWidth +
-//                    "minHeight = " + minHeight +
-//                    "maxWidth = " + maxWidth +
-//                    "maxHeight = " + maxHeight
-//            );
-//        }
     }
 
     @Override

@@ -78,6 +78,7 @@ Code structure via packages:
 * PIABuilder - Initializes the required notification channels, vpn logs cache, services and more. Should be initialized on Application.onCreate()
 * PIAFactory - Creates instances of interfaces that let you control the VPN, get account information and handle connection elements.
 * PiaOvpnConfig - Generates the vpn configuration to send to OpenVPN.
+* GoBackend - Generates the vpn configuration for WireGuard
 * ConnectionResponder - Handles IP grabbing, port forwarding and MACE for all connections.
 
 ### Authors

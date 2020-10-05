@@ -48,6 +48,7 @@ import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 public class FetchPingTask extends AsyncTask<String, Void, PingResponse> {
 
     private static final String TAG = "FetchPingTask";
+    public static final int TIMEOUT = 3000;
 
     private IOpenVPNServiceInternal rmService;
     private boolean useTCP;
@@ -113,7 +114,7 @@ public class FetchPingTask extends AsyncTask<String, Void, PingResponse> {
                 }
                 DatagramPacket pingPacket = new DatagramPacket(new byte[]{0x55}, 1, address);
                 before = System.currentTimeMillis();
-                s.setSoTimeout(3000); // 3s
+                s.setSoTimeout(TIMEOUT); // 3s
                 s.send(pingPacket);
                 try {
                     s.receive(pingPacket);

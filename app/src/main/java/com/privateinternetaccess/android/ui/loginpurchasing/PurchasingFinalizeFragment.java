@@ -29,8 +29,8 @@ import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.subscription.InAppPurchasesHelper;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.android.utils.SubscriptionsUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,7 +39,6 @@ import butterknife.OnClick;
 public class PurchasingFinalizeFragment extends Fragment {
 
     @BindView(R.id.fragment_finalize_cost) TextView tvCost;
-    @BindView(R.id.fragment_finalize_email) TextView tvEmail;
     @BindView(R.id.fragment_finalize_plan_type) TextView tvPlan;
 
     public static String PRODUCT_ID_SELECTED;
@@ -66,21 +65,15 @@ public class PurchasingFinalizeFragment extends Fragment {
     }
 
     private void initView() {
-        tvEmail.setText(email);
-
-        InAppPurchasesHelper.SubscriptionType type = InAppPurchasesHelper.getType(PRODUCT_ID_SELECTED);
-
-        if (type != null) {
-            if (type == InAppPurchasesHelper.SubscriptionType.MONTHLY) {
+        if (PRODUCT_ID_SELECTED != null) {
+            if (PRODUCT_ID_SELECTED.equals(SubscriptionsUtils.INSTANCE.getMonthlySubscriptionId(getContext()))) {
                 String monthly = getString(R.string.monthly_only);
                 monthly = monthly.substring(0, 1).toUpperCase() + monthly.substring(1);
-
                 tvPlan.setText(monthly);
             }
-            else if (type == InAppPurchasesHelper.SubscriptionType.YEARLY) {
+            else if (PRODUCT_ID_SELECTED.equals(SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(getContext()))) {
                 String yearly = getString(R.string.yearly_only);
                 yearly = yearly.substring(0, 1).toUpperCase() + yearly.substring(1);
-
                 tvPlan.setText(yearly);
             }
         }
@@ -91,14 +84,11 @@ public class PurchasingFinalizeFragment extends Fragment {
     private void setupCosts() {
         String monthly = ((LoginPurchaseActivity) getActivity()).mMonthlyCost;
         String yearly = ((LoginPurchaseActivity) getActivity()).mYearlyCost;
-
-        InAppPurchasesHelper.SubscriptionType type = InAppPurchasesHelper.getType(PRODUCT_ID_SELECTED);
-
-        if (type != null) {
-            if (type == InAppPurchasesHelper.SubscriptionType.YEARLY) {
+        if (PRODUCT_ID_SELECTED != null) {
+            if (PRODUCT_ID_SELECTED.equals(SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(getContext()))) {
                 tvCost.setText(yearly);
             }
-            else if (type == InAppPurchasesHelper.SubscriptionType.MONTHLY) {
+            else if (PRODUCT_ID_SELECTED.equals(SubscriptionsUtils.INSTANCE.getMonthlySubscriptionId(getContext()))) {
                 tvCost.setText(monthly);
             }
         }
@@ -109,6 +99,6 @@ public class PurchasingFinalizeFragment extends Fragment {
     @OnClick(R.id.fragment_purchasing_finalize_submit)
     public void onSubmitPressed() {
         DLog.d("Purchasing", "id = " + PRODUCT_ID_SELECTED);
-        ((LoginPurchaseActivity) getActivity()).onSubscribeClicked(email, PRODUCT_ID_SELECTED);
+        ((LoginPurchaseActivity) getActivity()).onSubscribeClicked(PRODUCT_ID_SELECTED);
     }
 }

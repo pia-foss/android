@@ -36,8 +36,7 @@ import android.widget.TextView;
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.PricingLoadedEvent;
-import com.privateinternetaccess.android.pia.subscription.InAppPurchasesHelper;
-import com.privateinternetaccess.android.ui.features.WebviewActivity;
+import com.privateinternetaccess.android.utils.SubscriptionsUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -85,11 +84,13 @@ public class FreeTrialFragment extends Fragment {
             return;
         }
 
-        if (!pricesLoaded) {
-            ((LoginPurchaseActivity) getActivity()).showConnectionError();
+        if (pricesLoaded) {
+            ((LoginPurchaseActivity) getActivity()).onContinuePurchasingClicked(
+                    SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(getContext())
+            );
         }
         else {
-            ((LoginPurchaseActivity) getActivity()).onContinuePurchasingClicked(InAppPurchasesHelper.getYearlySubscriptionId());
+            ((LoginPurchaseActivity) getActivity()).showConnectionError();
         }
     }
 
@@ -101,7 +102,11 @@ public class FreeTrialFragment extends Fragment {
             return;
         }
 
-        ((LoginPurchaseActivity) getActivity()).switchToPurchasing();
+        if (pricesLoaded) {
+            ((LoginPurchaseActivity) getActivity()).switchToPurchasing();
+        } else {
+            ((LoginPurchaseActivity) getActivity()).showConnectionError();
+        }
     }
 
     @Subscribe(sticky = true)

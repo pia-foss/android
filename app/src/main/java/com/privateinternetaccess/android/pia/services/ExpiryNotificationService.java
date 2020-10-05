@@ -30,10 +30,10 @@ import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
-import com.privateinternetaccess.android.pia.model.PIAAccountData;
+import com.privateinternetaccess.android.pia.model.AccountInformation;
 import com.privateinternetaccess.android.pia.utils.DLog;
-import com.privateinternetaccess.android.pia.utils.NotificationHelper;
 import com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity;
+import com.privateinternetaccess.android.ui.notifications.PIANotifications;
 
 public class ExpiryNotificationService extends Service {
     private static final int SERVICE_NOTIFY_EXPIRY = 7231;
@@ -49,22 +49,16 @@ public class ExpiryNotificationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         DLog.i("ExpiryNotificationService", "On Start Command");
 
-//        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-//        Notification.Builder nBuilder = new Notification.Builder(this);
-//        nBuilder.setSmallIcon(R.drawable.ic_stat_robot);
         int iconId = R.drawable.ic_stat_pia_robot_white;
-//        nBuilder.setAutoCancel(true);
-//        nBuilder.setContentTitle(getString(R.string.expiry_notification_title));
         String title = getString(R.string.expiry_notification_title);
 
         IAccount account = PIAFactory.getInstance().getAccount(this);
-        PIAAccountData pai = account.getAccountInfo();
+        AccountInformation accountInformation = account.persistedAccountInformation();
 
         // We should arm the timers for the next alert
         armReminders(this);
 
-        if (pai.getTimeLeft() > MONTH_MS && !BuildConfig.DEBUG) {
+        if (accountInformation.getTimeLeftMs() > MONTH_MS && !BuildConfig.DEBUG) {
             // More than one moth left?! ignore and rearm timers
             return START_NOT_STICKY;
         }
@@ -73,31 +67,34 @@ public class ExpiryNotificationService extends Service {
         if (!PiaPrefHandler.showExpiryNotifcation(this))
             return START_NOT_STICKY;
 
-        String text = null;
-
-        if (pai.getTimeLeft() > 7 * DAY_MS)
+        String text = getString(R.string.expiry_notification_onnemonth);
+        if (accountInformation.getTimeLeftMs() > 7 * DAY_MS)
             text = getString(R.string.expiry_notification_onnemonth);
-        else if (pai.getTimeLeft() > 3 * DAY_MS)
+        else if (accountInformation.getTimeLeftMs() > 3 * DAY_MS)
             // More than one day left
             text = getString(R.string.expiry_notification_oneweek);
 
-        else if (pai.getTimeLeft() > DAY_MS)
+        else if (accountInformation.getTimeLeftMs() > DAY_MS)
             // More than one day left
             text = getString(R.string.expirty_notification_threedays);
-        else if (pai.getTimeLeft() <= DAY_MS)
+        else if (accountInformation.getTimeLeftMs() <= DAY_MS)
             text = getString(R.string.expirty_notification_oneday);
 
-
-        Intent ni = new Intent(this, LoginPurchaseActivity.class);
-
-        PendingIntent pi = PendingIntent.getActivity(this, 0, ni, 0);
-//        nBuilder.setContentIntent(pi);
-//        mNotificationManager.notify(SERVICE_NOTIFY_EXPIRY, nBuilder.build());
-
-        NotificationHelper.createNotification(this, SERVICE_NOTIFY_EXPIRY, title, iconId, true, text, pi, NotificationHelper.NOTIFICATION_CHANNEL_ID);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                new Intent(this, LoginPurchaseActivity.class),
+                0
+        );
+        PIANotifications.Companion.getSharedInstance().showNotification(
+                this,
+                SERVICE_NOTIFY_EXPIRY,
+                title,
+                text,
+                pendingIntent
+        );
 
         PiaPrefHandler.setLastExpiryNotifcationShown(this);
-
         return START_NOT_STICKY;
     }
 
@@ -112,27 +109,26 @@ public class ExpiryNotificationService extends Service {
 
         IAccount account = PIAFactory.getInstance().getAccount(c);
         // Check if notifications should be displayed
-        PIAAccountData pai = account.getAccountInfo();
+        AccountInformation accountInformation = account.persistedAccountInformation();
 
-        if (account.isLoggedIn() && pai.getExpiration_time() > 0) {
+        if (account.loggedIn() && accountInformation.getExpirationTime() > 0) {
 
-            long timeLeft = pai.getTimeLeft();
+            long timeLeft = accountInformation.getTimeLeftMs();
+            long expirationTime = accountInformation.getExpirationTime();
 
-            long expirty_time = pai.getExpiration_time() * 1000;
-
-            if (PIAAccountData.PLAN_YEARLY.equals(pai.getPlan()) && timeLeft > MONTH_MS) {
-                long wakeTime = expirty_time - MONTH_MS;
+            if (AccountInformation.PLAN_YEARLY.equals(accountInformation.getPlan()) && timeLeft > MONTH_MS) {
+                long wakeTime = expirationTime - MONTH_MS;
                 alarmManager.set(AlarmManager.RTC, wakeTime, pIntent);
             } else if (timeLeft > 7 * DAY_MS) {
                 // Still more than a week left arm timer for one week expiry
-                long wakeTime = expirty_time - 7 * DAY_MS;
+                long wakeTime = expirationTime - 7 * DAY_MS;
                 alarmManager.set(AlarmManager.RTC, wakeTime, pIntent);
             } else if (timeLeft > 3 * DAY_MS) {
-                long wakeTime = expirty_time - 3 * DAY_MS;
+                long wakeTime = expirationTime - 3 * DAY_MS;
                 alarmManager.set(AlarmManager.RTC, wakeTime, pIntent);
 
             } else if (timeLeft > DAY_MS) {
-                long wakeTime = expirty_time - DAY_MS;
+                long wakeTime = expirationTime - DAY_MS;
                 alarmManager.set(AlarmManager.RTC, wakeTime, pIntent);
             }
         }

@@ -22,12 +22,16 @@ import android.graphics.Rect;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
+import com.privateinternetaccess.android.pia.utils.DLog;
+
 public class ServerSelectionItemDecoration extends RecyclerView.ItemDecoration {
 
     private int spanCount;
     private int spacing;
 
     private int decorationOffset;
+
+    public boolean disable = false;
 
     public ServerSelectionItemDecoration(int spanCount, int spacing, int offset) {
         this.spanCount = spanCount;
@@ -37,7 +41,7 @@ public class ServerSelectionItemDecoration extends RecyclerView.ItemDecoration {
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        if (parent.getChildAdapterPosition(view) < decorationOffset) {
+        if (parent.getChildAdapterPosition(view) < decorationOffset || disable) {
             return;
         }
 

@@ -44,4 +44,11 @@
 
     <!-- Snooze Widget -->
     <color name="snooze_border">@color/white</color>
+
+    <!-- Calling Card -->
+    <color name="calling_background">#323642</color>
+
+    <!-- Onboarding -->
+    <color name="purchase_panel_blur">#88323642</color>
+
 </resources>

@@ -26,8 +26,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.privateinternetaccess.account.model.response.InvitesDetailsInformation.Invite;
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.model.Invite;
 
 import java.util.List;
 
@@ -55,9 +55,9 @@ public class InviteListAdapter extends RecyclerView.Adapter<InviteListAdapter.In
     @Override
     public void onBindViewHolder(InviteListAdapter.InviteHolder holder, final int position) {
         Invite invite = mItems.get(position);
-        holder.tvEmail.setText(invite.obfuscatedEmail);
-        holder.tvRewarded.setText(invite.rewarded ? mContext.getString(R.string.refer_yes) : mContext.getString(R.string.refer_no));
-        holder.tvAccepted.setText(invite.accepted ? mContext.getString(R.string.refer_yes) : mContext.getString(R.string.refer_no));
+        holder.tvEmail.setText(invite.getObfuscatedEmail());
+        holder.tvRewarded.setText(invite.getRewarded() ? mContext.getString(R.string.refer_yes) : mContext.getString(R.string.refer_no));
+        holder.tvAccepted.setText(invite.getAccepted() ? mContext.getString(R.string.refer_yes) : mContext.getString(R.string.refer_no));
 
         if (position == mItems.size() - 1)
             holder.lastDivider.setVisibility(View.VISIBLE);

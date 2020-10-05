@@ -70,7 +70,7 @@ public class PiaOvpnConfig {
         vp.mName = region.getName();
         vp.mAllowedAppsVpnAreDisallowed = !prefs.getBoolean(PiaPrefHandler.VPN_PER_APP_ARE_ALLOWED);
         vp.mAllowedAppsVpn = new HashSet<>(prefs.getStringSet(PiaPrefHandler.VPN_PER_APP_PACKAGES));
-            /* Always include PIA itself, so the current IP mechanism works */
+        /* Always include PIA itself, so the current IP mechanism works */
         if (!vp.mAllowedAppsVpnAreDisallowed)
             vp.mAllowedAppsVpn.add(c.getPackageName());
 
@@ -95,7 +95,7 @@ public class PiaOvpnConfig {
         vp.mDNS2 = "";
 
         String dns = prefs.get(PiaPrefHandler.DNS, "");
-        if (prefs.getBoolean(PiaPrefHandler.GEN4_ACTIVE) && PiaPrefHandler.isMaceEnabled(c)) {
+        if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true) && PiaPrefHandler.isMaceEnabled(c)) {
             dns = GEN4_MACE_ENABLED_DNS;
         }
         DLog.d("PiaOvpnConfig", "Custom DNS: " + dns);
@@ -135,6 +135,12 @@ public class PiaOvpnConfig {
         }
         PIAServerHandler handler = PIAServerHandler.getInstance(a);
         PIAServer ps = handler.getSelectedRegion(a, false);
+        if (ps == null) {
+            throw new IOException("Invalid server");
+        }
+        if (!ps.isValid()) {
+            throw new IOException("Invalid server properties");
+        }
 
         String autoserver;
         boolean useTCP = prefs.getBoolean(PiaPrefHandler.USE_TCP);

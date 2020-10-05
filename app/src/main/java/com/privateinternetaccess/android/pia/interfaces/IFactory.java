@@ -30,7 +30,5 @@ public interface IFactory {
 
     IAccount getAccount(Context context);
 
-    IConnection getConnection(Context context);
-
     IVPN getVPN(Context context);
 }

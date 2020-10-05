@@ -52,18 +52,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/swipe_to_refresh"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            >
-            <androidx.core.widget.NestedScrollView
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            <WebView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="fill_vertical">
-                <WebView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/webview_webview"
-                    />
-            </androidx.core.widget.NestedScrollView>
+                android:id="@+id/webview_webview"
+                />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

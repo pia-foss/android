@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"Error purchasing: %1$s "</string>
     <string name="error_active_subscription">You already have an active subscription!</string>
+    <string name="error_invalid_auth">Something went wrong. Please try logging in again.</string>
     <string name="usemssfix">Will slightly lower the IP packet size to improve compatibility with some routers and mobile networks.</string>
     <string name="mssfixsummary">Use small packets</string>
     <string name="settings_account_bottom_text">Get the Private Internet Access app for your other devices and use the above username to login and secure your connection.</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">About</string>
     <string name="reconnect_vpn">Reconnect the VPN to apply this change</string>
     <string name="error_account_info">Failed to find account information</string>
+    <string name="error_pinging_while_connected">Unable to update latency while being connected to the VPN</string>
     <string name="allows_port_forwarding">Allows Port Forwarding</string>
     <string name="about_privacy_policy">Privacy Policy</string>
     <string name="version">Version</string>
@@ -188,7 +190,7 @@
     <string name="submit">Submit</string>
     <string name="please_enter_your_email_address">Please enter your email address</string>
     <string name="select_vpn_plan">Select a VPN Plan</string>
-    <string name="_7_day_money_back_guarantee">7-day money back guarantee</string>
+    <string name="_7_day_money_back_guarantee">30-day money back guarantee</string>
     <string name="monthly">Monthly</string>
     <string name="yearly">Yearly</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -227,11 +229,11 @@
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[Port between 1024 & 65535]]></string>
     <string name="startup_region_title">Connect to any region easily</string>
-    <string name="startup_region_message">With servers around the globe, you are always under protection.</string>
+    <string name="startup_region_message">With servers around the globe, you are always protected.</string>
     <string name="startup_ads_title">Protect yourself from ads</string>
     <string name="startup_ads_message">Enabling PIA MACE prevents ads from showing wherever you go.</string>
     <string name="startup_connection_title">Per app protection</string>
-    <string name="startup_connection_message">Make your experience customized to you by controlling what apps go through our service (Android 5.0+ required).</string>
+    <string name="startup_connection_message">Customize your experience by controlling which apps go through our service (Android 5.0+ required).</string>
     <string name="speed_graph">PERFORMANCE</string>
     <string name="data_usage_over_time">DATA USAGE OVER TIME</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -545,16 +547,14 @@
     <string name="refer_email_required">Email is required</string>
     <string name="refer_terms_required">You must accept terms and conditions to send referral invitations</string>
 
-    <string-array name="region_filters">
-        <item>Name</item>
-        <item>Latency</item>
-        <item>Favorites</item>
-    </string-array>
+    <string name="region_filter_name">Name</string>
+    <string name="region_filter_latency">Latency</string>
+    <string name="region_filter_favorites">Favorites</string>
 
     <!-- Free Trial Strings -->
     <string name="free_trial_header">Try free for 7 days!</string>
     <string name="free_trial_cost">Pay only %s yearly</string>
-    <string name="free_trial_guarantee">7 day money back guarantee</string>
+    <string name="free_trial_guarantee">30 day money back guarantee</string>
 
     <string name="free_trial_protection_header">1 year of privacy and identity protection</string>
     <string name="free_trial_protection_text">Browse anonymously and hide your IP</string>
@@ -620,5 +620,58 @@
 
     <!-- GEO Servers -->
     <string name="geo_servers">Include geo-located regions</string>
+
+    <!-- Rating -->
+    <string name="rating_enjoy_title">Are you enjoying PIA VPN?</string>
+    <string name="rating_enjoy_message">We hope our VPN product is meeting your expectations</string>
+    <string name="rating_review_title">How about a review in Google Play?</string>
+    <string name="rating_review_message">We appreciate you sharing your experience</string>
+    <string name="rating_feedback_title">What went wrong?</string>
+    <string name="rating_feedback_message">Do you want to give feedback? We can help you to improve your experience using PIA</string>
+
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">SUBSCRIBE NOW</string>
+    <string name="getstarted_free_trial">Start your 7-day free trial</string>
+    <string name="getstarted_trial_price">Then %s per year</string>
+    <string name="purchasing_email_reason">We need your email to send your username and password.</string>
+    <string name="purchasing_all_plans">See all available plans</string>
+    <string name="purchasing_login_receipt">Login using purchase receipt</string>
+    <string name="purchasing_no_subscription">You have no active subscription</string>
+    <string name="purchasing_sure">Are you sure?</string>
+    <string name="purchasing_return">Would you like to return to the home screen? You can resume the subscription process at any time by clicking Login->Login using purchase receipt.</string>
+    <string name="purchasing_magic_link">Login using magic email link</string>
+    <string name="purchasing_magic_send">SEND LINK</string>
+    <string name="magic_login_enter_email">Enter email</string>
+
+    <string name="purchasing_magic_success">Please check your e-mail for a login link.</string>
+
+    <string name="connection_tile_header">CONNECTION</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    
+    <!-- Update -->
+    <string name="settings_calling_header">Latest news</string>
+    <string name="update_3_7_1_header">Try WireGuard® today!</string>
+    <string name="update_3_7_1_description">It\'s a new, more efficient VPN protocol that offers better performance, lower CPU usage and longer battery life.</string>
+    <string name="update_3_7_1_cta_1">Try WireGuard® now</string>
+    <string name="update_3_7_1_cta_2"><u>Learn more</u></string>
+
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">Secure Wi-Fi</string>
+    <string name="nmt_open_wifi">Wi-Fi</string>
+    <string name="nmt_mobile_data">Mobile data</string>
+    <string name="nmt_disconnect">Always disconnect VPN</string>
+    <string name="nmt_connect">Always connect VPN</string>
+    <string name="nmt_retain">Retain VPN state</string>
+    <string name="nmt_manage_title">Manage Automation</string>
+    <string name="nmt_manage_description">Configure how PIA behaves on connection to WiFi or cellular networks. This excludes disconnecting manually.</string>
+    <string name="nmt_add_description">Choose a WiFi network to add new rule.</string>
+    <string name="nmt_rule_for">Rule for %s</string>
+    <string name="nmt_remove_rule">Remove rule</string>
+    <string name="nmt_add_new_rule">Add new rule</string>
+
+    <string name="nmt_settings_title">Network Management</string>
+    <string name="nmt_settings_description">Setup rules to handle auto-connect rules for trusted and untrusted networks.</string>
+    <string name="nmt_management_title">Manage automation</string>
 
 </resources>

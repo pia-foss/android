@@ -21,20 +21,75 @@ package com.privateinternetaccess.android.utils;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 
+import com.privateinternetaccess.android.model.listModel.NetworkItem;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
+import com.privateinternetaccess.android.pia.utils.Prefs;
+
+import java.util.List;
+
+import androidx.annotation.Nullable;
 
 public class TrustedWifiUtils {
 
     public static boolean isEnabledAndConnected(Context context) {
         boolean connectedToTrustedWifi = false;
-        if (PiaPrefHandler.getTrustWifi(context)) {
+        if (Prefs.with(context).getBoolean(PiaPrefHandler.NETWORK_MANAGEMENT)) {
             WifiManager wifiManager =
                     (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             String ssid = wifiManager.getConnectionInfo().getSSID();
             String sanitizedSSID = ssid.substring(1, ssid.length() - 1);
-            connectedToTrustedWifi =
-                    PiaPrefHandler.getTrustedNetworks(context).contains(sanitizedSSID);
+
+            List<String> serializedRules = PiaPrefHandler.getNetworkRules(context);
+            for (String serializedRule : serializedRules) {
+                NetworkItem rule = NetworkItem.fromString(serializedRule);
+
+                if (rule != null) {
+                    if (rule.networkName.equals(sanitizedSSID))
+                        connectedToTrustedWifi = true;
+                }
+            }
         }
         return connectedToTrustedWifi;
+    }
+
+
+    public static NetworkItem getBestRule(Context context) {
+        WifiManager wifiManager =
+                (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        String ssid = wifiManager.getConnectionInfo().getSSID();
+        String sanitizedSSID = ssid.substring(1, ssid.length() - 1);
+
+        List<String> serializedRules = PiaPrefHandler.getNetworkRules(context);
+        NetworkItem defaultRule = null;
+
+        for (String serializedRule : serializedRules) {
+            NetworkItem rule = NetworkItem.fromString(serializedRule);
+
+            if (rule != null) {
+                if (rule.networkName.equals(sanitizedSSID))
+                    return rule;
+
+                if (rule.isDefaultOpen) {
+                    defaultRule = rule;
+                }
+            }
+        }
+
+        return defaultRule;
+    }
+
+    @Nullable
+    public static NetworkItem getMobileRule(Context context) {
+        List<String> serializedRules = PiaPrefHandler.getNetworkRules(context);
+
+        for (String serializedRule : serializedRules) {
+            NetworkItem rule = NetworkItem.fromString(serializedRule);
+
+            if (rule != null && rule.isDefaultMobile) {
+                return rule;
+            }
+        }
+
+        return null;
     }
 }

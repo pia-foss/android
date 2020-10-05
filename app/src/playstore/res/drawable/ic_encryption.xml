@@ -1,0 +1,30 @@
+<!--
+  ~  Copyright (c) 2020 Private Internet Access, Inc.
+  ~
+  ~  This file is part of the Private Internet Access Android Client.
+  ~
+  ~  The Private Internet Access Android Client is free software: you can redistribute it and/or
+  ~  modify it under the terms of the GNU General Public License as published by the Free
+  ~  Software Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~  The Private Internet Access Android Client is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  ~  details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with the Private
+  ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="36"
+    android:viewportHeight="36">
+  <path
+      android:pathData="M18,8C14.9699,8 12.5313,10.6092 12.5313,13.8399L12.5313,16.1844C11.5272,16.2901 11,17.1726 11,18.245L11,25.9323C11,27.0758 11.8887,28 12.9893,28L23.0107,28C24.1113,28 25,27.0767 25,25.9323L25,18.245C25,17.1725 24.4728,16.283 23.4687,16.1773L23.4687,13.8398C23.4687,10.6091 21.0301,8 18,8L18,8ZM18,10.2666C19.9398,10.2666 21.5001,11.8655 21.5001,13.8541L21.5001,16.1776L14.5,16.1776L14.5,13.8541C14.5,11.8646 16.0603,10.2666 18,10.2666ZM18,19.1339C18.846,19.1339 19.5313,19.8468 19.5313,20.7257C19.5313,21.2842 19.2527,21.7778 18.834,22.0619C18.8571,22.1435 18.875,22.2288 18.875,22.3176L18.875,24.1366C18.875,24.6409 18.4845,25.0457 18,25.0457C17.5156,25.0457 17.125,24.64 17.125,24.1366L17.125,22.3176C17.125,22.2279 17.143,22.1435 17.1661,22.0619C16.7473,21.7778 16.4688,21.285 16.4688,20.7257C16.4688,19.8468 17.1541,19.1339 18,19.1339Z"
+      android:strokeWidth="1"
+      android:fillColor="#889099"
+      android:fillType="evenOdd"
+      android:strokeColor="#00000000"/>
+</vector>

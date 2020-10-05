@@ -55,6 +55,7 @@ import com.privateinternetaccess.android.pia.model.events.ServerPingEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
+import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.adapters.ServerListAdapter;
 import com.privateinternetaccess.android.ui.tv.views.ServerSelectionItemDecoration;
 import com.privateinternetaccess.android.utils.ServerUtils;
@@ -167,7 +168,7 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                 if (error == null) {
                     mAdapter.itemsUpdated(getServerItems(context, getRegionsFilterSelection(context)));
                 }
-                if (!Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+                if (!Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
                     PingHandler.getInstance(context).setCallback(null);
                 }
                 return Unit.INSTANCE;
@@ -176,11 +177,19 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
 
         if (PIAFactory.getInstance().getVPN(context).isVPNActive()) {
             DLog.e("ServerListFragment", "Error when updating latencies. Connected to the VPN.");
+            Toaster.l(context, getString(R.string.error_pinging_while_connected));
             completionCallback.invoke(new Error("Connected to the VPN"));
             return;
         }
 
-        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+        // Clear old latencies to indicate the user we are updating them
+        List<ServerItem> serverItems = getServerItems(context, getRegionsFilterSelection(context));
+        for (ServerItem serverItem : serverItems) {
+            serverItem.setLatency(null);
+        }
+        mAdapter.itemsUpdated(serverItems);
+
+        if (Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
             PIAServerHandler.getInstance(context).triggerFetchServers(new Function1<Error, Unit>() {
                 @Override
                 public Unit invoke(Error error) {
@@ -259,10 +268,11 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
         if (reset) {
             //Add other options
             for (PIAServer ps : mHandler.getServers(context, types)) {
-                if(ps == selectedServer){
+                if (ps == selectedServer) {
                     selectedPosition = serverItems.size() - 1;
                 }
             }
+
             //set up adapter
             mAdapter = new ServerListAdapter(serverItems, getActivity());
             mAdapter.setSearchMode(true);
@@ -321,22 +331,28 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
         return selectedPosition;
     }
 
-    private ServerSortingType getRegionsFilterSelection(Context context) {
-        String selected = Prefs.with(context).get(
-                PiaPrefHandler.FILTERS_REGION_SORTING, ""
-        ).toUpperCase();
-
-        // If there is no selection. Default to name.
-        if (selected.isEmpty()) {
-            return ServerSortingType.NAME;
+    public ServerSortingType getSortedServerSortingTypeForId(Integer id) {
+        ServerSortingType selectedSortingType = PIAServerHandler.ServerSortingType.NAME;
+        for (ServerSortingType serverSortingType : ServerSortingType.values()) {
+            if (serverSortingType.name().hashCode() == id) {
+                selectedSortingType = serverSortingType;
+                break;
+            }
         }
+        return selectedSortingType;
+    }
 
-        return ServerSortingType.valueOf(selected);
+    private ServerSortingType getRegionsFilterSelection(Context context) {
+        String selectedServerSortingTypeName = Prefs.with(context).get(
+                PiaPrefHandler.REGION_PREFERRED_SORTING,
+                ServerSortingType.NAME.name()
+        );
+        return getSortedServerSortingTypeForId(selectedServerSortingTypeName.hashCode());
     }
 
     private int setUpAdapter(Context context) {
         ServerSortingType sortingType = getRegionsFilterSelection(context);
-        int adapter = setUpAdapter(context, true, ServerSortingType.LATENCY);
+        int adapter = setUpAdapter(context, true, ServerSortingType.NAME);
         switch (sortingType) {
             case NAME:
                 adapter = setUpAdapter(context, true, ServerSortingType.NAME);
@@ -345,7 +361,7 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                 adapter = setUpAdapter(context, true, ServerSortingType.LATENCY);
                 break;
             case FAVORITES:
-                adapter = setUpAdapter(context, true, ServerSortingType.NAME, ServerSortingType.LATENCY);
+                adapter = setUpAdapter(context, true, ServerSortingType.NAME, ServerSortingType.FAVORITES);
                 break;
         }
         return adapter;
@@ -360,6 +376,7 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
             items.add(new ServerItem(SERVER_SEARCH_KEY,
                     R.drawable.ic_search_tv,
                     getString(R.string.server_search),
+                    "",
                     false,
                     false,
                     false,
@@ -371,6 +388,7 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
         items.add(new ServerItem("",
                 R.drawable.flag_world,
                 context.getString(R.string.automatic_server_selection_main),
+                "",
                 mHandler.isSelectedRegionAuto(context),
                 false,
                 false,
@@ -379,14 +397,45 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
 
         //Add other options
         for (PIAServer ps : mHandler.getServers(context, types)) {
-            if (!Prefs.with(context).getBoolean(PiaPrefHandler.GEO_SERVERS_ACTIVE) && ps.isGeo()) {
+            if (!Prefs.with(context).get(PiaPrefHandler.GEO_SERVERS_ACTIVE, true) && ps.isGeo()) {
                 continue;
             }
-            String latency = ServerUtils.getLatencyForActiveSetting(context, ps.getLatencies());
+
+            // Check for protocol's server support
+            boolean protocolSupportedByServer = false;
+            PIAServer.Protocol protocol = ServerUtils.getUserSelectedProtocol(context);
+            switch (protocol) {
+                case WIREGUARD:
+                    protocolSupportedByServer = ps.getWgHost() != null && !ps.getWgHost().isEmpty();
+                    break;
+                case OPENVPN_TCP:
+                    protocolSupportedByServer = ps.getTcpbest() != null && !ps.getTcpbest().isEmpty();
+                    break;
+                case OPENVPN_UDP:
+                    protocolSupportedByServer = ps.getUdpbest() != null && !ps.getUdpbest().isEmpty();
+                    break;
+            }
+            if (!protocolSupportedByServer) {
+                continue;
+            }
+
+            // Populate latency for legacy
+            Long latencyValue = PingHandler.getInstance(context).getPings().get(ps.getKey());
+            if (latencyValue == null) {
+                latencyValue = 0L;
+            }
+            String latency = String.valueOf(latencyValue);
+
+            // Populate latency for GEN4
+            if (Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
+                latency = ServerUtils.getLatencyForActiveSetting(context, ps.getLatencies());
+            }
+
             items.add(new ServerItem(
                     ps.getKey(),
                     mHandler.getFlagResource(ps),
                     ps.getName(),
+                    ps.getIso(),
                     ps == selectedServer,
                     ps.isAllowsPF(),
                     ps.isGeo(),

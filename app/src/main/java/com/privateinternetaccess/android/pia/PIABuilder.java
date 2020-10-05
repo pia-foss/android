@@ -30,9 +30,9 @@ import com.privateinternetaccess.android.pia.interfaces.IBuilder;
 import com.privateinternetaccess.android.pia.model.PurchasingTestingData;
 import com.privateinternetaccess.android.pia.services.PIATileService;
 import com.privateinternetaccess.android.pia.utils.DLog;
-import com.privateinternetaccess.android.pia.utils.NotificationHelper;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.vpn.PiaLibVpnLibrary;
+import com.privateinternetaccess.android.ui.notifications.PIANotifications;
 
 import java.io.File;
 import java.util.Collections;
@@ -71,7 +71,11 @@ public class PIABuilder implements IBuilder {
     @Override
     public IBuilder createNotificationChannel(String channelName, String channelDescription) {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationHelper.createPiaNotificationChannel(context, NotificationHelper.NOTIFICATION_CHANNEL_ID, channelName, channelDescription);
+            PIANotifications.Companion.getSharedInstance().createNotificationChannel(
+                    context,
+                    channelName,
+                    channelDescription
+            );
         }
         return this;
     }

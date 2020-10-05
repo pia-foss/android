@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"Satın alma hatası: %1$s "</string>
     <string name="error_active_subscription">Zaten etkin bir üyeliğiniz var!</string>
+    <string name="error_invalid_auth">Bir sorun oluştu. Lütfen tekrar oturum açmayı deneyin.</string>
     <string name="usemssfix">Bazı yönlendirici ve mobil ağlarla olan uyumluluğu artırmak için IP paket boyutunu hafif düşürecek.</string>
     <string name="mssfixsummary">Küçük paketler kullan</string>
     <string name="settings_account_bottom_text">Diğer cihazlarınıza Private Internet Access uygulamasını yükleyin ve yukarıdaki kullanıcı adıyla giriş yaparak bağlantınızı güvenceye alın.</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">Hakkında</string>
     <string name="reconnect_vpn">Bu değişikliği uygulamak için tekrar VPN\'ye bağlanın</string>
     <string name="error_account_info">Hesap bilgileri bulunamadı</string>
+    <string name="error_pinging_while_connected">VPN\'e bağlıyken gecikme süresi güncellenemiyor</string>
     <string name="allows_port_forwarding">Bağlantı Noktası İletmeye izin verir</string>
     <string name="about_privacy_policy">Gizlilik Politikası</string>
     <string name="version">Sürüm</string>
@@ -168,7 +170,7 @@
     <string name="save">Kaydet</string>
     <string name="saved">Kaydedildi</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Gösterilen hızlar, VPN bağlantınız üzerindeki veri akışını belirtir</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">Herkese Açık IP</string>
     <string name="login_throttled_text">Bu kullanıcı adı ile birden fazla kez başarısız oturum açma girişiminde bulunuldu. Lütfen daha sonra tekrar deneyin.</string>
     <string name="tap_to_connect">BAĞLANMAK İÇİN DOKUN</string>
     <string name="building_configration">Yapılandırma kuruluyor…</string>
@@ -187,7 +189,7 @@
     <string name="submit">Gönder</string>
     <string name="please_enter_your_email_address">Lütfen e-posta adresinizi girin</string>
     <string name="select_vpn_plan">Bir VPN Planı seçin</string>
-    <string name="_7_day_money_back_guarantee">7 günlük para iade garantisi</string>
+    <string name="_7_day_money_back_guarantee">30 günlük para iade garantisi</string>
     <string name="monthly">Aylık</string>
     <string name="yearly">Yıllık</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -226,11 +228,11 @@
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[1024 ila 65535 arası bağlantı noktası]]></string>
     <string name="startup_region_title">Herhangi bir bölgeye kolayca bağlanın</string>
-    <string name="startup_region_message">Dünya çapındaki sunucularla daima koruma altındasınız.</string>
+    <string name="startup_region_message">Dünyanın dört bir yanındaki sunucularla her zaman koruma altındasınız.</string>
     <string name="startup_ads_title">Kendinizi reklamlardan koruyun</string>
     <string name="startup_ads_message">PIA MACE işlevini açtığınızda dünyanın her yerinde reklamlardan korunursunuz.</string>
     <string name="startup_connection_title">Uygulama başına koruma</string>
-    <string name="startup_connection_message">Hangi uygulamaların hizmetimizi kullanacağını seçerek kendinize has kullanım tarzı belirleyin (en düşük Android 5.0 desteklenir).</string>
+    <string name="startup_connection_message">Hangi uygulamaların hizmetimizi kullanacağını kontrol ederek deneyiminizi kişiselleştirin (Android 5.0 ve üstü desteklenmektedir).</string>
     <string name="speed_graph">PERFORMANS</string>
     <string name="data_usage_over_time">ZAMAN İÇERİSİNDEKİ VERİ KULLANIMI</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -501,15 +503,13 @@
     <string name="refer_signups_title">Kayıtlar</string>
     <string name="refer_email_required">E-posta gerekli</string>
     <string name="refer_terms_required">Tavsiye davetleri gönderebilmek için koşul ve şartları kabul etmelisiniz</string>
-    <string-array name="region_filters">
-        <item>Ad</item>
-        <item>Gecikme</item>
-        <item>Favoriler</item>
-    </string-array>
+    <string name="region_filter_name">Ad</string>
+    <string name="region_filter_latency">Gecikme</string>
+    <string name="region_filter_favorites">Favoriler</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">7 gün için ücretsiz deneyin</string>
     <string name="free_trial_cost">Yıllık sadece %s ödeyin</string>
-    <string name="free_trial_guarantee">7 gün para iade garantisi</string>
+    <string name="free_trial_guarantee">30 gün para iade garantisi</string>
     <string name="free_trial_protection_header">1 yıl gizlilik ve kimlik koruması</string>
     <string name="free_trial_protection_text">Anonim olarak sörf yapın ve IP\'nizi gizleyin</string>
     <string name="free_trial_devices_header">Bir kerede 10 cihazı destekleyin</string>
@@ -558,4 +558,49 @@
     <string name="gen4_next_generation_network_message">Sunucu ağını değiştirmek için VPN bağlantısının sonlandırılması gerekiyor.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Coğrafi konum bölgelerini dahil et</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">PIA VPN\'i beğeniyor musunuz?</string>
+    <string name="rating_enjoy_message">Umarız VPN ürünümüz beklentilerinizi karşılıyordur</string>
+    <string name="rating_review_title">Google Play\'de bir değerlendirme yazmaya ne dersiniz?</string>
+    <string name="rating_review_message">Deneyiminizi paylaşmanız bizi memnun eder</string>
+    <string name="rating_feedback_title">Sorun nedir?</string>
+    <string name="rating_feedback_message">Geri bildirim göndermek ister misiniz? Bu, PIA kullanma deneyiminizi iyileştirmemize yardımcı olabilir</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">HEMEN ABONE OLUN</string>
+    <string name="getstarted_free_trial">7 günlük ücretsiz denemenizi başlatın</string>
+    <string name="getstarted_trial_price">Daha sonra yıllık %s</string>
+    <string name="purchasing_email_reason">Kullanıcı adınızla parolanızı gönderebilmemiz için e-posta adresinize ihtiyacımız var.</string>
+    <string name="purchasing_all_plans">Mevcut planların tümüne göz atın</string>
+    <string name="purchasing_login_receipt">Alışveriş ekstrenizdeki bilgilerle oturum açın</string>
+    <string name="purchasing_no_subscription">Etkin bir aboneliğiniz bulunmuyor</string>
+    <string name="purchasing_sure">Emin misiniz?</string>
+    <string name="purchasing_return">Ana ekrana dönmek ister misiniz? Oturum açma ekranından alışveriş ekstrenizdeki bilgilerle oturum açarak abonelik işlemini dilediğiniz zaman tamamlayabilirsiniz.</string>
+    <string name="purchasing_magic_link">Sihirli e-posta bağlantısını kullanarak giriş yap</string>
+    <string name="purchasing_magic_send">BAĞLANTI GÖNDER</string>
+    <string name="purchasing_magic_success">Giriş bağlantısı için lütfen e-postanı kontrol et</string>
+    <string name="connection_tile_header">BAĞLANTI</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">Son haberler</string>
+    <string name="update_3_7_1_header">WireGuard®\'ı bugün deneyin!</string>
+    <string name="update_3_7_1_description">Bu, daha iyi performans, daha düşük CPU kullanımı ve daha uzun pil ömrü sunan, yeni, daha verimli bir VPN protokolü.</string>
+    <string name="update_3_7_1_cta_1">WireGuard®\'ı hemen deneyin</string>
+    <string name="update_3_7_1_cta_2"><u>Daha fazla bilgi alın</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">Güvenli Wi-Fi</string>
+    <string name="nmt_open_wifi">Wi-Fi</string>
+    <string name="nmt_mobile_data">Mobil veri</string>
+    <string name="nmt_disconnect">Her zaman VPN bağlantısını kes</string>
+    <string name="nmt_connect">Her zaman VPN bağlantısı yap</string>
+    <string name="nmt_retain">VPN durumunu koru</string>
+    <string name="nmt_manage_title">Otomasyonu Yönet</string>
+    <string name="nmt_manage_description">PIA\'nın, Wi-Fi veya hücresel ağlara bağlanırken nasıl davranacağını yapılandır. Elle bağlantının kesilmesi buna dahil değildir.</string>
+    <string name="nmt_add_description">Yeni kural eklemek için bir Wi-Fi ağı seç.</string>
+    <string name="nmt_rule_for">%s için kural</string>
+    <string name="nmt_remove_rule">Kuralı kaldır</string>
+    <string name="nmt_add_new_rule">Yeni kural ekle</string>
+    <string name="nmt_settings_title">Ağ Yönetimi</string>
+    <string name="nmt_settings_description">Güvenilen ve güvenilmeyen ağlar için otomatik bağlantı kurallarını yönetmek için kurallar belirleyin.</string>
+    <string name="nmt_management_title">Otomasyonu Yönet</string>
 </resources>

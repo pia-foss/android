@@ -95,7 +95,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
             android:layout_marginTop="10dp"
             >
@@ -121,5 +121,29 @@
                 />
 
         </RelativeLayout>
+
+        <TextView
+            style="@style/RedeemButton"
+            android:id="@+id/fragment_login_receipt"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_marginTop="8dp"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:text="@string/purchasing_login_receipt"/>
+
+        <TextView
+            style="@style/RedeemButton"
+            android:id="@+id/fragment_login_magic_link"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:text="@string/purchasing_magic_link"/>
+
     </LinearLayout>
 </ScrollView>

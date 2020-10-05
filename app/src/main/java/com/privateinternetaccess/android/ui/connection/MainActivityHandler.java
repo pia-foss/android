@@ -44,7 +44,7 @@ import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
-import com.privateinternetaccess.android.pia.model.PIAAccountData;
+import com.privateinternetaccess.android.pia.model.AccountInformation;
 
 import java.util.LinkedList;
 
@@ -92,12 +92,11 @@ public class MainActivityHandler {
                 .withProfileImagesClickable(false)
                 .build();
         IAccount account = PIAFactory.getInstance().getAccount(act);
-        PIAAccountData response = account.getAccountInfo();
-
-        String upper = getExpiresText(act, response);
+        AccountInformation accountInformation = account.persistedAccountInformation();
+        String upper = getExpiresText(act, accountInformation);
 
         final LinkedList<IDrawerItem> drawerItems = new LinkedList<>();
-        if(response.isShowExpire()) {
+        if (accountInformation.getShowExpire()) {
             drawerItems.add(new PIAPrimaryDrawerItem()
                     .withIdentifier(IDEN_RENEW)
                     .withName(upper)
@@ -189,15 +188,15 @@ public class MainActivityHandler {
     }
 
     @NonNull
-    private static String getExpiresText(Context context, PIAAccountData response) {
+    private static String getExpiresText(Context context, AccountInformation accountInformation) {
 
-        long time = response.getTimeLeft();
+        long time = accountInformation.getTimeLeftMs();
         long seconds = time / 1000;// to seconds
         int minutes = (int) (seconds / 60); // to minutes;
         int hours = minutes / 60; // to hours
         int days = hours / 24; // to days
 
-        String timeRes = getTimeLeft(context, response);
+        String timeRes = getTimeLeft(context, accountInformation);
         int resId = R.string.subscription_expires_in;
         if(days < 0 && hours < 0 && minutes < 0){
             resId = R.string.subscription_expired;
@@ -206,8 +205,8 @@ public class MainActivityHandler {
         return finalStr.toUpperCase();
     }
 
-    private static String getTimeLeft(Context context, PIAAccountData information) {
-        long time = information.getTimeLeft();
+    private static String getTimeLeft(Context context, AccountInformation accountInformation) {
+        long time = accountInformation.getTimeLeftMs();
         long seconds = time / 1000;// to seconds
         int minutes = (int) (seconds / 60); // to minutes;
         int hours = minutes / 60; // to hours
@@ -226,11 +225,11 @@ public class MainActivityHandler {
 
     private String cleanUpPlan(Context context, String plan) {
         String cleanedPlan = plan;
-        if (PIAAccountData.PLAN_TRIAL.equals(plan)) {
+        if (AccountInformation.PLAN_TRIAL.equals(plan)) {
             cleanedPlan = context.getString(R.string.account_trail);
-        } else if (PIAAccountData.PLAN_YEARLY.equals(plan)) {
+        } else if (AccountInformation.PLAN_YEARLY.equals(plan)) {
             cleanedPlan = context.getString(R.string.account_yearly);
-        } else if (PIAAccountData.PLAN_MONTHLY.equals(plan)) {
+        } else if (AccountInformation.PLAN_MONTHLY.equals(plan)) {
             cleanedPlan = context.getString(R.string.account_montly);
         }
         return cleanedPlan;

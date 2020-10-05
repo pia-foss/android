@@ -1,0 +1,30 @@
+<!--
+  ~  Copyright (c) 2020 Private Internet Access, Inc.
+  ~
+  ~  This file is part of the Private Internet Access Android Client.
+  ~
+  ~  The Private Internet Access Android Client is free software: you can redistribute it and/or
+  ~  modify it under the terms of the GNU General Public License as published by the Free
+  ~  Software Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~  The Private Internet Access Android Client is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  ~  details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with the Private
+  ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="36"
+    android:viewportHeight="36">
+  <path
+      android:pathData="M28.382,13.4047C27.5924,11.6933 26.1514,10.3283 24.3475,9.5827C23.4204,9.203 22.4214,9.0043 21.4107,9L13.4143,9C11.4154,9.0154 9.5028,9.7772 8.0907,11.1208C7.4205,11.7752 6.8923,12.5481 6.5338,13.3952C6.1628,14.2774 5.9813,15.2218 6.002,16.1713L6.002,19.8107C5.9786,20.7636 6.1601,21.7114 6.5338,22.5953C7.0971,23.8912 8.0503,24.9994 9.2747,25.7835C10.4983,26.5666 11.9384,26.9898 13.4144,27L21.4108,27C22.4178,26.9966 23.4141,26.7978 24.3384,26.4173C25.2341,26.0565 26.0471,25.5343 26.7334,24.88C27.4305,24.2282 27.9902,23.4561 28.3819,22.6047C28.7835,21.7226 28.9937,20.7722 29,19.8107L29,16.1714C28.9901,15.2193 28.7799,14.2783 28.3819,13.4047L28.382,13.4047ZM14.1187,18.0321C14.1187,18.1276 14.0369,18.2053 13.9363,18.2053L12.269,18.2053C12.1701,18.2027 12.092,18.1259 12.092,18.0321L12.092,13.6641C12.092,13.5711 12.171,13.4961 12.269,13.4961L13.9363,13.4961C13.9839,13.4943 14.0306,13.5114 14.0648,13.5438C14.0989,13.5754 14.1187,13.6189 14.1187,13.6641L14.1187,18.0321ZM18.6274,24.2018L16.3752,24.2018L16.3752,21.8447C16.3752,20.9344 16.8541,20.1563 17.5009,20.1563C18.1477,20.1563 18.6265,20.9113 18.6265,21.8447L18.6274,24.2018ZM22.4607,18.0321L22.4599,18.0321C22.4599,18.1259 22.3817,18.2027 22.2829,18.2053L20.6155,18.2053C20.5149,18.2053 20.4332,18.1276 20.4332,18.0321L20.4332,13.6641C20.4332,13.6189 20.4529,13.5754 20.4871,13.5438C20.5212,13.5114 20.567,13.4943 20.6155,13.4961L22.2919,13.4961C22.3395,13.4961 22.3844,13.5131 22.4176,13.5447C22.4509,13.5762 22.4697,13.6198 22.4697,13.6641L22.4607,18.0321Z"
+      android:strokeWidth="1"
+      android:fillColor="#889099"
+      android:fillType="evenOdd"
+      android:strokeColor="#00000000"/>
+</vector>

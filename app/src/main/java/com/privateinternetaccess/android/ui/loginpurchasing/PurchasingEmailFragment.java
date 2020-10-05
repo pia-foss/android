@@ -18,7 +18,6 @@
 
 package com.privateinternetaccess.android.ui.loginpurchasing;
 
-
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -42,7 +41,6 @@ public class PurchasingEmailFragment extends Fragment {
     public static String PRODUCT_ID_SELECTED;
 
     @BindView(R.id.fragment_purchasing_email) PiaxEditText etEmail;
-    //@BindView(R.id.fragment_purchasing_email_TOS) TextView tvToS;
     @BindView(R.id.fragment_purchasing_you_are_purchasing) TextView tvPurchasing;
 
     @Nullable
@@ -59,7 +57,6 @@ public class PurchasingEmailFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        //LoginPurchaseActivity.setupToSPPText(getActivity(), tvToS);
         LoginPurchaseActivity.setupTypeText(getContext(), tvPurchasing, PRODUCT_ID_SELECTED);
     }
 
@@ -74,6 +71,5 @@ public class PurchasingEmailFragment extends Fragment {
         }
 
         PiaPrefHandler.saveLoginEmail(etEmail.getContext(), email);
-        ((LoginPurchaseActivity) getActivity()).onConfirmEmailClicked(email, PRODUCT_ID_SELECTED);
     }
 }

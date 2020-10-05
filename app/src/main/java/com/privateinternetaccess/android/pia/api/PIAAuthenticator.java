@@ -22,9 +22,9 @@ import androidx.annotation.Nullable;
 
 import com.privateinternetaccess.android.pia.utils.DLog;
 
-import java.io.IOException;
+import org.greenrobot.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
 
-import okhttp3.Credentials;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
@@ -49,6 +49,9 @@ public class PIAAuthenticator implements okhttp3.Authenticator{
     public Request authenticate(Route route, Response response) {
         if (response.request().header(AUTHORIZATION) != null) {
             DLog.d(TAG, "Authentication aborted. Already tried to authenticate with proper header.");
+            EventBus.getDefault().post(
+                    new PIAAuthenticatorFailureEvent(response.code(), response.message())
+            );
             return null; // Give up, we've already failed to authenticate.
         }
 
@@ -83,4 +86,29 @@ public class PIAAuthenticator implements okhttp3.Authenticator{
     public String getToken() { return token; }
 
     public void setToken(String token) { this.token = token; }
+
+    public static class PIAAuthenticatorFailureEvent {
+
+        private int code;
+        private String message;
+
+        public PIAAuthenticatorFailureEvent(int code, String message) {
+            this.code = code;
+            this.message = message;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        @NotNull
+        @Override
+        public String toString() {
+            return "PIAAuthenticatorFailureEvent{code=" + code + ", message=" + message + "}";
+        }
+    }
 }

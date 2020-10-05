@@ -2,6 +2,7 @@
 "country": "CA",
 "dns": "tacobell.londontrustmedia.com",
 "name": "tacobell",
+"geo": true,
 "openvpn_tcp": {
 "best": "172.98.67.133:500"
 },
@@ -16,6 +17,7 @@
 "country": "US",
 "dns": "chipotle251.londontrustmedia.com",
 "name": "chipotle251",
+"geo": true,
 "openvpn_tcp": {
 "best": "108.61.57.211:500"
 },
@@ -30,6 +32,7 @@
   "country": "GB",
   "dns": "sharingan.londontrustmedia.com",
   "name": "stream-uk",
+  "geo": true,
   "openvpn_tcp": {
     "best": "185.195.200.20:500"
   },

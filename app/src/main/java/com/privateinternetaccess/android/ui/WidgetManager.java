@@ -25,6 +25,7 @@ import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.tv.views.IPPortView;
 import com.privateinternetaccess.android.ui.views.ConnectionSlider;
+import com.privateinternetaccess.android.ui.views.ConnectionView;
 import com.privateinternetaccess.android.ui.views.QuickConnectView;
 import com.privateinternetaccess.android.ui.views.QuickSettingsView;
 import com.privateinternetaccess.android.ui.views.ServerSelectionView;
@@ -44,7 +45,8 @@ public class WidgetManager {
         WIDGET_SNOOZE,
         WIDGET_QUICK_SETTINGS,
         WIDGET_QUICK_CONNECT,
-        WIDGET_USAGE
+        WIDGET_USAGE,
+        WIDGET_CONNECTION_INFO
     }
 
     private Context mContext;
@@ -73,6 +75,8 @@ public class WidgetManager {
                 return new SnoozeView(context);
             case WIDGET_USAGE:
                 return new UsageView(context);
+            case WIDGET_CONNECTION_INFO:
+                return new ConnectionView(context);
             default:
                 return null;
         }
@@ -101,7 +105,7 @@ public class WidgetManager {
     }
 
     private List<WidgetItem> createDefaultList() {
-        List<WidgetItem> defaultList = new ArrayList<>();;
+        List<WidgetItem> defaultList = new ArrayList<>();
         defaultList.add(new WidgetItem(WidgetType.WIDGET_CONNECTION, true));
         defaultList.add(new WidgetItem(WidgetType.WIDGET_SERVER, true));
         defaultList.add(new WidgetItem(WidgetType.WIDGET_IP, true));
@@ -110,6 +114,7 @@ public class WidgetManager {
         defaultList.add(new WidgetItem(WidgetType.WIDGET_QUICK_CONNECT, true));
         defaultList.add(new WidgetItem(WidgetType.WIDGET_SNOOZE, true));
         defaultList.add(new WidgetItem(WidgetType.WIDGET_USAGE, true));
+        defaultList.add(new WidgetItem(WidgetType.WIDGET_CONNECTION_INFO, true));
 
         return defaultList;
     }
@@ -120,12 +125,9 @@ public class WidgetManager {
         widgetList.clear();
 
         if (serializedItems.size() == 0) {
-            DLog.d("Drag", "Prefs are empty");
             widgetList.addAll(defaultList);
         }
         else {
-            DLog.d("Drag", "Prefs size: " + serializedItems.size());
-
             for (int i = 0; i < serializedItems.size(); i++) {
                 String[] fields = serializedItems.get(i).split(" ");
                 WidgetItem item = new WidgetItem(WidgetType.values()[Integer.parseInt(fields[0])], Boolean.parseBoolean(fields[1]));

@@ -42,7 +42,7 @@ public class OnBootReceiver extends BroadcastReceiver {
 
         final String action = intent.getAction();
 
-        if (Intent.ACTION_BOOT_COMPLETED.equals(action) && PiaPrefHandler.doAutoSart(context)) {
+        if (Intent.ACTION_BOOT_COMPLETED.equals(action) && PiaPrefHandler.doAutoStart(context)) {
             launchVPN(context);
         }
     }

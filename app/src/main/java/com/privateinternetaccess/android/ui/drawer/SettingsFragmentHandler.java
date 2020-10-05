@@ -83,7 +83,6 @@ public class SettingsFragmentHandler {
                 adapter.setOptions(protocolArray);
                 adapter.setSelected(Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]));
                 adapter.setDisplayNames(protocolArray);
-                adapter.setPreviewIndex(1);
 
                 builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
                     @Override
@@ -188,6 +187,7 @@ public class SettingsFragmentHandler {
 
                             Prefs.with(context).set(PiaPrefHandler.VPN_PROTOCOL, selectedProtocol);
                             fragment.setProtocolSummary();
+                            PIAServerHandler.getInstance(context).triggerLatenciesUpdate();
                         }
 
                         dialogInterface.dismiss();
@@ -896,7 +896,7 @@ public class SettingsFragmentHandler {
         prefs.set(PiaPrefHandler.RPORT, "");
         prefs.set(PiaPrefHandler.LPORT, "");
         prefs.set(PiaPrefHandler.PACKET_SIZE, ctx.getResources().getBoolean(R.bool.usemssfix));
-        prefs.set(GEN4_ACTIVE, false);
+        prefs.set(GEN4_ACTIVE, true);
         prefs.set(GEO_SERVERS_ACTIVE, true);
 
         if (!PIAApplication.isAndroidTV(ctx)) {
@@ -938,7 +938,7 @@ public class SettingsFragmentHandler {
         prefs.remove(PiaPrefHandler.CUSTOM_SECONDARY_DNS);
         prefs.remove(PiaPrefHandler.CUSTOM_DNS);
 
-        PiaPrefHandler.clearTrustWifi(ctx);
+        //PiaPrefHandler.clearTrustWifi(ctx);
         PiaPrefHandler.clearTrustedNetworks(ctx);
     }
 }

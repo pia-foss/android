@@ -98,7 +98,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="140dp"
@@ -126,5 +126,14 @@
                 />
 
         </RelativeLayout>
+
+        <Button
+            style="@style/RedeemButton"
+            android:id="@+id/fragment_login_receipt"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_marginTop="16dp"
+            android:layout_height="30dp"
+            android:text="@string/purchasing_login_receipt"/>
     </LinearLayout>
 </ScrollView>

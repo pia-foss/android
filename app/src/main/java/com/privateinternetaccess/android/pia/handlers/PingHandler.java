@@ -106,7 +106,7 @@ public class PingHandler {
     }
 
     public boolean fetchPings(long difference) {
-        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+        if (Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
             DLog.d(TAG, "Next generation network enabled. Cancelling ping to legacy.");
             return false;
         }

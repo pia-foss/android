@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"购买时出错：%1$s "</string>
     <string name="error_active_subscription">您已经有一个生效的订阅！</string>
+    <string name="error_invalid_auth">出现问题。请尝试重新登录。</string>
     <string name="usemssfix">将稍微减小IP包，以提高与某些路由器和移动网络的兼容性。</string>
     <string name="mssfixsummary">使用小包</string>
     <string name="settings_account_bottom_text">为您的其他设备获取 Private Internet Access App，并使用上述用户名登录并获得连接。</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">关于</string>
     <string name="reconnect_vpn">重新连接 VPN 以应用此更改</string>
     <string name="error_account_info">无法找到帐户信息</string>
+    <string name="error_pinging_while_connected">连接到 VPN 时无法更新延迟</string>
     <string name="allows_port_forwarding">允许端口转发</string>
     <string name="about_privacy_policy">隐私政策</string>
     <string name="version">版本</string>
@@ -168,7 +170,7 @@
     <string name="save">保存</string>
     <string name="saved">已保存</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">显示的速度是指经过 VPN 连接通道的流量</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">公共 IP</string>
     <string name="login_throttled_text">此用户名尝试登录的失败次数过多。请稍后再试。</string>
     <string name="tap_to_connect">点击以连接</string>
     <string name="building_configration">正在生成配置...</string>
@@ -187,7 +189,7 @@
     <string name="submit">提交</string>
     <string name="please_enter_your_email_address">请输入您的电子邮件地址</string>
     <string name="select_vpn_plan">选择 VPN 套餐</string>
-    <string name="_7_day_money_back_guarantee">7 天退款保证</string>
+    <string name="_7_day_money_back_guarantee">30 天退款保证</string>
     <string name="monthly">每月</string>
     <string name="yearly">每年</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -501,15 +503,13 @@
     <string name="refer_signups_title">注册</string>
     <string name="refer_email_required">电子邮件为必填</string>
     <string name="refer_terms_required">您必须接受条款和条件才能发送推荐邀请</string>
-    <string-array name="region_filters">
-        <item>名称</item>
-        <item>延迟</item>
-        <item>收藏</item>
-    </string-array>
+    <string name="region_filter_name">名称</string>
+    <string name="region_filter_latency">延迟</string>
+    <string name="region_filter_favorites">收藏</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">免费试用7天！</string>
     <string name="free_trial_cost">每年只需支付%s</string>
-    <string name="free_trial_guarantee">确保7天退款</string>
+    <string name="free_trial_guarantee">30 天退款保证</string>
     <string name="free_trial_protection_header">1年隐私及身份保护</string>
     <string name="free_trial_protection_text">匿名浏览，隐藏IP</string>
     <string name="free_trial_devices_header">一次支持10台设备</string>
@@ -558,4 +558,49 @@
     <string name="gen4_next_generation_network_message">必须断开 VPN 才能更改服务器网络。</string>
     <!-- GEO Servers -->
     <string name="geo_servers">包括地理定位区域</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">您觉得 PIA VPN 好用吗？</string>
+    <string name="rating_enjoy_message">希望我们的 VPN 产品符合您的期望</string>
+    <string name="rating_review_title">能否在 Google Play 中给我们做出评价？</string>
+    <string name="rating_review_message">感谢您分享使用体验</string>
+    <string name="rating_feedback_title">出什么问题了？</string>
+    <string name="rating_feedback_message">您希望提供反馈意见吗？我们可以帮助您改善使用 PIA 的体验</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">立即订阅</string>
+    <string name="getstarted_free_trial">开始 7 天免费试用</string>
+    <string name="getstarted_trial_price">之后每年 %s</string>
+    <string name="purchasing_email_reason">我们需要您的电子邮件以发送您的用户名和密码。</string>
+    <string name="purchasing_all_plans">查看所有可用套餐</string>
+    <string name="purchasing_login_receipt">使用购买收据登录</string>
+    <string name="purchasing_no_subscription">您没有生效的订阅</string>
+    <string name="purchasing_sure">您确定吗？</string>
+    <string name="purchasing_return">您要返回主屏幕吗？您可以随时点击“登录”-&gt;“使用购买收据登录”来继续订阅。</string>
+    <string name="purchasing_magic_link">使用魔法电子邮件链接登录</string>
+    <string name="purchasing_magic_send">发送链接</string>
+    <string name="purchasing_magic_success">请检查您的电子邮件，以查找登录链接。</string>
+    <string name="connection_tile_header">连接</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">最新消息</string>
+    <string name="update_3_7_1_header">立即试用 WireGuard®！</string>
+    <string name="update_3_7_1_description">这是更有效的全新 VPN 协议，可提高性能、降低 CPU 使用率并延长电池寿命。</string>
+    <string name="update_3_7_1_cta_1">立即试用 WireGuard®</string>
+    <string name="update_3_7_1_cta_2"><u>了解更多</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">安全 Wi-Fi</string>
+    <string name="nmt_open_wifi">Wi-Fi</string>
+    <string name="nmt_mobile_data">移动数据</string>
+    <string name="nmt_disconnect">始终断开 VPN</string>
+    <string name="nmt_connect">始终连接 VPN</string>
+    <string name="nmt_retain">保留 VPN 状态</string>
+    <string name="nmt_manage_title">管理自动化</string>
+    <string name="nmt_manage_description">配置 PIA 在连接到 WiFi 或蜂窝网络时的行为方式，不包括手动断开连接的情况。</string>
+    <string name="nmt_add_description">选择 WiFi 网络以添加新规则。</string>
+    <string name="nmt_rule_for">%s 的规则</string>
+    <string name="nmt_remove_rule">删除规则</string>
+    <string name="nmt_add_new_rule">添加新规则</string>
+    <string name="nmt_settings_title">网络管理</string>
+    <string name="nmt_settings_description">设置规则，为受信任和不受信任的网络处理自动连接规则。</string>
+    <string name="nmt_management_title">管理自动化</string>
 </resources>

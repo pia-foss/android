@@ -21,6 +21,7 @@ package com.privateinternetaccess.android.ui.views;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.widget.FrameLayout;
@@ -29,6 +30,7 @@ import androidx.annotation.Nullable;
 
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.core.model.PIAServer;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -75,7 +77,7 @@ public class RegionMapView extends FrameLayout {
         shapeRadius = context.getResources().getDimension(R.dimen.region_location_radius);
     }
 
-    public void setServer(String server) {
+    public void setServer(PIAServer server) {
         locationMeta = new Coordinates(server);
         locationShape.invalidateSelf();
         invalidate();
@@ -178,10 +180,24 @@ public class RegionMapView extends FrameLayout {
         double latitude;
         double longitude;
 
-        Coordinates(String server) {
-            Pair coords = coordinates.get(server);
-            latitude = coords != null ? (double)coords.first : (double)defaultCoordinate.first;
-            longitude = coords != null ? (double)coords.second : (double) defaultCoordinate.second;
+        Coordinates(PIAServer server) {
+            boolean validLatitude = false;
+            boolean validLongitude = false;
+            if (server != null) {
+                validLatitude = !TextUtils.isEmpty(server.getLatitude());
+                validLongitude = !TextUtils.isEmpty(server.getLongitude());
+            }
+
+            // If the region is coming with latitude / longitude use that value.
+            // Otherwise fallback to legacy.
+            if (validLatitude && validLongitude) {
+                latitude = Double.parseDouble(server.getLatitude());
+                longitude = Double.parseDouble(server.getLongitude());
+            } else {
+                Pair coords = coordinates.get(server);
+                latitude = coords != null ? (double)coords.first : (double)defaultCoordinate.first;
+                longitude = coords != null ? (double)coords.second : (double) defaultCoordinate.second;
+            }
         }
 
         // Pair(lat, long)

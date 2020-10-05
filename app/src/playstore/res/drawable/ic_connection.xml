@@ -1,0 +1,54 @@
+<!--
+  ~  Copyright (c) 2020 Private Internet Access, Inc.
+  ~
+  ~  This file is part of the Private Internet Access Android Client.
+  ~
+  ~  The Private Internet Access Android Client is free software: you can redistribute it and/or
+  ~  modify it under the terms of the GNU General Public License as published by the Free
+  ~  Software Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~  The Private Internet Access Android Client is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  ~  details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with the Private
+  ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="36"
+    android:viewportHeight="36">
+  <path
+      android:pathData="M22.5198,8.2827C22.8967,8.6635 22.8967,9.2774 22.5198,9.6582L19.6911,12.487L18.3155,11.1115L21.1443,8.2827C21.5251,7.9058 22.1391,7.9058 22.5198,8.2827Z"
+      android:strokeWidth="1"
+      android:fillColor="#9197A4"
+      android:fillType="evenOdd"
+      android:strokeColor="#00000000"/>
+  <path
+      android:pathData="M12.3238,23.9729L9.9885,26.3082C9.5339,26.7628 8.7956,26.7628 8.341,26.3082C7.8863,25.8536 7.8863,25.1153 8.341,24.6607L10.6763,22.3254L12.3238,23.9729Z"
+      android:strokeWidth="1"
+      android:fillColor="#889099"
+      android:fillType="evenOdd"
+      android:strokeColor="#00000000"/>
+  <path
+      android:pathData="M14.6085,12.8988L21.7504,20.0407L19.827,21.9641C18.6496,23.1415 16.9321,23.6039 15.3236,23.1726L14.5231,23.9731C14.2161,24.28 13.7265,24.28 13.4234,23.9731L10.6762,21.2258C10.3693,20.9228 10.3693,20.4332 10.6762,20.1262L11.4767,19.3257C11.0454,17.717 11.5078,15.9996 12.6852,14.8223L14.6085,12.8988Z"
+      android:strokeWidth="1"
+      android:fillColor="#889099"
+      android:fillType="evenOdd"
+      android:strokeColor="#00000000"/>
+  <path
+      android:pathData="M16.8038,10.6994L23.9495,17.8451C24.2526,18.1482 24.2526,18.6378 23.9495,18.9408L23.3977,19.4926C23.0947,19.7957 22.6051,19.7957 22.302,19.4926L15.1563,12.3469C14.8532,12.0438 14.8532,11.5542 15.1563,11.2512L15.7081,10.6994C16.0112,10.3963 16.5008,10.3963 16.8038,10.6994Z"
+      android:strokeWidth="1"
+      android:fillColor="#889099"
+      android:fillType="evenOdd"
+      android:strokeColor="#00000000"/>
+  <path
+      android:pathData="M26.3665,12.1293C26.7434,12.5101 26.7434,13.1241 26.3665,13.5048L23.5377,16.3336L22.1622,14.9581L24.991,12.1293C25.3718,11.7524 25.9857,11.7524 26.3665,12.1293Z"
+      android:strokeWidth="1"
+      android:fillColor="#889099"
+      android:fillType="evenOdd"
+      android:strokeColor="#00000000"/>
+</vector>

@@ -21,7 +21,6 @@ package com.privateinternetaccess.android.pia;
 import android.content.Context;
 
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
-import com.privateinternetaccess.android.pia.interfaces.IConnection;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 
 import org.junit.Assert;
@@ -53,11 +52,6 @@ public class PIAFactoryTest {
     @Test
     public void creationTest_getConnection() {
         Assert.assertThat(PIAFactory.getInstance().getAccount(context), instanceOf(IAccount.class));
-    }
-
-    @Test
-    public void creationTest_getVPN() {
-        Assert.assertThat(PIAFactory.getInstance().getConnection(context), instanceOf(IConnection.class));
     }
 
     @Test

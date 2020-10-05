@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"購入中にエラー発生: %1$s "</string>
     <string name="error_active_subscription">既にアクティブなサブスクリプションがあります！</string>
+    <string name="error_invalid_auth">問題が発生しました。もう一度ログインしてください。</string>
     <string name="usemssfix">IPパケットサイズを少し小さくして、いくつかのルーターおよびモバイルネットワークとの互換性を改善します。</string>
     <string name="mssfixsummary">小パケットを使用</string>
     <string name="settings_account_bottom_text">他の端末でもPrivate Internet Access アプリを入手し、上のユーザー名でログインし、インターネット接続を保護することができます。</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">アプリについて</string>
     <string name="reconnect_vpn">この変更を適用するにはVPNに再度接続してください</string>
     <string name="error_account_info">アカウント情報が見つかりませんでした</string>
+    <string name="error_pinging_while_connected">VPNに接続中はレイテンシを更新できません</string>
     <string name="allows_port_forwarding">ポート転送を許可</string>
     <string name="about_privacy_policy">プライバシーポリシー</string>
     <string name="version">バージョン</string>
@@ -168,7 +170,7 @@
     <string name="save">保存</string>
     <string name="saved">保存されました</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">表示されている速度は、あなたのVPN接続上のトラフィックです</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">パブリックIP</string>
     <string name="login_throttled_text">このユーザー名で最大ログイン試行回数を超えました。後でもう一度お試しください。</string>
     <string name="tap_to_connect">タップして接続</string>
     <string name="building_configration">構成を構成中…</string>
@@ -187,7 +189,7 @@
     <string name="submit">送信</string>
     <string name="please_enter_your_email_address">メールアドレスを入力してください</string>
     <string name="select_vpn_plan">VPNプランを選択</string>
-    <string name="_7_day_money_back_guarantee">7日間返金保証</string>
+    <string name="_7_day_money_back_guarantee">30日間返金保証</string>
     <string name="monthly">月間</string>
     <string name="yearly">年間</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -226,11 +228,11 @@
     <!-- Keep the <![CDATA[...]], translate everything in between-->
     <string name="settings_lport_hint"><![CDATA[1024から65535の間のポート]]></string>
     <string name="startup_region_title">すべての地域に簡単に接続</string>
-    <string name="startup_region_message">世界中にサーバがあるので、あなたはいつでも保護されています。</string>
+    <string name="startup_region_message">世界中にサーバがあるので、常に保護された状態を確保できます。</string>
     <string name="startup_ads_title">広告から自分を守りましょう</string>
     <string name="startup_ads_message">PIA MACEを有効にすると、どこへ行っても広告表示を阻止できます。</string>
     <string name="startup_connection_title">アプリごとの保存</string>
-    <string name="startup_connection_message">当社サービスをそのアプリに適用するかコントロールして、ユーザー体験をカスタマイズしましょう（Android 5.0またはそれ以上のバージョンが必要です）。</string>
+    <string name="startup_connection_message">当社サービスで許可するアプリをコントロールして、ユーザーエクスペリエンスをカスタマイズしましょう（Android 5.0またはそれ以上のバージョンが必要です）。</string>
     <string name="speed_graph">パフォーマンス</string>
     <string name="data_usage_over_time">データ使用量の経時記録</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -501,15 +503,13 @@
     <string name="refer_signups_title">サインアップ</string>
     <string name="refer_email_required">メールアドレスが必要です</string>
     <string name="refer_terms_required">紹介状を送るには、利用規約に承諾する必要があります</string>
-    <string-array name="region_filters">
-        <item>名前</item>
-        <item>レイテンシ</item>
-        <item>お気に入り</item>
-    </string-array>
+    <string name="region_filter_name">名前</string>
+    <string name="region_filter_latency">レイテンシ</string>
+    <string name="region_filter_favorites">お気に入り</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">7日間無料トライアル</string>
     <string name="free_trial_cost">1年間でわずか%sのお支払い</string>
-    <string name="free_trial_guarantee">7日間マネーバック保証</string>
+    <string name="free_trial_guarantee">30日間返金保証</string>
     <string name="free_trial_protection_header">1年間プライバシーと身元情報を保護</string>
     <string name="free_trial_protection_text">匿名でブラウジングし、IPを非公開</string>
     <string name="free_trial_devices_header">一度に10個のデバイスに対応</string>
@@ -558,4 +558,49 @@
     <string name="gen4_next_generation_network_message">サーバーネットワークを変更するにはVPNを切断してください。</string>
     <!-- GEO Servers -->
     <string name="geo_servers">ジオロケーション地域を含める</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">PIA VPNを気に入っていただけていますか？</string>
+    <string name="rating_enjoy_message">VPN製品がお客様の期待にお応えできていれば幸いです。</string>
+    <string name="rating_review_title">Google Playでアプリをレビューしていただけますか？</string>
+    <string name="rating_review_message">使用した感想をシェアしていただければ幸いです</string>
+    <string name="rating_feedback_title">どのような問題が発生しましたか？</string>
+    <string name="rating_feedback_message">フィードバックを送信しますか？PIAの使用体験を改善するお手伝いをさせていただきます。</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">今すぐサブスクリプションを購入</string>
+    <string name="getstarted_free_trial">7日間無料トライアルを開始</string>
+    <string name="getstarted_trial_price">トライアル後年額%s</string>
+    <string name="purchasing_email_reason">ユーザー名とパスワードを送信するためのメールアドレスを入力してください。</string>
+    <string name="purchasing_all_plans">利用可能なプランをすべて見る</string>
+    <string name="purchasing_login_receipt">購入領収書を使用してログイン</string>
+    <string name="purchasing_no_subscription">アクティブなサブスクリプションがありません</string>
+    <string name="purchasing_sure">操作を続けますか？</string>
+    <string name="purchasing_return">ホーム画面に戻りますか？いつでもサブスクリプション手続きを再開できます。再開するには、[ログイン] → [購入領収書を使用してログイン] をクリックしてください。</string>
+    <string name="purchasing_magic_link">魔法のメールリンクを使用してログイン</string>
+    <string name="purchasing_magic_send">リンクを送信</string>
+    <string name="purchasing_magic_success">ログインリンクについては、メールを確認してください。</string>
+    <string name="connection_tile_header">接続</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">最新情報</string>
+    <string name="update_3_7_1_header">WireGuard®を今すぐお試しください！</string>
+    <string name="update_3_7_1_description">より優れたパフォーマンス、より低いCPU使用率、およびより長いバッテリー寿命を提供する、新しくより効率的なVPNプロトコルです。</string>
+    <string name="update_3_7_1_cta_1">WireGuard®を今すぐ試す</string>
+    <string name="update_3_7_1_cta_2"><u>詳細</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">セキュアWi-Fi</string>
+    <string name="nmt_open_wifi">Wi-Fi</string>
+    <string name="nmt_mobile_data">モバイルデータ</string>
+    <string name="nmt_disconnect">常にVPNを切断</string>
+    <string name="nmt_connect">常にVPNに接続</string>
+    <string name="nmt_retain">VPN状態を保持</string>
+    <string name="nmt_manage_title">自動化を管理</string>
+    <string name="nmt_manage_description">Wi-Fiまたはセルラーネットワークに接続する際のPIAの動作を構成します。構成する動作には手動での切断は含まれません。</string>
+    <string name="nmt_add_description">新しいルールを追加するWi-Fiネットワークを選択してください。</string>
+    <string name="nmt_rule_for">%sのルール</string>
+    <string name="nmt_remove_rule">ルールを削除</string>
+    <string name="nmt_add_new_rule">新しいルールを追加</string>
+    <string name="nmt_settings_title">ネットワーク管理</string>
+    <string name="nmt_settings_description">信頼できるネットワークと信頼できないネットワークの自動接続ルールに対応するルールを設定します。</string>
+    <string name="nmt_management_title">自動化を管理</string>
 </resources>

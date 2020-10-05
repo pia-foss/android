@@ -19,19 +19,15 @@
 package com.privateinternetaccess.android.wireguard.backend;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArraySet;
-import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
 import com.privateinternetaccess.android.BuildConfig;
@@ -39,15 +35,17 @@ import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.PIAOpenVPNTunnelLibrary;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.VPNTrafficDataPointEvent;
+import com.privateinternetaccess.android.pia.api.PIACertPinningAPI;
 import com.privateinternetaccess.android.pia.api.PiaApi;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.tasks.FetchIPTask;
 import com.privateinternetaccess.android.pia.tasks.HitMaceTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
+import com.privateinternetaccess.android.ui.notifications.PIANotifications;
+import com.privateinternetaccess.android.utils.ServerUtils;
 import com.privateinternetaccess.android.utils.SnoozeUtils;
 import com.privateinternetaccess.android.wireguard.config.Interface;
 import com.privateinternetaccess.android.wireguard.crypto.KeyPair;
@@ -80,6 +78,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
+import kotlin.Pair;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
@@ -202,7 +201,6 @@ public final class GoBackend implements Backend {
     @Override
     public State setState(final Tunnel tunnel, State state) throws Exception {
         final State originalState = getState(tunnel);
-
         if (state == State.TOGGLE)
             state = originalState == State.UP ? State.DOWN : State.UP;
         if (state == originalState)
@@ -214,10 +212,12 @@ public final class GoBackend implements Backend {
         return getState(tunnel);
     }
 
-
-    private void setStateInternal(final Tunnel tunnel, @Nullable final Config config, final State state)
-            throws Exception {
-
+    private void setStateInternal(
+            final Tunnel tunnel,
+            @Nullable final Config config,
+            final State state
+    ) throws Exception {
+        PiaPrefHandler.clearLastIPVPN(context);
         if (state == State.UP) {
             Log.i(TAG, "Bringing tunnel up");
 
@@ -225,6 +225,11 @@ public final class GoBackend implements Backend {
 
             if (VpnService.prepare(context) != null)
                 throw new Exception("VPN service not authorized by user");
+
+            if (currentTunnelHandle != -1) {
+                Log.w(TAG, "Tunnel already up");
+                return;
+            }
 
             final VpnService service;
             if (!vpnService.isDone())
@@ -235,11 +240,6 @@ public final class GoBackend implements Backend {
                 service = vpnService.get(2, TimeUnit.SECONDS);
             } catch (final TimeoutException e) {
                 throw new Exception("Unable to start Android VPN service", e);
-            }
-
-            if (currentTunnelHandle != -1) {
-                Log.w(TAG, "Tunnel already up");
-                return;
             }
 
             // Build config
@@ -276,7 +276,6 @@ public final class GoBackend implements Backend {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 service.setUnderlyingNetworks(null);
 
-
             builder.setBlocking(true);
             try (final ParcelFileDescriptor tun = builder.establish()) {
                 if (tun == null)
@@ -301,15 +300,6 @@ public final class GoBackend implements Backend {
             EventBus.getDefault().postSticky(event);
             SnoozeUtils.resumeVpn(context, false);
 
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    FetchIPTask.resetValues(context);
-                    FetchIPTask.execute(context, null);
-                }
-            });
-
             PiaPrefHandler.setGatewayEndpoint(context, currentTunnel.getConfig().getInterface().getGateway());
             boolean useMace = PiaPrefHandler.isMaceEnabled(context);
 
@@ -318,8 +308,7 @@ public final class GoBackend implements Backend {
                 mace.execute();
             }
 
-            service.showNotification("Connected",
-                   "Connected", NOTIFICATION_CHANNEL_NEWSTATUS_ID, 0, ConnectionStatus.LEVEL_CONNECTED);
+            service.showNotification("Connected", "Connected", ConnectionStatus.LEVEL_CONNECTED);
 
             lastState = state;
             isConnecting = false;
@@ -342,15 +331,6 @@ public final class GoBackend implements Backend {
             VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
                     R.string.state_exiting, ConnectionStatus.LEVEL_NOTCONNECTED);
             EventBus.getDefault().postSticky(event);
-
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    FetchIPTask.resetValues(context);
-                    FetchIPTask.execute(context, null);
-                }
-            });
 
             PiaPrefHandler.clearGatewayEndpoint(context);
             PiaPrefHandler.setMaceActive(context, false);
@@ -385,7 +365,7 @@ public final class GoBackend implements Backend {
         if (PIAApplication.wireguardTunnel != null &&
                 !PiaPrefHandler.hasDnsChanged(context)) {
             if (PIAApplication.wireguardServer != null &&
-                server.getKey() != PIAApplication.wireguardServer.getKey()) {
+                    server.getKey() != PIAApplication.wireguardServer.getKey()) {
                 startWireguardService();
             }
             else {
@@ -467,6 +447,7 @@ public final class GoBackend implements Backend {
         }
 
         String[] splitPort = server.getWgHost().split(":");
+        String host = splitPort[0];
         int port = Integer.parseInt(splitPort[1]);
 
         final KeyPair wgKeyPair = new KeyPair();
@@ -479,22 +460,26 @@ public final class GoBackend implements Backend {
         try {
             HttpUrl httpUrl = new HttpUrl.Builder()
                     .scheme("https")
-                    .host(server.getDns())
+                    .host(host)
                     .port(port)
                     .addPathSegment("addKey")
                     .addQueryParameter("pubkey", wgKeyPair.getPublicKey().toBase64())
                     .addQueryParameter("pt", PiaPrefHandler.getAuthToken(context))
                     .build();
 
-            Request request = new Request.Builder().url(httpUrl).
-                    build();
+            Request request = new Request.Builder().url(httpUrl).build();
+            PIACertPinningAPI piaApi = new PIACertPinningAPI();
 
-            PiaApi piaApi = new PiaApi();
+            // Set the endpoints/cn for the selected protocol before the request
+            List<Pair<String, String>> endpointCommonNames =
+                    server.getCommonNames().get(ServerUtils.getUserSelectedProtocol(context));
+            if (endpointCommonNames != null) {
+                piaApi.setKnownEndpointCommonName(endpointCommonNames);
+            }
+
             OkHttpClient client = piaApi.getOkHttpClient();
-
             DLog.d("Wireguard", "httpUrl: " + httpUrl.toString());
             DLog.d("Wireguard", "Attempting call");
-
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -527,9 +512,10 @@ public final class GoBackend implements Backend {
                         lastState = State.DOWN;
                         isConnecting = false;
 
-                        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                        mNotificationManager.cancel(NOTIFICATION_CHANNEL_NEWSTATUS_ID.hashCode());
-
+                        PIANotifications.Companion.getSharedInstance().hideNotification(
+                                context,
+                                NOTIFICATION_CHANNEL_NEWSTATUS_ID.hashCode()
+                        );
                         e.printStackTrace();
                     }
                 }
@@ -554,7 +540,7 @@ public final class GoBackend implements Backend {
             wgSettings.add("dns=" + prefs.get(PiaPrefHandler.DNS, dns.toString()));
         }
         else {
-            if (prefs.getBoolean(PiaPrefHandler.GEN4_ACTIVE) && PiaPrefHandler.isMaceEnabled(context)) {
+            if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true) && PiaPrefHandler.isMaceEnabled(context)) {
                 dns = GEN4_MACE_ENABLED_DNS;
             }
             wgSettings.add("dns=" + dns);
@@ -579,7 +565,7 @@ public final class GoBackend implements Backend {
             wgSettings.add("allowedips=0.0.0.0/0");
         }
         else {
-            if (prefs.getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+            if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
                 if (PiaPrefHandler.isMaceEnabled(context)) {
                     wgSettings.add("allowedips=" + getAllowedIps(GEN4_MACE_ENABLED_DNS));
                 }
@@ -749,7 +735,7 @@ public final class GoBackend implements Backend {
                             PIAServer server = handler.getSelectedRegion(VpnService.this, false);
 
                             Request request = new Request.Builder().url("http://" + server.getPingEndpoint()).
-                                            build();
+                                    build();
 
                             PiaApi piaApi = new PiaApi();
                             OkHttpClient client = piaApi.getOkHttpClient();
@@ -835,50 +821,30 @@ public final class GoBackend implements Backend {
             stopSelf();
         }
 
-        public void showNotification(final String msg, String tickerText, @NonNull String channel, long when, ConnectionStatus status) {
-            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            int icon = getIconByConnectionStatus(status);
-            int color = getColorByConnectionStatus(status);
-
+        public void showNotification(
+                final String msg,
+                String tickerText,
+                ConnectionStatus status
+        ) {
             PIAServer server = PIAApplication.wireguardServer;
-
-            NotificationCompat.Builder nbuilder = new NotificationCompat.Builder(this);
-
-            if (server != null)
-                nbuilder.setContentTitle(getString(de.blinkt.openvpn.R.string.notifcation_title, server.getName()));
-            else
-                nbuilder.setContentTitle("");
-
-            nbuilder.setContentText(msg);
-            nbuilder.setOnlyAlertOnce(true);
-            nbuilder.setOngoing(true);
-
-            nbuilder.setSmallIcon(icon);
-            nbuilder.setContentIntent(
+            String contentTitle = "";
+            if (server != null) {
+                contentTitle =
+                        getString(de.blinkt.openvpn.R.string.notifcation_title, server.getName());
+            }
+            int notificationId = NOTIFICATION_CHANNEL_NEWSTATUS_ID.hashCode();
+            Notification notification = PIANotifications.Companion.getSharedInstance().showNotification(
+                    this,
+                    notificationId,
+                    NOTIFICATION_CHANNEL_NEWSTATUS_ID,
+                    contentTitle,
+                    msg,
+                    tickerText,
+                    getIconByConnectionStatus(status),
+                    getColorByConnectionStatus(status),
+                    true,
                     PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0)
             );
-
-            if (when != 0)
-                nbuilder.setWhen(when);
-
-            if (color != -1) {
-                nbuilder.setColor(color);
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                //noinspection NewApi
-                nbuilder.setChannelId(channel);
-            }
-
-            if (tickerText != null && !tickerText.equals(""))
-                nbuilder.setTicker(tickerText);
-
-            @SuppressWarnings("deprecation")
-            Notification notification = nbuilder.getNotification();
-
-            int notificationId = channel.hashCode();
-
-            mNotificationManager.notify(notificationId, notification);
 
             startForeground(notificationId, notification);
         }

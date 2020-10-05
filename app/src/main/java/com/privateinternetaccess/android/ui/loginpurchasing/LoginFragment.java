@@ -36,27 +36,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
-import com.privateinternetaccess.android.pia.model.LoginInfo;
-import com.privateinternetaccess.android.pia.model.enums.LoginResponseStatus;
-import com.privateinternetaccess.android.pia.model.events.LoginEvent;
-import com.privateinternetaccess.android.pia.model.response.LoginResponse;
-import com.privateinternetaccess.android.pia.model.response.TokenResponse;
+import com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.views.PiaxEditText;
-import com.privateinternetaccess.core.utils.IPIACallback;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Optional;
 
 /**
  * Created by half47 on 3/8/17.
@@ -73,9 +68,14 @@ public class LoginFragment extends Fragment {
     @BindView(R.id.fragment_login_progress) View progress;
 
     @Nullable
+    @BindView(R.id.fragment_login_receipt) TextView bLoginReceipt;
+
+    @Nullable
     @BindView(R.id.fragment_tv_login_user) EditText tvLogin;
     @Nullable
     @BindView(R.id.fragment_tv_login_password) EditText tvPassword;
+
+    private static final String TAG = "LoginFragment";
 
     @Nullable
     @Override
@@ -94,7 +94,6 @@ public class LoginFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        EventBus.getDefault().register(this);
         initView();
     }
 
@@ -123,56 +122,35 @@ public class LoginFragment extends Fragment {
                 }
             });
 
-            etPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    boolean handled = false;
-                    DLog.d("Login Activity Action", "actionid = " + actionId + " event = " + event);
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        bLogin.callOnClick();
-                        handled = true;
-                    }
-                    return handled;
+            etPassword.setOnEditorActionListener((v, actionId, event) -> {
+                boolean handled = false;
+                DLog.d("Login Activity Action", "actionid = " + actionId + " event = " + event);
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    bLogin.callOnClick();
+                    handled = true;
                 }
+                return handled;
             });
 
-            etPassword.setOnKeyListener(new View.OnKeyListener() {
-                @Override
-                public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                    boolean handled = false;
-                    if((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && i == KeyEvent.KEYCODE_ENTER){
-                        bLogin.callOnClick();
-                        handled = true;
-                    }
-                    return handled;
+            etPassword.setOnKeyListener((view, i, keyEvent) -> {
+                boolean handled = false;
+                if((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && i == KeyEvent.KEYCODE_ENTER){
+                    bLogin.callOnClick();
+                    handled = true;
                 }
+                return handled;
             });
 
             etPassword.etMain.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             etPassword.etMain.setTypeface(Typeface.SANS_SERIF);
-
             etLogin.etMain.setInputType(InputType.TYPE_CLASS_TEXT);
-        }
 
-
-        bLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onLoginClick();
+            if (BuildConfig.FLAVOR_store.equals("amazonstore")) {
+                bLoginReceipt.setVisibility(View.GONE);
             }
-        });
-
-        LoginEvent event = EventBus.getDefault().getStickyEvent(LoginEvent.class);
-        if(event != null){
-            loginReceive(event);
-            EventBus.getDefault().removeStickyEvent(LoginEvent.class);
         }
-    }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        EventBus.getDefault().unregister(this);
+        bLogin.setOnClickListener(v -> onLoginClick());
     }
 
     @Override
@@ -250,25 +228,66 @@ public class LoginFragment extends Fragment {
         bLogin.setEnabled(false);
         bLogin.setVisibility(View.INVISIBLE);
         progress.setVisibility(View.VISIBLE);
+        Context context = getContext();
 
         final IAccount account = PIAFactory.getInstance().getAccount(progress.getContext());
-        account.login(new LoginInfo(getUsername(), getPassword()), new IPIACallback<TokenResponse>() {
-            @Override
-            public void apiReturn(TokenResponse tokenResponse) {
-                account.checkAccountInfo(null);
+        account.loginWithCredentials(getUsername(), getPassword(), (token, requestResponseStatus) -> {
+            boolean loginSuccessful = false;
+            switch (requestResponseStatus) {
+                case SUCCEEDED:
+                    loginSuccessful = !TextUtils.isEmpty(token);
+                    break;
+                case AUTH_FAILED:
+                case THROTTLED:
+                case OP_FAILED:
+                    break;
             }
+
+            if (!loginSuccessful) {
+                DLog.d(TAG, "Login unsuccessful " + requestResponseStatus);
+                handleLoginResponseStatus(context, requestResponseStatus);
+                return null;
+            }
+
+            account.accountInformation(token, (accountInformation, accountResponseStatus) -> {
+                boolean accountSuccessful = false;
+                switch (accountResponseStatus) {
+                    case SUCCEEDED:
+                        accountSuccessful = accountInformation != null;
+                        break;
+                    case AUTH_FAILED:
+                    case THROTTLED:
+                    case OP_FAILED:
+                        break;
+                }
+
+                if (!accountSuccessful) {
+                    DLog.d(TAG, "Check account information unsuccessful " + accountResponseStatus);
+                    handleLoginResponseStatus(context, accountResponseStatus);
+                    return null;
+                }
+
+                PiaPrefHandler.saveUser(context, getUsername());
+                PiaPrefHandler.saveAuthToken(context, token);
+                PiaPrefHandler.setUserIsLoggedIn(context, true);
+                PiaPrefHandler.saveAccountInformation(context, accountInformation);
+                PiaPrefHandler.clearPurchasingInfo(context);
+                handleLoginResponseStatus(context, accountResponseStatus);
+                return null;
+            });
+            return null;
         });
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void loginReceive(LoginEvent loginEvent){
-        LoginResponse loginResponse = loginEvent.getResponse();
-        Context context = getContext();
-
-        if (!PIAApplication.isAndroidTV(getContext())) {
-            if (loginResponse.getStatus() == LoginResponseStatus.CONNECTED) {
+    public void handleLoginResponseStatus(Context context, RequestResponseStatus loginResponseStatus) {
+        if (!PIAApplication.isAndroidTV(context)) {
+            if (loginResponseStatus == RequestResponseStatus.SUCCEEDED) {
                 ((LoginPurchaseActivity) getActivity()).goToMainActivity();
-            } else if (loginResponse.getStatus() == LoginResponseStatus.AUTH_FAILED) {
+
+                // Update the list of server upon successful login.
+                // GEN4 setting is reset on logout and we need to make sure we show the proper list.
+                PIAServerHandler.getInstance(context).fetchServers(context, true);
+            } else if (loginResponseStatus == RequestResponseStatus.AUTH_FAILED) {
                 // auth failed
                 String username = getUsername();
                 if (username.matches("\\A\\s*x\\d+\\s*\\z")) {
@@ -283,7 +302,7 @@ public class LoginFragment extends Fragment {
                 progress.setVisibility(View.INVISIBLE);
                 bLogin.setVisibility(View.VISIBLE);
                 bLogin.setEnabled(true);
-            } else if(loginResponse.getStatus() == LoginResponseStatus.THROTTLED){
+            } else if (loginResponseStatus == RequestResponseStatus.THROTTLED){
                 etPassword.setError(getContext().getResources().getString(R.string.login_throttled_text));
                 progress.setVisibility(View.INVISIBLE);
                 bLogin.setVisibility(View.VISIBLE);
@@ -296,11 +315,10 @@ public class LoginFragment extends Fragment {
                 bLogin.setVisibility(View.VISIBLE);
                 bLogin.setEnabled(true);
             }
-        }
-        else {
-            if (loginResponse.getStatus() == LoginResponseStatus.CONNECTED) {
+        } else {
+            if (loginResponseStatus == RequestResponseStatus.SUCCEEDED) {
                 ((LoginPurchaseActivity) getActivity()).goToMainActivity();
-            } else if (loginResponse.getStatus() == LoginResponseStatus.AUTH_FAILED) {
+            } else if (loginResponseStatus == RequestResponseStatus.AUTH_FAILED) {
                 // auth failed
                 String username = getUsername();
                 if (username.matches("\\A\\s*x\\d+\\s*\\z")) {
@@ -313,7 +331,7 @@ public class LoginFragment extends Fragment {
                 progress.setVisibility(View.INVISIBLE);
                 bLogin.setVisibility(View.VISIBLE);
                 bLogin.setEnabled(true);
-            } else if(loginResponse.getStatus() == LoginResponseStatus.THROTTLED){
+            } else if (loginResponseStatus == RequestResponseStatus.THROTTLED){
                 tvPassword.setError(getContext().getResources().getString(R.string.login_throttled_text));
                 progress.setVisibility(View.INVISIBLE);
                 bLogin.setVisibility(View.VISIBLE);
@@ -329,8 +347,24 @@ public class LoginFragment extends Fragment {
         }
     }
 
-    public EditText getEtPassword() {
-        return etPassword.etMain;
+    @Optional
+    @OnClick(R.id.fragment_login_receipt)
+    public void onReceiptClicked() {
+        DLog.d("PIAAPI", "Has set email: " + PiaPrefHandler.hasSetEmail(getContext()));
+        if (((LoginPurchaseActivity) getActivity()).getActiveSubscription() == null) {
+            Toaster.l(getContext(), R.string.purchasing_no_subscription);
+        }
+        else if (PiaPrefHandler.hasSetEmail(getContext())) {
+            Toaster.l(getContext(), R.string.error_active_subscription);
+        }
+        else {
+            ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true, false, false);
+        }
     }
 
+    @Optional
+    @OnClick(R.id.fragment_login_magic_link)
+    public void onMagicLinkClicked() {
+        ((LoginPurchaseActivity) getActivity()).switchToMagicLogin();
+    }
 }

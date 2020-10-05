@@ -24,24 +24,14 @@ package com.privateinternetaccess.android.pia.model;
 
 public class PurchaseData {
 
-    private String email;
     private String token;
     private String productId;
     private String orderId;
 
-    public PurchaseData(String email, String token, String productId, String orderId) {
-        this.email = email;
+    public PurchaseData(String token, String productId, String orderId) {
         this.token = token;
         this.productId = productId;
         this.orderId = orderId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getToken() {

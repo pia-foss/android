@@ -19,25 +19,34 @@
 package com.privateinternetaccess.android.ui.drawer;
 
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
 
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.events.SeverListUpdateEvent;
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
+import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
+
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * Created by half47 on 8/3/16.
  */
 public class SettingsActivity extends BaseActivity {
 
+    private static final String TAG = "SettingsActivity";
     private static boolean changedTheme;
     private SettingsFragment fragment;
     private AppBarLayout appBar;
+    private View loadingView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +60,8 @@ public class SettingsActivity extends BaseActivity {
             setBackground();
             setSecondaryGreenBackground();
             appBar = findViewById(R.id.appbar);
+            loadingView = findViewById(R.id.activity_settings_loading);
+            updateUiForGen4FetchingState(PIAServerHandler.getServerListFetchState());
         }
     }
 
@@ -85,6 +96,22 @@ public class SettingsActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
+        SeverListUpdateEvent.ServerListUpdateState state = PIAServerHandler.getServerListFetchState();
+        boolean shouldIgnoreBackPress = false;
+        switch (state) {
+            case STARTED:
+                shouldIgnoreBackPress = true;
+                break;
+            case FETCH_SERVERS_FINISHED:
+            case GEN4_PING_SERVERS_FINISHED:
+                break;
+        }
+
+        if (shouldIgnoreBackPress) {
+            DLog.d(TAG, "Ignoring onBackPressed as we are updating the core list of servers");
+            return;
+        }
+
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             setTitle(R.string.menu_settings);
             getSupportFragmentManager().popBackStack();
@@ -104,5 +131,30 @@ public class SettingsActivity extends BaseActivity {
 
     public void showHideActionBar(boolean show){
         appBar.setExpanded(show);
+    }
+
+    @Subscribe
+    public void serverListUpdateEvent(SeverListUpdateEvent event) {
+        updateUiForGen4FetchingState(event.getState());
+    }
+
+    private void updateUiForGen4FetchingState(SeverListUpdateEvent.ServerListUpdateState state) {
+        if (loadingView == null) {
+            return;
+        }
+
+        int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+        switch (state) {
+            case STARTED:
+                uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+                loadingView.setVisibility(View.VISIBLE);
+                break;
+            case FETCH_SERVERS_FINISHED:
+            case GEN4_PING_SERVERS_FINISHED:
+                loadingView.setVisibility(View.GONE);
+                break;
+        }
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(uiOptions);
     }
 }

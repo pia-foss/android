@@ -18,6 +18,7 @@
 
 package com.privateinternetaccess.android.ui.drawer;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,13 +26,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.privateinternetaccess.account.model.response.InvitesDetailsInformation;
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.model.events.InviteEvent;
-import com.privateinternetaccess.android.pia.model.response.InvitesResponse;
+import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.ui.adapters.InviteListAdapter;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
+import com.privateinternetaccess.android.utils.InvitesUtils;
 
-import org.greenrobot.eventbus.Subscribe;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,6 +68,8 @@ public class ReferralInvitesListActivity extends BaseActivity {
         else {
             setTitle(getString(R.string.refer_pending_title));
         }
+
+        processInvites();
     }
 
     private void addSnippetToView() {
@@ -74,14 +78,17 @@ public class ReferralInvitesListActivity extends BaseActivity {
         container.addView(view);
     }
 
-    @Subscribe(sticky = true)
-    public void onReceivedInvites(InviteEvent event) {
-        if (event.getResponse() != null) {
-            InvitesResponse data = event.getResponse();
-            mAdapter = new InviteListAdapter(
-                    showAccepted ? data.getSignupInvites() : data.getSentInvites(),
-                    this);
-
+    public void processInvites() {
+        Context context = getBaseContext();
+        InvitesDetailsInformation invitesDetails = PiaPrefHandler.invitesDetails(context);
+        if (invitesDetails != null) {
+            List<InvitesDetailsInformation.Invite> invitesList =
+                    InvitesUtils.INSTANCE.pendingInvitesFromInvitesList(invitesDetails.getInvites());
+            if (showAccepted) {
+                invitesList =
+                        InvitesUtils.INSTANCE.acceptedInvitesFromInvitesList(invitesDetails.getInvites());
+            }
+            mAdapter = new InviteListAdapter(invitesList, this);
             layoutManager = new LinearLayoutManager(this);
             layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 

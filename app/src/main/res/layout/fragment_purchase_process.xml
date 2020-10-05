@@ -33,6 +33,71 @@
         android:animateLayoutChanges="true"
         >
 
+        <!-- Email -->
+        <LinearLayout
+            android:id="@+id/fragment_purchase_process_email_area"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:background="@color/windowBackground"
+            >
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/fragment_trial_logo"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:layout_marginTop="28dp"
+                app:srcCompat="@drawable/ic_pia_logo"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="normal"
+                android:textColor="?attr/grey20_white"
+                android:lineSpacingExtra="2sp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="68dp"
+                android:text="@string/enter_email"
+                style="@style/Style02"
+                tools:text="Enter your email address"
+                />
+
+            <TextView
+                android:id="@+id/fragment_purchasing_you_are_purchasing"
+                style="@style/Style08"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:text="@string/purchasing_email_reason"
+                />
+
+            <com.privateinternetaccess.android.ui.views.PiaxEditText
+                android:id="@+id/fragment_purchasing_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                app:hint="@string/email_address"
+                app:textColorMain="?attr/piax_edit_text_color"
+                app:underlineColor="?attr/piax_edit_underline_color"
+                app:maxLines="1"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                style="@style/PiaxGreenButton"
+                android:text="@string/submit"
+                android:id="@+id/fragment_purchasing_email_submit"
+                />
+        </LinearLayout>
+
         <!-- success -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -248,7 +313,7 @@
             tools:visibility="visible"
             >
 
-            <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/windowBackground"
@@ -271,7 +336,9 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/fragment_progress_logo"
                     app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent">
+                    app:layout_constraintRight_toRightOf="parent"
+                    android:paddingTop="100dp"
+                    android:paddingBottom="100dp">
 
                     <com.airbnb.lottie.LottieAnimationView
                         android:id="@+id/fragment_progress_progress_spinner"
@@ -297,8 +364,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:layout_marginTop="20dp"
-                        android:layout_gravity="center_horizontal"
-                        android:text="@string/redeeming_gift_card" />
+                        android:layout_gravity="center_horizontal"/>
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>

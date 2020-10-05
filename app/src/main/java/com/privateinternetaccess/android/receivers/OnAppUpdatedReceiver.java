@@ -41,7 +41,7 @@ public class OnAppUpdatedReceiver extends BroadcastReceiver {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        boolean isLoggedIn = PIAFactory.getInstance().getAccount(context).isLoggedIn();
+        boolean isLoggedIn = PIAFactory.getInstance().getAccount(context).loggedIn();
         IVPN vpn = PIAFactory.getInstance().getVPN(context);
         if(isLoggedIn && !vpn.isVPNActive() && PiaPrefHandler.isConnectOnAppUpdate(context)) {
             // if pia is updated, if logged in, if vpn not already active, if option is active.

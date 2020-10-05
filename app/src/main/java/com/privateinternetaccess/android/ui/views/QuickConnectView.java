@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
+
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -35,6 +37,7 @@ import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.utils.ServerUtils;
 import com.privateinternetaccess.core.model.PIAServer;
@@ -57,6 +60,13 @@ public class QuickConnectView extends FrameLayout {
     @BindView(R.id.quick_server_flag_5) ImageView ivFlag5;
     @BindView(R.id.quick_server_flag_6) ImageView ivFlag6;
 
+    @BindView(R.id.quick_server_name_1) AppCompatTextView tvName1;
+    @BindView(R.id.quick_server_name_2) AppCompatTextView tvName2;
+    @BindView(R.id.quick_server_name_3) AppCompatTextView tvName3;
+    @BindView(R.id.quick_server_name_4) AppCompatTextView tvName4;
+    @BindView(R.id.quick_server_name_5) AppCompatTextView tvName5;
+    @BindView(R.id.quick_server_name_6) AppCompatTextView tvName6;
+
     @BindView(R.id.quick_favorite_1) AppCompatImageView ivFavorite1;
     @BindView(R.id.quick_favorite_2) AppCompatImageView ivFavorite2;
     @BindView(R.id.quick_favorite_3) AppCompatImageView ivFavorite3;
@@ -65,8 +75,11 @@ public class QuickConnectView extends FrameLayout {
     @BindView(R.id.quick_favorite_6) AppCompatImageView ivFavorite6;
 
     private ImageView[] flags;
+    private AppCompatTextView[] names;
     private AppCompatImageView[] favorites;
     private ServerItem[] servers;
+
+    private static final int  MAX_QUICK_CONNECT_SERVERS= 6;
 
     public QuickConnectView(Context context) {
         super(context);
@@ -88,6 +101,7 @@ public class QuickConnectView extends FrameLayout {
         ButterKnife.bind(this, this);
 
         flags = new ImageView[6];
+        names = new AppCompatTextView[6];
         favorites = new AppCompatImageView[6];
         servers = new ServerItem[6];
     }
@@ -103,6 +117,13 @@ public class QuickConnectView extends FrameLayout {
         flags[3] = ivFlag4;
         flags[4] = ivFlag5;
         flags[5] = ivFlag6;
+
+        names[0] = tvName1;
+        names[1] = tvName2;
+        names[2] = tvName3;
+        names[3] = tvName4;
+        names[4] = tvName5;
+        names[5] = tvName6;
 
         favorites[0] = ivFavorite1;
         favorites[1] = ivFavorite2;
@@ -151,6 +172,7 @@ public class QuickConnectView extends FrameLayout {
                                 ps.getKey(),
                                 PIAServerHandler.getInstance(getContext()).getFlagResource(ps),
                                 ps.getName(),
+                                ps.getIso(),
                                 false,
                                 ps.isAllowsPF(),
                                 ps.isGeo(),
@@ -171,6 +193,7 @@ public class QuickConnectView extends FrameLayout {
                                     server.getKey(),
                                     PIAServerHandler.getInstance(getContext()).getFlagResource(server),
                                     server.getName(),
+                                    server.getIso(),
                                     false,
                                     server.isAllowsPF(),
                                     server.isGeo(),
@@ -181,7 +204,41 @@ public class QuickConnectView extends FrameLayout {
             }
         }
 
-        for (int i = 0; i < 6; i++) {
+        // If there are empty spaces after favourites and recent connections.
+        // Fill it with low latency endpoints and don't repeat countries.
+        if (validServers.size() < MAX_QUICK_CONNECT_SERVERS) {
+            List<String> countryIsoAdded = new ArrayList();
+            for (PIAServer ps : handler.getServers(getContext(), PIAServerHandler.ServerSortingType.LATENCY)) {
+                if (isServerInQuickConnectList(validServers, ps.getKey())) {
+                    continue;
+                }
+
+                if (countryIsoAdded.contains(ps.getIso())) {
+                    continue;
+                }
+
+                if (ps.isGeo() && !Prefs.with(getContext()).get(PiaPrefHandler.GEO_SERVERS_ACTIVE, true)) {
+                    continue;
+                }
+
+                countryIsoAdded.add(ps.getIso());
+                String latency = ServerUtils.getLatencyForActiveSetting(getContext(), ps.getLatencies());
+                validServers.add(
+                        new ServerItem(
+                                ps.getKey(),
+                                PIAServerHandler.getInstance(getContext()).getFlagResource(ps),
+                                ps.getName(),
+                                ps.getIso(),
+                                false,
+                                ps.isAllowsPF(),
+                                ps.isGeo(),
+                                latency
+                        )
+                );
+            }
+        }
+
+        for (int i = 0; i < MAX_QUICK_CONNECT_SERVERS; i++) {
             if (i < validServers.size()) {
                 servers[i] = validServers.get(i);
             }
@@ -205,6 +262,7 @@ public class QuickConnectView extends FrameLayout {
             }
             else {
                 flags[i].setImageResource(servers[i].getFlagId());
+                names[i].setText(servers[i].getIso());
 
                 final String selectedRegion = servers[i].getKey();
                 final String selectedRegionName = servers[i].getName();
@@ -232,6 +290,15 @@ public class QuickConnectView extends FrameLayout {
                 });
             }
         }
+    }
+
+    private boolean isServerInQuickConnectList(List<ServerItem> quickConnectList, String serverKey) {
+        for (ServerItem serverItem : quickConnectList) {
+            if (serverItem.getKey() == serverKey) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Subscribe

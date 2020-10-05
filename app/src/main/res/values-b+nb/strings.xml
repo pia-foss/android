@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"Feil ved kjøp av: %1$s "</string>
     <string name="error_active_subscription">Du har allerede et aktivt abonnement!</string>
+    <string name="error_invalid_auth">Noe gikk galt. Prøv å logge inn igjen.</string>
     <string name="usemssfix">IP-pakkens størrelse vil bli noe mindre for å forbedre kompatibilitet med noen rutere og mobile nettverk.</string>
     <string name="mssfixsummary">Bruk små pakker</string>
     <string name="settings_account_bottom_text">Last ned Private Internet Access-appen for de andre enhetene dine og bruk brukernavnet ovenfor for å logge på og sikre tilkoblingen.</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">Om</string>
     <string name="reconnect_vpn">Koble til VPN på nytt for å aktivere endringen</string>
     <string name="error_account_info">Kunne ikke hente kontoinformasjon</string>
+    <string name="error_pinging_while_connected">Kunne ikke oppdatere latens mens tilkoblet VPN.</string>
     <string name="allows_port_forwarding">Tillater videresending av port</string>
     <string name="about_privacy_policy">Personvern</string>
     <string name="version">Versjon</string>
@@ -168,7 +170,7 @@
     <string name="save">Lagre</string>
     <string name="saved">Lagret</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Hastigheter som vises her er for trafikk gjennom VPN-tilkoblingen din</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">Offentlig IP</string>
     <string name="login_throttled_text">For mange mislykkede påloggingsforsøk med dette brukernavnet. Prøv igjen senere.</string>
     <string name="tap_to_connect">TRYKK FOR Å KOBLE TIL</string>
     <string name="building_configration">Bygger konfigurasjonen …</string>
@@ -187,7 +189,7 @@
     <string name="submit">Send inn</string>
     <string name="please_enter_your_email_address">Skriv inn e-postadressen din</string>
     <string name="select_vpn_plan">Velg et VPN-abonnement</string>
-    <string name="_7_day_money_back_guarantee">7-dagers penge-tilbake-garanti</string>
+    <string name="_7_day_money_back_guarantee">30-dagers pengene-tilbake-garanti</string>
     <string name="monthly">Månedlig</string>
     <string name="yearly">Årlig</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -230,7 +232,7 @@
     <string name="startup_ads_title">Beskytt deg selv om reklame</string>
     <string name="startup_ads_message">Aktivering av PIA MACE sikrer at reklame ikke blir vist, uansett hvor du er.</string>
     <string name="startup_connection_title">Per app-beskyttelse</string>
-    <string name="startup_connection_message">Få en tilpasset opplevelse ved å styre hvilke apper tjenesten vår skal gjelde for (Android 5.0+ kreves)</string>
+    <string name="startup_connection_message">Tilpass opplevelsen din ved å styre hvilke apper tjenesten vår skal gjelde for (Android 5.0+ kreves)</string>
     <string name="speed_graph">PRESTASJON</string>
     <string name="data_usage_over_time">DATAFORBRUK OVER TID</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -509,15 +511,13 @@
     <string name="refer_signups_title">Registreringer</string>
     <string name="refer_email_required">E-post er obligatorisk</string>
     <string name="refer_terms_required">Du må samtykke i vilkårene og betingelsene for å sende verveinvitasjoner</string>
-    <string-array name="region_filters">
-        <item>Navn</item>
-        <item>Latens</item>
-        <item>Favoritter</item>
-    </string-array>
+    <string name="region_filter_name">Navn</string>
+    <string name="region_filter_latency">Latens</string>
+    <string name="region_filter_favorites">Favoritter</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">Prøv gratis i 7 dager!</string>
     <string name="free_trial_cost">Betal bare %s per år</string>
-    <string name="free_trial_guarantee">7-dagers pengene-tilbake-garanti</string>
+    <string name="free_trial_guarantee">30-dagers pengene-tilbake-garanti</string>
     <string name="free_trial_protection_header">1 år med beskyttelse av personvern og identitet</string>
     <string name="free_trial_protection_text">Surf anonymt og skjul IP-adressen</string>
     <string name="free_trial_devices_header">Støtter ti enheter samtidig</string>
@@ -566,4 +566,49 @@
     <string name="gen4_next_generation_network_message">VPN-en må kobles fra for å endre servernettverket.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Inkluder geo-lokaliserte regioner</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">Liker du PIA VPN?</string>
+    <string name="rating_enjoy_message">Vi håper VPN-produktet svarer til forventningene dine</string>
+    <string name="rating_review_title">Hva med en vurdering på Google Play?</string>
+    <string name="rating_review_message">Vi setter pris på at du deler opplevelsen din</string>
+    <string name="rating_feedback_title">Hva gikk galt?</string>
+    <string name="rating_feedback_message">Ønsker du å sende en tilbakemelding? Vi kan hjelpe deg å forbedre opplevelsen din med PIA</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">ABONNER NÅ</string>
+    <string name="getstarted_free_trial">Start din gratis 7-dagers prøveperiode</string>
+    <string name="getstarted_trial_price">Deretter %s per år</string>
+    <string name="purchasing_email_reason">Vi trenger e-posten din for å sende deg brukernavnet og passordet ditt.</string>
+    <string name="purchasing_all_plans">Vis alle tilgjengelige abonnement</string>
+    <string name="purchasing_login_receipt">Logg på med kjøpsbevis</string>
+    <string name="purchasing_no_subscription">Du har ingen aktive abonnementer</string>
+    <string name="purchasing_sure">Er du sikker?</string>
+    <string name="purchasing_return">Vil du gå tilbake til startskjermen? Du kan gjenoppta abonnementsprosessen når som helst ved å klikke på Logg inn -&gt; Logg inn med kvittering.</string>
+    <string name="purchasing_magic_link">Innlogging med en magisk e-postkobling</string>
+    <string name="purchasing_magic_send">SEND KOBLING</string>
+    <string name="purchasing_magic_success">Du finner en påloggingskobling i e-posten din.</string>
+    <string name="connection_tile_header">TILKOBLING</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">Siste nyheter</string>
+    <string name="update_3_7_1_header">Prøv WireGuard® i dag!</string>
+    <string name="update_3_7_1_description">Det er en ny mer effektiv VPN-protokoll som tilbyr bedre ytelse, lavere CPU-bruk og lengre batteritid.</string>
+    <string name="update_3_7_1_cta_1">Prøv WireGuard® nå</string>
+    <string name="update_3_7_1_cta_2"><u>Finn ut mer</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">Sikker Wi-Fi</string>
+    <string name="nmt_open_wifi">Wi-Fi</string>
+    <string name="nmt_mobile_data">Mobile data</string>
+    <string name="nmt_disconnect">Koble alltid fra VPN</string>
+    <string name="nmt_connect">Koble alltid til VPN</string>
+    <string name="nmt_retain">Behold VPN-status</string>
+    <string name="nmt_manage_title">Administrer automatisering</string>
+    <string name="nmt_manage_description">Konfigurer hvordan PIA skal håndtere tilkobling til WiFi- eller mobilnettverk. Dette ekskluderer manuell frakobling.</string>
+    <string name="nmt_add_description">Velg et WiFi-nettverk for å legge til en ny regel.</string>
+    <string name="nmt_rule_for">Regler for %s</string>
+    <string name="nmt_remove_rule">Fjern regel</string>
+    <string name="nmt_add_new_rule">Legg til en ny regel</string>
+    <string name="nmt_settings_title">Nettverksadministrasjon</string>
+    <string name="nmt_settings_description">Angi regler for å håndtere regler for automatisk tilkobling av pålitelige og upålitelige nettverk.</string>
+    <string name="nmt_management_title">Administrer automatisering</string>
 </resources>

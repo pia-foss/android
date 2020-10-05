@@ -30,7 +30,9 @@ import android.widget.ProgressBar;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
+import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.wireguard.backend.GoBackend;
 
 import org.greenrobot.eventbus.EventBus;
@@ -51,8 +53,6 @@ public class ConnectionSlider extends FrameLayout {
     public static final String TAG = "ConnectionSlider";
     @BindView(R.id.connection_background) AppCompatImageView background;
     @Nullable @BindView(R.id.connect_progress) ProgressBar progressBar;
-
-    private boolean isScaled = false;
 
     private static final long TAP_DELAY = 750;
     private long lastTap = 0L;
@@ -109,7 +109,20 @@ public class ConnectionSlider extends FrameLayout {
 
         lastTap = System.currentTimeMillis();
 
-        if(!PIAFactory.getInstance().getVPN(getContext()).isVPNActive()) {
+        boolean isVpnDisconnected = !PIAFactory.getInstance().getVPN(getContext()).isVPNActive();
+        if (isVpnDisconnected && PIAServerHandler.getInstance(getContext()).getServers().size() == 0) {
+            EventBus.getDefault().postSticky(
+                    new VpnStateEvent(
+                            "CONNECT",
+                            "No regions available",
+                            R.string.failed_connect_status,
+                            ConnectionStatus.LEVEL_NONETWORK
+                    )
+            );
+            return;
+        }
+
+        if(isVpnDisconnected) {
             PIAFactory.getInstance().getVPN(getContext()).start(true);
         } else {
             PIAFactory.getInstance().getVPN(getContext()).stop(true);
@@ -151,7 +164,6 @@ public class ConnectionSlider extends FrameLayout {
 
     public void animateFocus(boolean focused) {
         float scale = focused ? 1.1f : 1f;
-        isScaled = focused;
 
         setScaleX(scale);
         setScaleY(scale);

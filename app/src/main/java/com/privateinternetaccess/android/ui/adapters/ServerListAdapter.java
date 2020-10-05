@@ -38,9 +38,9 @@ import com.privateinternetaccess.android.model.listModel.ServerItem;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.PingHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
+import com.privateinternetaccess.android.pia.tasks.FetchPingTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
@@ -53,6 +53,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
+
+import static com.privateinternetaccess.regions.RegionsAPIKt.REGIONS_PING_TIMEOUT;
 
 /**
  * Created by half47 on 2/23/16.
@@ -141,17 +143,17 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                 }
 
-                Long ping = PingHandler.getInstance(mContext).getPings().get(item.getKey());
-                if (Prefs.with(mContext).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
-                    ping = null;
-                    if (item.getLatency() != null && !item.getLatency().isEmpty()) {
-                        ping = Long.valueOf(item.getLatency());
-                    }
+                Long ping = null;
+                if (item.getLatency() != null && !item.getLatency().isEmpty()) {
+                    ping = Long.valueOf(item.getLatency());
                 }
 
                 int targetGeoVisibility = View.GONE;
-                if (Prefs.with(mContext).getBoolean(PiaPrefHandler.GEO_SERVERS_ACTIVE)) {
+                if (Prefs.with(mContext).get(PiaPrefHandler.GEO_SERVERS_ACTIVE, true)) {
                     targetGeoVisibility = item.isGeo() ? View.VISIBLE : View.GONE;
+                    sHolder.geoServerImage.setImageDrawable(
+                            AppCompatResources.getDrawable(mContext, R.drawable.ic_geo_unselected)
+                    );
                     if (item.isSelected()) {
                         sHolder.geoServerImage.setImageDrawable(
                                 AppCompatResources.getDrawable(mContext, R.drawable.ic_geo_selected)
@@ -160,12 +162,17 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
                 sHolder.geoServerImage.setVisibility(targetGeoVisibility);
 
+                long pingTimeout = (long) FetchPingTask.TIMEOUT;
+                if (Prefs.with(mContext).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
+                    pingTimeout = (long) REGIONS_PING_TIMEOUT;
+                }
+
                 if (!item.isAllowsPF() && PiaPrefHandler.isPortForwardingEnabled(mContext)) {
                     sHolder.portForwarding.setVisibility(View.VISIBLE);
                     sHolder.image.setColorFilter(ContextCompat.getColor(mContext, R.color.server_fade), android.graphics.PorterDuff.Mode.MULTIPLY);
                     sHolder.name.setTextColor(ContextCompat.getColor(mContext, R.color.text_fade));
 
-                    if (ping != null && ping != 0L) {
+                    if (ping != null && ping > 0L && ping < pingTimeout) {
                         if (ping < 200) {
                             sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.latency_green_faded));
                         } else if (ping < 500) {
@@ -185,7 +192,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     sHolder.portForwarding.setColorFilter(null);
                     sHolder.name.setTextColor(sHolder.originalColor);
 
-                    if (ping != null && ping != 0L) {
+                    if (ping != null && ping > 0L && ping < pingTimeout) {
                         if (ping < 200) {
                             sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.pia_gen_green));
                         } else if (ping < 500) {

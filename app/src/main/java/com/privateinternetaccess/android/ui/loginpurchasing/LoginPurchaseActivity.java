@@ -20,14 +20,11 @@ package com.privateinternetaccess.android.ui.loginpurchasing;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -49,18 +46,15 @@ import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.interfaces.IPurchasing;
 import com.privateinternetaccess.android.pia.model.PurchaseData;
 import com.privateinternetaccess.android.pia.model.PurchaseObj;
-import com.privateinternetaccess.android.pia.model.events.LoginEvent;
 import com.privateinternetaccess.android.pia.model.events.PurchasingInfoEvent;
+import com.privateinternetaccess.android.pia.model.events.SubscriptionsEvent;
 import com.privateinternetaccess.android.pia.model.events.SystemPurchaseEvent;
-import com.privateinternetaccess.android.pia.model.response.PurchasingResponse;
-import com.privateinternetaccess.android.pia.model.response.SubscriptionAvailableResponse;
-import com.privateinternetaccess.android.pia.subscription.InAppPurchasesHelper;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.features.WebviewActivity;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 import com.privateinternetaccess.android.pia.model.SkuDetailsObj;
-import com.privateinternetaccess.core.utils.IPIACallback;
+import com.privateinternetaccess.android.utils.SubscriptionsUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -78,12 +72,10 @@ public class LoginPurchaseActivity extends BaseActivity {
 
     public static final String EXTRA_GOTO_PURCHASING = "gotoPurchasing";
 
-    private static final int RC_REQUEST = 13;
     public static final String TAG = "Purchasing";
 
     private final String EXTRA_MONTHLY_COST = "mMonthlyCost";
     private final String EXTRA_YEARLY_COST = "mYearlyCost";
-    private final String EXTRA_YEARLY_TOTAL_COST = "yearlyTotalCost";
 
     public String mMonthlyCost;
     public String mYearlyCost;
@@ -108,23 +100,23 @@ public class LoginPurchaseActivity extends BaseActivity {
         }
         setSwipeBackEnable(false);
 
-        if(BuildConfig.FLAVOR_store.equals("noinapp")) {
+        if (BuildConfig.FLAVOR_store.equals("noinapp")) {
             UpdateHandler.checkUpdates(this, UpdateHandler.UpdateDisplayType.SHOW_DIALOG);
         }
     }
 
     private void createIabHelper() {
-        if(purchasingHandler == null) {
+        if (purchasingHandler == null) {
+            String monthlySubscriptionId =
+                    SubscriptionsUtils.INSTANCE.getMonthlySubscriptionId(getBaseContext());
+            String yearlySubscriptionId =
+                    SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(getBaseContext());
+
             purchasingHandler = new PurchasingHandler();
-            List<String> purchases = new ArrayList<String>();
-            purchases.add(InAppPurchasesHelper.getMontlySubscriptionId());
-            purchases.add(InAppPurchasesHelper.getYearlySubscriptionId());
-            purchasingHandler.init(this, purchases, null, null, new IPIACallback<SystemPurchaseEvent>() {
-                @Override
-                public void apiReturn(SystemPurchaseEvent systemPurchaseEvent) {
-                    onSystemPurchaseEvent(systemPurchaseEvent);
-                }
-            });
+            List<String> purchases = new ArrayList<>();
+            purchases.add(monthlySubscriptionId);
+            purchases.add(yearlySubscriptionId);
+            purchasingHandler.init(this, purchases, systemPurchaseEvent -> onSystemPurchaseEvent(systemPurchaseEvent));
         }
     }
 
@@ -133,21 +125,13 @@ public class LoginPurchaseActivity extends BaseActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(act);
         builder.setTitle(R.string.api_check_failure_title);
         builder.setMessage(R.string.api_check_message);
-        builder.setPositiveButton(R.string.drawer_contact_support, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent i = new Intent(LoginPurchaseActivity.this, WebviewActivity.class);
-                i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com/helpdesk/new-ticket/");
-                startActivity(i);
-                dialog.dismiss();
-            }
+        builder.setPositiveButton(R.string.drawer_contact_support, (dialog, which) -> {
+            Intent i = new Intent(LoginPurchaseActivity.this, WebviewActivity.class);
+            i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com/helpdesk/new-ticket/");
+            startActivity(i);
+            dialog.dismiss();
         });
-        builder.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        builder.setNeutralButton(R.string.dismiss, (dialog, which) -> dialog.dismiss());
         builder.show();
     }
 
@@ -165,16 +149,42 @@ public class LoginPurchaseActivity extends BaseActivity {
             purchasingHandler.dispose();
     }
 
+    @Override
+    public void onBackPressed() {
+        showPurchasing = false;
+
+        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.container);
+
+        if (frag instanceof PurchasingProcessFragment) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.purchasing_sure);
+            builder.setMessage(R.string.purchasing_return);
+            builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                switchToStart();
+                PiaPrefHandler.setHasSetEmail(LoginPurchaseActivity.this, false);
+                PiaPrefHandler.clearAccountInformation(LoginPurchaseActivity.this);
+            });
+            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
+            builder.create().show();
+        }
+        else {
+            super.onBackPressed();
+        }
+    }
+
     private void initView() {
         Fragment frag = getSupportFragmentManager().findFragmentById(R.id.container);
         if(frag == null){
-            if (!PIAApplication.isAndroidTV(getApplicationContext())) {
+            if (!PiaPrefHandler.hasSetEmail(this) && !TextUtils.isEmpty(PiaPrefHandler.getAuthToken(this))) {
+                switchToPurchasingProcess(true, false, false);
+            }
+            else if (!PIAApplication.isAndroidTV(getApplicationContext())) {
                 frag = new GetStartedFragment();
                 FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
                 trans.add(R.id.container, frag);
                 trans.commit();
                 if(!PiaPrefHandler.isPurchasingProcessDone(getApplicationContext())){
-                    switchToPurchasingProcess(true, false);
+                    switchToPurchasingProcess(true, false, false);
                 } else if(showPurchasing)
                     switchToPurchasing();
             }
@@ -194,123 +204,94 @@ public class LoginPurchaseActivity extends BaseActivity {
         outState.putString(EXTRA_YEARLY_COST, mYearlyCost);
     }
 
-    public void switchToFreeTrial() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (!BuildConfig.FLAVOR_store.equals("playstore")) {
-                    navigateToBuyVpnSite();
-                    return;
-                }
-
-                Fragment frag = new FreeTrialFragment();
-                FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
-                trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
-                trans.replace(R.id.container, frag);
-                trans.addToBackStack("free_trial");
-                trans.commit();
-            }
+    public void switchToStart() {
+        runOnUiThread(() -> {
+            Fragment frag = new GetStartedFragment();
+            FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
+            trans.add(R.id.container, frag);
+            trans.commit();
         });
+
     }
 
     public void switchToPurchasing(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (!BuildConfig.FLAVOR_store.equals("playstore")) {
-                    navigateToBuyVpnSite();
-                    return;
-                }
-
-                Fragment frag = new PurchasingFragment();
-                FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
-                trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
-                trans.replace(R.id.container, frag);
-                trans.addToBackStack("purchasing");
-                trans.commit();
+        runOnUiThread(() -> {
+            if (!BuildConfig.FLAVOR_store.equals("playstore")) {
+                navigateToBuyVpnSite();
+                return;
             }
+
+            Fragment frag = new PurchasingFragment();
+            FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
+            trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
+            trans.replace(R.id.container, frag);
+            trans.addToBackStack("purchasing");
+            trans.commit();
         });
     }
 
-    public void switchToPurchasingProcess(final boolean fireOffPurchasing, final boolean isTrial){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                PurchasingProcessFragment frag = new PurchasingProcessFragment();
-                frag.setFirePurchasing(fireOffPurchasing);
-                frag.setTrial(isTrial);
-                EventBus.getDefault().removeStickyEvent(PurchasingResponse.class);
-                getSupportFragmentManager().beginTransaction().add(R.id.container, frag).commit();
-            }
+    public void switchToPurchasingProcess(final boolean fireOffPurchasing, final boolean isTrial, final boolean hasEmail){
+        runOnUiThread(() -> {
+            PurchasingProcessFragment frag = new PurchasingProcessFragment();
+            frag.setShowEmail(hasEmail);
+            frag.setFirePurchasing(fireOffPurchasing);
+            frag.setTrial(isTrial);
+            getSupportFragmentManager().beginTransaction().add(R.id.container, frag).commit();
         });
     }
 
     public void switchToTrialAccount(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Fragment frag = new TrialFragment();
-                FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
-                trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
-                trans.replace(R.id.container, frag);
-                trans.addToBackStack("trial");
-                trans.commit();
-
-                DLog.d("LoginPurchaseActivity", "Moving to redemption");
-            }
+        runOnUiThread(() -> {
+            Fragment frag = new TrialFragment();
+            FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
+            trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
+            trans.replace(R.id.container, frag);
+            trans.addToBackStack("trial");
+            trans.commit();
         });
     }
 
     public void switchToLogin() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                LoginFragment frag = new LoginFragment();
-                FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
-                trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
-                trans.replace(R.id.container, frag);
-                trans.addToBackStack("login");
-                trans.commit();
-
-                DLog.d("LoginPurchaseActivity", "Moving to login");
-            }
+        runOnUiThread(() -> {
+            LoginFragment frag = new LoginFragment();
+            FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
+            trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
+            trans.replace(R.id.container, frag);
+            trans.addToBackStack("login");
+            trans.commit();
         });
     }
 
-    public void onSubscribeClicked(String email, String subscriptionType) {
-        PiaPrefHandler.saveEmail(getApplicationContext(), email);
+    public void switchToMagicLogin() {
+        runOnUiThread(() -> {
+            MagicLoginFragment frag = new MagicLoginFragment();
+            FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
+            trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
+            trans.replace(R.id.container, frag);
+            trans.addToBackStack("magic_login");
+            trans.commit();
+        });
+    }
+
+    public void onSubscribeClicked(String subscriptionType) {
         showPurchasing = false;
-        PurchaseObj mActiveSubscription = purchasingHandler.getPurchase();
+        PurchaseObj mActiveSubscription = purchasingHandler.getPurchase(false);
         if(!PIAApplication.isQA())
             if (mActiveSubscription != null) {
                 Toaster.l(getApplicationContext(), R.string.error_active_subscription);
                 return;
             }
-        String payload = "";
 
-        DLog.i("Purchasing", "Launching purchase flow for subscription.");
-        purchasingHandler.purchase(email, subscriptionType);
+        purchasingHandler.purchase(subscriptionType);
     }
 
     public void onContinuePurchasingClicked(String subscriptionType) {
-        PurchasingEmailFragment emailFragment = new PurchasingEmailFragment();
-        PurchasingEmailFragment.PRODUCT_ID_SELECTED = subscriptionType;
-
-        FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
-        trans.setCustomAnimations(R.anim.left_to_right, R.anim.right_to_left, R.anim.right_to_left_exit, R.anim.left_to_right_exit);
-        trans.replace(R.id.container, emailFragment);
-        trans.addToBackStack("email");
-        trans.commit();
-    }
-
-    public void onConfirmEmailClicked(String email, String subscriptionType) {
         if (TextUtils.isEmpty(mMonthlyCost)) {
             showConnectionError();
             return;
         }
 
         PurchasingFinalizeFragment finalizeFragment = new PurchasingFinalizeFragment();
-        finalizeFragment.email = email;
         PurchasingFinalizeFragment.PRODUCT_ID_SELECTED = subscriptionType;
 
         FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
@@ -321,14 +302,13 @@ public class LoginPurchaseActivity extends BaseActivity {
     }
 
     public void goToMainActivity(){
-        EventBus.getDefault().removeStickyEvent(LoginEvent.class);
         super.goToMainActivity();
     }
 
     public void onSystemPurchaseEvent(SystemPurchaseEvent event){
         if(event.isSuccess()){
-            switchToPurchasingProcess(true, false);
-        } else {
+            PiaPrefHandler.setHasSetEmail(this, false);
+            switchToPurchasingProcess(true, false, false);
         }
     }
 
@@ -355,40 +335,37 @@ public class LoginPurchaseActivity extends BaseActivity {
     }
 
     @Subscribe(sticky = true)
-    public void onReceivedSubscriptions(SubscriptionAvailableResponse response) {
+    public void onReceivedSubscriptions(SubscriptionsEvent event) {
         DLog.d(TAG, "received subscription information");
         createIabHelper();
-
-        String email = PiaPrefHandler.getLoginEmail(getApplicationContext());
-        if(!TextUtils.isEmpty(email))
-            purchasingHandler.setEmail(email);
     }
 
     @Subscribe
     public void onQueryInventoryFinished(PurchasingInfoEvent event){
-        SkuDetailsObj monthlySub = purchasingHandler.getSkuDetails(InAppPurchasesHelper.getMontlySubscriptionId());
-        SkuDetailsObj yearlySub = purchasingHandler.getSkuDetails(InAppPurchasesHelper.getYearlySubscriptionId());
+        String monthlySubscriptionId =
+                SubscriptionsUtils.INSTANCE.getMonthlySubscriptionId(getBaseContext());
+        String yearlySubscriptionId =
+                SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(getBaseContext());
+
+        SkuDetailsObj monthlySub = purchasingHandler.getSkuDetails(monthlySubscriptionId);
+        SkuDetailsObj yearlySub = purchasingHandler.getSkuDetails(yearlySubscriptionId);
         if (monthlySub != null && yearlySub != null) {
             mMonthlyCost = monthlySub.getPrice();
             mYearlyCost = yearlySub.getPrice();
 
             EventBus.getDefault().postSticky(new PricingLoadedEvent(mMonthlyCost, mYearlyCost));
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    PurchasingFragment fragment = getPurchasingFragment();
-                    if(fragment != null){
-                        fragment.setUpCosts(mMonthlyCost, mYearlyCost);
-                    }
+            runOnUiThread(() -> {
+                PurchasingFragment fragment = getPurchasingFragment();
+                if(fragment != null){
+                    fragment.setUpCosts(mMonthlyCost, mYearlyCost);
                 }
             });
             IAccount account = PIAFactory.getInstance().getAccount(getApplicationContext());
-            PurchaseData data = account.getTempoaryPurchaseData();
+            PurchaseData data = account.temporaryPurchaseData();
             // If purchasing has failed, retry
             if(data != null){
-                switchToPurchasingProcess(true, false);
-                //Toast to let them know what is going on?
+                switchToPurchasingProcess(true, false, false);
             }
         }
     }
@@ -418,27 +395,13 @@ public class LoginPurchaseActivity extends BaseActivity {
                 frag.setUpCosts(mMonthlyCost, mYearlyCost);
     }
 
-    public void noInternetReInit(){
-        createIabHelper();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        showPurchasing = false;
-
-        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.container);
-    }
-
     public static void setupTypeText(final Context context, TextView tv, String key) {
-        InAppPurchasesHelper.SubscriptionType type = InAppPurchasesHelper.getType(key);
-
-        if (type != null) {
-            if (type == InAppPurchasesHelper.SubscriptionType.YEARLY) {
+        if (key != null) {
+            if (key.equals(SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(context))) {
                 tv.setText(String.format(context.getString(R.string.you_are_purchasing),
                         context.getString(R.string.yearly_only)));
             }
-            else if (type == InAppPurchasesHelper.SubscriptionType.MONTHLY) {
+            else if (key.equals(SubscriptionsUtils.INSTANCE.getMonthlySubscriptionId(context))) {
                 tv.setText(String.format(context.getString(R.string.you_are_purchasing),
                         context.getString(R.string.monthly_only)));
             }
@@ -477,6 +440,13 @@ public class LoginPurchaseActivity extends BaseActivity {
         }, ppStart, ppStart + ppText.length(), 0);
         tv.setMovementMethod(LinkMovementMethod.getInstance());
         tv.setText(spanTxt, TextView.BufferType.SPANNABLE);
+    }
+
+    public PurchaseObj getActiveSubscription() {
+        if (purchasingHandler == null)
+            return null;
+
+        return purchasingHandler.getPurchase(true);
     }
 
     public void navigateToBuyVpnSite() {

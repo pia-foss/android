@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"Fehler beim Kauf. %1$s"</string>
     <string name="error_active_subscription">Du verfügst bereits über ein aktives Abonnement!</string>
+    <string name="error_invalid_auth">Etwas ist schiefgegangen. Bitte erneut anmelden.</string>
     <string name="usemssfix">Wird die IP-Paketgröße leicht verringern, um die Kompatibilität mit manchen Routern und Mobilfunknetzen zu verbessern.</string>
     <string name="mssfixsummary">Kleine Pakete verwenden</string>
     <string name="settings_account_bottom_text">Hol dir die Private-Internet-Access-App für deine anderen Geräte und verwende den oben stehenden Benutzernamen, um dich anzumelden und deine Verbindung zu sichern.</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">Über</string>
     <string name="reconnect_vpn">Erneut mit VPN verbinden, um diese Änderung zu übernehmen</string>
     <string name="error_account_info">Kontoinformationen konnten nicht gefunden werden</string>
+    <string name="error_pinging_while_connected">Die Latenz kann nicht aktualisiert werden, während eine Verbindung zum VPN besteht.</string>
     <string name="allows_port_forwarding">Unterstützt Port-Forwarding</string>
     <string name="about_privacy_policy">Datenschutzrichtlinien</string>
     <string name="version">Version</string>
@@ -168,7 +170,7 @@
     <string name="save">Speichern</string>
     <string name="saved">Gespeichert</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Angezeigte Geschwindigkeiten sind Datenverkehr über die VPN-Verbindung</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">Öffentliche IP</string>
     <string name="login_throttled_text">Zu viele fehlgeschlagene Anmeldeversuche mit diesem Benutzernamen. Bitte später erneut versuchen.</string>
     <string name="tap_to_connect">ZUM VERBINDEN TIPPEN</string>
     <string name="building_configration">Konfiguration wird erstellt ...</string>
@@ -187,7 +189,7 @@
     <string name="submit">Senden</string>
     <string name="please_enter_your_email_address">Bitte deine E-Mail-Adresse eingeben</string>
     <string name="select_vpn_plan">VPN-Tarif auswählen</string>
-    <string name="_7_day_money_back_guarantee">7-Tage-Geld-zurück-Garantie</string>
+    <string name="_7_day_money_back_guarantee">30 Tage Geld-zurück-Garantie</string>
     <string name="monthly">Monatlich</string>
     <string name="yearly">Jährlich</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -230,7 +232,7 @@
     <string name="startup_ads_title">Schütze dich selbst vor Werbung.</string>
     <string name="startup_ads_message">Die Aktivierung von PIA MACE verhindert die Anzeige von Werbung, wo auch immer Du bist.</string>
     <string name="startup_connection_title">App-Schutz</string>
-    <string name="startup_connection_message">Passe dein Erlebnis mit uns an und bestimme welche Apps unseren Service nutzen (ab Android 5.0).</string>
+    <string name="startup_connection_message">Passe dein Erlebnis an, indem du bestimmst, welche Apps unseren Service nutzen (ab Android 5.0).</string>
     <string name="speed_graph">PERFORMANCE</string>
     <string name="data_usage_over_time">DATENNUTZUNG</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -501,15 +503,13 @@
     <string name="refer_signups_title">Registrierungen</string>
     <string name="refer_email_required">E-Mail-Adresse erforderlich</string>
     <string name="refer_terms_required">Du musst die Nutzungsbedingungen akzeptieren, um Empfehlungs-Einladungen zu senden.</string>
-    <string-array name="region_filters">
-        <item>Name</item>
-        <item>Latenz</item>
-        <item>Favoriten</item>
-    </string-array>
+    <string name="region_filter_name">Name</string>
+    <string name="region_filter_latency">Latenz</string>
+    <string name="region_filter_favorites">Favoriten</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">Gratis 7 Tage lang testen!</string>
     <string name="free_trial_cost">Nur %s jährlich bezahlen</string>
-    <string name="free_trial_guarantee">7 Tage lang Geld-zurück-Garantie</string>
+    <string name="free_trial_guarantee">30 Tage Geld-zurück-Garantie</string>
     <string name="free_trial_protection_header">1 Jahr Daten- und Identitätsschutz</string>
     <string name="free_trial_protection_text">Anonym suchen und IP verbergen</string>
     <string name="free_trial_devices_header">Unterstützt 10 Geräte gleichzeitig</string>
@@ -558,4 +558,49 @@
     <string name="gen4_next_generation_network_message">Das VPN muss getrennt werden, um das Servernetzwerk zu ändern.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Geografisch lokalisierte Regionen einschließen</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">Gefällt dir PIA VPN?</string>
+    <string name="rating_enjoy_message">Wir hoffen, dass unsere VPN-Lösung deine Erwartungen erfüllt.</string>
+    <string name="rating_review_title">Wir würden uns über eine Bewertung in Google Play freuen.</string>
+    <string name="rating_review_message">Wir wissen es zu schätzen, dass du uns deine Erfahrungen mitteilst.</string>
+    <string name="rating_feedback_title">Was ist schiefgelaufen?</string>
+    <string name="rating_feedback_message">Möchtest du Feedback geben? Wir können dir helfen, deine Erfahrungen mit PIA zu verbessern.</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">JETZT ABONNIEREN</string>
+    <string name="getstarted_free_trial">Jetzt 7 Tage gratis testen</string>
+    <string name="getstarted_trial_price">Danach %s pro Jahr</string>
+    <string name="purchasing_email_reason">Wir benötigen deine E-Mail-Adresse, um deinen Benutzernamen und dein Passwort zu senden.</string>
+    <string name="purchasing_all_plans">Alle verfügbaren Tarife anzeigen</string>
+    <string name="purchasing_login_receipt">Anmeldung mit Kaufbeleg</string>
+    <string name="purchasing_no_subscription">Du hast kein aktives Abonnement!</string>
+    <string name="purchasing_sure">Sicher?</string>
+    <string name="purchasing_return">Möchtest du zum Startbildschirm zurückkehren? Du kannst den Abonnementvorgang jederzeit fortsetzen, indem du auf Anmelden-&gt; Anmeldung mit Kaufbeleg klickst.</string>
+    <string name="purchasing_magic_link">Über magischen E-Mail-Link anmelden</string>
+    <string name="purchasing_magic_send">LINK SENDEN</string>
+    <string name="purchasing_magic_success">Bitte prüfe deine E-Mails und suche den Anmeldelink.</string>
+    <string name="connection_tile_header">VERBINDUNG</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">Neueste Nachrichten</string>
+    <string name="update_3_7_1_header">Jetzt WireGuard® testen!</string>
+    <string name="update_3_7_1_description">Es handelt sich um ein neues, effizienteres VPN-Protokoll, das eine bessere Leistung, eine geringere CPU-Auslastung und eine längere Akkulaufzeit bietet.</string>
+    <string name="update_3_7_1_cta_1">Jetzt WireGuard® testen</string>
+    <string name="update_3_7_1_cta_2"><u>Mehr erfahren</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">Sicheres WLAN</string>
+    <string name="nmt_open_wifi">WLAN</string>
+    <string name="nmt_mobile_data">Mobile Daten</string>
+    <string name="nmt_disconnect">VPN immer trennen</string>
+    <string name="nmt_connect">VPN immer verbinden</string>
+    <string name="nmt_retain">VPN-Status behalten</string>
+    <string name="nmt_manage_title">Automatisierung verwalten</string>
+    <string name="nmt_manage_description">Lege fest, wie sich PIA beim Verbindungsaufbau zu WLAN oder Mobilfunknetzen verhalten soll. Manuelles Trennen von Verbindungen ist hier ausgenommen.</string>
+    <string name="nmt_add_description">Wähle ein WLAN, um eine neue Regel hinzuzufügen.</string>
+    <string name="nmt_rule_for">Regel für %s</string>
+    <string name="nmt_remove_rule">Regel entfernen</string>
+    <string name="nmt_add_new_rule">Neue Regel hinzufügen</string>
+    <string name="nmt_settings_title">Netzwerkverwaltung</string>
+    <string name="nmt_settings_description">Lege Regeln für die automatische Verbindung für vertrauenswürdige und nicht vertrauenswürdige Netzwerke fest.</string>
+    <string name="nmt_management_title">Automatisierung verwalten</string>
 </resources>

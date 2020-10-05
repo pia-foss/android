@@ -1,0 +1,30 @@
+<!--
+  ~  Copyright (c) 2020 Private Internet Access, Inc.
+  ~
+  ~  This file is part of the Private Internet Access Android Client.
+  ~
+  ~  The Private Internet Access Android Client is free software: you can redistribute it and/or
+  ~  modify it under the terms of the GNU General Public License as published by the Free
+  ~  Software Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~  The Private Internet Access Android Client is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  ~  details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with the Private
+  ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="36"
+    android:viewportHeight="36">
+  <path
+      android:pathData="M26.5438,8L23.3196,8.0214C23.2055,8.0214 23.0729,8.0847 22.9974,8.1685L16.1882,15.7025C14.2916,15.1131 12.1483,15.6187 10.6503,17.2808C8.4499,19.7223 8.4499,23.6992 10.6503,26.1612C12.8508,28.6231 16.4349,28.6027 18.6538,26.1612C20.1518,24.499 20.6075,22.1414 20.0762,20.0165L21.8587,18.0387C21.9535,17.9335 21.9913,17.8069 21.9913,17.6811L21.9913,15.114L24.0398,15.114C24.3051,15.114 24.4947,14.8822 24.4947,14.5879L24.4755,12.3364L26.5439,12.3142C26.7906,12.3142 26.9988,12.0824 26.9988,11.8095L26.9988,8.5262C27.018,8.2319 26.8091,8 26.5439,8L26.5438,8ZM14.3863,24.4981C13.7602,25.1927 12.7549,25.1927 12.1481,24.4981C11.5221,23.8035 11.5221,22.688 12.1481,22.0147C12.7741,21.3201 13.7602,21.3201 14.3863,22.0147C15.0123,22.6888 15.0123,23.8043 14.3863,24.4981Z"
+      android:strokeWidth="1"
+      android:fillColor="#889099"
+      android:fillType="evenOdd"
+      android:strokeColor="#00000000"/>
+</vector>

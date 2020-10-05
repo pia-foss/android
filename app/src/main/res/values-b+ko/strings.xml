@@ -91,6 +91,7 @@
     <!-- Please keep the %1$s, this is a formatted text. %1$s is an error message.  -->
     <string name="error_subscribing">"구매 중 오류 발생: %1$s "</string>
     <string name="error_active_subscription">이미 유효한 구독 항목이 있습니다!</string>
+    <string name="error_invalid_auth">문제가 발생했습니다. 다시 로그인해 보세요.</string>
     <string name="usemssfix">일부 라우터 및 모바일 네트워크와의 호환성을 향상시키기 위해 IP 패킷의 크기를 약간 줄입니다.</string>
     <string name="mssfixsummary">작은 패킷 사용</string>
     <string name="settings_account_bottom_text">다른 장치에서도 Private Internet Access 앱을 다운로드받고 위의 사용자 이름으로 로그인해서 연결을 보호하세요.</string>
@@ -121,6 +122,7 @@
     <string name="menu_about">정보</string>
     <string name="reconnect_vpn">이 변경 사항을 적용하려면 VPN에 다시 연결하십시오</string>
     <string name="error_account_info">계정 정보를 찾지 못했습니다</string>
+    <string name="error_pinging_while_connected">VPN에 연결된 동안에는 대기 시간을 업데이트할 수 없습니다.</string>
     <string name="allows_port_forwarding">포트 전달 허용</string>
     <string name="about_privacy_policy">개인정보 취급방침</string>
     <string name="version">버전</string>
@@ -168,7 +170,7 @@
     <string name="save">저장</string>
     <string name="saved">저장됨</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">표시된 속도는 VPN 연결의 트래픽입니다</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">공용 IP</string>
     <string name="login_throttled_text">이 사용자 이름으로 너무 많은 로그인 시도가 실패했습니다. 나중에 다시 시도해주십시오.</string>
     <string name="tap_to_connect">눌러서 연결하기</string>
     <string name="building_configration">구성 생성 중...</string>
@@ -187,7 +189,7 @@
     <string name="submit">제출</string>
     <string name="please_enter_your_email_address">이메일 주소를 입력해주십시오</string>
     <string name="select_vpn_plan">VPN 플랜 선택</string>
-    <string name="_7_day_money_back_guarantee">7일 이내 환불 보장</string>
+    <string name="_7_day_money_back_guarantee">30일 이내 환불 보장</string>
     <string name="monthly">월간</string>
     <string name="yearly">연간</string>
     <!-- Please keep the %1$s, this is a formatted text. %1$s is a currency (ei 1-31) -->
@@ -230,7 +232,7 @@
     <string name="startup_ads_title">광고로부터 보호</string>
     <string name="startup_ads_message">PIA MACE를 활성화하면 어디에서든 광고가 표시되지 않습니다.</string>
     <string name="startup_connection_title">앱당 보호</string>
-    <string name="startup_connection_message">당사의 서비스를 이용할 앱을 관리함으로써 취향에 맞게 선택하십시오(안드로이드 5.0 이상 필요).</string>
+    <string name="startup_connection_message">당사의 서비스를 이용할 앱을 관리함으로써 취향에 맞게 설정하세요(안드로이드 5.0 이상 필요).</string>
     <string name="speed_graph">성능</string>
     <string name="data_usage_over_time">시간별 데이터 사용량</string>
     <!-- Please add in what word is the color red as we color it in code.  -->
@@ -503,15 +505,13 @@
     <string name="refer_signups_title">가입</string>
     <string name="refer_email_required">이메일은 필수 항목입니다.</string>
     <string name="refer_terms_required">추천 초대를 보내려면 약관에 동의하셔야 합니다.</string>
-    <string-array name="region_filters">
-        <item>이름</item>
-        <item>대기 시간</item>
-        <item>즐겨찾기</item>
-    </string-array>
+    <string name="region_filter_name">이름</string>
+    <string name="region_filter_latency">대기 시간</string>
+    <string name="region_filter_favorites">즐겨찾기</string>
     <!-- Free Trial Strings -->
     <string name="free_trial_header">7일 무료 체험!</string>
     <string name="free_trial_cost">매년 단 %s 결제</string>
-    <string name="free_trial_guarantee">7일 이내 환불 보장</string>
+    <string name="free_trial_guarantee">30일 이내 환불 보장</string>
     <string name="free_trial_protection_header">1년간 프라이버시 및 신원 보호</string>
     <string name="free_trial_protection_text">익명 탐색 및 IP 숨기기</string>
     <string name="free_trial_devices_header">한 번에 10대의 장치 지원</string>
@@ -560,4 +560,49 @@
     <string name="gen4_next_generation_network_message">서버 네트워크를 변경하려면 VPN의 연결을 해제해야 합니다.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">지리적 위치 기반 지역 포함</string>
+    <!-- Rating -->
+    <string name="rating_enjoy_title">PIA VPN이 마음에 드세요?</string>
+    <string name="rating_enjoy_message">저희 VPN 제품이 고객님의 기대에 부응하기를 바랍니다.</string>
+    <string name="rating_review_title">Google Play에 리뷰를 남겨주시겠습니까?</string>
+    <string name="rating_review_message">고객님의 경험을 공유해 주시면 감사하겠습니다.</string>
+    <string name="rating_feedback_title">어떤 문제가 있었습니까?</string>
+    <string name="rating_feedback_message">피드백을 보내 주시겠습니까? 더 나은 PIA를 경험하실 수 있도록 도와 드리겠습니다.</string>
+    <!-- Get Started Purchasing-->
+    <string name="getstarted_subscribe">지금 구독</string>
+    <string name="getstarted_free_trial">7일 무료 체험 시작</string>
+    <string name="getstarted_trial_price">이후 매년 %s</string>
+    <string name="purchasing_email_reason">사용자 이름 및 비밀번호를 보내려면 고객님의 이메일 주소가 필요합니다.</string>
+    <string name="purchasing_all_plans">이용 가능한 모든 플랜 보기</string>
+    <string name="purchasing_login_receipt">구매 영수증을 사용해 로그인</string>
+    <string name="purchasing_no_subscription">구독 중인 항목이 없습니다.</string>
+    <string name="purchasing_sure">확실한가요?</string>
+    <string name="purchasing_return">홈 화면으로 돌아가시겠습니까? 로그인-&gt;구매 영수증을 사용해 로그인을 클릭하여 언제든 구독 절차를 다시 시작할 수 있습니다.</string>
+    <string name="purchasing_magic_link">이메일 링크를 사용해 간편하게 로그인</string>
+    <string name="purchasing_magic_send">링크 보내기</string>
+    <string name="purchasing_magic_success">로그인 링크가 담긴 이메일을 확인하세요.</string>
+    <string name="connection_tile_header">연결</string>
+    <string name="connection_tile_tcp">TCP</string>
+    <string name="connection_tile_udp">UDP</string>
+    <!-- Update -->
+    <string name="settings_calling_header">최신 뉴스</string>
+    <string name="update_3_7_1_header">지금 WireGuard®를 사용해 보세요!</string>
+    <string name="update_3_7_1_description">새롭고 더 효율적인 VPN 프로토콜을 통해 더 우수한 성능, 더 적은 CPU 사용량 및 더 긴 배터리 수명을 제공합니다.</string>
+    <string name="update_3_7_1_cta_1">지금 WireGuard® 사용해 보기</string>
+    <string name="update_3_7_1_cta_2"><u>자세히 보기</u></string>
+    <!-- Network Management -->
+    <string name="nmt_secure_wifi">안전한 Wi-Fi</string>
+    <string name="nmt_open_wifi">Wi-Fi</string>
+    <string name="nmt_mobile_data">모바일 데이터</string>
+    <string name="nmt_disconnect">항상 VPN 연결 해제</string>
+    <string name="nmt_connect">항상 VPN 연결</string>
+    <string name="nmt_retain">VPN 상태 유지</string>
+    <string name="nmt_manage_title">자동화 관리</string>
+    <string name="nmt_manage_description">WiFi 또는 셀룰러 네트워크에 연결 시 PIA의 작동 방식을 구성합니다. 수동 연결 해제는 제외됩니다.</string>
+    <string name="nmt_add_description">새 규칙을 추가할 WiFi 네트워크를 선택하세요.</string>
+    <string name="nmt_rule_for">%s에 대한 규칙</string>
+    <string name="nmt_remove_rule">규칙 제거</string>
+    <string name="nmt_add_new_rule">새 규칙 추가</string>
+    <string name="nmt_settings_title">네트워크 관리</string>
+    <string name="nmt_settings_description">신뢰 또는 신뢰할 수 없는 네트워크에 대한 자동 연결 규칙을 처리할 규칙을 설정합니다.</string>
+    <string name="nmt_management_title">자동화 관리</string>
 </resources>

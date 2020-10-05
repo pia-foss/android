@@ -28,6 +28,7 @@
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <uses-feature android:name="android.software.leanback"
         android:required="false" />
@@ -37,7 +38,7 @@
 
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/pia_theme_3_0"
@@ -46,14 +47,7 @@
         android:label="@string/launcher_name"
         android:appCategory="productivity"
         android:banner="@drawable/ic_tv_banner"
-        android:hardwareAccelerated="true"
-        >
-
-        <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
-            android:authorities="${applicationId}.workmanager-init"
-            android:exported="false"
-            android:enabled="false"/>
+        android:hardwareAccelerated="true" >
 
         <provider
             android:authorities="com.privateinternetaccess.multipreferences.MultiProvider"
@@ -67,6 +61,13 @@
             android:autoRemoveFromRecents="true"
             android:excludeFromRecents="true"
             >
+
+            <intent-filter >
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="piavpn" />
+            </intent-filter>
 
             <intent-filter>
                 <data android:scheme="privateinternetaccess" />
@@ -108,14 +109,6 @@
             android:name=".ui.loginpurchasing.LoginPurchaseActivity"
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateHidden|adjustResize"
-            >
-            <layout android:defaultHeight="500dp"
-                android:defaultWidth="600dp"
-                android:gravity="top|end"
-                android:minHeight="350dp"
-                android:minWidth="300dp" />
-        </activity>
-        <activity android:name=".ui.loginpurchasing.PurchasingActivity"
             >
             <layout android:defaultHeight="500dp"
                 android:defaultWidth="600dp"
@@ -293,6 +286,8 @@
             tools:replace="screenOrientation"
             />
 
+        <activity android:name=".ui.connection.CallingCardActivity"/>
+
         <!-- Receivers-->
         <receiver android:name=".receivers.OnBootReceiver">
             <intent-filter android:priority="999">
@@ -301,6 +296,9 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".pia.receivers.PortForwardingReceiver" />
+        <receiver android:name=".pia.receivers.FetchServersReceiver" />
+        <receiver android:name=".pia.receivers.PingReceiver" />
         <receiver android:name=".receivers.OnSnoozeReceiver"></receiver>
 
         <!-- OnNetWorkChange Receiver is added in runtime. -->

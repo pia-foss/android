@@ -23,14 +23,15 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.privateinternetaccess.account.model.response.AndroidSubscriptionsInformation;
+import com.privateinternetaccess.account.model.response.InvitesDetailsInformation;
 import com.privateinternetaccess.android.BuildConfig;
-import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.TrustedWifiEvent;
-import com.privateinternetaccess.android.pia.model.PIAAccountData;
+import com.privateinternetaccess.android.model.listModel.NetworkItem;
+import com.privateinternetaccess.android.model.states.VPNProtocol;
+import com.privateinternetaccess.android.pia.model.AccountInformation;
 import com.privateinternetaccess.android.pia.model.PurchaseData;
 import com.privateinternetaccess.android.pia.model.TrialData;
-import com.privateinternetaccess.android.pia.model.TrialTestingData;
-import com.privateinternetaccess.android.pia.model.response.LocationResponse;
 import com.privateinternetaccess.android.pia.subscription.Base64DecoderException;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.PasswordObfuscation;
@@ -45,12 +46,13 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import kotlinx.serialization.json.Json;
 
 /**
  * Gives access to our preferences used to control the vpn's features.
@@ -72,7 +74,11 @@ public class PiaPrefHandler {
     public static final String IS_USER_LOGGED_IN = "isUserLoggedIn";
     public static final String CLIENTUUID = "clientuuid";
     public static final String LOGIN = "login";
+
     public static final String SUBSCRIPTION_EMAIL = "subscriptionEmail";
+    public static final String AVAILABLE_SUBSCRIPTIONS = "availableSubscriptions";
+    public static final String HAS_SET_EMAIL = "hasSetEmail";
+
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
     public static final String TOKEN = "token";
@@ -85,7 +91,6 @@ public class PiaPrefHandler {
     public static final int UPDATE_INTERVAL = 15;
     public static final String LAST_IP = "lastIP";
     public static final String LAST_IP_VPN = "lastIPVPN";
-    public static final String LAST_IP_TIMESTAMP = "lastIPTimestamp";
     public static final String PORTFORWARINDSTATUS = "portforwarindstatus";
     public static final String PORTFORWARDING = "portforwarding";
     private static final String PORTFORWARDING_INFO = "portforwarding_info";
@@ -98,13 +103,14 @@ public class PiaPrefHandler {
 
     public static final String AUTOSTART = "autostart";
     public static final String AUTOCONNECT = "autoconnect";
-    private static final String TRUST_WIFI = "trustWifi";
     private static final String TRUSTED_WIFI_LIST = "trustedWifiList";
+    public static final String NETWORK_RULES = "networkRules";
+    public static final String NETWORK_MANAGEMENT = "networkManagement";
 
     public static final String MACE_ACTIVE = "mace_active";
     public static final String PIA_MACE = "pia_mace";
 
-    public static final String GEN4_ACTIVE = "gen4_active";
+    public static final String GEN4_ACTIVE = "gen4_active_default";
 
     public static final String GEO_SERVERS_ACTIVE = "geo_servers_active";
 
@@ -162,7 +168,9 @@ public class PiaPrefHandler {
     private static final String PREF_DEBUG_MODE = "developer_mode3";
     private static final String PREF_DEBUG_LEVEL = "debug_level";
 
-    public static final String FILTERS_REGION_SORTING = "region_sorting_filter";
+    public static final String LAST_VERSION = "last_version";
+
+    public static final String REGION_PREFERRED_SORTING = "region_preferred_sorting";
 
     public static final String BLOCK_LOCAL_LAN = "blockLocalLan";
     public static final String TESTING_WEB_VIEW = "testingWebView";
@@ -202,7 +210,8 @@ public class PiaPrefHandler {
     public static final String QUICK_SETTINGS_NETWORK = "quickSettingsNetwork";
     public static final String QUICK_SETTING_PRIVATE_BROWSER = "quickSettingsPrivateBrowser";
 
-    public static final String QUICK_CONNECT_LIST = "quickConnectList";
+    private static final String QUICK_CONNECT_LIST = "quickConnectList";
+    private static final String GEN4_QUICK_CONNECT_LIST = "gen4QuickConnectList";
 
     public static final String USAGE_BYTE_COUNT = "usageByteCount";
     public static final String USAGE_BYTE_COUNT_OUT = "usageByteCountOut";
@@ -215,9 +224,64 @@ public class PiaPrefHandler {
 
     public static final String CONNECT_ON_APP_UPDATED = "connectOnAppUpdated";
     public static final String VPN_CONNECTING = "VPNConnecting";
-    private static PIAAccountData mCachedAccountInfos;
 
     private static final String GEN4_GATEWAY_ENDPOINT = "gen4_gateway_endpoint";
+
+    private static final String RATING_STATE = "rating_state";
+
+    private static final String INVITES_DETAILS = "invitesDetails";
+
+    public static void setInvitesDetails(
+            Context context,
+            InvitesDetailsInformation invitesDetailsInformation
+    ) {
+        Prefs.with(context).set(
+                INVITES_DETAILS,
+                Json.Default.stringify(
+                        InvitesDetailsInformation.Companion.serializer(),
+                        invitesDetailsInformation
+                )
+        );
+    }
+
+    public static InvitesDetailsInformation invitesDetails(Context context) {
+        String persistedValue = Prefs.with(context).getString(INVITES_DETAILS);
+        InvitesDetailsInformation invitesDetailsInformation = null;
+        if (persistedValue != null) {
+            invitesDetailsInformation =
+                    Json.Default.parse(
+                            InvitesDetailsInformation.Companion.serializer(),
+                            persistedValue
+                    );
+        }
+        return invitesDetailsInformation;
+    }
+
+    public static void setAvailableSubscriptions(
+            Context context,
+            AndroidSubscriptionsInformation subscriptions
+    ) {
+        Prefs.with(context).set(
+                AVAILABLE_SUBSCRIPTIONS,
+                Json.Default.stringify(
+                        AndroidSubscriptionsInformation.Companion.serializer(),
+                        subscriptions
+                )
+        );
+    }
+
+    public static AndroidSubscriptionsInformation availableSubscriptions(Context context) {
+        String persistedValue = Prefs.with(context).getString(AVAILABLE_SUBSCRIPTIONS);
+        AndroidSubscriptionsInformation subscriptionsInformation = null;
+        if (persistedValue != null) {
+            subscriptionsInformation =
+                    Json.Default.parse(
+                            AndroidSubscriptionsInformation.Companion.serializer(),
+                            persistedValue
+                    );
+        }
+        return subscriptionsInformation;
+    }
 
     public static boolean isPortForwardingEnabled(Context context){
         return Prefs.with(context).getBoolean(PORTFORWARDING);
@@ -225,6 +289,14 @@ public class PiaPrefHandler {
 
     public static void setPortForwardingEnabled(Context context, boolean portForwarding){
         Prefs.with(context).set(PORTFORWARDING, portForwarding);
+    }
+
+    public static String getRatingState(Context context){
+        return Prefs.with(context).getString(RATING_STATE);
+    }
+
+    public static void setRatingState(Context context, String ratingState){
+        Prefs.with(context).set(RATING_STATE, ratingState);
     }
 
     public static void setBindPortForwardInformation(Context context, String data){
@@ -285,16 +357,27 @@ public class PiaPrefHandler {
         return password;
     }
 
-    public static void saveLastIPInfo(Context context, String body){
-        Prefs prefs = new Prefs(context);
-        prefs.set("lastIPInfo", body);
+    public static void setSavedPassword(Context context, String password){
+        Prefs prefs = new Prefs(context, LOGINDATA);
+        if(!TextUtils.isEmpty(password)){
+            try {
+                prefs.set(OBS_PASSWORD, PasswordObfuscation.obfuscate(password));
+            } catch (GeneralSecurityException | IOException e) {
+                prefs.set(PASSWORD, password);
+            }
+        } else {
+            prefs.remove(PASSWORD);
+            prefs.remove(OBS_PASSWORD);
+        }
     }
 
-    public static LocationResponse getLastIPInfoEvent(Context context){
-        String body = Prefs.with(context).getString("lastIPInfo");
-        LocationResponse event = new LocationResponse();
-        event.parse(body);
-        return event;
+    public static void saveUserPW(Context context, String user, String password) {
+        // make sure no old cleartext Password is saved
+        Prefs prefs = new Prefs(context, LOGINDATA);
+        prefs.remove(PASSWORD);
+        prefs.set(LOGIN, user);
+
+        setSavedPassword(context, password);
     }
 
     public static boolean getLocationRequest(Context context) {
@@ -313,12 +396,16 @@ public class PiaPrefHandler {
         Prefs.with(context).set(LAST_SERVER_VERSION, version);
     }
 
-    public static String getLogin(Context context) {
-        return Prefs.with(context, LOGINDATA).get(LOGIN, "");
+    public static boolean hasSetEmail(Context context) {
+        return Prefs.with(context).get(HAS_SET_EMAIL, false);
     }
 
-    public static void setLogin(Context context, String username) {
-        Prefs.with(context, LOGINDATA).set(LOGIN, username);
+    public static void setHasSetEmail(Context context, boolean hasSet) {
+        Prefs.with(context).set(HAS_SET_EMAIL, hasSet);
+    }
+
+    public static String getLogin(Context context) {
+        return Prefs.with(context, LOGINDATA).get(LOGIN, "");
     }
 
     public static String getEmail(Context context) {
@@ -354,6 +441,10 @@ public class PiaPrefHandler {
     public static void saveAuthToken(Context context, String token) {
         Prefs prefs = new Prefs(context, LOGINDATA);
         prefs.set(TOKEN, token);
+    }
+
+    public static void clearUserData(Context context) {
+        Prefs prefs = new Prefs(context, LOGINDATA);
         prefs.remove(PASSWORD);
         prefs.remove(OBS_PASSWORD);
     }
@@ -373,24 +464,22 @@ public class PiaPrefHandler {
         Prefs.with(context).set(LAST_IP, ip);
     }
 
+    public static String getLastIP(Context context){
+        String lastIp = Prefs.with(context).getString(LAST_IP);
+        return lastIp == null ? "---" : lastIp;
+    }
+
     public static void saveLastIPVPN(Context context, String ip) {
         Prefs.with(context).set(LAST_IP_VPN, ip);
     }
 
-    public static String getLastIP(Context context){
-        return Prefs.with(context).getString(LAST_IP);
-    }
-
     public static String getLastIPVPN(Context context) {
-        return Prefs.with(context).getString(LAST_IP_VPN);
+        String lastIpVpn = Prefs.with(context).getString(LAST_IP_VPN);
+        return lastIpVpn == null ? "---" : lastIpVpn;
     }
 
-    public static void saveLastIPTimestamp(Context context, long time){
-        Prefs.with(context).set(LAST_IP_TIMESTAMP, time);
-    }
-
-    public static long getLastIPTimestamp(Context context){
-        return Prefs.with(context).getLong(LAST_IP_TIMESTAMP);
+    public static void clearLastIPVPN(Context context) {
+        Prefs.with(context).remove(LAST_IP_VPN);
     }
 
     public static void setLastExpiryNotifcationShown(Context context) {
@@ -495,8 +584,11 @@ public class PiaPrefHandler {
         Arrays.fill(items, "");
 
         try {
-            JSONArray array = new JSONArray(Prefs.with(c).get(QUICK_CONNECT_LIST, "[]"));
-
+            String key = QUICK_CONNECT_LIST;
+            if (Prefs.with(c).get(GEN4_ACTIVE, true)) {
+                key = GEN4_QUICK_CONNECT_LIST;
+            }
+            JSONArray array = new JSONArray(Prefs.with(c).get(key, "[]"));
             for (int i = 0; i < array.length(); i++) {
                 items[i] = array.getString(i);
             }
@@ -510,18 +602,15 @@ public class PiaPrefHandler {
 
     public static void setQuickConnectList(Context c, String[] items) {
         JSONArray array = new JSONArray();
-
         for (int i = 0; i < items.length; i++) {
             array.put(items[i]);
         }
 
-        Prefs.with(c).set(QUICK_CONNECT_LIST, array.toString());
-    }
-
-    public static boolean shouldUpdateAccountCache(){
-        return mCachedAccountInfos == null ||
-                (mCachedAccountInfos.isShowExpire()
-                        && mCachedAccountInfos.getExpiration_time() < Calendar.getInstance().getTimeInMillis());
+        String key = QUICK_CONNECT_LIST;
+        if (Prefs.with(c).get(GEN4_ACTIVE, true)) {
+            key = GEN4_QUICK_CONNECT_LIST;
+        }
+        Prefs.with(c).set(key, array.toString());
     }
 
     public static List<String> getWidgetOrder(Context context) {
@@ -584,35 +673,32 @@ public class PiaPrefHandler {
         }
     }
 
-    public static void saveAccountInformation(Context context, PIAAccountData pai) {
-        mCachedAccountInfos = pai;
-
+    public static void saveAccountInformation(Context context, AccountInformation pai) {
         Prefs prefs = new Prefs(context, LOGINDATA);
-        prefs.set(EXPIRATION_TIME, pai.getExpiration_time());
-        prefs.set(EXPIRED, pai.isExpired());
+        prefs.set(EXPIRATION_TIME, pai.getExpirationTime());
+        prefs.set(EXPIRED, pai.getExpired());
         prefs.set(PLAN, pai.getPlan());
-        prefs.set(ACTIVE, pai.isActive());
-        prefs.set(SHOW_EXPIRE, pai.isShowExpire());
-        prefs.set(RENEWABLE, pai.isRenewable());
+        prefs.set(ACTIVE, pai.getActive());
+        prefs.set(SHOW_EXPIRE, pai.getShowExpire());
+        prefs.set(RENEWABLE, pai.getRenewable());
+        prefs.set(LOGIN, pai.getUsername());
 
         saveEmail(context, pai.getEmail());
     }
 
     @NonNull
-    public static PIAAccountData getAccountInformation(Context c) {
-        if (mCachedAccountInfos == null) {
-            Prefs prefs = new Prefs(c, LOGINDATA);
-            PIAAccountData pai = new PIAAccountData();
-            pai.setExpiration_time(prefs.get(EXPIRATION_TIME, -1L));
-            pai.setPlan(prefs.getString(PLAN));
-            pai.setExpired(prefs.get(EXPIRED, true));
-            pai.setActive(prefs.get(ACTIVE, true));
-            pai.setShowExpire(prefs.get(SHOW_EXPIRE, false));
-            pai.setRenewable(prefs.get(RENEWABLE, true));
-            pai.setEmail(getEmail(c));
-            mCachedAccountInfos = pai;
-        }
-        return mCachedAccountInfos;
+    public static AccountInformation getAccountInformation(Context c) {
+        Prefs prefs = new Prefs(c, LOGINDATA);
+        return new AccountInformation(
+                getEmail(c),
+                prefs.get(ACTIVE, true),
+                prefs.get(EXPIRED, true),
+                prefs.get(RENEWABLE, true),
+                prefs.get(SHOW_EXPIRE, false),
+                prefs.get(PLAN, ""),
+                prefs.get(EXPIRATION_TIME, -1L),
+                prefs.get(LOGIN, "")
+        );
 
     }
 
@@ -629,8 +715,6 @@ public class PiaPrefHandler {
         prefs.remove(OBS_PASSWORD);
         prefs.remove(TOKEN);
         prefs.set(IS_USER_LOGGED_IN, false);
-
-        mCachedAccountInfos = null;
     }
 
     public static void setUserIsLoggedIn(Context context, boolean isLoggedIn) {
@@ -648,7 +732,7 @@ public class PiaPrefHandler {
         return uuid;
     }
 
-    public static boolean doAutoSart(Context c) {
+    public static boolean doAutoStart(Context c) {
         return Prefs.with(c).getBoolean(AUTOSTART);
     }
 
@@ -656,22 +740,20 @@ public class PiaPrefHandler {
         return Prefs.with(c).getBoolean(AUTOCONNECT);
     }
 
-    public static void savePurchasingTask(Context context, String email, String order_id, String token, String sku){
+    public static void savePurchasingTask(Context context, String order_id, String token, String sku){
         Prefs prefs = Prefs.with(context);
-        prefs.set(PURCHASING_EMAIL, email);
         prefs.set(PURCHASING_ORDER_ID, order_id);
         prefs.set(PURCHASING_TOKEN, token);
         prefs.set(PURCHASING_SKU, sku);
     }
 
     public static PurchaseData getPurchasingData(Context context){
-        String email = PiaPrefHandler.getPurchasingEmail(context);
         String orderId = PiaPrefHandler.getPurchasingOrderId(context);
         String token = PiaPrefHandler.getPurchasingToken(context);
         String productId = PiaPrefHandler.getPurchasingSku(context);
 
         if(!TextUtils.isEmpty(productId))
-            return new PurchaseData(email, token, productId, orderId);
+            return new PurchaseData(token, productId, orderId);
         else
             return null;
     }
@@ -726,7 +808,7 @@ public class PiaPrefHandler {
 
 
     public static String getProtocol(Context context) {
-        return Prefs.with(context).get(VPN_PROTOCOL, context.getResources().getStringArray(R.array.protocol_options)[0]);
+        return Prefs.with(context).get(VPN_PROTOCOL, VPNProtocol.Protocol.OpenVPN.name());
     }
 
     public static boolean isKillswitchEnabled(Context context){
@@ -897,18 +979,6 @@ public class PiaPrefHandler {
         prefs.remove(TRIAL_EMAIL);
     }
 
-    public static TrialTestingData getTrialTestingData(Context context) {
-        Prefs prefs = new Prefs(context);
-        TrialTestingData data = new TrialTestingData(
-                prefs.get(TRIAL_TESTING, false),
-                prefs.get(TRIAL_TESTING_STATUS, 0),
-                prefs.get(TRIAL_TESTING_MESSAGE, ""),
-                prefs.get(TRIAL_TESTING_USERNAME, ""),
-                prefs.get(TRIAL_TESTING_PASSWORD, "")
-        );
-        return data;
-    }
-
     public static boolean isTrialTesting(Context context){
         return Prefs.with(context).get(TRIAL_TESTING, false);
     }
@@ -939,44 +1009,73 @@ public class PiaPrefHandler {
         return userEnded;
     }
 
-    public static boolean getTrustWifi(Context context) {
-        return Prefs.with(context).getBoolean(TRUST_WIFI);
+    public static void addNetworkRule(Context context, NetworkItem networkRule) {
+        List<String> rules = getNetworkRules(context);
+
+        String serializedRule = networkRule.toString();
+
+        if (serializedRule == null) {
+            return;
+        }
+
+        for (int i = 0; i < rules.size(); i++) {
+            NetworkItem rule = NetworkItem.fromString(rules.get(i));
+
+            if (rule != null && networkRule.networkName.equals(rule.networkName)) {
+                rules.set(i, serializedRule);
+                updateNetworkRules(context, rules);
+                return;
+            }
+        }
+
+        rules.add(serializedRule);
+        updateNetworkRules(context, rules);
     }
 
-    public static void setTrustWifi(Context context, boolean value) {
-        Prefs.with(context).set(TRUST_WIFI, value);
-        EventBus.getDefault().post(new TrustedWifiEvent());
+    public static List<String> getNetworkRules(Context context) {
+        List<String> items = new ArrayList<>();
+        DLog.d("TrustedWifi", Prefs.with(context).get(NETWORK_RULES, "[]"));
+
+        try {
+            JSONArray array = new JSONArray(Prefs.with(context).get(NETWORK_RULES, "[]"));
+
+            for (int i = 0; i < array.length(); i++) {
+                items.add(array.getString(i));
+            }
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return items;
     }
 
-    public static void clearTrustWifi(Context context) {
-        Prefs.with(context).remove(TRUST_WIFI);
-        EventBus.getDefault().post(new TrustedWifiEvent());
+    public static void removeNetworkRule(Context context, NetworkItem networkRule) {
+        List<String> rules = getNetworkRules(context);
+
+        for (int i = 0; i < rules.size(); i++) {
+            NetworkItem rule = NetworkItem.fromString(rules.get(i));
+
+            if (rule != null && networkRule.networkName.equals(rule.networkName)) {
+                rules.remove(i);
+                updateNetworkRules(context, rules);
+                return;
+            }
+        }
     }
 
-    public static boolean shouldConnectOnWifi(Context context) {
-        return Prefs.with(context).get(TRUST_WIFI, false);
+    public static void updateNetworkRules(Context context, List<String> networkRules) {
+        JSONArray array = new JSONArray();
+
+        for (int i = 0; i < networkRules.size(); i++) {
+            array.put(networkRules.get(i));
+        }
+
+        Prefs.with(context).set(NETWORK_RULES, array.toString());
     }
 
-    public static void addTrustedNetwork(Context context, String ssid) {
-        Set<String> trustedSet = getTrustedNetworks(context);
-        Set<String> newTrustedSet = new HashSet<String>(trustedSet);
-        newTrustedSet.add(ssid);
-
-        Prefs.with(context).set(TRUSTED_WIFI_LIST, newTrustedSet);
-        EventBus.getDefault().post(new TrustedWifiEvent());
-    }
-
-    public static void removeTrustedNetwork(Context context, String ssid) {
-        Set<String> trustedSet = getTrustedNetworks(context);
-        Set<String> newTrustedSet = new HashSet<String>(trustedSet);
-        newTrustedSet.remove(ssid);
-
-        Prefs.with(context).set(TRUSTED_WIFI_LIST, newTrustedSet);
-        EventBus.getDefault().post(new TrustedWifiEvent());
-    }
-
-    public static Set<String> getTrustedNetworks(Context context) {
-        return Prefs.with(context).getStringSet(TRUSTED_WIFI_LIST);
+    public static void clearNetworkRules(Context context) {
+        Prefs.with(context).remove(PiaPrefHandler.NETWORK_RULES);
     }
 
     public static void clearTrustedNetworks(Context context) {
@@ -1006,6 +1105,14 @@ public class PiaPrefHandler {
 
     public static long getLastNetworkChange(Context context) {
         return Prefs.with(context).get(LAST_CHANGE, 0L);
+    }
+
+    public static String getLastVersion(Context context) {
+        return Prefs.with(context).get(LAST_VERSION, "");
+    }
+
+    public static void setLastVersion(Context context, String version) {
+        Prefs.with(context).set(LAST_VERSION, version);
     }
 
     public static boolean wasVPNConnecting(Context context){

@@ -38,8 +38,6 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.preference.SwitchPreferenceCompat;
-import androidx.work.WorkManager;
 
 import android.text.TextUtils;
 
@@ -49,8 +47,8 @@ import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.connection.ConnectionResponder;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.SubscriptionHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
+import com.privateinternetaccess.android.pia.model.events.SubscriptionsEvent;
 import com.privateinternetaccess.android.pia.subscription.Base64DecoderException;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.PasswordObfuscation;
@@ -58,7 +56,7 @@ import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig;
 import com.privateinternetaccess.android.receivers.OnAutoConnectNetworkReceiver;
 import com.privateinternetaccess.android.receivers.OnNetworkChangeReceiver;
-import com.privateinternetaccess.android.tunnel.PIANotifications;
+import com.privateinternetaccess.android.ui.notifications.OVPNNotificationsBridge;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
 import com.privateinternetaccess.android.wireguard.backend.Backend;
@@ -68,6 +66,9 @@ import com.privateinternetaccess.android.wireguard.model.TunnelManager;
 import com.privateinternetaccess.android.wireguard.backend.GoBackend.GhettoCompletableFuture;
 import com.privateinternetaccess.android.wireguard.util.AsyncWorker;
 import com.privateinternetaccess.core.model.PIAServer;
+
+import org.greenrobot.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,8 +83,6 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.PRNGFixes;
 import de.blinkt.openvpn.core.VpnStatus;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
-
-import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
 
 /**
  * Setups up {@link PIABuilder} and updates all the old variables and issues created along the years in {@link #updateOrResetValues()}
@@ -187,32 +186,58 @@ public class PIAApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        WorkManager.initialize(getApplicationContext(), new androidx.work.Configuration.Builder().build());
+        Context context = getApplicationContext();
         asyncWorker = new AsyncWorker(AsyncTask.THREAD_POOL_EXECUTOR, new Handler(Looper.getMainLooper()));
 
-        CustomExceptionHandler crashHandler = new CustomExceptionHandler(getApplicationContext().getFilesDir().getAbsolutePath(),"");
+        CustomExceptionHandler crashHandler = new CustomExceptionHandler(context.getFilesDir().getAbsolutePath(),"");
         crashHandler.setDefaultUEH(Thread.getDefaultUncaughtExceptionHandler());
         Thread.setDefaultUncaughtExceptionHandler(crashHandler);
 
         boolean notRelease = !BuildConfig.BUILD_TYPE.equals("release");
-        boolean debugMode = PiaPrefHandler.getDebugMode(getApplicationContext());
-        int debugLevel = PiaPrefHandler.getDebugLevel(getApplicationContext());
-        VpnStatus.StateListener listener = ConnectionResponder.initConnection(getApplicationContext(), R.string.requestingportfw);
+        boolean debugMode = PiaPrefHandler.getDebugMode(context);
+        int debugLevel = PiaPrefHandler.getDebugLevel(context);
+        VpnStatus.StateListener listener = ConnectionResponder.initConnection(context, R.string.requestingportfw);
 
-        PIABuilder.init(getApplicationContext())
+        PIABuilder.init(context)
                 .enabledTileService()
                 .createNotificationChannel(getString(R.string.pia_channel_name), getString(R.string.pia_channel_description))
-                .initVPNLibrary(new PIANotifications(), mCallBacks, listener)
+                .initVPNLibrary(new OVPNNotificationsBridge(), mCallBacks, listener)
                 .enableLogging(notRelease)
-                .setDebugParameters(debugMode, debugLevel, getApplicationContext().getFilesDir());
+                .setDebugParameters(debugMode, debugLevel, context.getFilesDir());
 
-        PIAServerHandler.startup(getApplicationContext());
-        SubscriptionHandler.startup(getApplicationContext());
+        PIAServerHandler.startup(context);
+        PIAFactory.getInstance()
+                .getAccount(context)
+                .availableSubscriptions((subscriptionsInformation, requestResponseStatus) -> {
+                            boolean successful = false;
+                            switch (requestResponseStatus) {
+                                case SUCCEEDED:
+                                    successful = true;
+                                    break;
+                                case AUTH_FAILED:
+                                case THROTTLED:
+                                case OP_FAILED:
+                                    break;
+                            }
+
+                            if (!successful) {
+                                DLog.d(TAG, "availableSubscriptions unsuccessful " + requestResponseStatus);
+                                return null;
+                            }
+
+                            PiaPrefHandler.setAvailableSubscriptions(
+                                    context,
+                                    subscriptionsInformation
+                            );
+                            EventBus.getDefault().postSticky(new SubscriptionsEvent());
+                            return null;
+                        }
+                );
 
         // Registering the receiver since api 24+ won't call the receiver if in the manifest.
         IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
-        getApplicationContext().registerReceiver(new OnNetworkChangeReceiver(), intentFilter);
-        getApplicationContext().registerReceiver(new OnAutoConnectNetworkReceiver(), intentFilter);
+        context.registerReceiver(new OnNetworkChangeReceiver(), intentFilter);
+        context.registerReceiver(new OnAutoConnectNetworkReceiver(), intentFilter);
 
         updateOrResetValues();
 
@@ -298,7 +323,7 @@ public class PIAApplication extends Application {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            PiaPrefHandler.setTrustWifi(this, false);
+            //PiaPrefHandler.setTrustWifi(this, false);
         }
     }
 

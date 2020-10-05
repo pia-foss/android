@@ -22,20 +22,23 @@ import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import com.privateinternetaccess.android.pia.api.PiaApi.ANDROID_HTTP_CLIENT
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler
 import com.privateinternetaccess.android.pia.model.exceptions.PortForwardingError
+import com.privateinternetaccess.android.utils.ServerUtils
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.Request
 import org.json.JSONObject
 import java.io.IOException
+import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.time.ExperimentalTime
 
-class Gen4PortForwardApi : TunnelPiaApi() {
+class Gen4PortForwardApi : PIACertPinningAPI() {
 
     companion object {
         private const val MIN_EXPIRATION_DAYS = 7
@@ -61,11 +64,22 @@ class Gen4PortForwardApi : TunnelPiaApi() {
             val decodedPayload: DecodedPayload
     )
 
-    @Throws(IOException::class, PortForwardingError::class)
+    @Throws(IOException::class, IllegalStateException::class, PortForwardingError::class)
     fun bindPort(context: Context): Int {
+        val gateway = PiaPrefHandler.getGatewayEndpoint(context)
+
+        // Set the gateway/cn for the selected protocol before the binding request
+        val server = PIAServerHandler.getInstance(context).getSelectedRegion(context, false)
+        server.commonNames[ServerUtils.getUserSelectedProtocol(context)]?.let {
+            val tunnelCommonName = mutableListOf<Pair<String, String>>()
+            for ((_, commonName) in it) {
+                tunnelCommonName.add(Pair(gateway, commonName))
+            }
+            setKnownEndpointCommonName(tunnelCommonName)
+        }
+
         // If there is active data persisted. Send the bind port reminder request to keep the NAT
         // on the server rather than requesting a new port
-        val gateway = PiaPrefHandler.getGatewayEndpoint(context)
         getPortBindInformation(context)?.let {
             if (tokenExpirationDateDaysLeft(it.decodedPayload.expirationDate) > MIN_EXPIRATION_DAYS) {
                 bindPortRequest(it.decodedPayload.token, it.payload, it.signature, gateway)
@@ -89,7 +103,7 @@ class Gen4PortForwardApi : TunnelPiaApi() {
     }
 
     // region private
-    @Throws(IOException::class, PortForwardingError::class)
+    @Throws(IOException::class, IllegalStateException::class, PortForwardingError::class)
     private fun bindPortRequest(token: String, payload: String, signature: String, endpoint: String) {
         val urlEncodedEndpoint: String = Uri.parse("https://$endpoint:19999/bindPort")
                 .buildUpon()

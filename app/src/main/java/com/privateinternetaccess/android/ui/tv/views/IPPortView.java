@@ -26,11 +26,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.PIAApplication;
-import com.privateinternetaccess.android.PIAKillSwitchStatus;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
@@ -48,14 +46,11 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.blinkt.openvpn.core.ConnectionStatus;
 
 public class IPPortView extends FrameLayout {
 
     @Nullable
     @BindView(R.id.fragment_connect_vpn_layout) LinearLayout aVpnLayout;
-
-    @BindView(R.id.fragment_connect_ip_progress) ProgressBar pbIP;
 
     @BindView(R.id.fragment_connect_ip) TextView tvIP;
     @Nullable
@@ -206,42 +201,29 @@ public class IPPortView extends FrameLayout {
                 setVisibilities();
                 boolean isVpnActive = PIAFactory.getInstance().getVPN(getContext()).isVPNActive();
 
-                if (!TextUtils.isEmpty(event.getIp()) && !event.isSearching()) {
+                if (!TextUtils.isEmpty(event.getIp())) {
+                    tvIP.setVisibility(View.VISIBLE);
                     if (PIAApplication.isAndroidTV(getContext())) {
                         tvIP.setText(event.getIp());
-                        tvIP.setVisibility(View.VISIBLE);
-                        pbIP.setVisibility(View.GONE);
                     }
                     else {
                         String lastIp = PiaPrefHandler.getLastIP(getContext());
                         String lastIpVpn = PiaPrefHandler.getLastIPVPN(getContext());
 
+                        tvIP.setText(lastIp);
                         if (isVpnActive) {
-                            tvIP.setText(lastIp);
                             tvIPVPN.setText(lastIpVpn);
                         }
                         else {
-                            tvIP.setText(lastIp);
                             tvIPVPN.setText("---");
                         }
-
-                        tvIP.setVisibility(View.VISIBLE);
-                        pbIP.setVisibility(View.GONE);
                     }
-                } else if (TextUtils.isEmpty(event.getIp()) && event.isSearching()) {
-                    pbIP.setVisibility(PIAKillSwitchStatus.isKillSwitchActive() ? View.GONE : View.VISIBLE);
-                    tvIP.setText("---");
-                    tvIP.setVisibility(View.INVISIBLE);
-                } else if (TextUtils.isEmpty(event.getIp()) && !event.isSearching()) {
+                } else if (TextUtils.isEmpty(event.getIp())) {
                     if (!isVpnActive) {
                         tvIP.setText("---");
-                        //tvIP.setVisibility(View.INVISIBLE);
                     }
-                    pbIP.setVisibility(View.GONE);
                 } else {
-                    //tvIP.setVisibility(View.INVISIBLE);
                     tvIP.setText("---");
-                    pbIP.setVisibility(View.GONE);
                 }
             }
         });
@@ -258,5 +240,4 @@ public class IPPortView extends FrameLayout {
             }
         }
     }
-
 }

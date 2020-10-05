@@ -5,11 +5,15 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlinx-serialization'
 
 repositories {
     google()
@@ -25,14 +29,33 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.preference:preference:1.1.0'
     implementation 'com.madgag.spongycastle:core:1.54.0.0'
-    androidTestImplementation 'junit:junit:4.12'
-    testImplementation 'org.mockito:mockito-core:1.10.19'
-    testImplementation "org.json:json:20140107"
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestUtil 'androidx.test:orchestrator:1.1.1'
-    testImplementation 'com.github.gmazzo:okhttp-mock:1.0.4'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.2.0-alpha03'
+    implementation "androidx.core:core-ktx:1.3.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    // PIA
+    implementation project(":core")
+    implementation project(":regions")
+    implementation project(":account")
+
+    // Commons
+    implementation "io.ktor:ktor-client-android:1.3.2"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0"
+
+    // Tests
+    testImplementation 'com.github.gmazzo:okhttp-mock:1.3.2'
+    testImplementation "org.json:json:20180813"
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'androidx.test:core:1.2.0'
+    testImplementation 'org.robolectric:robolectric:4.0.2'
+    testImplementation 'org.mockito:mockito-inline:2.23.0'
+    testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
+    androidTestImplementation 'com.github.gmazzo:okhttp-mock:1.3.2'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:core:1.2.0'
 
     // EventBus
     implementation 'org.greenrobot:eventbus:3.1.1'
@@ -48,6 +71,7 @@ dependencies {
 
     // OkHttp
     api 'com.squareup.okhttp3:okhttp:3.9.0'
+
     //google
     implementation 'com.android.billingclient:billing:1.0'
     // https://github.com/jrummyapps/colorpicker
@@ -71,6 +95,7 @@ dependencies {
 
     // After Effect animations
     implementation 'com.airbnb.android:lottie:2.6.0'
+    implementation 'com.github.mmin18:realtimeblurview:1.2.1'
 }
 
 android {
@@ -100,12 +125,17 @@ android {
         defaultConfig {
             minSdkVersion rootProject.minSdkVersion
             targetSdkVersion rootProject.targetSdkVersion
+
+            renderscriptTargetApi rootProject.minSdkVersion
+            renderscriptSupportModeEnabled true
+
             versionCode code
-            versionName "3.5.1"
+            versionName "3.8.0"
             setProperty("archivesBaseName", "pia-$versionName-$versionCode")
             vectorDrawables {
                 useSupportLibrary = true
             }
+            testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         }
     }
     else {
@@ -121,6 +151,9 @@ android {
             res.srcDirs = ['src/main/res', 'src/playstore/res/']
         }
         test {
+            java {
+                srcDir 'test'
+            }
         }
     }
 
@@ -157,7 +190,6 @@ android {
         amazonstore {
             dimension "store"
         }
-
     }
 
     testOptions { //Used for testing as TextUtils isn't available when testing.

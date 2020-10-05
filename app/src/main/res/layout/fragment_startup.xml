@@ -19,35 +19,39 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/transparent"
-    android:paddingBottom="@dimen/appIntro2BottomBarHeight">
+    android:paddingBottom="30dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/transparent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:orientation="vertical"
             android:background="@color/transparent">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/image"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="0dp"
                 android:layout_marginLeft="42dp"
                 android:layout_marginRight="42dp"
                 tools:ignore="ContentDescription"
                 android:padding="@dimen/startup_padding"
                 android:scaleType="fitCenter"
                 android:layout_marginBottom="30dp"
+                app:layout_constraintDimensionRatio="H,32:24"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:src="@drawable/ic_walkthrough_protect"
                 />
 
@@ -56,11 +60,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center"
-                android:layout_weight="0.5"
                 android:gravity="center"
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
                 android:layout_marginBottom="4dp"
+                android:textColor="?attr/grey20_white"
+                app:layout_constraintTop_toBottomOf="@+id/image"
+                tools:text="@string/startup_region_title"
                 style="@style/Style02"
                 />
 
@@ -69,13 +75,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
+                android:gravity="top|center"
                 android:paddingLeft="48dp"
                 android:paddingRight="48dp"
+                android:minLines="2"
                 android:textAppearance="@style/PiaTextSubheading"
+                app:layout_constraintTop_toBottomOf="@+id/title"
+                tools:text="@string/startup_region_message"
                 style="@style/Style08"/>
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </RelativeLayout>
 

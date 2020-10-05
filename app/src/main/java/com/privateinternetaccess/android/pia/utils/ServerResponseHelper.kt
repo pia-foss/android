@@ -18,28 +18,48 @@
 
 package com.privateinternetaccess.android.pia.utils
 
+import com.privateinternetaccess.common.regions.RegionsProtocol
+import com.privateinternetaccess.common.regions.model.RegionsResponse
 import com.privateinternetaccess.core.model.PIAServer
 import com.privateinternetaccess.core.model.PIAServerInfo
-import com.privateinternetaccess.regions.RegionsProtocol
-import com.privateinternetaccess.regions.model.RegionsResponse
 
 class ServerResponseHelper {
     companion object {
         fun adaptServers(regionsResponse: RegionsResponse): Map<String, PIAServer> {
             val servers = mutableMapOf<String, PIAServer>()
             for (region in regionsResponse.regions) {
-                val bestWireguard =
-                        region.servers[RegionsProtocol.WIREGUARD.protocol]?.firstOrNull()?.ip
-                val bestOvpnTcp =
-                        region.servers[RegionsProtocol.OPENVPN_TCP.protocol]?.firstOrNull()?.ip
-                val bestOvpnUdp =
-                        region.servers[RegionsProtocol.OPENVPN_UDP.protocol]?.firstOrNull()?.ip
+                val wireguardDetails = region.servers[RegionsProtocol.WIREGUARD.protocol]
+                val ovpnTcpDetails = region.servers[RegionsProtocol.OPENVPN_TCP.protocol]
+                val ovpnUdpDetails = region.servers[RegionsProtocol.OPENVPN_UDP.protocol]
+
+                val bestWireguard = wireguardDetails?.firstOrNull()?.ip
+                val bestOvpnTcp = ovpnTcpDetails?.firstOrNull()?.ip
+                val bestOvpnUdp = ovpnUdpDetails?.firstOrNull()?.ip
 
                 if (bestWireguard == null && bestOvpnTcp == null && bestOvpnUdp == null) {
                     continue
                 }
 
-                // Application does not supporting the user option to choose wg ports and expect the
+                val commonNames = mutableMapOf<PIAServer.Protocol, List<Pair<String, String>>>()
+                val wireguardCommonNames = mutableListOf<Pair<String, String>>()
+                wireguardDetails?.forEach {
+                    wireguardCommonNames.add(Pair(it.ip, it.cn))
+                }
+                commonNames[PIAServer.Protocol.WIREGUARD] = wireguardCommonNames
+
+                val ovpnTcpCommonNames = mutableListOf<Pair<String, String>>()
+                ovpnTcpDetails?.forEach {
+                    ovpnTcpCommonNames.add(Pair(it.ip, it.cn))
+                }
+                commonNames[PIAServer.Protocol.OPENVPN_TCP] = ovpnTcpCommonNames
+
+                val ovpnUdpCommonNames = mutableListOf<Pair<String, String>>()
+                ovpnUdpDetails?.forEach {
+                    ovpnUdpCommonNames.add(Pair(it.ip, it.cn))
+                }
+                commonNames[PIAServer.Protocol.OPENVPN_UDP] = ovpnUdpCommonNames
+
+                // Application does not support the user option to choose wg ports and expect the
                 // format `endpoint:port`, as it is not aware of wg ports.
                 val wireguardPortEndpoint = bestWireguard?.let {
                     regionsResponse.groups[RegionsProtocol.WIREGUARD.protocol]?.let {
@@ -55,10 +75,13 @@ class ServerResponseHelper {
                         wireguardPortEndpoint,
                         null,
                         mapOf<PIAServer.Protocol, String>(),
+                        commonNames,
                         bestOvpnTcp,
                         bestOvpnUdp,
                         region.id,
                         null,
+                        region.latitude,
+                        region.longitude,
                         region.geo,
                         region.portForward,
                         false

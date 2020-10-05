@@ -55,6 +55,7 @@ public class ServerSelectionView extends FrameLayout {
     @BindView(R.id.fragment_connect_server_name) TextView tvServer;
     @BindView(R.id.connect_server_list_progress_bar) View progressBar;
     @BindView(R.id.fragment_connect_server_map) RegionMapView mapView;
+    @BindView(R.id.fragment_server_geo) View serverGeoImageView;
 
     public ServerSelectionView(Context context) {
         super(context);
@@ -94,6 +95,7 @@ public class ServerSelectionView extends FrameLayout {
             }
         });
 
+        setGeoDisplay();
         setRegionDisplay();
     }
 
@@ -101,6 +103,16 @@ public class ServerSelectionView extends FrameLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         EventBus.getDefault().unregister(this);
+    }
+
+    private void setGeoDisplay() {
+        PIAServerHandler handler = PIAServerHandler.getInstance(getActivity());
+        PIAServer selectedServer = handler.getSelectedRegion(tvServer.getContext(), true);
+        int targetVisibility = View.GONE;
+        if (selectedServer != null && selectedServer.isGeo()) {
+            targetVisibility = View.VISIBLE;
+        }
+        serverGeoImageView.setVisibility(targetVisibility);
     }
 
     private void setRegionDisplay() {
@@ -111,7 +123,7 @@ public class ServerSelectionView extends FrameLayout {
                     event.getLevel() == ConnectionStatus.LEVEL_AUTH_FAILED) && currentServer != null) {
                 String name = currentServer.getName();
                 tvServer.setText(getContext().getString(R.string.automatic_server_selection_main_region, name));
-                mapView.setServer(name);
+                mapView.setServer(currentServer);
             } else {
                 setServerName();
             }
@@ -129,7 +141,7 @@ public class ServerSelectionView extends FrameLayout {
             name = selectedServer.getName();
         }
         tvServer.setText(name);
-        mapView.setServer(name);
+        mapView.setServer(selectedServer);
     }
 
     private Activity getActivity() {

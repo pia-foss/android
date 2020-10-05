@@ -19,6 +19,7 @@
 package com.privateinternetaccess.android.ui.connection;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.VpnService;
@@ -34,22 +35,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.mikepenz.materialdrawer.Drawer;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.handlers.UpdateHandler;
 import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
+import com.privateinternetaccess.android.pia.api.PIAAuthenticator;
 import com.privateinternetaccess.android.pia.handlers.LogoutHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
-import com.privateinternetaccess.android.pia.interfaces.IConnection;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
+import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.LauncherActivity;
 import com.privateinternetaccess.android.ui.WidgetManager;
 import com.privateinternetaccess.android.ui.adapters.WidgetsAdapter;
@@ -60,11 +63,14 @@ import com.privateinternetaccess.android.ui.drawer.settings.AboutActivity;
 import com.privateinternetaccess.android.ui.features.WebviewActivity;
 import com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity;
 import com.privateinternetaccess.android.ui.drawer.ServerListActivity;
+import com.privateinternetaccess.android.ui.rating.Rating;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
+import com.privateinternetaccess.android.ui.views.CallingCardView;
 import com.privateinternetaccess.android.utils.drag.OnStartDragListener;
 import com.privateinternetaccess.android.utils.drag.SimpleItemTouchHelperCallback;
 
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -72,9 +78,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.blinkt.openvpn.core.LogItem;
 
-import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
-
 public class MainActivity extends BaseActivity {
+
+    private static final String TAG = "MainActivity";
 
     public static final String CHANGE_VPN_SERVER = "com.privateinternetaccess.android.CHANGE_VPN_SERVER";
     public static final String START_VPN_SHORTCUT = "com.privateinternetaccess.android.START_VPN_SHORTCUT";
@@ -84,11 +90,9 @@ public class MainActivity extends BaseActivity {
 
     public static final int START_SERVER_LIST = 40;
     public static final int START_VPN_PROFILE = 41;
-    private static final int PURCHASE_COMPLETED = 2321;
     public static final int THEME_CHANGED = 4747;
 
     public static String LAST_ACTION;
-    private long mStartVpnIntentTime;
 
     private Drawer mDrawer;
 
@@ -96,7 +100,8 @@ public class MainActivity extends BaseActivity {
 
     private boolean drawerItemOpened;
 
-    @BindView (R.id.activity_main_list) RecyclerView widgetList;
+    @BindView(R.id.activity_main_list) RecyclerView widgetList;
+    @BindView(R.id.activity_main_root) RelativeLayout rootLayout;
     private WidgetManager widgetManager;
     private WidgetsAdapter widgetsAdapter;
 
@@ -112,16 +117,20 @@ public class MainActivity extends BaseActivity {
         DLog.i("MainActivity", "onCreate");
 
         IAccount account = PIAFactory.getInstance().getAccount(this);
-        if (!account.isLoggedIn()) {
+        if (!account.loggedIn()) {
             switchToLoginActivity();
             return;
         }
+
+        Rating.Companion.start(this);
         setContentView(R.layout.activity_connect);
         ButterKnife.bind(this);
         setSwipeBackEnable(false);
         initHeader(false, false);
         setIconButton(R.drawable.ic_reorder, R.drawable.ic_reorder_disconnected);
         bindView();
+
+        showUpdateCard();
 
         if(BuildConfig.FLAVOR_store.equals("noinapp")) {
             UpdateHandler.checkUpdates(this, UpdateHandler.UpdateDisplayType.SHOW_DIALOG);
@@ -153,7 +162,15 @@ public class MainActivity extends BaseActivity {
 
     private void bindView() {
         initDrawer();
-        PIAFactory.getInstance().getAccount(getApplicationContext()).checkAccountInfo(getLoginCallback());
+        Context context = getApplicationContext();
+        String token = PiaPrefHandler.getAuthToken(context);
+        PIAFactory.getInstance()
+                .getAccount(context)
+                .accountInformation(token, (accountInformation, requestResponseStatus) -> {
+                    handleAccountInformation(accountInformation, requestResponseStatus);
+                    initDrawer();
+                    return null;
+                });
     }
 
     @Override
@@ -182,66 +199,72 @@ public class MainActivity extends BaseActivity {
         if (mDrawer != null) {
             mDrawer.deselect();
         }
-        IConnection connection = PIAFactory.getInstance().getConnection(getApplicationContext());
-        connection.fetchIP(null);
 
+        fetchClientStatus();
         organizeWidgets();
     }
 
     private void initDrawer() {
-        mDrawer = MainActivityHandler.createDrawer(this, toolbar, new Drawer.OnDrawerItemClickListener() {
-            @Override
-            public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                if(drawerItemOpened){
-                    return true;
-                }
-
-                // do something with the clicked item :D
-                long iden = drawerItem.getIdentifier();
-                mDrawer.deselect();
-                mDrawer.deselect(MainActivityHandler.IDEN_FOOTER);
-                boolean finishing = true;
-                if (iden == MainActivityHandler.IDEN_REGION_SELECTION) {
-                    Intent i = new Intent(getApplicationContext(), ServerListActivity.class);
-                    startActivityForResult(i, MainActivity.START_SERVER_LIST);
-                } else if (iden == MainActivityHandler.IDEN_ACCOUNT) {
-                    Intent i = new Intent(getApplicationContext(), AccountActivity.class);
-                    startActivity(i);
-                } else if (iden == MainActivityHandler.IDEN_SETTINGS) {
-                    Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
-                    startActivityForResult(i, THEME_CHANGED);
-                } else if (iden == MainActivityHandler.IDEN_ABOUT) {
-                    Intent i = new Intent(getApplicationContext(), AboutActivity.class);
-                    startActivity(i);
-                } else if (iden == MainActivityHandler.IDEN_HOME_PAGE) {
-                    Intent i = new Intent(getApplicationContext(), WebviewActivity.class);
-                    i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com");
-                    startActivity(i);
-                } else if (iden == MainActivityHandler.IDEN_HELP) {
-                    Intent i = new Intent(getApplicationContext(), WebviewActivity.class);
-                    i.putExtra(WebviewActivity.EXTRA_URL, "https://helpdesk.privateinternetaccess.com/");
-                    startActivity(i);
-                } else if (iden == MainActivityHandler.IDEN_PER_APP) {
-                    Intent i = new Intent(getApplicationContext(), AllowedAppsActivity.class);
-                    startActivity(i);
-                } else if (iden == MainActivityHandler.IDEN_LOGOUT) {
-                    mLogoutAssitance = new LogoutHandler(MainActivity.this, getLogoutCallback());
-                    mLogoutAssitance.logout();
-                    finishing = false;
-                } else if (iden == MainActivityHandler.IDEN_RENEW) {
-                    onRenewClicked();
-                } else if (iden == MainActivityHandler.IDEN_PRIVACY) {
-                    Intent i = new Intent(MainActivity.this, WebviewActivity.class);
-                    i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com/pages/privacy-policy/");
-                    startActivity(i);
-                }
-                if (finishing) {
-                    overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
-                    drawerItemOpened = true;
-                }
+        mDrawer = MainActivityHandler.createDrawer(this, toolbar, (view, position, drawerItem) -> {
+            if(drawerItemOpened){
                 return true;
             }
+
+            // do something with the clicked item :D
+            long iden = drawerItem.getIdentifier();
+            mDrawer.deselect();
+            mDrawer.deselect(MainActivityHandler.IDEN_FOOTER);
+            boolean finishing = true;
+            if (iden == MainActivityHandler.IDEN_REGION_SELECTION) {
+                Intent i = new Intent(getApplicationContext(), ServerListActivity.class);
+                startActivityForResult(i, MainActivity.START_SERVER_LIST);
+            } else if (iden == MainActivityHandler.IDEN_ACCOUNT) {
+                Intent i = new Intent(getApplicationContext(), AccountActivity.class);
+                startActivity(i);
+            } else if (iden == MainActivityHandler.IDEN_SETTINGS) {
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivityForResult(i, THEME_CHANGED);
+            } else if (iden == MainActivityHandler.IDEN_ABOUT) {
+                Intent i = new Intent(getApplicationContext(), AboutActivity.class);
+                startActivity(i);
+            } else if (iden == MainActivityHandler.IDEN_HOME_PAGE) {
+                Intent i = new Intent(getApplicationContext(), WebviewActivity.class);
+                i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com");
+                startActivity(i);
+            } else if (iden == MainActivityHandler.IDEN_HELP) {
+                Intent i = new Intent(getApplicationContext(), WebviewActivity.class);
+                i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com/helpdesk/");
+                startActivity(i);
+            } else if (iden == MainActivityHandler.IDEN_PER_APP) {
+                Intent i = new Intent(getApplicationContext(), AllowedAppsActivity.class);
+                startActivity(i);
+            } else if (iden == MainActivityHandler.IDEN_LOGOUT) {
+                mLogoutAssitance = new LogoutHandler(MainActivity.this, getLogoutCallback());
+                mLogoutAssitance.logout();
+                finishing = false;
+            } else if (iden == MainActivityHandler.IDEN_RENEW) {
+                onRenewClicked();
+            } else if (iden == MainActivityHandler.IDEN_PRIVACY) {
+                Intent i = new Intent(MainActivity.this, WebviewActivity.class);
+                i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com/pages/privacy-policy/");
+                startActivity(i);
+            }
+            if (finishing) {
+                overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
+                drawerItemOpened = true;
+            }
+            return true;
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isOrganizing) {
+            onIconButtonClicked(null);
+        }
+        else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -255,6 +278,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        Rating.Companion.stop();
         if (mLogoutAssitance != null) {
             mLogoutAssitance.onDestroy();
         }
@@ -278,8 +302,7 @@ public class MainActivity extends BaseActivity {
             IVPN vpn = PIAFactory.getInstance().getVPN(this.getBaseContext());
             vpn.start();
         } else if (requestCode == START_VPN_PROFILE && resultCode == RESULT_CANCELED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
-                    System.currentTimeMillis() - mStartVpnIntentTime < 500) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && System.currentTimeMillis() < 500) {
                 AlertDialog.Builder ab = new AlertDialog.Builder(this);
                 ab.setPositiveButton(android.R.string.ok, null);
                 ab.setMessage(R.string.nought_always_on_warning);
@@ -304,6 +327,18 @@ public class MainActivity extends BaseActivity {
     }
 
     private void organizeWidgets() {
+        if (isOrganizing) {
+            initHeader(true, false);
+            hideIconButton();
+        }
+        else {
+            initHeader(false, false);
+            initDrawer();
+            showIconButton();
+        }
+
+        setBackground();
+
         widgetsList = widgetManager.getWidgets(isOrganizing);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -367,6 +402,15 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private void showUpdateCard() {
+        if (!PiaPrefHandler.getLastVersion(this).equals(BuildConfig.VERSION_NAME) && CallingCardActivity.hasCallingCard(BuildConfig.VERSION_NAME)) {
+            Intent i = new Intent(this, CallingCardActivity.class);
+            startActivity(i);
+
+            PiaPrefHandler.setLastVersion(this, BuildConfig.VERSION_NAME);
+        }
+    }
+
     private void autoStartVPN() {
         Prefs.with(getApplicationContext()).set(LauncherActivity.HAS_AUTO_STARTED, true);
         startVPN(false);
@@ -378,8 +422,7 @@ public class MainActivity extends BaseActivity {
             return;
 
         if (VPNProtocol.activeProtocol(this) == VPNProtocol.Protocol.OpenVPN) {
-            PIAFactory.getInstance().getConnection(getApplicationContext()).resetFetchIP();
-
+            PiaPrefHandler.clearLastIPVPN(getBaseContext());
             Intent intent = VpnService.prepare(getApplicationContext());
             if (intent != null) {
                 Intent i = new Intent(getApplicationContext(), VPNPermissionActivity.class);
@@ -393,7 +436,6 @@ public class MainActivity extends BaseActivity {
         else {
             PIAFactory.getInstance().getVPN(getApplicationContext()).start();
         }
-
     }
 
     @Override
@@ -403,8 +445,26 @@ public class MainActivity extends BaseActivity {
             mDrawer.getDrawerLayout().closeDrawer(GravityCompat.START, false);
     }
 
+    private void onAuthFailureLogout() {
+        IAccount account = PIAFactory.getInstance().getAccount(getBaseContext());
+        if (!account.loggedIn()) {
+            return;
+        }
+
+        DLog.d("MainActivity", "Logging out the user due to an authentication failure.");
+        Toaster.l(getBaseContext(), R.string.error_invalid_auth);
+        PIAFactory.getInstance().getVPN(getBaseContext()).stop();
+        mLogoutAssitance = new LogoutHandler(MainActivity.this, getLogoutCallback());
+        mLogoutAssitance.logoutLogic(false);
+    }
+
     @Subscribe
     public void newLogRecieved(LogItem logItem) {
         DLog.d("PIA", logItem.getString(this));
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAuthFailureEvent(PIAAuthenticator.PIAAuthenticatorFailureEvent event) {
+        onAuthFailureLogout();
     }
 }

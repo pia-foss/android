@@ -18,13 +18,12 @@
 
 package com.privateinternetaccess.android.pia.connection;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
-
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
@@ -32,21 +31,15 @@ import com.privateinternetaccess.android.PIAKillSwitchStatus;
 import com.privateinternetaccess.android.PIAOpenVPNTunnelLibrary;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.api.PiaApi;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.PingHandler;
-import com.privateinternetaccess.android.pia.interfaces.IConnection;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
-import com.privateinternetaccess.android.pia.model.events.FetchIPEvent;
-import com.privateinternetaccess.android.pia.model.events.PortForwardEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.model.response.MaceResponse;
-import com.privateinternetaccess.android.pia.tasks.FetchIPTask;
+import com.privateinternetaccess.android.pia.receivers.PortForwardingReceiver;
 import com.privateinternetaccess.android.pia.tasks.HitMaceTask;
 import com.privateinternetaccess.android.pia.tasks.PortForwardTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
-import com.privateinternetaccess.android.pia.workers.PortForwardingWorker;
 import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.tunnel.PortForwardingStatus;
 import com.privateinternetaccess.core.utils.IPIACallback;
@@ -65,7 +58,7 @@ import static de.blinkt.openvpn.core.OpenVpnManagementThread.GATEWAY;
 
 /**
  *
- * Use this to handle all connection features. This will handle port fowarding, MACE and fetching the new IP by using {@link PortForwardTask}, {@link HitMaceTask} and {@link FetchIPTask}.
+ * Use this to handle all connection features. This will handle port fowarding, MACE and fetching the new IP by using {@link PortForwardTask} and {@link HitMaceTask}.
  *
  * You can toggle all of these features with {@link com.privateinternetaccess.android.pia.PIABuilder} or {@link PiaPrefHandler} methods.
  *
@@ -88,18 +81,17 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
     private Context context;
     private static ConnectionResponder mInstance;
     private static PortForwardTask portTask;
-    private PeriodicWorkRequest portForwardingWorker;
-    private static FetchIPTask ipTask;
     private static HitMaceTask maceTask;
+
+    private AlarmManager alarmManager;
+    private PendingIntent portForwardingIntent;
 
     static ThreadPoolExecutor executor;
     static BlockingQueue<Runnable> workQueue;
 
-    static IPIACallback<FetchIPEvent> ipCallback;
     static IPIACallback<MaceResponse> hitMaceCallback;
 
     private static int REQUESTING_PORT_STRING;
-    private static boolean KILLSWITCH_WAS_ACTIVATED;
     public static boolean VPN_REVOKED;
     private Runnable REVIVE_MECHANIC;
     private int connectionAttempts;
@@ -107,7 +99,7 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
     private ConnectionResponder(Context c, int resId) {
         context = c;
         REQUESTING_PORT_STRING = resId;
-
+        alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         PIAKillSwitchStatus.addKillSwitchListener(this);
         //mace stuff
         if(VpnStatus.isVPNActive()){
@@ -125,6 +117,12 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
             mInstance = new ConnectionResponder(c, resID);
         return mInstance;
     }
+
+    @Override
+    public void killSwitchUpdate(boolean isInKillSwitch) { }
+
+    @Override
+    public void setConnectedVPN(String uuid) { }
 
     @Override
     public void updateState(String state, String message, int localizedResId, final ConnectionStatus level) {
@@ -152,8 +150,6 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
                 startPortForwarding();
             }
 
-            startupIP();
-
             startUpMace();
 
             if(PiaPrefHandler.isKillswitchEnabled(context)){
@@ -168,36 +164,23 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
                 portTask.cancel(true);
                 portTask = null;
             }
-            if (ipTask != null) {
-                ipTask.cancel(true);
-                ipTask = null;
-            }
             if(maceTask != null){
                 maceTask.cancel(true);
                 maceTask = null;
             }
-            IConnection connection = PIAFactory.getInstance().getConnection(context);
+            PiaPrefHandler.clearLastIPVPN(context);
             IVPN vpn = PIAFactory.getInstance().getVPN(context);
-            connection.resetFetchIP();
             MACE_IS_RUNNING = false;
             PiaPrefHandler.setMaceActive(context, false);
             PIAVpnStatus.clearOldData();
             cleanupExecutor();
             PiaPrefHandler.setVPNConnecting(context, false);
-            if(!revivingVPN && !vpn.isKillswitchActive()){
-                connection.fetchIP(ipCallback);
-            }
             clearPortForwarding();
         } else if(level == ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET || level == ConnectionStatus.LEVEL_NONETWORK){
             PiaPrefHandler.setMaceActive(context, false);
             PiaPrefHandler.setVPNConnecting(context, true);
+            PiaPrefHandler.clearLastIPVPN(context);
             VPN_REVOKED = false;
-            if (ipTask != null) {
-                ipTask.cancel(true);
-                ipTask = null;
-                IConnection connection = PIAFactory.getInstance().getConnection(context);
-                connection.resetFetchIP();
-            }
             clearPortForwarding();
         }
     }
@@ -261,33 +244,6 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
         connectionAttempts = 0;
     }
 
-    @Override
-    public void killSwitchUpdate(boolean isInKillSwitch) {
-        if(!isInKillSwitch) {
-            if(KILLSWITCH_WAS_ACTIVATED) {
-                if(Looper.myLooper() == null){
-                    Looper.prepare();
-                }
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        IConnection connection = PIAFactory.getInstance().getConnection(context);
-                        connection.resetFetchIP();
-                        connection.fetchIP(null);
-                        PingHandler.getInstance(context).fetchPings(PingHandler.PING_TIME_30_DIFFERENCE);
-                    }
-                }, PiaApi.VPN_DELAY_TIME * 2);
-            }
-        }
-        KILLSWITCH_WAS_ACTIVATED = isInKillSwitch;
-    }
-
-    @Override
-    public void setConnectedVPN(String uuid) {
-
-    }
-
     private void cleanupExecutor() {
         try {
             if (executor != null) {
@@ -308,16 +264,21 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
 
     private void startPortForwarding() {
         PIAVpnStatus.setPortForwardingStatus(PortForwardingStatus.REQUESTING, context.getString(REQUESTING_PORT_STRING));
-        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE))  {
-            if (portForwardingWorker != null) {
+        if (Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true))  {
+            if (portForwardingIntent != null) {
                 return;
             }
-            portForwardingWorker = new PeriodicWorkRequest.Builder(
-                    PortForwardingWorker.class,
-                    15,
-                    TimeUnit.MINUTES
-            ).build();
-            WorkManager.getInstance(context).enqueue(portForwardingWorker);
+
+            Intent intent = new Intent(context, PortForwardingReceiver.class);
+            portForwardingIntent = PendingIntent.getBroadcast(
+                    context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT
+            );
+            alarmManager.setRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    0,
+                    AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                    portForwardingIntent
+            );
         } else {
             if(portTask == null) {
                 portTask = new PortForwardTask(
@@ -333,13 +294,13 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
     private void clearPortForwarding() {
         PiaPrefHandler.clearGatewayEndpoint(context);
         PIAVpnStatus.setPortForwardingStatus(PortForwardingStatus.NO_PORTFWD, "");
-        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
-            if (portForwardingWorker == null) {
+        if (Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
+            if (portForwardingIntent == null) {
                 return;
             }
             PiaPrefHandler.clearBindPortForwardInformation(context);
-            WorkManager.getInstance(context).cancelWorkById(portForwardingWorker.getId());
-            portForwardingWorker = null;
+            alarmManager.cancel(portForwardingIntent);
+            portForwardingIntent = null;
         } else {
             if (portTask != null) {
                 portTask.cancel(true);
@@ -348,26 +309,10 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
         }
     }
 
-    private void startupIP() {
-        // IP grabbing
-        boolean tracking = PiaPrefHandler.isIPTracking(context);
-        if(tracking) {
-            boolean updateIP = FetchIPTask.updateIPInformation(context);
-            if (updateIP) {
-                FetchIPTask.resetValues(context);
-                ipTask = new FetchIPTask(context, ipCallback);
-                FetchIPTask.instance = ipTask;
-                ipTask.executeOnExecutor(executor);
-            }
-        }
-    }
-
     private void startUpMace() {
-        // Hit mace
         boolean useMace = PiaPrefHandler.isMaceEnabled(context);
         if(useMace && !BuildConfig.FLAVOR_store.equals("playstore")){
-            IConnection connection = PIAFactory.getInstance().getConnection(context);
-            boolean isActive = connection.hasHitMace();
+            boolean isActive = PiaPrefHandler.isMaceActive(context);
             DLog.d("CheckForMACE","active = " + isActive);
             if(!isActive){
                 if(!MACE_IS_RUNNING){
@@ -381,11 +326,5 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
                 PiaPrefHandler.setMaceActive(context, false);
             }
         }
-    }
-
-    public static void setupCallbacks(IPIACallback<FetchIPEvent> ipEvent, IPIACallback<PortForwardEvent> port, IPIACallback<MaceResponse> mace){
-        ipCallback = ipEvent;
-        PIAVpnStatus.setCallback(port);
-        hitMaceCallback = mace;
     }
 }

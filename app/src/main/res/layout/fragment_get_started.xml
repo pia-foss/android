@@ -17,35 +17,44 @@
   ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_login_purchasing_layout"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/windowBackground"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/activity_login_purchasing_background"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:scaleType="fitXY"
-        app:layout_constraintDimensionRatio="H,24:23"
+        android:scaleType="center"
+        android:alpha=".5"
         app:srcCompat="@drawable/map_getstarted"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="@+id/activity_login_purchasing_container"/>
 
-    <RelativeLayout
+    <FrameLayout
+        android:id="@+id/activity_login_purchasing_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/activity_login_purchasing_background"
-        android:background="@color/windowBackground">
+        app:layout_constraintTop_toBottomOf="@+id/activity_login_purchasing_logo_layout"
+        app:layout_constraintBottom_toTopOf="@id/guideline"/>
+
+    <RelativeLayout
+        android:id="@+id/activity_login_purchasing_logo_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -54,20 +63,13 @@
             android:orientation="vertical">
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="225dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="32dp"
+                android:layout_marginRight="32dp"
+                android:layout_marginTop="16dp"
                 app:srcCompat="@drawable/ic_pia_logo_new"
                 android:scaleType="centerInside"
-                />
-
-            <TextView
-                style="@style/Style19"
-                android:id="@+id/activity_login_purchasing_version_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:textColor="@color/grey55"
-                tools:text="Version 2.0 (147)"
                 />
 
         </LinearLayout>
@@ -88,40 +90,109 @@
             />
     </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <androidx.constraintlayout.widget.Guideline
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_margin="25dp"
+        android:id="@+id/guideline"
+        app:layout_constraintGuide_end="222dp"
+        android:orientation="horizontal"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="320dp" />
+
+    <RelativeLayout
+        android:id="@+id/activity_login_purchasing_button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:clickable="true"
+        android:animateLayoutChanges="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline"
+        >
 
-        <Button
-            style="@style/PiaxGreenButton"
-            android:id="@+id/activity_login_purchasing_login_button"
+        <com.github.mmin18.widget.RealtimeBlurView
+            android:id="@+id/activity_login_purchasing_blur"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="18dp"
-            android:text="@string/login" />
+            android:layout_height="match_parent"
+            app:realtimeBlurRadius="20dp"
+            app:realtimeOverlayColor="@color/purchase_panel_blur" />
 
-        <Button
-            style="@style/BuyAccountButton"
-            android:id="@+id/activity_login_purchasing_buy_button"
-            android:background="?attr/buy_account_button"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="18dp"
-            android:text="@string/buy_account" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="25dp"
+            android:layout_centerHorizontal="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
 
-        <Button
-            style="@style/RedeemButton"
-            android:id="@+id/activity_login_purchasing_redeem_button"
-            android:background="@color/transparent"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:text="@string/redeem_gift_card"/>
+            <TextView
+                android:id="@+id/activity_login_purchasing_free_trial_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_marginBottom="4dp"
+                android:text='@string/getstarted_free_trial'
+                android:textAppearance="@style/PiaTextSubheading"
+                style="@style/Style08"/>
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/activity_login_purchasing_yearly_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_marginBottom="16dp"
+                android:textColor="?attr/grey20_white"
+                tools:text="@string/getstarted_trial_price"
+                style="@style/Style02"
+                />
+
+            <Button
+                style="@style/PiaxGreenButton"
+                android:id="@+id/activity_login_purchasing_buy_button"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/getstarted_subscribe" />
+
+            <Button
+                style="@style/BuyAccountButton"
+                android:id="@+id/activity_login_purchasing_login_button"
+                android:background="?attr/buy_account_button"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="@string/login" />
+
+            <Button
+                style="@style/RedeemButton"
+                android:id="@+id/activity_login_purchasing_all_plans_button"
+                android:background="@color/transparent"
+                android:layout_width="match_parent"
+                android:layout_marginTop="16dp"
+                android:layout_height="30dp"
+                android:text="@string/purchasing_all_plans"/>
+
+            <Button
+                style="@style/RedeemButton"
+                android:id="@+id/activity_login_purchasing_redeem_button"
+                android:background="@color/transparent"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:text="@string/redeem_gift_card"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

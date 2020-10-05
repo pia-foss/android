@@ -19,12 +19,16 @@
 package com.privateinternetaccess.android.pia.handlers;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.os.SystemClock;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
+import androidx.annotation.VisibleForTesting;
+import androidx.core.os.ConfigurationCompat;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.R;
@@ -32,24 +36,24 @@ import com.privateinternetaccess.android.model.events.SeverListUpdateEvent;
 import com.privateinternetaccess.android.model.events.SeverListUpdateEvent.ServerListUpdateState;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.api.ServerAPI;
+import com.privateinternetaccess.android.pia.receivers.FetchServersReceiver;
+import com.privateinternetaccess.android.pia.receivers.PingReceiver;
 import com.privateinternetaccess.android.pia.tasks.FetchServersTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.ServerResponseHelper;
-import com.privateinternetaccess.android.pia.workers.FetchServersWorker;
-import com.privateinternetaccess.android.pia.workers.PingWorker;
 import com.privateinternetaccess.android.utils.ServerUtils;
 import com.privateinternetaccess.android.utils.SystemUtils;
+import com.privateinternetaccess.common.regions.RegionLowerLatencyInformation;
+import com.privateinternetaccess.common.regions.RegionsProtocol;
+import com.privateinternetaccess.common.regions.RegionsUtils;
+import com.privateinternetaccess.common.regions.model.RegionsResponse;
 import com.privateinternetaccess.core.model.PIAServer;
 import com.privateinternetaccess.core.model.PIAServerInfo;
 import com.privateinternetaccess.core.model.ServerResponse;
 import com.privateinternetaccess.core.utils.IPIACallback;
-import com.privateinternetaccess.regions.RegionLowerLatencyInformation;
 import com.privateinternetaccess.regions.RegionsAPI;
 import com.privateinternetaccess.regions.RegionsBuilder;
-import com.privateinternetaccess.regions.RegionsProtocol;
-import com.privateinternetaccess.regions.internals.RegionsUtils;
-import com.privateinternetaccess.regions.model.RegionsResponse;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
@@ -71,10 +75,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
 
 import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function2;
 
@@ -92,9 +94,10 @@ public class PIAServerHandler {
     public static final long SERVER_TIME_DIFFERENCE = 600000L; //10m
 
     private static PIAServerHandler instance;
-    private static Map<String, Integer> serverImageMap;
 
     private static Prefs prefs;
+    private static AlarmManager alarmManager;
+    private static RegionsAPI regionModule;
 
     public static PIAServerHandler getInstance(Context context){
         if(instance == null){
@@ -115,55 +118,51 @@ public class PIAServerHandler {
 
     public static void startup(Context context) {
         instance = new PIAServerHandler();
+        instance.servers = new HashMap<>();
         instance.context = context;
         instance.preparePreferences();
-        instance.regionModule = new RegionsBuilder().
-                setPingRequestDependency(new Gen4PingHandler()).
-                setMessageVerificatorDependency(new Gen4MessageVerificationHandler()).
-                build();
-        instance.loadEmbeddedServers(context);
+        instance.prepareRegionModule();
+        instance.loadPersistedServersIfAny();
         instance.fetchServers(context, true);
-        setupServerImageMap();
+        instance.vibrateHandler = new VibrateHandler(context);
     }
 
-    private static void setupServerImageMap() {
-        serverImageMap = new HashMap<>();
-        serverImageMap.put("US", R.drawable.flag_usa);
-        serverImageMap.put("CA", R.drawable.flag_canada);
-        serverImageMap.put("AU", R.drawable.flag_australia);
-        serverImageMap.put("FR", R.drawable.flag_france);
-        serverImageMap.put("DE", R.drawable.flag_germany);
-        serverImageMap.put("HK", R.drawable.flag_hongkong);
-        serverImageMap.put("IL", R.drawable.flag_israel);
-        serverImageMap.put("JP", R.drawable.flag_japan);
-        serverImageMap.put("NL", R.drawable.flag_netherlands);
-        serverImageMap.put("RO", R.drawable.flag_romania);
-        serverImageMap.put("MX", R.drawable.flag_mexico);
-        serverImageMap.put("SE", R.drawable.flag_sweden);
-        serverImageMap.put("CH", R.drawable.flag_switzerland);
-        serverImageMap.put("GB", R.drawable.flag_uk);
-        serverImageMap.put("NZ", R.drawable.flag_new_zealand);
-        serverImageMap.put("NO", R.drawable.flag_norway);
-        serverImageMap.put("DK", R.drawable.flag_denmark);
-        serverImageMap.put("FI", R.drawable.flag_finland);
-        serverImageMap.put("BE", R.drawable.flag_belgium);
-        serverImageMap.put("AT", R.drawable.flag_austria);
-        serverImageMap.put("CZ", R.drawable.flag_czech_republic);
-        serverImageMap.put("IE", R.drawable.flag_ireland);
-        serverImageMap.put("IT", R.drawable.flag_italy);
-        serverImageMap.put("ES", R.drawable.flag_spain);
-        serverImageMap.put("TR", R.drawable.flag_turkey);
-        serverImageMap.put("SG", R.drawable.flag_singapore);
-        serverImageMap.put("BR", R.drawable.flag_brazil);
-        serverImageMap.put("IN", R.drawable.flag_india);
-    }
-
-    private RegionsAPI regionModule;
-    private PeriodicWorkRequest pingWorker;
-    private PeriodicWorkRequest serversWorker;
+    private VibrateHandler vibrateHandler;
+    private PendingIntent pingIntent;
+    private PendingIntent fetchServersIntent;
     private Map<String, PIAServer> servers;
     private PIAServerInfo info;
     private Context context;
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public static void releaseInstance() {
+        instance = null;
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public PendingIntent getPingIntent() {
+        return pingIntent;
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public void setPingIntent(PendingIntent intent) {
+        pingIntent = intent;
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public PendingIntent getFetchServersIntent() {
+        return fetchServersIntent;
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public void setFetchServersIntent(PendingIntent intent) {
+        fetchServersIntent = intent;
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public static void setPrefs(Prefs preferences) {
+        prefs = preferences;
+    }
 
     private void preparePreferences() {
         if (prefs == null) {
@@ -171,8 +170,31 @@ public class PIAServerHandler {
         }
     }
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public static void setAlarmManager(AlarmManager manager) {
+        alarmManager = manager;
+    }
+
+    private AlarmManager getAlarmManager() {
+        if (alarmManager == null) {
+            alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        }
+        return alarmManager;
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public static void setRegionModule(RegionsAPI module) {
+        regionModule = module;
+    }
+
+    private void prepareRegionModule() {
+        if (regionModule == null) {
+            regionModule = new RegionsBuilder().build();
+        }
+    }
+
     private void offLoadResponse(ServerResponse response, boolean fromWeb, boolean gen4Enabled){
-        if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE) != gen4Enabled) {
+        if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true) != gen4Enabled) {
             DLog.e(TAG, "The next generation state changed in between requests. Return.");
             return;
         }
@@ -184,7 +206,7 @@ public class PIAServerHandler {
                 handler.info = response.getInfo();
                 handler.servers = response.getServers();
             }
-            
+
             if(PiaPrefHandler.getServerTesting(context)) {
                 PIAServer testServer = PiaPrefHandler.getTestServer(context);
                 if(!TextUtils.isEmpty(testServer.getIso()))
@@ -196,9 +218,9 @@ public class PIAServerHandler {
             }
             if(fromWeb && isValid){
                 if (gen4Enabled) {
-                    Prefs.with(context).set(GEN4_LAST_SERVER_BODY, response.getBody());
+                    prefs.set(GEN4_LAST_SERVER_BODY, response.getBody());
                 } else {
-                    Prefs.with(context).set(LAST_SERVER_BODY , response.getBody());
+                    prefs.set(LAST_SERVER_BODY , response.getBody());
                 }
                 PingHandler.getInstance(context).fetchPings(PingHandler.PING_TIME_INSTANT);
             } else if (fromWeb && !isValid && handler.servers != null && handler.info != null) {
@@ -207,50 +229,37 @@ public class PIAServerHandler {
         }
     }
 
-    public void loadEmbeddedServers(Context context){
-        try {
-            boolean gen4Enabled = Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE);
-            String lastBody = Prefs.with(context).get(LAST_SERVER_BODY, "");
+    public void loadPersistedServersIfAny(){
+        boolean gen4Enabled = prefs.get(PiaPrefHandler.GEN4_ACTIVE, true);
+        String gen4LastBody = prefs.get(GEN4_LAST_SERVER_BODY, "");
+        String legacyLastBody = prefs.get(LAST_SERVER_BODY, "");
 
-            if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
-                lastBody = Prefs.with(context).get(GEN4_LAST_SERVER_BODY, "");
-                if (TextUtils.isEmpty(lastBody)) {
-                    lastBody = RegionsUtils.GEN4_DEFAULT_RESPONSE;
-                }
-                RegionsResponse regionsResponse = RegionsUtils.INSTANCE.parse(lastBody);
-                Map<String, PIAServer> serverMap =
-                        ServerResponseHelper.Companion.adaptServers(regionsResponse);
-                PIAServerInfo serverInfo =
-                        ServerResponseHelper.Companion.adaptServersInfo(regionsResponse);
-                offLoadResponse(
-                        new ServerResponse(
-                                serverMap,
-                                serverInfo,
-                                RegionsUtils.INSTANCE.stringify(regionsResponse)
-                        ),
-                        false,
-                        gen4Enabled
-                );
-                return;
-            }
+        if (gen4Enabled && TextUtils.isEmpty(gen4LastBody)) {
+            DLog.d(TAG, "No persisted servers for GEN4. Return");
+            return;
+        }
 
-            if(TextUtils.isEmpty(lastBody)) {
-                InputStream serverjson = context.getAssets().open("servers.json");
-                BufferedReader r = new BufferedReader(new InputStreamReader(serverjson));
-                StringBuilder total = new StringBuilder();
-                String line;
-                while ((line = r.readLine()) != null) {
-                    total.append(line).append('\n');
-                }
-                String body = total.toString();
-                ServerResponse response = parseServers(body);
-                offLoadResponse(response, false, gen4Enabled);
-            } else {
-                ServerResponse response = parseServers(lastBody);
-                offLoadResponse(response, false, gen4Enabled);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!gen4Enabled && TextUtils.isEmpty(legacyLastBody)) {
+            DLog.d(TAG, "No persisted servers for Legacy. Return");
+            return;
+        }
+
+        if (gen4Enabled) {
+            RegionsResponse regionsResponse = RegionsUtils.INSTANCE.parse(gen4LastBody);
+            Map<String, PIAServer> serverMap =
+                    ServerResponseHelper.Companion.adaptServers(regionsResponse);
+            PIAServerInfo serverInfo =
+                    ServerResponseHelper.Companion.adaptServersInfo(regionsResponse);
+            ServerResponse response =
+                    new ServerResponse(
+                            serverMap,
+                            serverInfo,
+                            RegionsUtils.INSTANCE.stringify(regionsResponse)
+                    );
+            offLoadResponse(response, false, true);
+        } else {
+            ServerResponse response = parseServers(legacyLastBody);
+            offLoadResponse(response, false, false);
         }
     }
 
@@ -295,9 +304,9 @@ public class PIAServerHandler {
             return;
         }
 
-        if (!Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+        if (!prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
             DLog.e(TAG, "Error when updating latencies. GEN4 is disabled.");
-            DLog.e(TAG, "PingWorker state " + pingWorker);
+            DLog.e(TAG, "Ping intent state " + pingIntent);
             if (callback != null) {
                 callback.invoke(new Error("GEN4 is disabled"));
             }
@@ -323,8 +332,24 @@ public class PIAServerHandler {
                     List<RegionLowerLatencyInformation> response,
                     Error error
             ) {
+                if (!prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
+                    DLog.e(TAG, "Error on latencies completion. GEN4 is disabled.");
+                    if (callback != null) {
+                        callback.invoke(new Error("GEN4 is disabled"));
+                    }
+                    return null;
+                }
+
                 if (error != null) {
                     DLog.e(TAG, "Error when updating latencies " + error.getMessage());
+                    if (callback != null) {
+                        callback.invoke(error);
+                    }
+                    return null;
+                }
+
+                if (servers == null) {
+                    DLog.e(TAG, "Error when updating latencies. Invalid List of servers.");
                     if (callback != null) {
                         callback.invoke(error);
                     }
@@ -367,17 +392,18 @@ public class PIAServerHandler {
             return;
         }
 
-        boolean gen4Enabled = Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE);
+        boolean gen4Enabled = prefs.get(PiaPrefHandler.GEN4_ACTIVE, true);
         if (!gen4Enabled) {
             DLog.e(TAG, "Error when updating list of servers. GEN4 is disabled.");
-            DLog.e(TAG, "ServerWorker state " + serversWorker);
+            DLog.e(TAG, "Fetch servers intent state " + fetchServersIntent);
             if (callback != null) {
                 callback.invoke(new Error("GEN4 is disabled"));
             }
             return;
         }
 
-        regionModule.fetch(new Function2<RegionsResponse, Error, Unit>() {
+        Locale locale = ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
+        regionModule.fetchRegions(locale.getLanguage(), new Function2<RegionsResponse, Error, Unit>() {
             @Override
             public Unit invoke(@Nullable RegionsResponse regionsResponse, @Nullable Error error) {
                 if (error != null) {
@@ -429,12 +455,11 @@ public class PIAServerHandler {
     }
 
     public void fetchServers(Context context, boolean force, @Nullable Function1<Error, Unit> callback) {
-        Prefs prefs = Prefs.with(context);
         long lastGrab = prefs.get(LAST_SERVER_GRAB, 0L);
         long now = Calendar.getInstance().getTimeInMillis();
         if (force || (now - lastGrab > SERVER_TIME_DIFFERENCE || ServerAPI.forceUpdate(context))) {
             setServerListFetchState(ServerListUpdateState.STARTED);
-            boolean gen4Enabled = Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE);
+            boolean gen4Enabled = prefs.get(PiaPrefHandler.GEN4_ACTIVE, true);
             if (gen4Enabled) {
                 triggerFetchServers(new Function1<Error, Unit>() {
                     @Override
@@ -458,22 +483,28 @@ public class PIAServerHandler {
 
                 // We set an initial delay as the initial fetching above will handle the initial
                 // update of the server's list and latencies.
-                if (serversWorker == null) {
-                    serversWorker = new PeriodicWorkRequest.Builder(
-                            FetchServersWorker.class,
-                            24,
-                            TimeUnit.HOURS
-                    ).setInitialDelay(24, TimeUnit.HOURS).build();
-                    WorkManager.getInstance(context).enqueue(serversWorker);
+                if (fetchServersIntent == null) {
+                    fetchServersIntent = PendingIntent.getBroadcast(
+                            context, 0, new Intent(context, FetchServersReceiver.class), PendingIntent.FLAG_CANCEL_CURRENT
+                    );
+                    getAlarmManager().setRepeating(
+                            AlarmManager.RTC,
+                            AlarmManager.INTERVAL_DAY,
+                            AlarmManager.INTERVAL_DAY,
+                            fetchServersIntent
+                    );
                 }
 
-                if (pingWorker == null) {
-                    pingWorker = new PeriodicWorkRequest.Builder(
-                            PingWorker.class,
-                            1,
-                            TimeUnit.HOURS
-                    ).setInitialDelay(1, TimeUnit.HOURS).build();
-                    WorkManager.getInstance(context).enqueue(pingWorker);
+                if (pingIntent == null) {
+                    pingIntent = PendingIntent.getBroadcast(
+                            context, 0, new Intent(context, PingReceiver.class), PendingIntent.FLAG_CANCEL_CURRENT
+                    );
+                    getAlarmManager().setRepeating(
+                            AlarmManager.RTC,
+                            AlarmManager.INTERVAL_HOUR,
+                            AlarmManager.INTERVAL_HOUR,
+                            pingIntent
+                    );
                 }
             } else {
                 FetchServersTask task = new FetchServersTask(context, new IPIACallback<ServerResponse>() {
@@ -488,39 +519,34 @@ public class PIAServerHandler {
                 });
                 task.execute("");
             }
-            Prefs.with(context).set(LAST_SERVER_GRAB, Calendar.getInstance().getTimeInMillis());
+            prefs.set(LAST_SERVER_GRAB, Calendar.getInstance().getTimeInMillis());
         }
 
         // Regardless of the time condition above. If GEN4 is disabled. Cancel its workers.
-        if (!Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
-            if (pingWorker != null) {
-                WorkManager.getInstance(context).cancelWorkById(pingWorker.getId());
-                pingWorker = null;
+        if (!prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
+            if (pingIntent != null) {
+                getAlarmManager().cancel(pingIntent);
+                pingIntent = null;
             }
-            if (serversWorker != null) {
-                WorkManager.getInstance(context).cancelWorkById(serversWorker.getId());
-                serversWorker = null;
+            if (fetchServersIntent != null) {
+                getAlarmManager().cancel(fetchServersIntent);
+                fetchServersIntent = null;
             }
         }
     }
 
     public Vector<PIAServer> getAutoRegionServers() {
         Vector<PIAServer> as = new Vector<>();
-        if (info != null) {
-            for (String autoregion : info.getAutoRegions()) {
-                PIAServer ps = servers.get(autoregion);
-                if (ps == null)
-                    DLog.d("PIA", "No server entry for autoregion: " + autoregion);
-                else
-                    as.add(ps);
-            }
-        } else { // rare case after the validation
-            Prefs.with(context).set(LAST_SERVER_BODY, "");
-            Prefs.with(context).set(GEN4_LAST_SERVER_BODY, "");
-            loadEmbeddedServers(context);
-            if (info != null) {
-                as = getAutoRegionServers();
-            }
+        if (info == null) {
+            return as;
+        }
+
+        for (String autoRegion : info.getAutoRegions()) {
+            PIAServer ps = servers.get(autoRegion);
+            if (ps == null)
+                DLog.d("PIA", "No server entry for autoregion: " + autoRegion);
+            else
+                as.add(ps);
         }
         return as;
     }
@@ -546,22 +572,25 @@ public class PIAServerHandler {
         return servers;
     }
 
-    public boolean isSelectedRegionAuto(Context a) {
-        // Server region
-        String region = Prefs.with(a).get(SELECTEDREGION, "");
+    public boolean isSelectedRegionAuto(Context context) {
+        if (servers == null) {
+            return true;
+        }
+
+        String region = prefs.get(SELECTEDREGION, "");
         return !servers.containsKey(region);
     }
 
-    public PIAServer getSelectedRegion(Context c, boolean returnNullonAuto) {
+    public PIAServer getSelectedRegion(Context context, boolean returnNullonAuto) {
         // Server region
-        String region = Prefs.with(c).get(SELECTEDREGION, "");
+        String region = prefs.get(SELECTEDREGION, "");
 
         if (servers.containsKey(region)) {
             return servers.get(region);
         } else if (returnNullonAuto) {
             return null;
         } else {
-            if (Prefs.with(context).getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+            if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
                 PIAServer.Protocol protocol = ServerUtils.getUserSelectedProtocol(context);
                 Collection<PIAServer> autoRegionServers = getAutoRegionServers();
                 PIAServer lowestKnownLatencyServer = null;
@@ -594,7 +623,7 @@ public class PIAServerHandler {
                 }
                 return lowestKnownLatencyServer;
             }
-            Map<String, Long> pingMap = PingHandler.getInstance(c).getPings();
+            Map<String, Long> pingMap = PingHandler.getInstance(context).getPings();
             return getSortedServer(getAutoRegionServers(), new PingComperator(pingMap))[0];
         }
     }
@@ -671,7 +700,7 @@ public class PIAServerHandler {
     }
 
     public void saveSelectedServer(Context context, String region) {
-        Prefs.with(context).set(SELECTEDREGION, region);
+        prefs.set(SELECTEDREGION, region);
         PiaPrefHandler.addQuickConnectItem(context, region);
     }
 
@@ -699,7 +728,7 @@ public class PIAServerHandler {
 
         @Override
         public int compare(PIAServer lhs, PIAServer rhs) {
-            if (prefs.getBoolean(PiaPrefHandler.GEN4_ACTIVE)) {
+            if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
                 return compareGEN4(lhs, rhs);
             } else {
                 return compareLegacy(lhs, rhs);
@@ -795,16 +824,14 @@ public class PIAServerHandler {
     }
 
     public int getFlagResource(PIAServer server){
-        Integer flagResource = serverImageMap.get(server.getIso());
-        if(flagResource == null){
-            String resName = server.getName();
-            if(server.isTesting())
-                resName = resName.replace("Test Server", "").trim();
-            resName = String.format(Locale.US, "flag_%s", resName.replace(" ", "_").replace(",", "").toLowerCase(Locale.US));
-            flagResource = context.getResources().getIdentifier(resName, "drawable", context.getPackageName());
-            if(flagResource == 0){
-                flagResource = R.drawable.flag_world;
-            }
+        String resName = server.getIso();
+        if (server.isTesting()) {
+            resName = resName.replace("Test Server", "").trim();
+        }
+        resName = String.format(Locale.US, "flag_%s", resName.replace(" ", "_").replace(",", "").toLowerCase(Locale.US));
+        int flagResource = context.getResources().getIdentifier(resName, "drawable", context.getPackageName());
+        if(flagResource == 0){
+            flagResource = R.drawable.flag_world;
         }
         return flagResource;
     }

@@ -21,10 +21,8 @@ package com.privateinternetaccess.android.pia;
 import android.content.Context;
 
 import com.privateinternetaccess.android.pia.impl.AccountImpl;
-import com.privateinternetaccess.android.pia.impl.ConnectionImpl;
 import com.privateinternetaccess.android.pia.impl.VPNImpl;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
-import com.privateinternetaccess.android.pia.interfaces.IConnection;
 import com.privateinternetaccess.android.pia.interfaces.IFactory;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 
@@ -42,11 +40,6 @@ public class PIAFactory implements IFactory {
     }
 
     @Override
-    public IConnection getConnection(Context context){
-        return new ConnectionImpl(context);
-    }
-
-    @Override
     public IVPN getVPN(Context context){
         return new VPNImpl(context);
     }
@@ -54,5 +47,4 @@ public class PIAFactory implements IFactory {
     public IAccount getAccount(Context context) {
         return new AccountImpl(context);
     }
-
 }

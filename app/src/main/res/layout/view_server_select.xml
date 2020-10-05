@@ -46,16 +46,31 @@
             android:textColor="@color/grey55"
             />
 
-        <TextView
-            android:id="@+id/fragment_connect_server_name"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Automatic server selection"
-            android:ellipsize="end"
-            android:textAppearance="@style/Style07"
-            android:textColor="?attr/grey20_white"
-            android:layout_gravity="left"
-            />
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/fragment_server_geo"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="5dp"
+                app:srcCompat="@drawable/ic_geo_unselected"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/fragment_connect_server_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:ellipsize="end"
+                android:textAppearance="@style/Style07"
+                android:textColor="?attr/grey20_white"
+                tools:text="Automatic server selection" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -64,8 +79,7 @@
         android:layout_height="20dp"
         android:id="@+id/connect_server_list_progress_bar"
         android:visibility="gone"
-        android:layout_centerInParent="true"
-        />
+        android:layout_centerInParent="true" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="120dp"
@@ -78,8 +92,6 @@
         android:id="@+id/fragment_connect_server_map"
         android:layout_width="120dp"
         android:layout_height="60dp"
-        android:layout_alignParentRight="true" >
-
-    </com.privateinternetaccess.android.ui.views.RegionMapView>
+        android:layout_alignParentRight="true" />
 
 </RelativeLayout>

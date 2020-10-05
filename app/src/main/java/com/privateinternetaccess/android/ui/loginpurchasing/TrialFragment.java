@@ -133,7 +133,7 @@ public class TrialFragment extends Fragment{
                 if(validEmail && validPin) {
                     //send off
                     PiaPrefHandler.saveTempTrialData(etEmail.getContext(), new TrialData(email, cleanedPin));
-                    ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true, true);
+                    ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true, true, false);
                     //((LoginPurchaseActivity) getActivity()).switchToProgress();
                 }
                 if(!validEmail) {
