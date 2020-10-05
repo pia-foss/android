@@ -1,3 +1,6 @@
+include ':account'
+include ':regions'
+include ':core'
 include ':app'
 include ':openvpnTunnel'
 
