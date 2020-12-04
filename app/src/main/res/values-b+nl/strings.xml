@@ -170,7 +170,7 @@
     <string name="save">Opslaan</string>
     <string name="saved">Opgeslagen</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">De getoonde snelheden zijn van verkeer via uw VPN-verbinding</string>
-    <string name="ip_short">OPENBARE IP</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">Te veel mislukte inlogpogingen met deze gebruikersnaam. Probeer het later opnieuw.</string>
     <string name="tap_to_connect">TIK OM TE VERBINDEN</string>
     <string name="building_configration">Configuratie bouwen...</string>
@@ -553,9 +553,6 @@
     <string name="tunnel_error_already_exists">Tunnel \'%s\' bestaat al</string>
     <string name="tunnel_error_invalid_name">Ongeldige naam</string>
     <string name="preview">VOORBEELD</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">Volgende-generatienetwerk</string>
-    <string name="gen4_next_generation_network_message">De VPN-verbinding moet worden verbroken om het servernetwerk te wijzigen.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Geolocatie-regio\'s opnemen</string>
     <!-- Rating -->
@@ -577,6 +574,7 @@
     <string name="purchasing_return">Wilt u teruggaan naar het beginscherm? U kunt het aankoopproces op elk moment hervatten door te klikken op Inloggen &gt; Inloggen met aankoopbewijs.</string>
     <string name="purchasing_magic_link">Inloggen met de magische link in je e-mail</string>
     <string name="purchasing_magic_send">LINK VERZENDEN</string>
+    <string name="magic_login_enter_email">E-mail invoeren</string>
     <string name="purchasing_magic_success">Controleer je Postvak IN voor een inloglink.</string>
     <string name="connection_tile_header">VERBINDING</string>
     <string name="connection_tile_tcp">TCP</string>

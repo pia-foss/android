@@ -170,7 +170,7 @@
     <string name="save">Kaydet</string>
     <string name="saved">Kaydedildi</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Gösterilen hızlar, VPN bağlantınız üzerindeki veri akışını belirtir</string>
-    <string name="ip_short">Herkese Açık IP</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">Bu kullanıcı adı ile birden fazla kez başarısız oturum açma girişiminde bulunuldu. Lütfen daha sonra tekrar deneyin.</string>
     <string name="tap_to_connect">BAĞLANMAK İÇİN DOKUN</string>
     <string name="building_configration">Yapılandırma kuruluyor…</string>
@@ -553,9 +553,6 @@
     <string name="tunnel_error_already_exists">“%s” tüneli zaten mevcut</string>
     <string name="tunnel_error_invalid_name">Geçersiz ad</string>
     <string name="preview">ÖNİZLEME</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">Yeni Nesil ağ</string>
-    <string name="gen4_next_generation_network_message">Sunucu ağını değiştirmek için VPN bağlantısının sonlandırılması gerekiyor.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Coğrafi konum bölgelerini dahil et</string>
     <!-- Rating -->
@@ -577,6 +574,7 @@
     <string name="purchasing_return">Ana ekrana dönmek ister misiniz? Oturum açma ekranından alışveriş ekstrenizdeki bilgilerle oturum açarak abonelik işlemini dilediğiniz zaman tamamlayabilirsiniz.</string>
     <string name="purchasing_magic_link">Sihirli e-posta bağlantısını kullanarak giriş yap</string>
     <string name="purchasing_magic_send">BAĞLANTI GÖNDER</string>
+    <string name="magic_login_enter_email">E-posta girin</string>
     <string name="purchasing_magic_success">Giriş bağlantısı için lütfen e-postanı kontrol et</string>
     <string name="connection_tile_header">BAĞLANTI</string>
     <string name="connection_tile_tcp">TCP</string>
@@ -595,7 +593,7 @@
     <string name="nmt_connect">Her zaman VPN bağlantısı yap</string>
     <string name="nmt_retain">VPN durumunu koru</string>
     <string name="nmt_manage_title">Otomasyonu Yönet</string>
-    <string name="nmt_manage_description">PIA\'nın, Wi-Fi veya hücresel ağlara bağlanırken nasıl davranacağını yapılandır. Elle bağlantının kesilmesi buna dahil değildir.</string>
+    <string name="nmt_manage_description">PIA\'nın, Wi-Fi veya hücresel ağlara bağlanırken nasıl davranacağını yapılandırın. Elle bağlantının kesilmesi buna dâhil değildir.</string>
     <string name="nmt_add_description">Yeni kural eklemek için bir Wi-Fi ağı seç.</string>
     <string name="nmt_rule_for">%s için kural</string>
     <string name="nmt_remove_rule">Kuralı kaldır</string>

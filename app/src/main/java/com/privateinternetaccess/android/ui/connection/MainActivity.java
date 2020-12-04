@@ -200,7 +200,6 @@ public class MainActivity extends BaseActivity {
             mDrawer.deselect();
         }
 
-        fetchClientStatus();
         organizeWidgets();
     }
 

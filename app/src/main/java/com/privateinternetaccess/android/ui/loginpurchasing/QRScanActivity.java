@@ -18,13 +18,10 @@
 
 package com.privateinternetaccess.android.ui.loginpurchasing;
 
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import android.view.KeyEvent;
 
-import com.journeyapps.barcodescanner.BarcodeView;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;

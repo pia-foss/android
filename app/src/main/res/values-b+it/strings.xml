@@ -171,7 +171,7 @@ privateinternetaccess.com</string>
     <string name="save">Salva</string>
     <string name="saved">Salvato</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Le velocità mostrate sono relative al traffico sulla tua connessione VPN</string>
-    <string name="ip_short">IP pubblico</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">Troppi tentativi d\'accesso non riusciti con questo nome utente. Riprova più tardi.</string>
     <string name="tap_to_connect">TOCCA PER CONNETTERE</string>
     <string name="building_configration">Creando configurazione...</string>
@@ -554,9 +554,6 @@ privateinternetaccess.com</string>
     <string name="tunnel_error_already_exists">Tunnel “%s” già esistente</string>
     <string name="tunnel_error_invalid_name">Nome non valido</string>
     <string name="preview">ANTEPRIMA</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">Rete di nuova generazione</string>
-    <string name="gen4_next_generation_network_message">Per cambiare la rete server, il VPN dev\'essere disconnesso.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Includi regioni geolocalizzate</string>
     <!-- Rating -->
@@ -578,6 +575,7 @@ privateinternetaccess.com</string>
     <string name="purchasing_return">Vuoi tornare alla schermata principale? Puoi continuare il processo di abbonamento in qualsiasi momento cliccando su Accedi-&gt;Accedi mediante ricevuta d\'acquisto.</string>
     <string name="purchasing_magic_link">Accedi usando il link nell\'email</string>
     <string name="purchasing_magic_send">INVIA LINK</string>
+    <string name="magic_login_enter_email">Inserisci email</string>
     <string name="purchasing_magic_success">Controlla la tua mail per ottenere il link d\'accesso.</string>
     <string name="connection_tile_header">CONNESSIONE</string>
     <string name="connection_tile_tcp">TCP</string>

@@ -19,7 +19,6 @@
 package com.privateinternetaccess.android.pia.interfaces;
 
 import com.privateinternetaccess.android.PIACallbacks;
-import com.privateinternetaccess.android.pia.model.PurchasingTestingData;
 
 import java.io.File;
 
@@ -60,38 +59,6 @@ public interface IBuilder {
      * @return IBuilder
      */
     IBuilder enabledTileService();
-
-    /**
-     * default is false.
-     *
-     * @param portForwarding
-     * @return
-     */
-    IBuilder setPortForwardingEnabled(boolean portForwarding);
-
-    /**
-     * default is true.
-     *
-     * @param ipTracking
-     * @return
-     */
-    IBuilder setIPTrackingEnabled(boolean ipTracking);
-
-    /**
-     * Default is false.
-     *
-     * @param maceEnabled
-     * @return
-     */
-    IBuilder setMACEEnabled(boolean maceEnabled);
-
-    IBuilder setOnlyAllowedApp(String... packageNames);
-
-    IBuilder setPurchaseTest(PurchasingTestingData data);
-
-    IBuilder addVPNListener(VpnStatus.StateListener listener);
-
-    IBuilder removeVPNListener(VpnStatus.StateListener listener);
 
     /**
      * sets {@link com.privateinternetaccess.android.pia.utils.DLog} peremeters so that it will log, log to a file or log only certain things to a file.

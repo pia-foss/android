@@ -216,12 +216,6 @@
             android:defaultValue="false"
             app:iconSpaceReserved="false"/>
 
-        <androidx.preference.SwitchPreferenceCompat
-            android:key="gen4_active_default"
-            android:title="@string/gen4_next_generation_network"
-            android:defaultValue="true"
-            app:iconSpaceReserved="false"/>
-
         <PreferenceScreen
             android:key="updates"
             android:title="@string/settings_calling_header"

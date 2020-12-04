@@ -23,37 +23,46 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:scrollbarStyle="outsideOverlay">
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
-        android:background="@color/windowBackground"
-        >
+        android:background="@color/windowBackground">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/fragment_trial_logo"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:layout_marginTop="28dp"
-            app:srcCompat="@drawable/ic_pia_logo"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_pia_logo_new"
+            android:clickable="false"
+            android:focusable="false" />
 
         <TextView
             style="@style/Style02"
-            android:layout_marginTop="68dp"
+            android:layout_marginTop="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/select_vpn_plan"
             android:textColor="?attr/grey20_white"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal"
+            android:clickable="false"
+            android:focusable="false" />
 
         <TextView
             style="@style/Style08"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/_7_day_money_back_guarantee"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal"
+            android:clickable="false"
+            android:focusable="false" />
 
         <RelativeLayout
             android:id="@+id/fragment_purchasing_yearly"
@@ -63,7 +72,7 @@
             android:layout_height="110dp"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
-            android:layout_marginTop="30dp">
+            android:layout_marginTop="16dp" >
             
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/fragment_purchasing_yearly_icon"
@@ -195,8 +204,8 @@
             android:visibility="gone"
             tools:visibility="gone"
             android:text="@string/no_internet_click_here"
-            >
-        </TextView>
+            android:clickable="false"
+            android:focusable="false" />
 
         <RelativeLayout
             android:layout_marginLeft="25dp"
@@ -212,13 +221,16 @@
                 android:layout_marginTop="10dp"
                 android:id="@+id/fragment_purchasing_button"
                 android:text="@string/buy_now_button"
-                />
+                android:clickable="true"
+                android:focusable="true" />
 
             <ProgressBar
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:id="@+id/fragment_purchasing_progress"
                 android:visibility="gone"
+                android:clickable="false"
+                android:focusable="false"
                 android:layout_centerInParent="true"
                 />
         </RelativeLayout>
@@ -237,7 +249,10 @@
             android:textStyle="normal"
             android:textColor="@color/grey55"
             android:lineSpacingExtra="6sp"
-            android:gravity="center_horizontal" />
+            android:gravity="center_horizontal"
+            android:clickable="true"
+            android:focusable="true"  />
 
     </LinearLayout>
+
 </ScrollView>

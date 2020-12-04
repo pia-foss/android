@@ -166,7 +166,6 @@ public class QuickConnectView extends FrameLayout {
 
             if (PiaPrefHandler.isFavorite(getContext(), ps.getName())) {
                 favorites[currentIndex++].setVisibility(View.VISIBLE);
-                String latency = ServerUtils.getLatencyForActiveSetting(getContext(), ps.getLatencies());
                 validServers.add(
                         new ServerItem(
                                 ps.getKey(),
@@ -176,7 +175,7 @@ public class QuickConnectView extends FrameLayout {
                                 false,
                                 ps.isAllowsPF(),
                                 ps.isGeo(),
-                                latency
+                                ps.getLatency()
                         )
                 );
             }
@@ -187,7 +186,6 @@ public class QuickConnectView extends FrameLayout {
                 PIAServer server = fetchServer(savedServers[i]);
 
                 if (server != null && !PiaPrefHandler.isFavorite(getContext(), server.getName())) {
-                    String latency = ServerUtils.getLatencyForActiveSetting(getContext(), server.getLatencies());
                     validServers.add(
                             new ServerItem(
                                     server.getKey(),
@@ -197,7 +195,7 @@ public class QuickConnectView extends FrameLayout {
                                     false,
                                     server.isAllowsPF(),
                                     server.isGeo(),
-                                    latency
+                                    server.getLatency()
                             )
                     );
                 }
@@ -222,7 +220,6 @@ public class QuickConnectView extends FrameLayout {
                 }
 
                 countryIsoAdded.add(ps.getIso());
-                String latency = ServerUtils.getLatencyForActiveSetting(getContext(), ps.getLatencies());
                 validServers.add(
                         new ServerItem(
                                 ps.getKey(),
@@ -232,7 +229,7 @@ public class QuickConnectView extends FrameLayout {
                                 false,
                                 ps.isAllowsPF(),
                                 ps.isGeo(),
-                                latency
+                                ps.getLatency()
                         )
                 );
             }
@@ -261,7 +258,9 @@ public class QuickConnectView extends FrameLayout {
                 flags[i].setOnClickListener(null);
             }
             else {
+                flags[i].setContentDescription(servers[i].getName());
                 flags[i].setImageResource(servers[i].getFlagId());
+                names[i].setContentDescription(servers[i].getName());
                 names[i].setText(servers[i].getIso());
 
                 final String selectedRegion = servers[i].getKey();

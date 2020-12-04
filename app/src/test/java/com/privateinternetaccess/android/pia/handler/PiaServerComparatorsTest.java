@@ -51,8 +51,6 @@ public class PiaServerComparatorsTest {
 
     List<PIAServer> servers;
     List<PIAServer> serversWithTesting;
-    Map<String, Long> pings;
-    Map<String, Long> pingsWithTesting;
     HashSet<String> favorites;
 
     final String[] serverNames = new String[]{"US San Francisco","JP Tokyo", "UK London",
@@ -80,16 +78,13 @@ public class PiaServerComparatorsTest {
         Context context = ApplicationProvider.getApplicationContext();
         Prefs.setKeyStoreUtils(Mockito.mock(KeyStoreUtils.class));
         Prefs prefsSpy = Mockito.spy(Prefs.with(context));
-        Mockito.when(prefsSpy.get(PiaPrefHandler.GEN4_ACTIVE, true)).thenReturn(false);
         PIAServerHandler.setPrefs(prefsSpy);
     }
 
     public void initLists(){
         servers = new ArrayList<>();
-        pings = new HashMap<>();
         favorites = new HashSet<>();
         serversWithTesting = new ArrayList<>();
-        pingsWithTesting = new HashMap<>();
 
         for(int i = 0; i < serverNames.length; i++){
             String s = serverNames[i];
@@ -97,14 +92,12 @@ public class PiaServerComparatorsTest {
             String key = nameToKey(s);
             server.setKey(key);
             server.setName(s);
+            server.setLatency(String.valueOf(pingsDefault[i]));
             servers.add(server);
-
-            pings.put(key, pingsDefault[i]);
         }
 
         favorites.addAll(Arrays.asList(favs));
         serversWithTesting.addAll(servers);
-        pingsWithTesting.putAll(pings);
         initTestServers();
     }
 
@@ -116,16 +109,12 @@ public class PiaServerComparatorsTest {
         test1.setTesting(true);
         serversWithTesting.add(test1);
 
-        pingsWithTesting.put(key, 476L);
-
         PIAServer test2 = new PIAServer();
         test2.setName("VS Fortuna");
         String key2 = nameToKey(test2.getName());
         test2.setKey(key2);
         test2.setTesting(true);
         serversWithTesting.add(test2);
-
-        pingsWithTesting.put(key2, 240L);
     }
 
 
@@ -136,17 +125,9 @@ public class PiaServerComparatorsTest {
     //creation test fails due to needing context
 
     @Test
-    public void sortingPingTest_validateAgainstNullPings(){
-        List<PIAServer> sortedByPing = new ArrayList<>(servers);
-        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator(null));
-        PIAServer first = sortedByPing.get(0);
-        Assert.assertEquals("us_san_francisco", first.getKey());
-    }
-
-    @Test
     public void sortingPingTest_firstPosition(){
         List<PIAServer> sortedByPing = new ArrayList<>(servers);
-        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator(pings));
+        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator());
         PIAServer first = sortedByPing.get(0);
         Assert.assertEquals("us_new_york", first.getKey());
     }
@@ -154,7 +135,7 @@ public class PiaServerComparatorsTest {
     @Ignore("Waiting for the changes coming down to master with 3.7.0. Specifically MR #399")
     public void sortingPingTest_fourthPosition(){
         List<PIAServer> sortedByPing = new ArrayList<>(servers);
-        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator(pings));
+        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator());
         PIAServer fourth = sortedByPing.get(3);
         Assert.assertEquals("us_san_francisco", fourth.getKey());
     }
@@ -162,7 +143,7 @@ public class PiaServerComparatorsTest {
     @Ignore("Waiting for the changes coming down to master with 3.7.0. Specifically MR #399")
     public void sortingPingTest_lastPosition(){
         List<PIAServer> sortedByPing = new ArrayList<>(servers);
-        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator(pings));
+        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator());
         PIAServer last = sortedByPing.get(sortedByPing.size()-1);
         Assert.assertEquals("ht_halloweentown", last.getKey());
     }
@@ -222,7 +203,7 @@ public class PiaServerComparatorsTest {
     @Ignore("Waiting for the changes coming down to master with 3.7.0. Specifically MR #399")
     public void sortingPingTest_withTestingServers_first(){
         List<PIAServer> sortedByPing = new ArrayList<>(serversWithTesting);
-        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator(pingsWithTesting));
+        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator());
         PIAServer first = sortedByPing.get(0);
         Assert.assertEquals("us_ceres_station", first.getKey());
     }
@@ -230,7 +211,7 @@ public class PiaServerComparatorsTest {
     @Ignore("Waiting for the changes coming down to master with 3.7.0. Specifically MR #399")
     public void sortingPingTest_withTestingServers_second(){
         List<PIAServer> sortedByPing = new ArrayList<>(serversWithTesting);
-        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator(pingsWithTesting));
+        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator());
         PIAServer first = sortedByPing.get(1);
         Assert.assertEquals("vs_fortuna", first.getKey());
     }
@@ -238,7 +219,7 @@ public class PiaServerComparatorsTest {
     @Ignore("Waiting for the changes coming down to master with 3.7.0. Specifically MR #399")
     public void sortingPingTest_withTestingServers_firstNonTesting(){
         List<PIAServer> sortedByPing = new ArrayList<>(serversWithTesting);
-        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator(pingsWithTesting));
+        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator());
         PIAServer first = sortedByPing.get(2);
         Assert.assertEquals("us_new_york", first.getKey());
     }
@@ -263,8 +244,6 @@ public class PiaServerComparatorsTest {
     public void close(){
         servers = null;
         serversWithTesting = null;
-        pings = null;
-        pingsWithTesting = null;
         favorites = null;
     }
 }

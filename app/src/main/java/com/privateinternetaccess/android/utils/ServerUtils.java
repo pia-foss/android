@@ -25,18 +25,7 @@ import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.core.model.PIAServer;
 
-import java.util.Map;
-
 public class ServerUtils {
-    public static String getLatencyForActiveSetting(
-            Context context,
-            Map<PIAServer.Protocol, String> latencies
-    ) {
-        if (latencies == null) {
-            return "";
-        }
-        return latencies.get(getUserSelectedProtocol(context));
-    }
 
     public static PIAServer.Protocol getUserSelectedProtocol(Context context) {
         PIAServer.Protocol protocol = null;

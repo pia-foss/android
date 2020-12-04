@@ -24,8 +24,8 @@ import android.content.Intent;
 import android.net.VpnService;
 
 import com.privateinternetaccess.android.pia.PIAFactory;
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.PingDelayStartHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.ui.LauncherActivity;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
@@ -45,11 +45,13 @@ public class OnAppUpdatedReceiver extends BroadcastReceiver {
         IVPN vpn = PIAFactory.getInstance().getVPN(context);
         if(isLoggedIn && !vpn.isVPNActive() && PiaPrefHandler.isConnectOnAppUpdate(context)) {
             // if pia is updated, if logged in, if vpn not already active, if option is active.
-            if (isPrepared) { // if all of it is on, make sure we have permissions
-                PingDelayStartHandler handler = new PingDelayStartHandler();
-                handler.setTimeDiff(0);
-                handler.startPings(context);
+            if (isPrepared) {
+                PIAServerHandler.getInstance(context).triggerLatenciesUpdate(error -> {
+                    PIAFactory.getInstance().getVPN(context).start();
+                    return null;
+                });
             } else {
+                // if all of it is on, make sure we have permissions
                 Intent i = new Intent(context, LauncherActivity.class);
                 i.putExtra(MainActivity.START_VPN_SHORTCUT, true);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

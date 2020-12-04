@@ -67,7 +67,6 @@ import butterknife.ButterKnife;
 /**
  * Created by half47 on 3/13/17.
  */
-
 public class LoginPurchaseActivity extends BaseActivity {
 
     public static final String EXTRA_GOTO_PURCHASING = "gotoPurchasing";
@@ -174,25 +173,19 @@ public class LoginPurchaseActivity extends BaseActivity {
 
     private void initView() {
         Fragment frag = getSupportFragmentManager().findFragmentById(R.id.container);
-        if(frag == null){
+        if (frag == null){
             if (!PiaPrefHandler.hasSetEmail(this) && !TextUtils.isEmpty(PiaPrefHandler.getAuthToken(this))) {
-                switchToPurchasingProcess(true, false, false);
-            }
-            else if (!PIAApplication.isAndroidTV(getApplicationContext())) {
+                switchToPurchasingProcess(true, false);
+            } else {
                 frag = new GetStartedFragment();
                 FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
                 trans.add(R.id.container, frag);
                 trans.commit();
                 if(!PiaPrefHandler.isPurchasingProcessDone(getApplicationContext())){
-                    switchToPurchasingProcess(true, false, false);
-                } else if(showPurchasing)
+                    switchToPurchasingProcess(true, false);
+                } else if(showPurchasing) {
                     switchToPurchasing();
-            }
-            else {
-                frag = new LoginFragment();
-                FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
-                trans.add(R.id.container, frag);
-                trans.commit();
+                }
             }
         }
     }
@@ -230,10 +223,9 @@ public class LoginPurchaseActivity extends BaseActivity {
         });
     }
 
-    public void switchToPurchasingProcess(final boolean fireOffPurchasing, final boolean isTrial, final boolean hasEmail){
+    public void switchToPurchasingProcess(final boolean fireOffPurchasing, final boolean isTrial){
         runOnUiThread(() -> {
             PurchasingProcessFragment frag = new PurchasingProcessFragment();
-            frag.setShowEmail(hasEmail);
             frag.setFirePurchasing(fireOffPurchasing);
             frag.setTrial(isTrial);
             getSupportFragmentManager().beginTransaction().add(R.id.container, frag).commit();
@@ -308,7 +300,7 @@ public class LoginPurchaseActivity extends BaseActivity {
     public void onSystemPurchaseEvent(SystemPurchaseEvent event){
         if(event.isSuccess()){
             PiaPrefHandler.setHasSetEmail(this, false);
-            switchToPurchasingProcess(true, false, false);
+            switchToPurchasingProcess(true, false);
         }
     }
 
@@ -365,7 +357,7 @@ public class LoginPurchaseActivity extends BaseActivity {
             PurchaseData data = account.temporaryPurchaseData();
             // If purchasing has failed, retry
             if(data != null){
-                switchToPurchasingProcess(true, false, false);
+                switchToPurchasingProcess(true, false);
             }
         }
     }

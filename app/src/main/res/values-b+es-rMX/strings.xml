@@ -170,7 +170,7 @@
     <string name="save">Guardar</string>
     <string name="saved">Guardado</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Las velocidades mostradas son del tráfico en su conexión VPN.</string>
-    <string name="ip_short">IP público</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">Demasiados intentos fallidos de inicio de sesión con este nombre de usuario. Por favor, inténtalo de nuevo más tarde.</string>
     <string name="tap_to_connect">TOCA PARA CONECTAR</string>
     <string name="building_configration">Creando la configuración...</string>
@@ -553,9 +553,6 @@
     <string name="tunnel_error_already_exists">Ya existe el túnel \"%s\"</string>
     <string name="tunnel_error_invalid_name">El nombre no es válido</string>
     <string name="preview">VISTA PREVIA</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">Red de nueva generación</string>
-    <string name="gen4_next_generation_network_message">La VPN tuvo que desconectarse para cambiar la red del servidor.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Incluye regiones geolocalizadas</string>
     <!-- Rating -->
@@ -577,6 +574,7 @@
     <string name="purchasing_return">¿Quieres regresar a la página de inicio? Puedes reiniciar el proceso de suscripción en cualquier momento haciendo clic en Iniciar sesión-&gt;Iniciar sesión usando recibo de compra.</string>
     <string name="purchasing_magic_link">Iniciar sesión usando el enlace mágico de correo electrónico</string>
     <string name="purchasing_magic_send">ENVIAR ENLACE</string>
+    <string name="magic_login_enter_email">Introduzca el correo electrónico</string>
     <string name="purchasing_magic_success">Encuentra el enlace de inicio de sesión en tu correo electrónico</string>
     <string name="connection_tile_header">CONEXIÓN</string>
     <string name="connection_tile_tcp">TCP</string>
@@ -595,7 +593,7 @@
     <string name="nmt_connect">Conectar VPN siempre</string>
     <string name="nmt_retain">Conservar el estado del VPN</string>
     <string name="nmt_manage_title">Gestionar automatización</string>
-    <string name="nmt_manage_description">Configura cómo se comporta PIA en una conexión Wi-Fi o red celular. Esto excluye la desconexión manual.</string>
+    <string name="nmt_manage_description">Configure cómo se comporta PIA en una conexión Wi-Fi o red celular. Esto no incluye la desconexión manual.</string>
     <string name="nmt_add_description">Escoge una red Wi-Fi para agregar una nueva regla.</string>
     <string name="nmt_rule_for">Regla para %s</string>
     <string name="nmt_remove_rule">Eliminar regla</string>

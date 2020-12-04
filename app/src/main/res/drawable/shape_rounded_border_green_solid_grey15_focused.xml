@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid
+                android:color="@color/pia_gen_gray"
+                />
+            <stroke
+                android:color="@color/greendark20"
+                android:width="1dp"/>
+            <corners
+                android:radius="@dimen/piax_button_radius" />
+        </shape>
+    </item>
+</selector>

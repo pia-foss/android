@@ -170,7 +170,7 @@
     <string name="save">Gem</string>
     <string name="saved">Gemt</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Hastigheder vist er på trafik på din VPN-forbindelse</string>
-    <string name="ip_short">Offentlig IP</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">For mange mislykkede forsøg på at logge ind med dette brugernavn. Prøv venligst igen senere.</string>
     <string name="tap_to_connect">TRYK FOR AT FORBINDE</string>
     <string name="building_configration">Bygger konfiguration...</string>
@@ -553,9 +553,6 @@
     <string name="tunnel_error_already_exists">Tunnelen \"%s\" eksisterer allerede.</string>
     <string name="tunnel_error_invalid_name">Ugyldigt navn</string>
     <string name="preview">FORHÅNDSVISNING</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">Næste generations netværk</string>
-    <string name="gen4_next_generation_network_message">VPN\'en skal afbrydes for at skifte servernetværk.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Inkluder geo-placerede områder</string>
     <!-- Rating -->
@@ -577,6 +574,7 @@
     <string name="purchasing_return">Vil du vende tilbage til startskærmen? Du kan til enhver tid genoptage abonnementsprocessen ved at klikke på Log ind-&gt; Log ind med købskvittering.</string>
     <string name="purchasing_magic_link">Log ind ved hjælp af magisk e-maillink</string>
     <string name="purchasing_magic_send">SEND LINK</string>
+    <string name="magic_login_enter_email">Indtast e-mail</string>
     <string name="purchasing_magic_success">Se i din e-mail for et login-link.</string>
     <string name="connection_tile_header">FORBINDELSE</string>
     <string name="connection_tile_tcp">TCP</string>
@@ -595,7 +593,7 @@
     <string name="nmt_connect">Forbind altid VPN</string>
     <string name="nmt_retain">Bevar VPN-tilstand</string>
     <string name="nmt_manage_title">Administrer automatisering</string>
-    <string name="nmt_manage_description">Konfigurer, hvordan PIA vil opføre sig ved forbindelse til wifi eller mobilnetværk. Dette ekskluderer manuel afbrydelse.</string>
+    <string name="nmt_manage_description">Konfigurer, hvordan PIA opfører sig ved forbindelse til wifi eller mobilnetværk. Dette ekskluderer manuel afbrydelse.</string>
     <string name="nmt_add_description">Vælg et wifi-netværk for at tilføje en ny regel.</string>
     <string name="nmt_rule_for">Regel for %s</string>
     <string name="nmt_remove_rule">Fjern regel</string>

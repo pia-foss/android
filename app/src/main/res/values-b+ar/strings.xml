@@ -170,7 +170,7 @@
     <string name="save">حفظ</string>
     <string name="saved">تم الحفظ</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">السرعات المعروضة هي حركة المرور عبر اتصال VPN الخاصة بك</string>
-    <string name="ip_short">IP عمومي</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">لقد أجريت الكثير من المحاولات الفاشلة باسم المستخدم هذا. يرجى إعادة المحاولة لاحقًا.</string>
     <string name="tap_to_connect">اضغط للاتصال</string>
     <string name="building_configration">جارٍ إنشاء التكوين…</string>
@@ -553,9 +553,6 @@
     <string name="tunnel_error_already_exists">نفق “%s” موجود بالفعل</string>
     <string name="tunnel_error_invalid_name">اسم غير صالح</string>
     <string name="preview">معاينة</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">شبكة الجيل القادم</string>
-    <string name="gen4_next_generation_network_message">يجب قطع اتصال VPN لتغيير شبكة الخادم.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">تضمين المناطق المحدد موقعها جغرافيًا</string>
     <!-- Rating -->
@@ -577,6 +574,7 @@
     <string name="purchasing_return">هل ترغب في العودة إلى الشاشة الرئيسية؟ يمكنك استئناف عملية الاشتراك في أي وقت بالضغط فوق تسجيل الدخول -&gt; تسجيل الدخول باستخدام إيصال الشراء.</string>
     <string name="purchasing_magic_link">تسجيل الدخول باستخدام رابط البريد الإلكتروني السحري</string>
     <string name="purchasing_magic_send">إرسال الرابط</string>
+    <string name="magic_login_enter_email">أدخل البريدك الإلكتروني</string>
     <string name="purchasing_magic_success">يرجى إلقاء نظرة على بريدك الإلكتروني للحصول على رابط تسجيل الدخول.</string>
     <string name="connection_tile_header">الاتصال</string>
     <string name="connection_tile_tcp">TCP</string>

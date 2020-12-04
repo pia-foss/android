@@ -67,8 +67,11 @@ class Gen4PortForwardApi : PIACertPinningAPI() {
     @Throws(IOException::class, IllegalStateException::class, PortForwardingError::class)
     fun bindPort(context: Context): Int {
         val gateway = PiaPrefHandler.getGatewayEndpoint(context)
+        if (gateway.isNullOrEmpty()) {
+            throw PortForwardingError("Invalid gateway.")
+        }
 
-        // Set the gateway/cn for the selected protocol before the binding request
+        // Set the gateway's CN for the selected protocol before the binding request
         val server = PIAServerHandler.getInstance(context).getSelectedRegion(context, false)
         server.commonNames[ServerUtils.getUserSelectedProtocol(context)]?.let {
             val tunnelCommonName = mutableListOf<Pair<String, String>>()
@@ -86,7 +89,12 @@ class Gen4PortForwardApi : PIACertPinningAPI() {
                 return it.decodedPayload.port
             }
         }
+
         val applicationToken = PiaPrefHandler.getAuthToken(context)
+        if (applicationToken.isNullOrEmpty()) {
+            throw PortForwardingError("Invalid token.")
+        }
+
         val payloadSignature = fetchPayloadAndSignature(applicationToken, gateway)
         val payload = payloadSignature.first
         val signature = payloadSignature.second
@@ -115,9 +123,9 @@ class Gen4PortForwardApi : PIACertPinningAPI() {
         ).addHeader("User-Agent", ANDROID_HTTP_CLIENT).addHeader("Authorization", token).build()
         val response = okHttpClient.newCall(request).execute()
         if (!response.isSuccessful) {
-            throw PortForwardingError("Request failed. Unsuccessful: " + response.message())
+            throw PortForwardingError("Request failed. Unsuccessful: " + response.message)
         }
-        val jsonString = response.body()?.string()
+        val jsonString = response.body?.string()
                 ?: throw PortForwardingError("Request failed. Invalid response.")
         val jsonResponse = JSONObject(jsonString)
         if (!jsonResponse.has("status") || jsonResponse["status"] != "OK") {
@@ -138,9 +146,9 @@ class Gen4PortForwardApi : PIACertPinningAPI() {
         ).addHeader("User-Agent", ANDROID_HTTP_CLIENT).build()
         val response = okHttpClient.newCall(request).execute()
         if (!response.isSuccessful) {
-            throw PortForwardingError("Request failed. Unsuccessful: " + response.message())
+            throw PortForwardingError("Request failed. Unsuccessful: " + response.message)
         }
-        val jsonString = response.body()?.string()
+        val jsonString = response.body?.string()
                 ?: throw PortForwardingError("Request failed. Invalid response.")
         val jsonResponse = JSONObject(jsonString)
         if (!jsonResponse.has("status") || jsonResponse["status"] != "OK") {
@@ -184,14 +192,14 @@ class Gen4PortForwardApi : PIACertPinningAPI() {
             context: Context,
             portBindInformation: PortBindInformation
     ) {
-        val stringPortBindInformation = Json.stringify(PortBindInformation.serializer(), portBindInformation)
+        val stringPortBindInformation = Json.encodeToString(PortBindInformation.serializer(), portBindInformation)
         PiaPrefHandler.setBindPortForwardInformation(context, stringPortBindInformation)
     }
 
     private fun getPortBindInformation(context: Context): PortBindInformation? {
         val stringPortBindInformation = PiaPrefHandler.getBindPortForwardInformation(context)
         return stringPortBindInformation?.let {
-            Json.parse(PortBindInformation.serializer(), it)
+            Json.decodeFromString(PortBindInformation.serializer(), it)
         }
     }
 

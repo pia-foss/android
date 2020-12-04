@@ -170,7 +170,7 @@
     <string name="save">저장</string>
     <string name="saved">저장됨</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">표시된 속도는 VPN 연결의 트래픽입니다</string>
-    <string name="ip_short">공용 IP</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">이 사용자 이름으로 너무 많은 로그인 시도가 실패했습니다. 나중에 다시 시도해주십시오.</string>
     <string name="tap_to_connect">눌러서 연결하기</string>
     <string name="building_configration">구성 생성 중...</string>
@@ -555,9 +555,6 @@
     <string name="tunnel_error_already_exists">“%s” 터널은 이미 존재합니다</string>
     <string name="tunnel_error_invalid_name">유효하지 않은 이름</string>
     <string name="preview">미리 보기</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">차세대 네트워크</string>
-    <string name="gen4_next_generation_network_message">서버 네트워크를 변경하려면 VPN의 연결을 해제해야 합니다.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">지리적 위치 기반 지역 포함</string>
     <!-- Rating -->
@@ -579,6 +576,7 @@
     <string name="purchasing_return">홈 화면으로 돌아가시겠습니까? 로그인-&gt;구매 영수증을 사용해 로그인을 클릭하여 언제든 구독 절차를 다시 시작할 수 있습니다.</string>
     <string name="purchasing_magic_link">이메일 링크를 사용해 간편하게 로그인</string>
     <string name="purchasing_magic_send">링크 보내기</string>
+    <string name="magic_login_enter_email">이메일 입력</string>
     <string name="purchasing_magic_success">로그인 링크가 담긴 이메일을 확인하세요.</string>
     <string name="connection_tile_header">연결</string>
     <string name="connection_tile_tcp">TCP</string>

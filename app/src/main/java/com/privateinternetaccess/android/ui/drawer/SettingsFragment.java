@@ -71,7 +71,6 @@ import java.util.Set;
 import me.philio.preferencecompatextended.PreferenceFragmentCompat;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEN4_ACTIVE;
 import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEO_SERVERS_ACTIVE;
 import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_AUTH;
@@ -88,7 +87,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private PreferenceScreen pRemotePort;
 
     private String[] ovpnKeys = {
-            "useTCP", "portforwarding", "rport", "lport", "mssfix", "proxy_settings",
+            "useTCP", "rport", "lport", "mssfix", "proxy_settings",
             "useproxy", "blockipv6", "encryption", "cipher", "auth", "killswitch", "tlscipher"};
     private String[] wgKeys = {};
 
@@ -544,34 +543,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 return true;
             }
         });
-
-        findPreference(GEN4_ACTIVE).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Context context = preference.getContext();
-                if (PIAFactory.getInstance().getVPN(context).isVPNActive()) {
-                    boolean previousState = !Prefs.with(context).get(GEN4_ACTIVE, true);
-                    Prefs.with(context).set(GEN4_ACTIVE, previousState);
-                    SwitchPreferenceCompat gen4Switch =
-                            (SwitchPreferenceCompat) findPreference(PiaPrefHandler.GEN4_ACTIVE);
-                    gen4Switch.setChecked(Prefs.with(context).get(GEN4_ACTIVE, true));
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle(R.string.gen4_next_generation_network);
-                    builder.setMessage(R.string.gen4_next_generation_network_message);
-                    builder.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    builder.show();
-                } else {
-                    PIAServerHandler.getInstance(context).fetchServers(context, true);
-                }
-                return true;
-            }
-        });
     }
 
     private void setAutomation() {
@@ -831,10 +802,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         dontShowList.add(PiaPrefHandler.AUTOCONNECT);
         dontShowList.add(PiaPrefHandler.AUTOSTART);
         dontShowList.add(PiaPrefHandler.KILLSWITCH);
-        dontShowList.add(PiaPrefHandler.MACE_ACTIVE);
         dontShowList.add(PiaPrefHandler.LAST_IP);
         dontShowList.add(PiaPrefHandler.CONNECT_ON_APP_UPDATED);
-        dontShowList.add(PiaPrefHandler.GEN4_ACTIVE);
         dontShowList.add(PiaPrefHandler.GEO_SERVERS_ACTIVE);
         if (dontShowList.contains(key)) {
             showMessage = false;
@@ -909,11 +878,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             packetSizePreference.setChecked(
                     prefs.get(PiaPrefHandler.PACKET_SIZE, getResources().getBoolean(R.bool.usemssfix))
             );
-        }
-
-        SwitchPreferenceCompat gen4ActivePreference = findPreference(PiaPrefHandler.GEN4_ACTIVE);
-        if (gen4ActivePreference != null) {
-            gen4ActivePreference.setChecked(prefs.get(GEN4_ACTIVE, true));
         }
 
         SwitchPreferenceCompat geoServersActivePreference =

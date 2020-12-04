@@ -53,7 +53,6 @@ import com.privateinternetaccess.android.pia.api.PIAAuthenticator.PIAAuthenticat
 import com.privateinternetaccess.android.pia.handlers.LogoutHandler;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.PingHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.model.AccountInformation;
@@ -95,7 +94,8 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
 
     private static final String TAG = "BaseActivity";
 
-    private static final int CLIENT_STATUS_DELAY = 1000;
+    private static final int CLIENT_STATUS_DELAY_MS = 1000;
+    private static final int CLIENT_STATUS_MAX_RETRIES = 2;
 
     protected Toolbar toolbar;
 
@@ -137,7 +137,7 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
     protected void onResume() {
         super.onResume();
         setBackground();
-        PingHandler.getInstance(getApplicationContext()).fetchPings();
+        fetchClientStatus();
         EventBus.getDefault().register(this);
     }
 
@@ -354,6 +354,7 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
         }
 
         if (iconResIdDisconnected != -1 && iconResId != -1 && ivIconButton != null) {
+            ivIconButton.setContentDescription(getBaseContext().getString(R.string.menu_reorder));
             ivIconButton.setImageResource(iconResId);
         }
 
@@ -557,11 +558,11 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
         }
     }
 
-    public void fetchClientStatus() {
-        fetchClientStatus(null);
+    private void fetchClientStatus() {
+        fetchClientStatus(null, 0);
     }
 
-    private void fetchClientStatus(ConnectionStatus connectionStatus) {
+    private void fetchClientStatus(ConnectionStatus connectionStatus, int retryAttemptNumber) {
         Context context = getBaseContext();
 
         // Due to events over-reporting. Validate this is a delta on the status.
@@ -593,6 +594,11 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
 
                         if (!successful) {
                             DLog.d(TAG, "clientStatus unsuccessful " + requestResponseStatus);
+
+                            if (retryAttemptNumber < CLIENT_STATUS_MAX_RETRIES) {
+                                DLog.d(TAG, "clientStatus unsuccessful retrying " + retryAttemptNumber);
+                                fetchClientStatus(null, retryAttemptNumber + 1);
+                            }
                             return null;
                         }
 
@@ -601,11 +607,13 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
                         } else {
                             PiaPrefHandler.saveLastIP(context, status.getIp());
                         }
-                        EventBus.getDefault().post(new FetchIPEvent(status.getIp()));
+                        EventBus.getDefault().post(
+                                new FetchIPEvent(status.getIp(), status.getConnected())
+                        );
                         return null;
                     }
             );
-        }, CLIENT_STATUS_DELAY);
+        }, CLIENT_STATUS_DELAY_MS);
     }
 
     private void handleAuthenticationFailure(ConnectionStatus connectionStatus) {
@@ -631,7 +639,7 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateState(VpnStateEvent event) {
         setBackground();
-        fetchClientStatus(event.level);
+        fetchClientStatus(event.level, 0);
         handleAuthenticationFailure(event.level);
     }
 

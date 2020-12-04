@@ -46,7 +46,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.73"/>
+        app:layout_constraintGuide_percent="0.66"/>
 
     <FrameLayout
         android:id="@+id/fragment_dashboard_panel"

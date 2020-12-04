@@ -18,10 +18,7 @@
 
 package com.privateinternetaccess.android.ui;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.VpnService;
@@ -38,18 +35,16 @@ import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
-import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.connection.VPNPermissionActivity;
 import com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
 
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.TOKEN;
+
 public class LauncherActivity extends AppCompatActivity {
 
-    public static final String LOGIN = "login";
     public static final String USERNAME = "username";
-    public static final String TOKEN = "token";
-    public static final String PASSWORD = "password";
     public static final int DELAY_MILLIS = 1500;
     public static final String HAS_AUTO_STARTED = "hasAutoStarted";
 
@@ -92,14 +87,11 @@ public class LauncherActivity extends AppCompatActivity {
                 if (openUri.toString().contains("login")) {
                     String url = openUri.toString();
                     url = url.replace("piavpn:login?", "piavpn://login/?");
-
                     DLog.i("Launcher Activity", "URL: " + url);
-
                     openUri = Uri.parse(url);
                 }
 
-                final String username = null;
-                final String password = null;
+                final String username = openUri.getQueryParameter(USERNAME);
                 final String token = openUri.getQueryParameter(TOKEN);
                 if (token != null) {
                     IAccount account = PIAFactory.getInstance().getAccount(LauncherActivity.this);
@@ -107,50 +99,18 @@ public class LauncherActivity extends AppCompatActivity {
                     if (!account.loggedIn()) {
                         PiaPrefHandler.saveAuthToken(LauncherActivity.this, token);
                         PiaPrefHandler.setUserIsLoggedIn(LauncherActivity.this, true);
-
                         launchVPN(LauncherActivity.this);
                     }
                 }
-                if (username != null && password != null) {
-                    // Check if user/pw are equal to what we already have stored
-                    DLog.d("Launcher", "Stored = " + PiaPrefHandler.getLogin(getApplicationContext()) + " open = " + username);
-                    if (PiaPrefHandler.getLogin(getApplicationContext()).equals(username) &&
-                            PiaPrefHandler.getSavedPassword(getApplicationContext()).equals(password)) {
-                        Toaster.l(getApplicationContext(), getString(R.string.username_password_already_saved));
-                        launchVPN(getApplicationContext());
-                    } else {
-                        //Username and pw do not match and no account information present
-                        if (TextUtils.isEmpty(PiaPrefHandler.getSavedPassword(getApplicationContext()))) {
-                            PiaPrefHandler.setUserIsLoggedIn(getApplicationContext(), false);
-                            launchVPN(getApplicationContext());
-                        } else {
-                            Activity act = LauncherActivity.this;
-                            AlertDialog.Builder ab = new AlertDialog.Builder(act);
-                            ab.setTitle(R.string.replace_login_title);
-                            ab.setMessage(getString(R.string.replace_login_msg, username, PiaPrefHandler.getLogin(getApplicationContext())));
-                            ab.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    PiaPrefHandler.setUserIsLoggedIn(LauncherActivity.this, false);
-                                    launchVPN(LauncherActivity.this);
-                                }
-                            });
 
-                            ab.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    launchVPN(LauncherActivity.this);
-                                }
-                            });
-                            ab.create().show();
-                        }
+                if (username != null) {
+                    DLog.d("Launcher", "Stored = " + PiaPrefHandler.getLogin(getApplicationContext()) + " open = " + username);
+                    if (!PiaPrefHandler.getLogin(getApplicationContext()).equals(username)) {
+                        PiaPrefHandler.setUserIsLoggedIn(getApplicationContext(), false);
                     }
-                } else {
-                    launchVPN(getApplicationContext());
                 }
-            } else {
-                launchVPN(getApplicationContext());
             }
+            launchVPN(getApplicationContext());
         }, DELAY_MILLIS);
     }
 

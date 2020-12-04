@@ -25,9 +25,7 @@ import android.os.Build;
 
 import com.privateinternetaccess.android.PIACallbacks;
 import com.privateinternetaccess.android.PIAOpenVPNTunnelLibrary;
-import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IBuilder;
-import com.privateinternetaccess.android.pia.model.PurchasingTestingData;
 import com.privateinternetaccess.android.pia.services.PIATileService;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
@@ -35,9 +33,6 @@ import com.privateinternetaccess.android.pia.vpn.PiaLibVpnLibrary;
 import com.privateinternetaccess.android.ui.notifications.PIANotifications;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import de.blinkt.openvpn.core.VPNNotifications;
 import de.blinkt.openvpn.core.VpnStatus;
@@ -94,58 +89,6 @@ public class PIABuilder implements IBuilder {
         VpnStatus.addStateListener(listener);
         PIAOpenVPNTunnelLibrary.init(context, notifications, callbacks);
         PiaLibVpnLibrary.init();
-        return this;
-    }
-
-    @Override
-    public IBuilder setPortForwardingEnabled(boolean portForwarding) {
-        if(firstLaunch)
-            PiaPrefHandler.setPortForwardingEnabled(context, portForwarding);
-        return this;
-    }
-
-    @Override
-    public IBuilder setIPTrackingEnabled(boolean ipTracking) {
-        if(firstLaunch)
-            PiaPrefHandler.setIPTracking(context, ipTracking);
-        return this;
-    }
-
-    @Override
-    public IBuilder setMACEEnabled(boolean maceEnabled) {
-        if(firstLaunch)
-            PiaPrefHandler.setMaceActive(context, maceEnabled);
-        return this;
-    }
-
-    @Override
-    public IBuilder setOnlyAllowedApp(String... packageNames) {
-        PiaPrefHandler.setVPNPerAppAllowed(context, true);
-        Set<String> apps = new HashSet<>();
-        Collections.addAll(apps, packageNames);
-        PiaPrefHandler.setVPNPerAppPackages(context, apps);
-        return this;
-    }
-
-    @Override
-    public IBuilder setPurchaseTest(PurchasingTestingData data) {
-        PiaPrefHandler.setPurchaseTesting(context, data.isTesting());
-        PiaPrefHandler.setPurchaseTestingUsername(context, data.getUsername());
-        PiaPrefHandler.setPurchaseTestingPassword(context, data.getPassword());
-        PiaPrefHandler.setPurchaseTestingException(context, data.getException());
-        PiaPrefHandler.setPurchaseTestingStatus(context, data.getResponseCode());
-        return this;
-    }
-
-    @Override
-    public IBuilder addVPNListener(VpnStatus.StateListener listener) {
-        VpnStatus.addStateListener(listener);
-        return this;
-    }
-
-    @Override
-    public IBuilder removeVPNListener(VpnStatus.StateListener listener) {
-        VpnStatus.removeStateListener(listener);
         return this;
     }
 

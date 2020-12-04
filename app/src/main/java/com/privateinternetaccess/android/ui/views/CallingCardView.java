@@ -21,7 +21,6 @@ package com.privateinternetaccess.android.ui.views;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -36,9 +35,6 @@ import com.privateinternetaccess.android.ui.features.WebviewActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Optional;
-
-import static com.privateinternetaccess.android.ui.connection.MainActivity.THEME_CHANGED;
 
 public class CallingCardView extends FrameLayout {
 

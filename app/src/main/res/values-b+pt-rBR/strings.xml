@@ -170,7 +170,7 @@
     <string name="save">Salvar</string>
     <string name="saved">Salvas</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">As velocidades exibidas são referentes à sua conexão VPN</string>
-    <string name="ip_short">IP Público</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">Muitas tentativas de login malsucedidas com este nome de usuário. Tente novamente mais tarde.</string>
     <string name="tap_to_connect">TOQUE PARA CONECTAR</string>
     <string name="building_configration">Criando configuração...</string>
@@ -554,9 +554,6 @@
     <string name="tunnel_error_already_exists">O túnel “%s” já existe</string>
     <string name="tunnel_error_invalid_name">Nome inválido</string>
     <string name="preview">VISUALIZAR</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">Rede de última geração</string>
-    <string name="gen4_next_generation_network_message">A VPN deve estar desconectada para alterar a rede do servidor.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Incluir regiões geolocalizadas</string>
     <!-- Rating -->
@@ -578,6 +575,7 @@
     <string name="purchasing_return">Você deseja voltar para a tela inicial? Você pode continuar o processo de inscrição a qualquer momento ao clicar em Login -&gt; Login usando o recibo de compra.</string>
     <string name="purchasing_magic_link">Faça login usando o link mágico enviado por e-mail</string>
     <string name="purchasing_magic_send">ENVIAR LINK</string>
+    <string name="magic_login_enter_email">Insira o e-mail</string>
     <string name="purchasing_magic_success">Veja se você recebeu um link por e-mail para fazer login.</string>
     <string name="connection_tile_header">CONEXÃO</string>
     <string name="connection_tile_tcp">TCP</string>

@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 
 import java.util.Arrays;
+
 public class SwipeBackLayoutHandler {
     private static final String TAG = "SwipeBackLayoutHandler";
 

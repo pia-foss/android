@@ -23,7 +23,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
@@ -35,17 +34,15 @@ import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.SeverListUpdateEvent;
 import com.privateinternetaccess.android.model.events.SeverListUpdateEvent.ServerListUpdateState;
 import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.api.ServerAPI;
+import com.privateinternetaccess.android.pia.providers.ModuleClientStateProvider;
 import com.privateinternetaccess.android.pia.receivers.FetchServersReceiver;
 import com.privateinternetaccess.android.pia.receivers.PingReceiver;
-import com.privateinternetaccess.android.pia.tasks.FetchServersTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.ServerResponseHelper;
 import com.privateinternetaccess.android.utils.ServerUtils;
 import com.privateinternetaccess.android.utils.SystemUtils;
 import com.privateinternetaccess.common.regions.RegionLowerLatencyInformation;
-import com.privateinternetaccess.common.regions.RegionsProtocol;
 import com.privateinternetaccess.common.regions.RegionsUtils;
 import com.privateinternetaccess.common.regions.model.RegionsResponse;
 import com.privateinternetaccess.core.model.PIAServer;
@@ -74,6 +71,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 
 import kotlin.Unit;
@@ -86,7 +84,6 @@ import kotlin.jvm.functions.Function2;
  */
 public class PIAServerHandler {
 
-    public static final String LAST_SERVER_BODY = "LAST_SERVER_BODY";
     public static final String GEN4_LAST_SERVER_BODY = "GEN4_LAST_SERVER_BODY";
     private static final String TAG = "PIAServerHandler";
     public static final String LAST_SERVER_GRAB = "LAST_SERVER_GRAB";
@@ -98,6 +95,8 @@ public class PIAServerHandler {
     private static Prefs prefs;
     private static AlarmManager alarmManager;
     private static RegionsAPI regionModule;
+
+    private static PIAServer randomServer;
 
     public static PIAServerHandler getInstance(Context context){
         if(instance == null){
@@ -189,16 +188,13 @@ public class PIAServerHandler {
 
     private void prepareRegionModule() {
         if (regionModule == null) {
-            regionModule = new RegionsBuilder().build();
+            regionModule = new RegionsBuilder()
+                    .setClientStateProvider(new ModuleClientStateProvider(context))
+                    .build();
         }
     }
 
-    private void offLoadResponse(ServerResponse response, boolean fromWeb, boolean gen4Enabled){
-        if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true) != gen4Enabled) {
-            DLog.e(TAG, "The next generation state changed in between requests. Return.");
-            return;
-        }
-
+    private void offLoadResponse(ServerResponse response, boolean fromWeb){
         PIAServerHandler handler = getInstance(null);
         if(handler != null){
             boolean isValid = response.isValid();
@@ -214,73 +210,59 @@ public class PIAServerHandler {
                 addTestingServer(testServer);
             }
             if(BuildConfig.FLAVOR_pia.equals("qa")){
-                loadExcessServers(context);
+                loadExcessServers();
             }
             if(fromWeb && isValid){
-                if (gen4Enabled) {
-                    prefs.set(GEN4_LAST_SERVER_BODY, response.getBody());
-                } else {
-                    prefs.set(LAST_SERVER_BODY , response.getBody());
-                }
-                PingHandler.getInstance(context).fetchPings(PingHandler.PING_TIME_INSTANT);
-            } else if (fromWeb && !isValid && handler.servers != null && handler.info != null) {
-                PingHandler.getInstance(context).fetchPings(PingHandler.PING_TIME_INSTANT);
+                prefs.set(GEN4_LAST_SERVER_BODY, response.getBody());
             }
         }
     }
 
-    public void loadPersistedServersIfAny(){
-        boolean gen4Enabled = prefs.get(PiaPrefHandler.GEN4_ACTIVE, true);
+    public void loadPersistedServersIfAny() {
         String gen4LastBody = prefs.get(GEN4_LAST_SERVER_BODY, "");
-        String legacyLastBody = prefs.get(LAST_SERVER_BODY, "");
-
-        if (gen4Enabled && TextUtils.isEmpty(gen4LastBody)) {
-            DLog.d(TAG, "No persisted servers for GEN4. Return");
-            return;
+        if (TextUtils.isEmpty(gen4LastBody)) {
+            DLog.d(TAG, "No persisted servers for GEN4. Using default list.");
+            try { gen4LastBody = readAssetsFile("regions.json").split("\n\n")[0]; }
+            catch (IOException e) { e.printStackTrace(); }
         }
 
-        if (!gen4Enabled && TextUtils.isEmpty(legacyLastBody)) {
-            DLog.d(TAG, "No persisted servers for Legacy. Return");
-            return;
-        }
-
-        if (gen4Enabled) {
-            RegionsResponse regionsResponse = RegionsUtils.INSTANCE.parse(gen4LastBody);
-            Map<String, PIAServer> serverMap =
-                    ServerResponseHelper.Companion.adaptServers(regionsResponse);
-            PIAServerInfo serverInfo =
-                    ServerResponseHelper.Companion.adaptServersInfo(regionsResponse);
-            ServerResponse response =
-                    new ServerResponse(
-                            serverMap,
-                            serverInfo,
-                            RegionsUtils.INSTANCE.stringify(regionsResponse)
-                    );
-            offLoadResponse(response, false, true);
-        } else {
-            ServerResponse response = parseServers(legacyLastBody);
-            offLoadResponse(response, false, false);
-        }
+        RegionsResponse regionsResponse = RegionsUtils.INSTANCE.parse(gen4LastBody);
+        Map<String, PIAServer> serverMap =
+                ServerResponseHelper.Companion.adaptServers(regionsResponse);
+        PIAServerInfo serverInfo =
+                ServerResponseHelper.Companion.adaptServersInfo(regionsResponse);
+        ServerResponse response =
+                new ServerResponse(
+                        serverMap,
+                        serverInfo,
+                        RegionsUtils.INSTANCE.stringify(regionsResponse)
+                );
+        offLoadResponse(response, false);
     }
 
-    public void loadExcessServers(Context context){
+    public void loadExcessServers(){
         try {
-            InputStream serverjson = context.getAssets().open("testing_servers.json");
-            BufferedReader r = new BufferedReader(new InputStreamReader(serverjson));
-            StringBuilder total = new StringBuilder();
-            String line;
-            while ((line = r.readLine()) != null) {
-                total.append(line).append('\n');
-            }
-            String body = total.toString();
+            String body = readAssetsFile("testing_servers.json");
             ServerResponse response = parseServers(body);
-            for(String key : response.getServers().keySet()){
+            for (String key : response.getServers().keySet()) {
                 response.getServers().get(key).setTesting(true);
             }
             getServers().putAll(response.getServers());
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String readAssetsFile(String filename) throws IOException {
+        InputStream inputStream = context.getAssets().open(filename);
+        BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder stringBuilder = new StringBuilder();
+        String receiveString;
+        while ((receiveString = r.readLine()) != null) {
+            stringBuilder.append(receiveString).append('\n');
+        }
+        inputStream.close();
+        return stringBuilder.toString();
     }
 
     public void triggerLatenciesUpdate() {
@@ -304,42 +286,12 @@ public class PIAServerHandler {
             return;
         }
 
-        if (!prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-            DLog.e(TAG, "Error when updating latencies. GEN4 is disabled.");
-            DLog.e(TAG, "Ping intent state " + pingIntent);
-            if (callback != null) {
-                callback.invoke(new Error("GEN4 is disabled"));
-            }
-            return;
-        }
-
-        PIAServer.Protocol protocol = ServerUtils.getUserSelectedProtocol(context);
-        RegionsProtocol regionsProtocol = null;
-        switch (protocol) {
-            case WIREGUARD:
-                regionsProtocol = RegionsProtocol.WIREGUARD;
-                break;
-            case OPENVPN_TCP:
-                regionsProtocol = RegionsProtocol.OPENVPN_TCP;
-                break;
-            case OPENVPN_UDP:
-                regionsProtocol = RegionsProtocol.OPENVPN_UDP;
-                break;
-        }
-        regionModule.pingRequests(regionsProtocol, new Function2<List<RegionLowerLatencyInformation>, Error, Unit>() {
+        regionModule.pingRequests(new Function2<List<RegionLowerLatencyInformation>, Error, Unit>() {
             @Override
             public Unit invoke(
                     List<RegionLowerLatencyInformation> response,
                     Error error
             ) {
-                if (!prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-                    DLog.e(TAG, "Error on latencies completion. GEN4 is disabled.");
-                    if (callback != null) {
-                        callback.invoke(new Error("GEN4 is disabled"));
-                    }
-                    return null;
-                }
-
                 if (error != null) {
                     DLog.e(TAG, "Error when updating latencies " + error.getMessage());
                     if (callback != null) {
@@ -360,13 +312,7 @@ public class PIAServerHandler {
                 for (RegionLowerLatencyInformation latencyInformation : response) {
                     PIAServer server = serversCopy.get(latencyInformation.getRegion());
                     if (server != null) {
-                        HashMap<PIAServer.Protocol, String> regionLatencies =
-                                new HashMap(server.getLatencies());
-                        regionLatencies.put(
-                                protocol,
-                                String.valueOf(latencyInformation.getLatency())
-                        );
-                        server.setLatencies(regionLatencies);
+                        server.setLatency(String.valueOf(latencyInformation.getLatency()));
                         serversCopy.put(latencyInformation.getRegion(), server);
                     }
                 }
@@ -392,22 +338,12 @@ public class PIAServerHandler {
             return;
         }
 
-        boolean gen4Enabled = prefs.get(PiaPrefHandler.GEN4_ACTIVE, true);
-        if (!gen4Enabled) {
-            DLog.e(TAG, "Error when updating list of servers. GEN4 is disabled.");
-            DLog.e(TAG, "Fetch servers intent state " + fetchServersIntent);
-            if (callback != null) {
-                callback.invoke(new Error("GEN4 is disabled"));
-            }
-            return;
-        }
-
         Locale locale = ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
         regionModule.fetchRegions(locale.getLanguage(), new Function2<RegionsResponse, Error, Unit>() {
             @Override
             public Unit invoke(@Nullable RegionsResponse regionsResponse, @Nullable Error error) {
                 if (error != null) {
-                    DLog.e(TAG, "Error fetching the list of servers" + error.getMessage());
+                    DLog.e(TAG, "Error fetching the list of servers " + error.getMessage());
                     if (callback != null) {
                         callback.invoke(error);
                     }
@@ -422,13 +358,12 @@ public class PIAServerHandler {
                 // Keep latencies for the known ones
                 for (Map.Entry<String, PIAServer> entry : servers.entrySet()) {
                     if (serverMap.containsKey(entry.getKey())) {
-                        Map<PIAServer.Protocol, String> knownLatencies =
-                                entry.getValue().getLatencies();
-                        if (knownLatencies == null) {
+                        String knownLatency = entry.getValue().getLatency();
+                        if (knownLatency == null) {
                             continue;
                         }
                         PIAServer serverDetails = serverMap.get(entry.getKey());
-                        serverDetails.setLatencies(knownLatencies);
+                        serverDetails.setLatency(knownLatency);
                         serverMap.put(entry.getKey(), serverDetails);
                     }
                 }
@@ -439,8 +374,7 @@ public class PIAServerHandler {
                                 serverInfo,
                                 RegionsUtils.INSTANCE.stringify(regionsResponse)
                         ),
-                        true,
-                        gen4Enabled
+                        true
                 );
                 if (callback != null) {
                     callback.invoke(error);
@@ -457,81 +391,54 @@ public class PIAServerHandler {
     public void fetchServers(Context context, boolean force, @Nullable Function1<Error, Unit> callback) {
         long lastGrab = prefs.get(LAST_SERVER_GRAB, 0L);
         long now = Calendar.getInstance().getTimeInMillis();
-        if (force || (now - lastGrab > SERVER_TIME_DIFFERENCE || ServerAPI.forceUpdate(context))) {
+        if (force || (now - lastGrab > SERVER_TIME_DIFFERENCE)) {
             setServerListFetchState(ServerListUpdateState.STARTED);
-            boolean gen4Enabled = prefs.get(PiaPrefHandler.GEN4_ACTIVE, true);
-            if (gen4Enabled) {
-                triggerFetchServers(new Function1<Error, Unit>() {
-                    @Override
-                    public Unit invoke(Error error) {
-                        setServerListFetchState(ServerListUpdateState.FETCH_SERVERS_FINISHED);
-                        triggerLatenciesUpdate(new Function1<Error, Unit>() {
-                            @Override
-                            public Unit invoke(Error error) {
-                                setServerListFetchState(
-                                        ServerListUpdateState.GEN4_PING_SERVERS_FINISHED
-                                );
-                                if (callback != null) {
-                                    callback.invoke(error);
-                                }
-                                return null;
+            triggerFetchServers(new Function1<Error, Unit>() {
+                @Override
+                public Unit invoke(Error error) {
+                    setServerListFetchState(ServerListUpdateState.FETCH_SERVERS_FINISHED);
+                    triggerLatenciesUpdate(new Function1<Error, Unit>() {
+                        @Override
+                        public Unit invoke(Error error) {
+                            setServerListFetchState(
+                                    ServerListUpdateState.GEN4_PING_SERVERS_FINISHED
+                            );
+                            if (callback != null) {
+                                callback.invoke(error);
                             }
-                        });
-                        return null;
-                    }
-                });
-
-                // We set an initial delay as the initial fetching above will handle the initial
-                // update of the server's list and latencies.
-                if (fetchServersIntent == null) {
-                    fetchServersIntent = PendingIntent.getBroadcast(
-                            context, 0, new Intent(context, FetchServersReceiver.class), PendingIntent.FLAG_CANCEL_CURRENT
-                    );
-                    getAlarmManager().setRepeating(
-                            AlarmManager.RTC,
-                            AlarmManager.INTERVAL_DAY,
-                            AlarmManager.INTERVAL_DAY,
-                            fetchServersIntent
-                    );
-                }
-
-                if (pingIntent == null) {
-                    pingIntent = PendingIntent.getBroadcast(
-                            context, 0, new Intent(context, PingReceiver.class), PendingIntent.FLAG_CANCEL_CURRENT
-                    );
-                    getAlarmManager().setRepeating(
-                            AlarmManager.RTC,
-                            AlarmManager.INTERVAL_HOUR,
-                            AlarmManager.INTERVAL_HOUR,
-                            pingIntent
-                    );
-                }
-            } else {
-                FetchServersTask task = new FetchServersTask(context, new IPIACallback<ServerResponse>() {
-                    @Override
-                    public void apiReturn(ServerResponse response) {
-                        offLoadResponse(response, true, gen4Enabled);
-                        setServerListFetchState(ServerListUpdateState.FETCH_SERVERS_FINISHED);
-                        if (callback != null) {
-                            callback.invoke(null);
+                            return null;
                         }
-                    }
-                });
-                task.execute("");
+                    });
+                    return null;
+                }
+            });
+
+            // We set an initial delay as the initial fetching above will handle the initial
+            // update of the server's list and latencies.
+            if (fetchServersIntent == null) {
+                fetchServersIntent = PendingIntent.getBroadcast(
+                        context, 0, new Intent(context, FetchServersReceiver.class), PendingIntent.FLAG_CANCEL_CURRENT
+                );
+                getAlarmManager().setRepeating(
+                        AlarmManager.RTC,
+                        AlarmManager.INTERVAL_DAY,
+                        AlarmManager.INTERVAL_DAY,
+                        fetchServersIntent
+                );
+            }
+
+            if (pingIntent == null) {
+                pingIntent = PendingIntent.getBroadcast(
+                        context, 0, new Intent(context, PingReceiver.class), PendingIntent.FLAG_CANCEL_CURRENT
+                );
+                getAlarmManager().setRepeating(
+                        AlarmManager.RTC,
+                        AlarmManager.INTERVAL_HOUR,
+                        AlarmManager.INTERVAL_HOUR,
+                        pingIntent
+                );
             }
             prefs.set(LAST_SERVER_GRAB, Calendar.getInstance().getTimeInMillis());
-        }
-
-        // Regardless of the time condition above. If GEN4 is disabled. Cancel its workers.
-        if (!prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-            if (pingIntent != null) {
-                getAlarmManager().cancel(pingIntent);
-                pingIntent = null;
-            }
-            if (fetchServersIntent != null) {
-                getAlarmManager().cancel(fetchServersIntent);
-                fetchServersIntent = null;
-            }
         }
     }
 
@@ -553,15 +460,14 @@ public class PIAServerHandler {
 
     public Vector<PIAServer> getServers(Context context, ServerSortingType... types){
         Vector<PIAServer> servers = new Vector<>(getServers().values());
-
-        if(types != null){
+        if (types != null) {
             for(ServerSortingType type : types){
                 switch(type) {
                     case NAME:
                         Collections.sort(servers, new ServerNameComperator());
                         break;
                     case LATENCY:
-                        Collections.sort(servers, new PingComperator(PingHandler.getInstance(context).getPings()));
+                        Collections.sort(servers, new PingComperator());
                         break;
                     case FAVORITES:
                         Collections.sort(servers, new FavoriteComperator((HashSet<String>) PiaPrefHandler.getFavorites(context)));
@@ -590,57 +496,50 @@ public class PIAServerHandler {
         } else if (returnNullonAuto) {
             return null;
         } else {
-            if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-                PIAServer.Protocol protocol = ServerUtils.getUserSelectedProtocol(context);
-                Collection<PIAServer> autoRegionServers = getAutoRegionServers();
-                PIAServer lowestKnownLatencyServer = null;
-                for (PIAServer server : autoRegionServers) {
-                    if (lowestKnownLatencyServer == null) {
+            Vector<PIAServer> autoRegionServers = getAutoRegionServers();
+            PIAServer lowestKnownLatencyServer = null;
+
+            for (PIAServer server : autoRegionServers) {
+                if (lowestKnownLatencyServer == null) {
+                    lowestKnownLatencyServer = server;
+                    continue;
+                }
+
+                String lowestKnownServerLatency = lowestKnownLatencyServer.getLatency();
+                if (lowestKnownServerLatency == null) {
+                    continue;
+                }
+
+                String serverLatency = server.getLatency();
+                if (serverLatency == null) {
+                    continue;
+                }
+
+                if (!server.isGeo()) {
+                    Long latency = Long.valueOf(serverLatency);
+                    Long lowestKnownLatency = Long.valueOf(lowestKnownServerLatency);
+                    if (latency > 0 && latency < lowestKnownLatency) {
                         lowestKnownLatencyServer = server;
-                        continue;
-                    }
-
-                    Map<PIAServer.Protocol, String> lowestKnownServerLatencies =
-                            lowestKnownLatencyServer.getLatencies();
-                    if (lowestKnownServerLatencies == null) {
-                        continue;
-                    }
-
-                    Map<PIAServer.Protocol, String> serverLatencies = server.getLatencies();
-                    if (serverLatencies == null) {
-                        continue;
-                    }
-
-                    String serverLatency = serverLatencies.get(protocol);
-                    String lowestKnownServerLatency = lowestKnownServerLatencies.get(protocol);
-                    if (serverLatency != null && lowestKnownServerLatency != null && !server.isGeo()) {
-                        Long latency = Long.valueOf(serverLatency);
-                        Long lowestKnownLatency = Long.valueOf(lowestKnownServerLatency);
-                        if (latency > 0 && latency < lowestKnownLatency) {
-                            lowestKnownLatencyServer = server;
-                        }
                     }
                 }
-                return lowestKnownLatencyServer;
             }
-            Map<String, Long> pingMap = PingHandler.getInstance(context).getPings();
-            return getSortedServer(getAutoRegionServers(), new PingComperator(pingMap))[0];
+
+            if (lowestKnownLatencyServer.getLatency() == null) {
+                lowestKnownLatencyServer = getRandomServer();
+            }
+
+            return lowestKnownLatencyServer;
+
         }
     }
 
-    private PIAServer[] getSortedServer(Collection<PIAServer> tosort, Comparator<PIAServer> comperator) {
-        PIAServer[] servers = new PIAServer[tosort.size()];
-        int i = 0;
-        for (PIAServer ps : tosort) {
-            if (!ps.isGeo()) {
-                servers[i++] = ps;
-            }
+    private PIAServer getRandomServer() {
+        if (randomServer == null) {
+            Vector<PIAServer> autoRegionServers = getAutoRegionServers();
+            randomServer = getRandom(autoRegionServers);
         }
 
-        Arrays.sort(servers, comperator);
-        DLog.d(TAG, Arrays.toString(servers));
-
-        return servers;
+        return randomServer;
     }
 
     /**
@@ -720,53 +619,8 @@ public class PIAServerHandler {
 
     static public class PingComperator implements Comparator<PIAServer> {
 
-        Map<String, Long> pings;
-
-        public PingComperator(Map<String, Long> pings) {
-            this.pings = pings;
-        }
-
         @Override
         public int compare(PIAServer lhs, PIAServer rhs) {
-            if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-                return compareGEN4(lhs, rhs);
-            } else {
-                return compareLegacy(lhs, rhs);
-            }
-        }
-
-        private int compareLegacy(PIAServer lhs, PIAServer rhs) {
-            if (lhs == null || rhs == null) {
-                return 0;
-            }
-
-            if (!lhs.isTesting() && !rhs.isTesting()) {
-                Long lhsPing = null;
-                Long rhsPing = null;
-                if (pings != null) {
-                    String lhsKey = lhs.getKey();
-                    String rhsKey = rhs.getKey();
-                    if (lhsKey != null) {
-                        lhsPing = pings.get(lhsKey);
-                    }
-                    if (rhsKey != null) {
-                        rhsPing = pings.get(rhsKey);
-                    }
-                }
-                if (lhsPing == null)
-                    lhsPing = 999L;
-                if (rhsPing == null)
-                    rhsPing = 999L;
-                return lhsPing.compareTo(rhsPing);
-            } else if (rhs.isTesting() && !lhs.isTesting())
-                return 1;
-            else if (lhs.isTesting() && !rhs.isTesting())
-                return -1;
-            else
-                return 0;
-        }
-
-        private int compareGEN4(PIAServer lhs, PIAServer rhs) {
             if (lhs == null || rhs == null) {
                 return 0;
             }
@@ -774,19 +628,13 @@ public class PIAServerHandler {
             if (!lhs.isTesting() && !rhs.isTesting()) {
                 Long lhsPing = 999L;
                 Long rhsPing = 999L;
-                String lhsPingString = ServerUtils.getLatencyForActiveSetting(
-                        instance.context,
-                        lhs.getLatencies()
-                );
-                if (lhsPingString != null && !lhsPingString.isEmpty()) {
-                    lhsPing = Long.valueOf(lhsPingString);
+                String lhsLatency = lhs.getLatency();
+                if (lhsLatency != null && !lhsLatency.isEmpty()) {
+                    lhsPing = Long.valueOf(lhsLatency);
                 }
-                String rhsPingString = ServerUtils.getLatencyForActiveSetting(
-                        instance.context,
-                        rhs.getLatencies()
-                );
-                if (rhsPingString != null && !rhsPingString.isEmpty()) {
-                    rhsPing = Long.valueOf(rhsPingString);
+                String rhsLatency = rhs.getLatency();
+                if (rhsLatency != null && !rhsLatency.isEmpty()) {
+                    rhsPing = Long.valueOf(rhsLatency);
                 }
                 return lhsPing.compareTo(rhsPing);
             } else if (rhs.isTesting() && !lhs.isTesting())
@@ -796,7 +644,6 @@ public class PIAServerHandler {
             else
                 return 0;
         }
-
     }
 
     static public class FavoriteComperator implements Comparator<PIAServer> {
@@ -841,6 +688,15 @@ public class PIAServerHandler {
         server.setName(serverName);
         server.setIso(serverName.toUpperCase());
         return getFlagResource(server);
+    }
+
+    public PIAServer getRandom(Vector<PIAServer> servers) {
+        if (servers != null && servers.size() > 0) {
+            int rnd = new Random().nextInt(servers.size());
+            return servers.get(rnd);
+        }
+
+        return null;
     }
 
     public enum ServerSortingType {

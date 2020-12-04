@@ -39,6 +39,14 @@
             android:layout_gravity="center" />
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:layout_height="151dp"
+            android:layout_width="151dp"
+            android:visibility="gone"
+            android:id="@+id/connection_focused"
+            app:srcCompat="@drawable/ic_connection_focused"
+            android:layout_gravity="center" />
+
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_height="133dp"
             android:layout_width="133dp"
             android:id="@+id/connection_background"

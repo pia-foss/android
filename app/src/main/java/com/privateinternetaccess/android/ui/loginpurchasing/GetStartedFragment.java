@@ -38,7 +38,6 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.github.mmin18.widget.RealtimeBlurView;
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
@@ -65,9 +64,13 @@ public class GetStartedFragment extends Fragment {
     @BindView(R.id.activity_login_purchasing_all_plans_button) Button bAllPlans;
     @Nullable
     @BindView(R.id.activity_login_purchasing_free_trial_text) TextView tvFreeTrial;
-
+    @BindView(R.id.activity_login_purchasing_TOS) TextView tvToS;
     @BindView(R.id.activity_login_purchasing_yearly_text) TextView tvYearly;
-    @BindView(R.id.activity_login_purchasing_blur) RealtimeBlurView bView;
+
+    @BindView(R.id.activity_login_purchasing_buy_button) Button bSignup;
+    @BindView(R.id.activity_login_purchasing_all_plans_button) Button bAllPlans;
+    @BindView(R.id.activity_login_purchasing_free_trial_text) TextView tvFreeTrial;
+
 
     @BindView(R.id.guideline) Guideline glClosed;
     @BindView(R.id.guideline2) Guideline glOpen;
@@ -82,8 +85,17 @@ public class GetStartedFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_get_started, container, false);
+        int layout = R.layout.fragment_get_started;
+        if (PIAApplication.isAndroidTV(getContext())) {
+            layout = R.layout.fragment_get_started_tv;
+        }
+        final View view = inflater.inflate(layout, container, false);
         ButterKnife.bind(this, view);
+
+        // Open layout by default on Android TV
+        if (PIAApplication.isAndroidTV(getContext())) {
+            openLayout();
+        }
 
         gestureListener = new GestureDetectorCompat(getContext(), new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -98,10 +110,11 @@ public class GetStartedFragment extends Fragment {
                         closeLayout();
                     }
                 }
-
                 return true;
             }
         });
+
+        LoginPurchaseActivity.setupToSPPText(getActivity(), tvToS);
 
         return view;
     }
@@ -131,7 +144,7 @@ public class GetStartedFragment extends Fragment {
             bDev.setVisibility(View.GONE);
         }
 
-        if (BuildConfig.FLAVOR_store.equals("amazonstore") && !PIAApplication.isAndroidTV(getContext())) {
+        if (BuildConfig.FLAVOR_store.equals("amazonstore")) {
             bAllPlans.setVisibility(View.GONE);
             bSignup.setVisibility(View.GONE);
             tvYearly.setVisibility(View.GONE);
@@ -189,7 +202,11 @@ public class GetStartedFragment extends Fragment {
                     SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(getContext())
             );
         } else {
-            ((LoginPurchaseActivity) getActivity()).showConnectionError();
+            if (!BuildConfig.FLAVOR_store.equals("playstore")) {
+                ((LoginPurchaseActivity) getActivity()).navigateToBuyVpnSite();
+            } else {
+                ((LoginPurchaseActivity) getActivity()).showConnectionError();
+            }
         }
     }
 
@@ -205,7 +222,11 @@ public class GetStartedFragment extends Fragment {
         if (pricesLoaded) {
             ((LoginPurchaseActivity) getActivity()).switchToPurchasing();
         } else {
-            ((LoginPurchaseActivity) getActivity()).showConnectionError();
+            if (!BuildConfig.FLAVOR_store.equals("playstore")) {
+                ((LoginPurchaseActivity) getActivity()).navigateToBuyVpnSite();
+            } else {
+                ((LoginPurchaseActivity) getActivity()).showConnectionError();
+            }
         }
     }
 

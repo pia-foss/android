@@ -40,14 +40,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="3dp"
-            android:background="@color/windowBackground"
-            >
+            android:background="@color/windowBackground">
+
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/fragment_trial_logo"
                 android:layout_width="match_parent"
-                android:layout_height="25dp"
-                android:layout_marginTop="28dp"
-                app:srcCompat="@drawable/ic_pia_logo"/>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_pia_logo_new"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -113,7 +116,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:srcCompat="@drawable/ic_pia_logo"/>
+                app:srcCompat="@drawable/ic_pia_logo_new"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -251,12 +254,15 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/fragment_failure_logo"
                     android:layout_width="match_parent"
-                    android:layout_height="25dp"
-                    android:layout_marginTop="28dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginRight="25dp"
+                    android:scaleType="centerInside"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:srcCompat="@drawable/ic_pia_logo"/>
+                    app:srcCompat="@drawable/ic_pia_logo_new"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -322,12 +328,15 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/fragment_progress_logo"
                     android:layout_width="match_parent"
-                    android:layout_height="25dp"
-                    android:layout_marginTop="28dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginRight="25dp"
+                    android:scaleType="centerInside"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:srcCompat="@drawable/ic_pia_logo"/>
+                    app:srcCompat="@drawable/ic_pia_logo_new"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"

@@ -44,23 +44,6 @@ import android.view.View;
 
 public class AppUtilities {
 
-    /**
-     * Colors text in a string resid.
-     *
-     * Use <emph> and </emph> to surround the area to be colored.
-     *
-     * @param c
-     * @param resid
-     * @param colorId
-     * @return
-     */
-    public static Spanned getColorText(Context c, @StringRes int resid, @ColorRes int colorId) {
-        String text = c.getString(resid);
-        text = text.replaceAll("<emph>", String.format("<font color=\"#%x\">", 0xffffff & ContextCompat.getColor(c, colorId)));
-        text = text.replaceAll("</emph>", "</font>");
-        return Html.fromHtml(text);
-    }
-
     public static boolean isValidEmail(CharSequence target) {
         boolean isValid = false;
         if (!TextUtils.isEmpty(target)) {
@@ -92,21 +75,4 @@ public class AppUtilities {
         drawable.draw(canvas);
         return bitmap;
     }
-
-
-    public static boolean keyboardShown(View rootView) {
-        try {
-            final int softKeyboardHeight = 100;
-            Rect r = new Rect();
-            rootView.getWindowVisibleDisplayFrame(r);
-            DisplayMetrics dm = rootView.getResources().getDisplayMetrics();
-            int heightDiff = rootView.getBottom() - r.bottom;
-            return heightDiff > softKeyboardHeight * dm.density;
-        } catch (Exception e) {
-            return false; //ensure that we're showing the button is something goes wrong.
-        }
-    }
-
-
-
 }

@@ -52,10 +52,10 @@ import com.privateinternetaccess.android.ui.DialogFactory;
 import com.privateinternetaccess.android.ui.adapters.SettingsAdapter;
 import com.privateinternetaccess.android.wireguard.backend.GoBackend;
 
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Vector;
 
-import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEN4_ACTIVE;
 import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEO_SERVERS_ACTIVE;
 import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_AUTH;
@@ -70,281 +70,237 @@ import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_CI
 public class SettingsFragmentHandler {
 
     public static void setupProtocolDialog(final Context context, final Preference screen, final SettingsFragment fragment) {
-        screen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(R.string.settings_protocol);
-                builder.setCancelable(true);
+        screen.setOnPreferenceClickListener(preference -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(R.string.settings_protocol);
+            builder.setCancelable(true);
 
-                final String[] protocolArray = context.getResources().getStringArray(R.array.protocol_options);
+            final String[] protocolArray = context.getResources().getStringArray(R.array.protocol_options);
 
-                final SettingsAdapter adapter = new SettingsAdapter(context);
-                adapter.setOptions(protocolArray);
-                adapter.setSelected(Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]));
-                adapter.setDisplayNames(protocolArray);
+            final SettingsAdapter adapter = new SettingsAdapter(context);
+            adapter.setOptions(protocolArray);
+            adapter.setSelected(Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]));
+            adapter.setDisplayNames(protocolArray);
 
-                builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if(PIAApplication.isAndroidTV(context)) {
-                            String selectedProtocol = protocolArray[i];
-                            String previousProtocol = Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]);
+            builder.setAdapter(adapter, (dialogInterface, i) -> {
+                if(PIAApplication.isAndroidTV(context)) {
+                    String selectedProtocol = protocolArray[i];
+                    String previousProtocol = Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]);
 
-                            String warningMessage = "";
+                    String warningMessage = "";
 
-                            if (!selectedProtocol.equals(previousProtocol)) {
-                                if(PIAFactory.getInstance().getVPN(context).isVPNActive()) {
-                                    Toaster.l(fragment.getActivity().getApplicationContext(), R.string.reconnect_vpn);
-                                }
-
-                                if (previousProtocol.equals(protocolArray[1])) {
-                                    if (GoBackend.VpnService.backend != null) {
-                                        GoBackend.VpnService.backend.stopVpn();
-                                    }
-                                }
-                                else {
-                                    IVPN vpn = PIAFactory.getInstance().getVPN(context);
-
-                                    if(vpn.isVPNActive()) {
-                                        vpn.stop();
-
-                                        Handler handler = new Handler(Looper.getMainLooper());
-                                        handler.postDelayed(() -> {
-                                            if(vpn.isKillswitchActive()){
-                                                vpn.stopKillswitch();
-                                            }
-                                        }, 1000);
-                                    }
-
-                                    if (PiaPrefHandler.isKillswitchEnabled(context)) {
-                                        warningMessage += context.getResources().getString(R.string.killswitch) + "\n";
-                                    }
-
-                                    if (PiaPrefHandler.getVPNPerAppPackages(context).size() > 0) {
-                                        warningMessage += context.getResources().getString(R.string.per_app_settings);
-                                    }
-                                }
-
-                                if (warningMessage.length() > 0) {
-                                    showPerAppWarning(context, warningMessage);
-                                }
-
-                                Prefs.with(context).set(PiaPrefHandler.VPN_PROTOCOL, selectedProtocol);
-                                fragment.setProtocolSummary();
-                            }
-                            DLog.d("Wireguard", "Changing protocol TV: " + selectedProtocol);
-                            dialogInterface.dismiss();
-                        }
-                    }
-                });
-
-                builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        int index = adapter.getSelectedIndex();
-                        String selectedProtocol = protocolArray[index];
-                        String previousProtocol = Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]);
-
-                        String warningMessage = "";
-
-                        if (!selectedProtocol.equals(previousProtocol)) {
-                            if(PIAFactory.getInstance().getVPN(context).isVPNActive()) {
-                                Toaster.l(fragment.getActivity().getApplicationContext(), R.string.reconnect_vpn);
-                            }
-
-                            if (previousProtocol.equals(protocolArray[1])) {
-                                if (GoBackend.VpnService.backend != null) {
-                                    GoBackend.VpnService.backend.stopVpn();
-                                }
-                            }
-                            else {
-                                IVPN vpn = PIAFactory.getInstance().getVPN(context);
-
-                                if(vpn.isVPNActive()) {
-                                    vpn.stop();
-
-                                    Handler handler = new Handler(Looper.getMainLooper());
-                                    handler.postDelayed(() -> {
-                                        if(vpn.isKillswitchActive()){
-                                            vpn.stopKillswitch();
-                                        }
-                                    }, 1000);
-                                }
-
-                                if (PiaPrefHandler.isKillswitchEnabled(context)) {
-                                    warningMessage += context.getResources().getString(R.string.killswitch) + "\n";
-                                }
-
-                                if (PiaPrefHandler.getVPNPerAppPackages(context).size() > 0) {
-                                    warningMessage += context.getResources().getString(R.string.per_app_settings);
-                                }
-                            }
-
-                            if (warningMessage.length() > 0) {
-                                showPerAppWarning(context, warningMessage);
-                            }
-
-                            Prefs.with(context).set(PiaPrefHandler.VPN_PROTOCOL, selectedProtocol);
-                            fragment.setProtocolSummary();
-                            PIAServerHandler.getInstance(context).triggerLatenciesUpdate();
+                    if (!selectedProtocol.equals(previousProtocol)) {
+                        if(PIAFactory.getInstance().getVPN(context).isVPNActive()) {
+                            Toaster.l(fragment.getActivity().getApplicationContext(), R.string.reconnect_vpn);
                         }
 
-                        dialogInterface.dismiss();
+                        if (previousProtocol.equals(protocolArray[1])) {
+                            if (GoBackend.VpnService.backend != null) {
+                                GoBackend.VpnService.backend.stopVpn();
+                            }
+                        }
+                        else {
+                            IVPN vpn = PIAFactory.getInstance().getVPN(context);
+
+                            if(vpn.isVPNActive()) {
+                                vpn.stop();
+
+                                Handler handler = new Handler(Looper.getMainLooper());
+                                handler.postDelayed(() -> {
+                                    if(vpn.isKillswitchActive()){
+                                        vpn.stopKillswitch();
+                                    }
+                                }, 1000);
+                            }
+
+                            if (PiaPrefHandler.isKillswitchEnabled(context)) {
+                                warningMessage += context.getResources().getString(R.string.killswitch) + "\n";
+                            }
+                        }
+
+                        if (warningMessage.length() > 0) {
+                            showWarning(context, warningMessage);
+                        }
+
+                        Prefs.with(context).set(PiaPrefHandler.VPN_PROTOCOL, selectedProtocol);
+                        fragment.setProtocolSummary();
                     }
-                });
+                    DLog.d("Wireguard", "Changing protocol TV: " + selectedProtocol);
+                    dialogInterface.dismiss();
+                }
+            });
 
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
+            builder.setPositiveButton(R.string.save, (dialogInterface, i) -> {
+                int index = adapter.getSelectedIndex();
+                String selectedProtocol = protocolArray[index];
+                String previousProtocol = Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]);
+
+                String warningMessage = "";
+
+                if (!selectedProtocol.equals(previousProtocol)) {
+                    if(PIAFactory.getInstance().getVPN(context).isVPNActive()) {
+                        Toaster.l(fragment.getActivity().getApplicationContext(), R.string.reconnect_vpn);
                     }
-                });
 
-                builder.show();
+                    if (previousProtocol.equals(protocolArray[1])) {
+                        if (GoBackend.VpnService.backend != null) {
+                            GoBackend.VpnService.backend.stopVpn();
+                        }
+                    }
+                    else {
+                        IVPN vpn = PIAFactory.getInstance().getVPN(context);
 
-                return false;
-            }
+                        if(vpn.isVPNActive()) {
+                            vpn.stop();
+
+                            Handler handler = new Handler(Looper.getMainLooper());
+                            handler.postDelayed(() -> {
+                                if(vpn.isKillswitchActive()){
+                                    vpn.stopKillswitch();
+                                }
+                            }, 1000);
+                        }
+
+                        if (PiaPrefHandler.isKillswitchEnabled(context)) {
+                            warningMessage += context.getResources().getString(R.string.killswitch) + "\n";
+                        }
+                    }
+
+                    if (warningMessage.length() > 0) {
+                        showWarning(context, warningMessage);
+                    }
+
+                    Prefs.with(context).set(PiaPrefHandler.VPN_PROTOCOL, selectedProtocol);
+                    fragment.setProtocolSummary();
+                    PIAServerHandler.getInstance(context).triggerLatenciesUpdate();
+                }
+
+                dialogInterface.dismiss();
+            });
+
+            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
+
+            builder.show();
+
+            return false;
         });
     }
 
     public static void setupDNSDialog(final Context context, final Preference screen, final SettingsFragment fragment){
-        screen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                String customDNS = Prefs.with(context).getString(PiaPrefHandler.CUSTOM_DNS);
-                String customSecondaryDNS = Prefs.with(context).getString(PiaPrefHandler.CUSTOM_SECONDARY_DNS);
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(context.getString(R.string.dns_pref_header));
+        screen.setOnPreferenceClickListener(preference -> {
+            String customDNS = Prefs.with(context).getString(PiaPrefHandler.CUSTOM_DNS);
+            String customSecondaryDNS = Prefs.with(context).getString(PiaPrefHandler.CUSTOM_SECONDARY_DNS);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(context.getString(R.string.dns_pref_header));
 
-                builder.setCancelable(false);
+            builder.setCancelable(false);
 
-                final String[] array = context.getResources().getStringArray(R.array.dns_names);
-                String[] dnsArray = context.getResources().getStringArray(R.array.dns_options);
+            final String[] array = context.getResources().getStringArray(R.array.dns_names);
+            String[] dnsArray = context.getResources().getStringArray(R.array.dns_options);
 
-                if (customDNS != null && customDNS.length() > 0) {
-                    String customDnsHeader = array[array.length - 1];
+            if (customDNS != null && customDNS.length() > 0) {
+                String customDnsHeader = array[array.length - 1];
 
-                    if (customSecondaryDNS != null && customSecondaryDNS.length() > 0) {
-                        customDnsHeader += String.format(" (%s / %s)", customDNS, customSecondaryDNS);
+                if (customSecondaryDNS != null && customSecondaryDNS.length() > 0) {
+                    customDnsHeader += String.format(" (%s / %s)", customDNS, customSecondaryDNS);
+                }
+                else {
+                    customDnsHeader += String.format(" (%s)", customDNS);
+                }
+
+                String[] customDnsArray = new String[dnsArray.length + 1];
+                for (int i = 0; i < dnsArray.length; i++)
+                    customDnsArray[i] = dnsArray[i];
+
+                customDnsArray[dnsArray.length] = customDNS;
+                array[array.length - 1] = customDnsHeader;
+
+                dnsArray = customDnsArray;
+            }
+
+            String dns = array[0];
+            try {
+                String prefDns = Prefs.with(context).get(PiaPrefHandler.DNS, dnsArray[0]);
+
+                if (prefDns != null && prefDns.length() > 0) {
+                    dns = prefDns;
+                }
+            } catch (Exception e) {
+            }
+
+            final SettingsAdapter adapter = new SettingsAdapter(context);
+            adapter.setOptions(dnsArray);
+
+            if (customDNS != null && Prefs.with(context).get(PiaPrefHandler.CUSTOM_DNS_SELECTED, false)) {
+                adapter.setLastItemSelected();
+            }
+            else {
+                adapter.setSelected(dns);
+            }
+
+            adapter.setDisplayNames(array);
+
+            final String[] dnsCustomArray = dnsArray;
+
+            builder.setAdapter(adapter, (dialogInterface, i) -> {
+                if(PIAApplication.isAndroidTV(context)) {
+                    Prefs.with(context).set(PiaPrefHandler.DNS, dnsCustomArray[i]);
+
+                    if (i == dnsCustomArray.length- 1) {
+                        Prefs.with(context).set(PiaPrefHandler.DNS_SECONDARY, Prefs.with(context).get(PiaPrefHandler.CUSTOM_SECONDARY_DNS, ""));
+                        Prefs.with(context).set(PiaPrefHandler.CUSTOM_DNS_SELECTED, true);
+                        showMaceWarning(context, fragment);
                     }
                     else {
-                        customDnsHeader += String.format(" (%s)", customDNS);
+                        Prefs.with(context).remove(PiaPrefHandler.DNS_SECONDARY);
+                        Prefs.with(context).remove(PiaPrefHandler.CUSTOM_DNS_SELECTED);
                     }
 
-                    String[] customDnsArray = new String[dnsArray.length + 1];
-                    for (int i = 0; i < dnsArray.length; i++)
-                        customDnsArray[i] = dnsArray[i];
-
-                    customDnsArray[dnsArray.length] = customDNS;
-                    array[array.length - 1] = customDnsHeader;
-
-                    dnsArray = customDnsArray;
+                    fragment.setDNSSummary();
+                    dialogInterface.dismiss();
                 }
+            });
 
-                String dns = array[0];
-                try {
-                    String prefDns = Prefs.with(context).get(PiaPrefHandler.DNS, dnsArray[0]);
+            builder.setPositiveButton(R.string.save, (dialog, which) -> {
+                int index = adapter.getSelectedIndex();
 
-                    if (prefDns != null && prefDns.length() > 0) {
-                        dns = prefDns;
+                if (index < dnsCustomArray.length && index >= 0) {
+                    PiaPrefHandler.setDnsChanged(context,
+                            !Prefs.with(context).get(PiaPrefHandler.DNS, "").equals(dnsCustomArray[index]));
+                    Prefs.with(context).set(PiaPrefHandler.DNS, dnsCustomArray[index]);
+
+                    DLog.d("SettingsFragment", "DNS Changed: " + PiaPrefHandler.hasDnsChanged(context));
+
+                    if (index == dnsCustomArray.length- 1) {
+                        Prefs.with(context).set(PiaPrefHandler.DNS_SECONDARY, Prefs.with(context).get(PiaPrefHandler.CUSTOM_SECONDARY_DNS, ""));
+                        Prefs.with(context).set(PiaPrefHandler.CUSTOM_DNS_SELECTED, true);
+                        showMaceWarning(context, fragment);
                     }
-                } catch (Exception e) {
-                }
-
-                final SettingsAdapter adapter = new SettingsAdapter(context);
-                adapter.setOptions(dnsArray);
-
-                if (customDNS != null && Prefs.with(context).get(PiaPrefHandler.CUSTOM_DNS_SELECTED, false)) {
-                    adapter.setLastItemSelected();
-                }
-                else {
-                    adapter.setSelected(dns);
-                }
-
-                adapter.setDisplayNames(array);
-
-                final String[] dnsCustomArray = dnsArray;
-
-                builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if(PIAApplication.isAndroidTV(context)) {
-                            Prefs.with(context).set(PiaPrefHandler.DNS, dnsCustomArray[i]);
-
-                            if (i == dnsCustomArray.length- 1) {
-                                Prefs.with(context).set(PiaPrefHandler.DNS_SECONDARY, Prefs.with(context).get(PiaPrefHandler.CUSTOM_SECONDARY_DNS, ""));
-                                Prefs.with(context).set(PiaPrefHandler.CUSTOM_DNS_SELECTED, true);
-                                showMaceWarning(context, fragment);
-                            }
-                            else {
-                                Prefs.with(context).remove(PiaPrefHandler.DNS_SECONDARY);
-                                Prefs.with(context).remove(PiaPrefHandler.CUSTOM_DNS_SELECTED);
-                            }
-
-                            fragment.setDNSSummary();
-                            dialogInterface.dismiss();
-                        }
+                    else {
+                        Prefs.with(context).remove(PiaPrefHandler.DNS_SECONDARY);
+                        Prefs.with(context).remove(PiaPrefHandler.CUSTOM_DNS_SELECTED);
                     }
+
+                    fragment.setDNSSummary();
+                    dialog.dismiss();
+                }
+            });
+
+            if (customDNS != null) {
+                builder.setNeutralButton(R.string.edit_custom_dns, (dialog, which) -> {
+                    showCustomDNSDialog(context, fragment);
+                    dialog.dismiss();
                 });
-
-                builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        int index = adapter.getSelectedIndex();
-
-                        if (index < dnsCustomArray.length && index >= 0) {
-                            PiaPrefHandler.setDnsChanged(context,
-                                    !Prefs.with(context).get(PiaPrefHandler.DNS, "").equals(dnsCustomArray[index]));
-                            Prefs.with(context).set(PiaPrefHandler.DNS, dnsCustomArray[index]);
-
-                            DLog.d("SettingsFragment", "DNS Changed: " + PiaPrefHandler.hasDnsChanged(context));
-
-                            if (index == dnsCustomArray.length- 1) {
-                                Prefs.with(context).set(PiaPrefHandler.DNS_SECONDARY, Prefs.with(context).get(PiaPrefHandler.CUSTOM_SECONDARY_DNS, ""));
-                                Prefs.with(context).set(PiaPrefHandler.CUSTOM_DNS_SELECTED, true);
-                                showMaceWarning(context, fragment);
-                            }
-                            else {
-                                Prefs.with(context).remove(PiaPrefHandler.DNS_SECONDARY);
-                                Prefs.with(context).remove(PiaPrefHandler.CUSTOM_DNS_SELECTED);
-                            }
-
-                            fragment.setDNSSummary();
-                            dialog.dismiss();
-                        }
-                    }
-                });
-
-                if (customDNS != null) {
-                    builder.setNeutralButton(R.string.edit_custom_dns, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            showCustomDNSDialog(context, fragment);
-                            dialog.dismiss();
-                        }
-                    });
-                }
-                else {
-                    builder.setNeutralButton(R.string.custom_dns, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            showDNSWarning(context, fragment);
-                        }
-                    });
-                }
-
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.show();
-
-                return false;
             }
+            else {
+                builder.setNeutralButton(R.string.custom_dns, (dialogInterface, i) -> showDNSWarning(context, fragment));
+            }
+
+            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
+
+            builder.show();
+
+            return false;
         });
     }
 
@@ -493,19 +449,14 @@ public class SettingsFragmentHandler {
         fragment.toggleMace(false);
     }
 
-    private static void showPerAppWarning(Context context, String message) {
+    private static void showWarning(Context context, String message) {
         String fullMessage = context.getResources().getString(R.string.wg_protocol_warning) + "\n\n" + message;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.settings_protocol);
         builder.setMessage(fullMessage);
 
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
+        builder.setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss());
 
         builder.show();
     }
@@ -896,7 +847,6 @@ public class SettingsFragmentHandler {
         prefs.set(PiaPrefHandler.RPORT, "");
         prefs.set(PiaPrefHandler.LPORT, "");
         prefs.set(PiaPrefHandler.PACKET_SIZE, ctx.getResources().getBoolean(R.bool.usemssfix));
-        prefs.set(GEN4_ACTIVE, true);
         prefs.set(GEO_SERVERS_ACTIVE, true);
 
         if (!PIAApplication.isAndroidTV(ctx)) {
@@ -937,6 +887,10 @@ public class SettingsFragmentHandler {
         prefs.remove(PiaPrefHandler.DNS_SECONDARY);
         prefs.remove(PiaPrefHandler.CUSTOM_SECONDARY_DNS);
         prefs.remove(PiaPrefHandler.CUSTOM_DNS);
+
+        // Per App Settings
+        prefs.set(PiaPrefHandler.VPN_PER_APP_ARE_ALLOWED, false);
+        prefs.set(PiaPrefHandler.VPN_PER_APP_PACKAGES, new HashSet<>());
 
         //PiaPrefHandler.clearTrustWifi(ctx);
         PiaPrefHandler.clearTrustedNetworks(ctx);

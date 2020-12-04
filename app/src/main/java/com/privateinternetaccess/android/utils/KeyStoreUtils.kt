@@ -24,6 +24,7 @@ import android.security.KeyPairGeneratorSpec
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import com.privateinternetaccess.android.pia.utils.DLog
 import com.privateinternetaccess.android.pia.utils.MultiPreferences
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -47,22 +48,30 @@ class KeyStoreUtils(private val context: Context, private val multiPreferences: 
         private const val ENCRYPTED_KEY = "ENCRYPTED_KEY"
         private const val INITIALIZATION_VECTOR = "INITIALIZATION_VECTOR"
         private const val CIPHER_NAME_PROVIDER = "AndroidOpenSSL"
+        private const val TAG = "KeyStoreUtils"
     }
 
-    private var keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
+    private var keyStore: KeyStore? = null
 
     init {
-        generateEncryptKey()
-        generateInitializationVector()
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            generateAESKey()
+        try {
+            keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
+            generateEncryptKey()
+            generateInitializationVector()
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                generateAESKey()
+            }
+        } catch (exception: KeyStoreException) {
+            DLog.e(TAG, "Exception on init $exception")
         }
     }
 
     private fun generateEncryptKey() {
-        keyStore.load(null)
-        if (keyStore.containsAlias(KEY_ALIAS)) {
-            return
+        keyStore?.let {
+            it.load(null)
+            if (it.containsAlias(KEY_ALIAS)) {
+                return
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -95,7 +104,7 @@ class KeyStoreUtils(private val context: Context, private val multiPreferences: 
     }
 
     private fun rsaEncrypt(secret: ByteArray): ByteArray {
-        val privateKeyEntry = keyStore.getEntry(KEY_ALIAS, null) as KeyStore.PrivateKeyEntry
+        val privateKeyEntry = keyStore?.getEntry(KEY_ALIAS, null) as KeyStore.PrivateKeyEntry
         val cipher = Cipher.getInstance(RSA_MODE, CIPHER_NAME_PROVIDER)
         cipher.init(Cipher.ENCRYPT_MODE, privateKeyEntry.certificate.publicKey)
         val outputStream = ByteArrayOutputStream()
@@ -106,7 +115,7 @@ class KeyStoreUtils(private val context: Context, private val multiPreferences: 
     }
 
     private fun rsaDecrypt(encrypted: ByteArray): ByteArray {
-        val privateKeyEntry = keyStore.getEntry(KEY_ALIAS, null) as KeyStore.PrivateKeyEntry
+        val privateKeyEntry = keyStore?.getEntry(KEY_ALIAS, null) as KeyStore.PrivateKeyEntry
         val cipher = Cipher.getInstance(RSA_MODE, CIPHER_NAME_PROVIDER)
         cipher.init(Cipher.DECRYPT_MODE, privateKeyEntry.privateKey)
         val cipherInputStream = CipherInputStream(ByteArrayInputStream(encrypted), cipher)
@@ -137,8 +146,8 @@ class KeyStoreUtils(private val context: Context, private val multiPreferences: 
 
     private fun getSecretKey(): Key {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            keyStore.load(null)
-            return keyStore.getKey(KEY_ALIAS, null) as SecretKey
+            keyStore?.load(null)
+            return keyStore?.getKey(KEY_ALIAS, null) as SecretKey
         }
 
         val encryptedKeyBase64 = multiPreferences.getString(ENCRYPTED_KEY, null)

@@ -18,16 +18,19 @@
 
 package com.privateinternetaccess.android.wireguard.backend;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import androidx.annotation.Nullable;
 import androidx.collection.ArraySet;
+
 import android.util.Log;
 
 import com.privateinternetaccess.android.BuildConfig;
@@ -40,9 +43,11 @@ import com.privateinternetaccess.android.pia.api.PiaApi;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.tasks.HitMaceTask;
+import com.privateinternetaccess.android.pia.receivers.PortForwardingReceiver;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
+import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
+import com.privateinternetaccess.android.tunnel.PortForwardingStatus;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.notifications.PIANotifications;
 import com.privateinternetaccess.android.utils.ServerUtils;
@@ -68,6 +73,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -86,7 +92,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.privateinternetaccess.android.pia.api.MaceApi.GEN4_MACE_ENABLED_DNS;
+import static com.privateinternetaccess.android.pia.api.PiaApi.GEN4_MACE_ENABLED_DNS;
 import static de.blinkt.openvpn.core.OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID;
 
 public final class GoBackend implements Backend {
@@ -100,6 +106,7 @@ public final class GoBackend implements Backend {
 
     private static final String TAG = "WireGuard/" + GoBackend.class.getSimpleName();
     private static GhettoCompletableFuture<VpnService> vpnService = new GhettoCompletableFuture<>();
+    private static final long USAGE_INTERVAL_MS  = 4000;
     @Nullable private static AlwaysOnCallback alwaysOnCallback;
 
     private final Context context;
@@ -107,9 +114,13 @@ public final class GoBackend implements Backend {
     private int currentTunnelHandle = -1;
     public boolean isConnecting = false;
 
+    private AlarmManager alarmManager;
+    private PendingIntent portForwardingIntent;
+
     public GoBackend(final Context context) {
         SharedLibraryLoader.loadSharedLibrary(context, "wg-go");
         this.context = context;
+        alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     }
 
     private static native String wgGetConfig(int handle);
@@ -249,6 +260,8 @@ public final class GoBackend implements Backend {
             final VpnService.Builder builder = service.getBuilder();
             builder.setSession(tunnel.getName());
 
+            setDisallowedApps(builder);
+
             final Intent configureIntent = new Intent(context, MainActivity.class);
             configureIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             builder.setConfigureIntent(PendingIntent.getActivity(context, 0, configureIntent, 0));
@@ -301,11 +314,9 @@ public final class GoBackend implements Backend {
             SnoozeUtils.resumeVpn(context, false);
 
             PiaPrefHandler.setGatewayEndpoint(context, currentTunnel.getConfig().getInterface().getGateway());
-            boolean useMace = PiaPrefHandler.isMaceEnabled(context);
 
-            if (useMace && !BuildConfig.FLAVOR_store.equals("playstore")) {
-                HitMaceTask mace = new HitMaceTask(context, true);
-                mace.execute();
+            if (PiaPrefHandler.isPortForwardingEnabled(context)) {
+                startPortForwarding();
             }
 
             service.showNotification("Connected", "Connected", ConnectionStatus.LEVEL_CONNECTED);
@@ -333,7 +344,7 @@ public final class GoBackend implements Backend {
             EventBus.getDefault().postSticky(event);
 
             PiaPrefHandler.clearGatewayEndpoint(context);
-            PiaPrefHandler.setMaceActive(context, false);
+            clearPortForwarding();
 
             lastState = state;
             isConnecting = false;
@@ -352,6 +363,38 @@ public final class GoBackend implements Backend {
             context.startForegroundService(new Intent(context, VpnService.class));
         else
             context.startService(new Intent(context, VpnService.class));
+    }
+
+    private void clearPortForwarding() {
+        PiaPrefHandler.clearGatewayEndpoint(context);
+        PIAVpnStatus.setPortForwardingStatus(PortForwardingStatus.NO_PORTFWD, "");
+        PiaPrefHandler.clearBindPortForwardInformation(context);
+        if (portForwardingIntent == null) {
+            return;
+        }
+        alarmManager.cancel(portForwardingIntent);
+        portForwardingIntent = null;
+    }
+
+    private void startPortForwarding() {
+        PIAVpnStatus.setPortForwardingStatus(
+                PortForwardingStatus.REQUESTING,
+                context.getString(R.string.requestingportfw)
+        );
+        if (portForwardingIntent != null) {
+            return;
+        }
+
+        Intent intent = new Intent(context, PortForwardingReceiver.class);
+        portForwardingIntent = PendingIntent.getBroadcast(
+                context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT
+        );
+        alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                0,
+                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                portForwardingIntent
+        );
     }
 
     public interface AlwaysOnCallback {
@@ -540,7 +583,7 @@ public final class GoBackend implements Backend {
             wgSettings.add("dns=" + prefs.get(PiaPrefHandler.DNS, dns.toString()));
         }
         else {
-            if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true) && PiaPrefHandler.isMaceEnabled(context)) {
+            if (PiaPrefHandler.isMaceEnabled(context) && !BuildConfig.FLAVOR_store.equals("playstore")) {
                 dns = GEN4_MACE_ENABLED_DNS;
             }
             wgSettings.add("dns=" + dns);
@@ -565,16 +608,11 @@ public final class GoBackend implements Backend {
             wgSettings.add("allowedips=0.0.0.0/0");
         }
         else {
-            if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-                if (PiaPrefHandler.isMaceEnabled(context)) {
-                    wgSettings.add("allowedips=" + getAllowedIps(GEN4_MACE_ENABLED_DNS));
-                }
-                else {
-                    wgSettings.add("allowedips=" + getAllowedIps(response.getJSONArray("dns_servers").get(0).toString()));
-                }
+            if (PiaPrefHandler.isMaceEnabled(context)) {
+                wgSettings.add("allowedips=" + getAllowedIps(GEN4_MACE_ENABLED_DNS));
             }
             else {
-                wgSettings.add("allowedips=" + IPV4_PUBLIC_NETWORKS);
+                wgSettings.add("allowedips=" + getAllowedIps(response.getJSONArray("dns_servers").get(0).toString()));
             }
         }
 
@@ -587,6 +625,38 @@ public final class GoBackend implements Backend {
         }
         else {
             return IPV4_PUBLIC_NETWORKS + "10.0.0.240/29";
+        }
+    }
+
+    private void setDisallowedApps(VpnService.Builder builder) {
+        Prefs prefs = new Prefs(context);
+        boolean atLeastOneAllowedApp = false;
+
+        HashSet<String> allowedAppsVpn = new HashSet<>(prefs.getStringSet(PiaPrefHandler.VPN_PER_APP_PACKAGES));
+        boolean allowedAppsVpnAreDisallowed = !prefs.getBoolean(PiaPrefHandler.VPN_PER_APP_ARE_ALLOWED);
+
+        if (!allowedAppsVpnAreDisallowed)
+            allowedAppsVpn.add(context.getPackageName());
+
+        for (String pkg : allowedAppsVpn) {
+            try {
+                if (allowedAppsVpnAreDisallowed) {
+                    builder.addDisallowedApplication(pkg);
+                } else {
+                    builder.addAllowedApplication(pkg);
+                    atLeastOneAllowedApp = true;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                allowedAppsVpn.remove(pkg);
+            }
+        }
+
+        if (!allowedAppsVpnAreDisallowed && !atLeastOneAllowedApp) {
+            try {
+                builder.addAllowedApplication(context.getPackageName());
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -767,7 +837,7 @@ public final class GoBackend implements Backend {
                     EventBus.getDefault().postSticky(traffic);
 
                     if (usageHandler != null) {
-                        usageHandler.postDelayed(usageRunnable, 10000);
+                        usageHandler.postDelayed(usageRunnable, USAGE_INTERVAL_MS);
                     }
 
                     prevStats = stats;
@@ -775,7 +845,7 @@ public final class GoBackend implements Backend {
             };
 
             usageHandler = new Handler(Looper.getMainLooper());
-            usageHandler.postDelayed(usageRunnable, 10000);
+            usageHandler.postDelayed(usageRunnable, USAGE_INTERVAL_MS);
         }
 
         private void startReconnect() {

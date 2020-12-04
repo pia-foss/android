@@ -152,6 +152,7 @@ public class PanelFragment extends Fragment {
     public void onResume() {
         super.onResume();
         PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(prefListener);
+        portWidget.updateState();
 
         if (VPNProtocol.activeProtocol(getContext()) == VPNProtocol.Protocol.OpenVPN) {
             killswitchPanelItem.setVisibility(View.VISIBLE);

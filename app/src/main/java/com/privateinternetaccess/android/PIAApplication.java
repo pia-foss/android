@@ -49,31 +49,25 @@ import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.model.events.SubscriptionsEvent;
-import com.privateinternetaccess.android.pia.subscription.Base64DecoderException;
 import com.privateinternetaccess.android.pia.utils.DLog;
-import com.privateinternetaccess.android.pia.utils.PasswordObfuscation;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig;
 import com.privateinternetaccess.android.receivers.OnAutoConnectNetworkReceiver;
-import com.privateinternetaccess.android.receivers.OnNetworkChangeReceiver;
 import com.privateinternetaccess.android.ui.notifications.OVPNNotificationsBridge;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
 import com.privateinternetaccess.android.wireguard.backend.Backend;
 import com.privateinternetaccess.android.wireguard.backend.GoBackend;
 import com.privateinternetaccess.android.wireguard.model.Tunnel;
-import com.privateinternetaccess.android.wireguard.model.TunnelManager;
 import com.privateinternetaccess.android.wireguard.backend.GoBackend.GhettoCompletableFuture;
 import com.privateinternetaccess.android.wireguard.util.AsyncWorker;
 import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -108,8 +102,6 @@ public class PIAApplication extends Application {
     private final GhettoCompletableFuture<Backend> futureBackend = new GhettoCompletableFuture<>();
     @SuppressWarnings("NullableProblems") private AsyncWorker asyncWorker;
     @Nullable static private GoBackend backend;
-    @SuppressWarnings("NullableProblems") private SharedPreferences sharedPreferences;
-    @SuppressWarnings("NullableProblems") private TunnelManager tunnelManager;
 
     public static PIAApplication get() {
         return weakSelf.get();
@@ -132,14 +124,6 @@ public class PIAApplication extends Application {
             }
             return app.backend;
         }
-    }
-
-    public static TunnelManager getTunnelManager() {
-        return get().tunnelManager;
-    }
-
-    public static SharedPreferences getSharedPreferences() {
-        return get().sharedPreferences;
     }
 
     static {
@@ -236,7 +220,6 @@ public class PIAApplication extends Application {
 
         // Registering the receiver since api 24+ won't call the receiver if in the manifest.
         IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
-        context.registerReceiver(new OnNetworkChangeReceiver(), intentFilter);
         context.registerReceiver(new OnAutoConnectNetworkReceiver(), intentFilter);
 
         updateOrResetValues();
@@ -283,21 +266,6 @@ public class PIAApplication extends Application {
             prefs.set("cipher", "none");
         } else if (currentCipher.equals("null")) {
             prefs.set("cipher", "AES-128-CBC");
-        }
-
-        // Removes a duplicate password in 1.3 clients
-        String password = prefs.getString("password");
-        String obs_password = prefs.getString("obs_password");
-        if (!TextUtils.isEmpty(password) && !TextUtils.isEmpty(obs_password)) {
-            String deobs_password = null;
-            try {
-                deobs_password = PasswordObfuscation.deobfuscate(prefs.getString("password"));
-            } catch (GeneralSecurityException | IOException | Base64DecoderException e) {
-                e.printStackTrace();
-            }
-            if (!TextUtils.isEmpty(deobs_password) && deobs_password.equals(password)) {
-                prefs.remove("password");
-            }
         }
 
         if(BuildConfig.FLAVOR_store.equals("playstore") && !prefs.getBoolean(HAS_RESET_MACE_GOOGLE)){

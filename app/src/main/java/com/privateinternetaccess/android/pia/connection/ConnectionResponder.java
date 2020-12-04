@@ -29,20 +29,14 @@ import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.PIAKillSwitchStatus;
 import com.privateinternetaccess.android.PIAOpenVPNTunnelLibrary;
-import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.model.response.MaceResponse;
 import com.privateinternetaccess.android.pia.receivers.PortForwardingReceiver;
-import com.privateinternetaccess.android.pia.tasks.HitMaceTask;
-import com.privateinternetaccess.android.pia.tasks.PortForwardTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
-import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.tunnel.PortForwardingStatus;
-import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -80,16 +74,12 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
 
     private Context context;
     private static ConnectionResponder mInstance;
-    private static PortForwardTask portTask;
-    private static HitMaceTask maceTask;
 
     private AlarmManager alarmManager;
     private PendingIntent portForwardingIntent;
 
     static ThreadPoolExecutor executor;
     static BlockingQueue<Runnable> workQueue;
-
-    static IPIACallback<MaceResponse> hitMaceCallback;
 
     private static int REQUESTING_PORT_STRING;
     public static boolean VPN_REVOKED;
@@ -101,15 +91,6 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
         REQUESTING_PORT_STRING = resId;
         alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         PIAKillSwitchStatus.addKillSwitchListener(this);
-        //mace stuff
-        if(VpnStatus.isVPNActive()){
-            boolean useMace = PiaPrefHandler.isMaceEnabled(c);
-            if(useMace){
-                PiaPrefHandler.setMaceActive(c, true);
-            }
-        } else {
-            PiaPrefHandler.setMaceActive(c, false);
-        }
     }
 
     public static ConnectionResponder initConnection(Context c, int resID) {
@@ -150,8 +131,6 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
                 startPortForwarding();
             }
 
-            startUpMace();
-
             if(PiaPrefHandler.isKillswitchEnabled(context)){
                 PIAOpenVPNTunnelLibrary.mNotifications.stopKillSwitchNotification(context);
             }
@@ -159,25 +138,13 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
             resetRevivalMechanic();
         } else if(level == ConnectionStatus.LEVEL_NOTCONNECTED) {
             DLog.d(TAG, "Not connected Clear");
-            boolean revivingVPN = isVPNReviveNeeded();
-            if(portTask != null) {
-                portTask.cancel(true);
-                portTask = null;
-            }
-            if(maceTask != null){
-                maceTask.cancel(true);
-                maceTask = null;
-            }
             PiaPrefHandler.clearLastIPVPN(context);
-            IVPN vpn = PIAFactory.getInstance().getVPN(context);
             MACE_IS_RUNNING = false;
-            PiaPrefHandler.setMaceActive(context, false);
             PIAVpnStatus.clearOldData();
             cleanupExecutor();
             PiaPrefHandler.setVPNConnecting(context, false);
             clearPortForwarding();
         } else if(level == ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET || level == ConnectionStatus.LEVEL_NONETWORK){
-            PiaPrefHandler.setMaceActive(context, false);
             PiaPrefHandler.setVPNConnecting(context, true);
             PiaPrefHandler.clearLastIPVPN(context);
             VPN_REVOKED = false;
@@ -264,67 +231,30 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
 
     private void startPortForwarding() {
         PIAVpnStatus.setPortForwardingStatus(PortForwardingStatus.REQUESTING, context.getString(REQUESTING_PORT_STRING));
-        if (Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true))  {
-            if (portForwardingIntent != null) {
-                return;
-            }
-
-            Intent intent = new Intent(context, PortForwardingReceiver.class);
-            portForwardingIntent = PendingIntent.getBroadcast(
-                    context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT
-            );
-            alarmManager.setRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    0,
-                    AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-                    portForwardingIntent
-            );
-        } else {
-            if(portTask == null) {
-                portTask = new PortForwardTask(
-                        context,
-                        R.string.portfwderror,
-                        R.string.n_a_port_forwarding
-                );
-                portTask.executeOnExecutor(executor, "");
-            }
+        if (portForwardingIntent != null) {
+            return;
         }
+
+        Intent intent = new Intent(context, PortForwardingReceiver.class);
+        portForwardingIntent = PendingIntent.getBroadcast(
+                context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT
+        );
+        alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                0,
+                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                portForwardingIntent
+        );
     }
 
     private void clearPortForwarding() {
         PiaPrefHandler.clearGatewayEndpoint(context);
         PIAVpnStatus.setPortForwardingStatus(PortForwardingStatus.NO_PORTFWD, "");
-        if (Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-            if (portForwardingIntent == null) {
-                return;
-            }
-            PiaPrefHandler.clearBindPortForwardInformation(context);
-            alarmManager.cancel(portForwardingIntent);
-            portForwardingIntent = null;
-        } else {
-            if (portTask != null) {
-                portTask.cancel(true);
-                portTask = null;
-            }
+        if (portForwardingIntent == null) {
+            return;
         }
-    }
-
-    private void startUpMace() {
-        boolean useMace = PiaPrefHandler.isMaceEnabled(context);
-        if(useMace && !BuildConfig.FLAVOR_store.equals("playstore")){
-            boolean isActive = PiaPrefHandler.isMaceActive(context);
-            DLog.d("CheckForMACE","active = " + isActive);
-            if(!isActive){
-                if(!MACE_IS_RUNNING){
-                    DLog.i("CheckForMACE","hitMACE");
-                    MACE_IS_RUNNING = true;
-                    maceTask = new HitMaceTask(context, true);
-                    maceTask.setCallback(hitMaceCallback);
-                    maceTask.executeOnExecutor(executor, 0);
-                }
-            } else {
-                PiaPrefHandler.setMaceActive(context, false);
-            }
-        }
+        PiaPrefHandler.clearBindPortForwardInformation(context);
+        alarmManager.cancel(portForwardingIntent);
+        portForwardingIntent = null;
     }
 }

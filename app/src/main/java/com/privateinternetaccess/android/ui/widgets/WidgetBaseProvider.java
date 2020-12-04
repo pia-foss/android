@@ -46,7 +46,6 @@ import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.PingDelayStartHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
@@ -217,10 +216,13 @@ public class WidgetBaseProvider extends AppWidgetProvider  {
 
     void launchVPN(Context context) {
         Intent intent = VpnService.prepare(context);
+
+        // `intent` null means its prepared and not null means go to the VPNPermission activity
         if (intent == null) {
-            PingDelayStartHandler handler = new PingDelayStartHandler();
-            handler.setTimeDiff(0);
-            handler.startPings(context);
+            PIAServerHandler.getInstance(context).triggerLatenciesUpdate(error -> {
+                PIAFactory.getInstance().getVPN(context).start();
+                return null;
+            });
         } else {
             Intent startVpnIntent = new Intent(Intent.ACTION_MAIN);
             startVpnIntent.setClass(context, LaunchVPNForService.class);

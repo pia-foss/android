@@ -18,18 +18,16 @@
 
 package com.privateinternetaccess.android.pia.utils
 
-import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-@ImplicitReflectionSerializer
 object PrefsUtils {
 
     public fun stringifySet(set: Set<String>) =
-            Json.stringify(StringSetSerializer.serializer(), StringSetSerializer(set))
+            Json.encodeToString(StringSetSerializer.serializer(), StringSetSerializer(set))
     public fun parseSet(set: String) =
-            Json.parse(StringSetSerializer.serializer(), set).data
+            Json.decodeFromString(StringSetSerializer.serializer(), set).data
 
     @Serializable
     private data class StringSetSerializer(

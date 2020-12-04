@@ -28,7 +28,6 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
 import androidx.fragment.app.Fragment;
@@ -56,12 +55,10 @@ import com.privateinternetaccess.core.utils.IPIACallback;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
-
 public class DashboardActivity extends BaseActivity {
 
     private static final int PANEL_ANIMATION_LENGTH = 200;
-    private static final float PANEL_OPEN_PERCENT = 0.75f;
+    private static final float PANEL_OPEN_PERCENT = 0.66f;
     private static final float PANEL_CLOSED_PERCENT = 1.0f;
 
     private ConnectFragment connectFragment;
@@ -184,21 +181,6 @@ public class DashboardActivity extends BaseActivity {
         closeWidgetPanel();
     }
 
-    public void showKillSwitchWarning() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && PiaPrefHandler.isKillswitchEnabled(this)) {
-//            Prefs prefs = new Prefs(this);
-//            prefs.set(KILLSWITCH, false);
-//
-//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//            builder.setTitle(R.string.launcher_name);
-//            builder.setCancelable(false);
-//            builder.setMessage(R.string.ks_removal_warning);
-//            builder.setPositiveButton(android.R.string.ok, null);
-//
-//            builder.show();
-//        }
-    }
-
     public void logout() {
         mLogoutAssitance = new LogoutHandler(this, getLogoutCallback());
         mLogoutAssitance.logout();
@@ -239,7 +221,6 @@ public class DashboardActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         checkAutoConnect();
-        showKillSwitchWarning();
     }
 
     private void checkAutoConnect() {

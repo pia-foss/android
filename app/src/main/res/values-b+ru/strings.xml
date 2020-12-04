@@ -170,7 +170,7 @@
     <string name="save">Сохранить</string>
     <string name="saved">Сохранено</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Показана скорость для трафика через ваше VPN-подключение</string>
-    <string name="ip_short">Общедоступный IP-адрес</string>
+    <string name="ip_short">IP-адрес</string>
     <string name="login_throttled_text">Слишком много неудачных попыток входа с использованием этого имени пользователя. Повторите попытку позже.</string>
     <string name="tap_to_connect">КОСНИТЕСЬ ДЛЯ ПОДКЛЮЧЕНИЯ</string>
     <string name="building_configration">Формирование конфигурации...</string>
@@ -553,9 +553,6 @@
     <string name="tunnel_error_already_exists">Туннель «%s» уже существует</string>
     <string name="tunnel_error_invalid_name">Неверное имя</string>
     <string name="preview">ПРОСМОТР</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">Сеть следующего поколения</string>
-    <string name="gen4_next_generation_network_message">Необходимо отключить VPN для смены сети сервера.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Включать регионы, определенные по местоположению</string>
     <!-- Rating -->
@@ -577,6 +574,7 @@
     <string name="purchasing_return">Хотите вернуться на домашний экран? Процесс подписки можно продолжить в любой момент, нажав Вход-&gt;Вход по квитанции о покупке.</string>
     <string name="purchasing_magic_link">Войти через волшебную ссылку из письма</string>
     <string name="purchasing_magic_send">ОТПРАВИТЬ ССЫЛКУ</string>
+    <string name="magic_login_enter_email">Введите эл. почту</string>
     <string name="purchasing_magic_success">Поищите ссылку для входа на почте</string>
     <string name="connection_tile_header">СОЕДИНЕНИЕ</string>
     <string name="connection_tile_tcp">TCP</string>

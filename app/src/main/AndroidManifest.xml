@@ -136,16 +136,6 @@
                 android:minWidth="300dp" />
             </activity>
 
-        <activity
-            android:name=".ui.drawer.settings.PrivacyPolicyActivity"
-            >
-            <layout android:defaultHeight="500dp"
-                android:defaultWidth="600dp"
-                android:gravity="top|end"
-                android:minHeight="350dp"
-                android:minWidth="300dp" />
-        </activity>
-
         <activity android:name=".ui.features.WebviewActivity">
             <layout android:defaultHeight="500dp"
                 android:defaultWidth="600dp"
@@ -163,8 +153,6 @@
                 android:minHeight="350dp"
                 android:minWidth="300dp" />
         </activity>
-
-        <activity android:name=".ui.loginpurchasing.TrialActivity"/>
 
         <activity
             android:name=".ui.drawer.AllowedAppsActivity"
@@ -233,14 +221,6 @@
 
         <activity android:name=".ui.drawer.settings.DeveloperActivity"
             android:windowSoftInputMode="stateHidden">
-            <layout android:defaultHeight="500dp"
-                android:defaultWidth="600dp"
-                android:gravity="top|end"
-                android:minHeight="350dp"
-                android:minWidth="300dp" />
-        </activity>
-
-        <activity android:name=".ui.startup.StartupActivity">
             <layout android:defaultHeight="500dp"
                 android:defaultWidth="600dp"
                 android:gravity="top|end"

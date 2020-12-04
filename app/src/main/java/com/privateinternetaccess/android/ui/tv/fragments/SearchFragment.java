@@ -121,7 +121,6 @@ public class SearchFragment extends Fragment {
         mServerItems = new ArrayList<>();
 
         for (PIAServer ps : handler.getServers(context, PIAServerHandler.ServerSortingType.NAME, PIAServerHandler.ServerSortingType.FAVORITES)) {
-            String latency = ServerUtils.getLatencyForActiveSetting(context, ps.getLatencies());
             mServerItems.add(
                     new ServerItem(
                             ps.getKey(),
@@ -131,7 +130,7 @@ public class SearchFragment extends Fragment {
                             false,
                             ps.isAllowsPF(),
                             ps.isGeo(),
-                            latency
+                            ps.getLatency()
                     )
             );
         }

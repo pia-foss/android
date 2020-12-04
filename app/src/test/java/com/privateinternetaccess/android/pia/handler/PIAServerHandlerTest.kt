@@ -24,17 +24,14 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler
-import com.privateinternetaccess.android.pia.handlers.PIAServerHandler.LAST_SERVER_BODY
-import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler.GEN4_LAST_SERVER_BODY
 import com.privateinternetaccess.android.pia.utils.Prefs
 import com.privateinternetaccess.android.utils.KeyStoreUtils
 import com.privateinternetaccess.common.regions.RegionLowerLatencyInformation
-import com.privateinternetaccess.common.regions.RegionsProtocol
 import com.privateinternetaccess.common.regions.model.RegionsResponse
 import com.privateinternetaccess.regions.RegionsAPI
 import org.junit.Assert
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -58,8 +55,7 @@ class PIAServerHandlerTest {
     @Test
     fun testGen4WorkersAllocation() {
         val prefsSpy = Mockito.spy(Prefs.with(context))
-        Mockito.`when`(prefsSpy.get(PiaPrefHandler.GEN4_ACTIVE, true)).thenReturn(true)
-        Mockito.`when`(prefsSpy.get(LAST_SERVER_BODY, "")).thenReturn("{}")
+        Mockito.`when`(prefsSpy.get(GEN4_LAST_SERVER_BODY, "")).thenReturn("{}")
         PIAServerHandler.setPrefs(prefsSpy)
 
         PIAServerHandler.getInstance(context).fetchServers(context, true)
@@ -68,26 +64,9 @@ class PIAServerHandlerTest {
     }
 
     @Test
-    fun testGen4WorkersRelease() {
-        val prefsSpy = Mockito.spy(Prefs.with(context))
-        Mockito.`when`(prefsSpy.get(PiaPrefHandler.GEN4_ACTIVE, true)).thenReturn(false)
-        Mockito.`when`(prefsSpy.get(LAST_SERVER_BODY, "")).thenReturn("{}")
-        PIAServerHandler.setAlarmManager(Mockito.mock(AlarmManager::class.java))
-        PIAServerHandler.setPrefs(prefsSpy)
-
-        PIAServerHandler.getInstance(context).fetchServersIntent = Mockito.mock(PendingIntent::class.java)
-        PIAServerHandler.getInstance(context).pingIntent = Mockito.mock(PendingIntent::class.java)
-
-        PIAServerHandler.getInstance(context).fetchServers(context, true)
-        Assert.assertNull(PIAServerHandler.getInstance(context).pingIntent)
-        Assert.assertNull(PIAServerHandler.getInstance(context).fetchServersIntent)
-    }
-
-    @Test
     fun testGen4ServerFetchingInvocationOnObjectInitialization() {
         val prefsSpy = Mockito.spy(Prefs.with(context))
-        Mockito.`when`(prefsSpy.get(PiaPrefHandler.GEN4_ACTIVE, true)).thenReturn(true)
-        Mockito.`when`(prefsSpy.get(LAST_SERVER_BODY, "")).thenReturn("{}")
+        Mockito.`when`(prefsSpy.get(GEN4_LAST_SERVER_BODY, "")).thenReturn("{}")
         val regionsSpy = Mockito.spy(MockRegionsApi(mockResponse = false))
         PIAServerHandler.setPrefs(prefsSpy)
         PIAServerHandler.setRegionModule(regionsSpy)
@@ -99,8 +78,7 @@ class PIAServerHandlerTest {
     @Test
     fun testGen4ServerFetchingInvocationAfterObjectInitialization() {
         val prefsSpy = Mockito.spy(Prefs.with(context))
-        Mockito.`when`(prefsSpy.get(PiaPrefHandler.GEN4_ACTIVE, true)).thenReturn(true)
-        Mockito.`when`(prefsSpy.get(LAST_SERVER_BODY, "")).thenReturn("{}")
+        Mockito.`when`(prefsSpy.get(GEN4_LAST_SERVER_BODY, "")).thenReturn("{}")
         val regionsSpy = Mockito.spy(MockRegionsApi(mockResponse = false))
         PIAServerHandler.setPrefs(prefsSpy)
         PIAServerHandler.setRegionModule(regionsSpy)
@@ -112,8 +90,7 @@ class PIAServerHandlerTest {
     @Test
     fun testGen4ServerPingAfterFetching() {
         val prefsSpy = Mockito.spy(Prefs.with(context))
-        Mockito.`when`(prefsSpy.get(PiaPrefHandler.GEN4_ACTIVE, true)).thenReturn(true)
-        Mockito.`when`(prefsSpy.get(LAST_SERVER_BODY, "")).thenReturn("{}")
+        Mockito.`when`(prefsSpy.get(GEN4_LAST_SERVER_BODY, "")).thenReturn("{}")
         val regionsSpy = Mockito.spy(MockRegionsApi(mockResponse = false))
         PIAServerHandler.setPrefs(prefsSpy)
         PIAServerHandler.setRegionModule(regionsSpy)
@@ -121,20 +98,7 @@ class PIAServerHandlerTest {
         PIAServerHandler.getInstance(context).fetchServers(context, true)
 
         // The initial request when the object is allocated + the explicit call to `fetchServers`
-        verify(regionsSpy, Mockito.times(2)).pingRequests(any(), any())
-    }
-
-    @Ignore("Waiting for the introduction of `RegionsUtils`")
-    fun testGen4ServerResponsePersistence() {
-        val prefsSpy = Mockito.spy(Prefs.with(context))
-        Mockito.`when`(prefsSpy.get(PiaPrefHandler.GEN4_ACTIVE, true)).thenReturn(true)
-        Mockito.`when`(prefsSpy.get(LAST_SERVER_BODY, "")).thenReturn("{}")
-        val regionsSpy = Mockito.spy(MockRegionsApi(mockResponse = true))
-        PIAServerHandler.setPrefs(prefsSpy)
-        PIAServerHandler.setRegionModule(regionsSpy)
-
-        PIAServerHandler.getInstance(context).fetchServers(context, true)
-        verify(prefsSpy).set(LAST_SERVER_BODY, "")
+        verify(regionsSpy, Mockito.times(2)).pingRequests(any())
     }
 }
 
@@ -148,7 +112,7 @@ private class MockRegionsApi(private val mockResponse: Boolean) : RegionsAPI {
         }
     }
 
-    override fun pingRequests(protocol: RegionsProtocol, callback: (response: List<RegionLowerLatencyInformation>, error: Error?) -> Unit) {
+    override fun pingRequests(callback: (response: List<RegionLowerLatencyInformation>, error: Error?) -> Unit) {
         callback(emptyList(), null)
     }
 }

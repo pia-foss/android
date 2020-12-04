@@ -47,27 +47,8 @@ public class PIAAPITest {
     }
 
     @Test
-    public void creationTest_maceApi(){
-        Assert.assertThat(new MaceApi(), instanceOf(MaceApi.class));
-    }
-
-    @Test
     public void creationTest_piaApi(){
         Assert.assertThat(new PiaApi(), instanceOf(PiaApi.class));
-    }
-
-    @Test
-    public void creationTest_portForwardApi(){
-        Assert.assertThat(new PortForwardApi(), instanceOf(PortForwardApi.class));
-    }
-
-    @Test
-    public void creationTest_reportingApi(){
-        Assert.assertThat(new ReportingApi(context), instanceOf(ReportingApi.class));
-    }
-    @Test
-    public void creationTest_serverApi(){
-        Assert.assertThat(new ServerAPI(context), instanceOf(ServerAPI.class));
     }
 
     @Test

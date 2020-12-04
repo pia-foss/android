@@ -19,6 +19,7 @@
 package com.privateinternetaccess.android.ui.adapters;
 
 import android.app.Activity;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
@@ -38,9 +39,9 @@ import com.privateinternetaccess.android.model.listModel.ServerItem;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
+import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.tasks.FetchPingTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
@@ -121,12 +122,14 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof  ServerHolder) {
             ServerHolder sHolder = (ServerHolder) holder;
+            ServerItem item;
+            if (PIAApplication.isAndroidTV(mContext)) {
+                item = getServerItem(position);
+            } else {
+                item = mFilteredItems.get(position);
+            }
 
             if (!PIAApplication.isAndroidTV(mContext)) {
-                final ServerItem item = mFilteredItems.get(position);
-                sHolder.image.setImageResource(item.getFlagId());
-                sHolder.name.setText(item.getName());
-
                 if (item.isSelected()) {
                     sHolder.selected.setVisibility(View.VISIBLE);
                     if (sHolder.totalArea != null) {
@@ -143,71 +146,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                 }
 
-                Long ping = null;
-                if (item.getLatency() != null && !item.getLatency().isEmpty()) {
-                    ping = Long.valueOf(item.getLatency());
-                }
-
-                int targetGeoVisibility = View.GONE;
-                if (Prefs.with(mContext).get(PiaPrefHandler.GEO_SERVERS_ACTIVE, true)) {
-                    targetGeoVisibility = item.isGeo() ? View.VISIBLE : View.GONE;
-                    sHolder.geoServerImage.setImageDrawable(
-                            AppCompatResources.getDrawable(mContext, R.drawable.ic_geo_unselected)
-                    );
-                    if (item.isSelected()) {
-                        sHolder.geoServerImage.setImageDrawable(
-                                AppCompatResources.getDrawable(mContext, R.drawable.ic_geo_selected)
-                        );
-                    }
-                }
-                sHolder.geoServerImage.setVisibility(targetGeoVisibility);
-
-                long pingTimeout = (long) FetchPingTask.TIMEOUT;
-                if (Prefs.with(mContext).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-                    pingTimeout = (long) REGIONS_PING_TIMEOUT;
-                }
-
-                if (!item.isAllowsPF() && PiaPrefHandler.isPortForwardingEnabled(mContext)) {
-                    sHolder.portForwarding.setVisibility(View.VISIBLE);
-                    sHolder.image.setColorFilter(ContextCompat.getColor(mContext, R.color.server_fade), android.graphics.PorterDuff.Mode.MULTIPLY);
-                    sHolder.name.setTextColor(ContextCompat.getColor(mContext, R.color.text_fade));
-
-                    if (ping != null && ping > 0L && ping < pingTimeout) {
-                        if (ping < 200) {
-                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.latency_green_faded));
-                        } else if (ping < 500) {
-                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.latency_yellow_faded));
-                        } else {
-                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.latency_red_faded));
-                        }
-                        sHolder.ping.setText(String.format(mContext.getString(R.string.ping_string), ping));
-                        sHolder.ping.setVisibility(View.VISIBLE);
-                    } else {
-                        sHolder.ping.setText("");
-                        sHolder.ping.setVisibility(View.GONE);
-                    }
-                } else {
-                    sHolder.portForwarding.setVisibility(View.GONE);
-                    sHolder.image.setColorFilter(null);
-                    sHolder.portForwarding.setColorFilter(null);
-                    sHolder.name.setTextColor(sHolder.originalColor);
-
-                    if (ping != null && ping > 0L && ping < pingTimeout) {
-                        if (ping < 200) {
-                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.pia_gen_green));
-                        } else if (ping < 500) {
-                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.md_yellow_800));
-                        } else {
-                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.pia_gen_red));
-                        }
-                        sHolder.ping.setText(String.format(mContext.getString(R.string.ping_string), ping));
-                        sHolder.ping.setVisibility(View.VISIBLE);
-                    } else {
-                        sHolder.ping.setText("");
-                        sHolder.ping.setVisibility(View.GONE);
-                    }
-                }
-
+                sHolder.name.setTextColor(sHolder.originalColor);
                 sHolder.view.setTag(item.getName() + "," + item.getHash());
                 sHolder.view.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -218,7 +157,6 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         int hash = Integer.parseInt(array[1]);
                         DLog.d("ServerListAdapter", "Connecting to selection");
                         DLog.d("ServerListAdapter", "Tag: " + v.getTag());
-
                         EventBus.getDefault().post(new ServerClickedEvent(serverName, hash));
                     }
                 });
@@ -238,9 +176,6 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     sHolder.favoriteImage.setImageDrawable(AppCompatResources.getDrawable(mContext, R.drawable.ic_heart_mobile));
                 }
             } else {
-                ServerItem item = getServerItem(position);
-                sHolder.image.setImageResource(item.getFlagId());
-                sHolder.name.setText(item.getName());
                 sHolder.view.setActivated(item.isSelected());
                 sHolder.connectionProgress.setVisibility(View.GONE);
                 sHolder.connectedImage.setVisibility(View.GONE);
@@ -264,10 +199,62 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                 });
             }
+
+            int serverFadedColor = ContextCompat.getColor(mContext, R.color.server_fade);
+            sHolder.image.setImageResource(item.getFlagId());
+            sHolder.name.setText(item.getName());
+            sHolder.image.setColorFilter(null);
+            sHolder.geoServerImage.setColorFilter(null);
+            sHolder.portForwarding.setColorFilter(null);
+            sHolder.portForwarding.setVisibility(View.GONE);
+
+            // region Server ping
+            Long ping = null;
+            if (item.getLatency() != null && !item.getLatency().isEmpty()) {
+                ping = Long.valueOf(item.getLatency());
+            }
+            if (ping != null && ping > 0L && ping < REGIONS_PING_TIMEOUT) {
+                if (ping < 200) {
+                    sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.pia_gen_green));
+                } else if (ping < 500) {
+                    sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.md_yellow_800));
+                } else {
+                    sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.pia_gen_red));
+                }
+                sHolder.ping.setText(String.format(mContext.getString(R.string.ping_string), ping));
+                sHolder.ping.setVisibility(View.VISIBLE);
+            } else {
+                sHolder.ping.setText("");
+                sHolder.ping.setVisibility(View.GONE);
+            }
+            // endregion
+
+            // region Server is geo located
+            int targetGeoVisibility = View.GONE;
+            if (Prefs.with(mContext).get(PiaPrefHandler.GEO_SERVERS_ACTIVE, true)) {
+                targetGeoVisibility = item.isGeo() ? View.VISIBLE : View.GONE;
+                sHolder.geoServerImage.setImageDrawable(
+                        AppCompatResources.getDrawable(mContext, R.drawable.ic_geo_unselected)
+                );
+                if (item.isSelected()) {
+                    sHolder.geoServerImage.setImageDrawable(
+                            AppCompatResources.getDrawable(mContext, R.drawable.ic_geo_selected)
+                    );
+                }
+            }
+            sHolder.geoServerImage.setVisibility(targetGeoVisibility);
+            // endregion
+
+            // region Server not supporting port forwarding
+            if (!item.isAllowsPF() && PiaPrefHandler.isPortForwardingEnabled(mContext)) {
+                sHolder.geoServerImage.setColorFilter(serverFadedColor, PorterDuff.Mode.MULTIPLY);
+                sHolder.image.setColorFilter(serverFadedColor, PorterDuff.Mode.MULTIPLY);
+                sHolder.name.setTextColor(ContextCompat.getColor(mContext, R.color.text_fade));
+                sHolder.portForwarding.setVisibility(View.VISIBLE);
+            }
+            // endregion
         }
         else if (holder instanceof ConnectionHolder) {
-            ((ConnectionHolder) holder).connectionButton.animateFocus(mSelectedItem == position);
-
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

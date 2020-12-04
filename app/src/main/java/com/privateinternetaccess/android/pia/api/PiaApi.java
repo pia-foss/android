@@ -63,17 +63,12 @@ import okhttp3.OkHttpClient;
  */
 public class PiaApi {
 
-    public static final int VPN_DELAY_TIME = 1234;
+    public static final String GEN4_MACE_ENABLED_DNS = "10.0.0.241";
 
     public static final String ANDROID_HTTP_CLIENT = "privateinternetaccess.com Android Client/" + BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")";
-    public static final String ANDROID_VERSION = "v" + BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")";
-
-    public static final MediaType JSON
-            = MediaType.parse("application/json; charset=utf-8");
 
     private OkHttpClient OKHTTPCLIENT;
     protected static Interceptor INTERCEPTOR;
-    private PIAAuthenticator AUTHENTICATOR;
 
     public static final List<String> PROXY_PATHS = Arrays.asList(
             "https://www.privateinternetaccess.com/",
@@ -84,7 +79,7 @@ public class PiaApi {
         SSLSocketFactory sslSocketFactory = null;
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-        AUTHENTICATOR = new PIAAuthenticator();
+        PIAAuthenticator AUTHENTICATOR = new PIAAuthenticator();
         builder.authenticator(AUTHENTICATOR);
         builder.connectTimeout(8, TimeUnit.SECONDS);
 
@@ -123,33 +118,6 @@ public class PiaApi {
     }
 
     /**
-     * sets the username and password on the {@link PIAAuthenticator} class that is used on {@link #OKHTTPCLIENT} in this class.
-     *
-     * Call {@link #cleanAuthenticator()} when done with the call to make sure we clean up the username and password from the authenticator.
-     *
-     * @param username
-     * @param password
-     */
-    protected void setAuthenticatorUP(String username, String password){
-        AUTHENTICATOR.setUsername(username);
-        AUTHENTICATOR.setPassword(password);
-    }
-
-    protected void setAuthenticatorUP(String token) {
-        AUTHENTICATOR.setToken(token);
-    }
-
-    /**
-     * sets the username and password to null.
-     *
-     */
-    protected void cleanAuthenticator(){
-        AUTHENTICATOR.setUsername(null);
-        AUTHENTICATOR.setPassword(null);
-        AUTHENTICATOR.setToken(null);
-    }
-
-    /**
      * This is the host url in the buildconfig.HOST. Adjusted depending on build varient.
      *
      * @return
@@ -183,20 +151,6 @@ public class PiaApi {
      */
     protected static URL getClientURL(Context context, String apiCall) throws MalformedURLException {
         return new URL(getBaseURL(context) + "api/client/" + apiCall);
-    }
-
-    private static HttpURLConnection apiRequestNative(Context context, final String username, final String password, String apiCall) throws IOException {
-        Authenticator.setDefault(new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password.toCharArray());
-            }
-        });
-
-        HttpURLConnection urlConnection;
-
-        URL url = new URL(getBaseURL(context) + "api/client/" + apiCall);
-        urlConnection = (HttpURLConnection) url.openConnection();
-        return urlConnection;
     }
 
     /**

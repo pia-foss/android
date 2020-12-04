@@ -170,7 +170,7 @@
     <string name="save">บันทึก</string>
     <string name="saved">บันทึกแล้ว</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">ความเร็วที่แสดงอยู่คือการใช้งานผ่านการเชื่อมต่อ VPN ของคุณ</string>
-    <string name="ip_short">IP สาธารณะ</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">มีการเข้าสู่ระบบผิดพลาดมากเกินไปด้วยชื่อผู้ใช้นี้ กรุณาลองใหม่อีกครั้งภายหลัง</string>
     <string name="tap_to_connect">แตะเพื่อเชื่อมต่อ</string>
     <string name="building_configration">กำลังสร้างการปรับแต่ง...</string>
@@ -554,9 +554,6 @@
     <string name="tunnel_error_already_exists">ท่อ “%s” มีอยู่แล้ว</string>
     <string name="tunnel_error_invalid_name">ชื่อไม่ถูกต้อง</string>
     <string name="preview">ตัวอย่าง</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">เครือข่ายรุ่นต่อไป</string>
-    <string name="gen4_next_generation_network_message">VPN ต้องถูกตัดการเชื่อมต่อเพื่อเปลี่ยนเครือข่ายเซิร์ฟเวอร์</string>
     <!-- GEO Servers -->
     <string name="geo_servers">รวมภูมิภาคตามที่ตั้งทางภูมิศาสตร์</string>
     <!-- Rating -->
@@ -578,6 +575,7 @@
     <string name="purchasing_return">คุณต้องการกลับไปที่หน้าจอหลักหรือไม่ คุณสามารถดำเนินการสมัครต่อได้ตลอดเวลาโดยคลิกเข้าสู่ระบบ - เข้าสู่ระบบโดยใช้ใบเสร็จรับเงิน</string>
     <string name="purchasing_magic_link">เข้าสู่ระบบโดยใช้ลิงก์อีเมลวิเศษ</string>
     <string name="purchasing_magic_send">ส่งลิงก์</string>
+    <string name="magic_login_enter_email">ใส่อีเมล</string>
     <string name="purchasing_magic_success">กรุณาตรวจสอบอีเมลเพื่อดูลิงก์เข้าสู่ระบบ</string>
     <string name="connection_tile_header">การเชื่อมต่อ</string>
     <string name="connection_tile_tcp">TCP</string>

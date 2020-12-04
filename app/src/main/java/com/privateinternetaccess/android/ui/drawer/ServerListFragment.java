@@ -49,7 +49,6 @@ import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler.ServerSortingType;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.PingHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.model.events.ServerPingEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
@@ -168,9 +167,6 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                 if (error == null) {
                     mAdapter.itemsUpdated(getServerItems(context, getRegionsFilterSelection(context)));
                 }
-                if (!Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-                    PingHandler.getInstance(context).setCallback(null);
-                }
                 return Unit.INSTANCE;
             }
         };
@@ -189,33 +185,15 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
         }
         mAdapter.itemsUpdated(serverItems);
 
-        if (Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-            PIAServerHandler.getInstance(context).triggerFetchServers(new Function1<Error, Unit>() {
-                @Override
-                public Unit invoke(Error error) {
-                    // Stop the spinner after fetching the servers.
-                    rvServerRefreshLayout.setRefreshing(false);
-                    PIAServerHandler.getInstance(context).triggerLatenciesUpdate(completionCallback);
-                    return null;
-                }
-            });
-        } else {
-            PIAServerHandler.getInstance(context).fetchServers(context, true, new Function1<Error, Unit>() {
-                @Override
-                public Unit invoke(Error error) {
-                    // Stop the spinner after fetching the servers.
-                    rvServerRefreshLayout.setRefreshing(false);
-                    PingHandler.getInstance(context).setCallback(new IPIACallback<ServerPingEvent>() {
-                        @Override
-                        public void apiReturn(ServerPingEvent serverPingEvent) {
-                            completionCallback.invoke(null);
-                        }
-                    });
-                    PingHandler.getInstance(context).fetchPings();
-                    return Unit.INSTANCE;
-                }
-            });
-        }
+        PIAServerHandler.getInstance(context).triggerFetchServers(new Function1<Error, Unit>() {
+            @Override
+            public Unit invoke(Error error) {
+                // Stop the spinner after fetching the servers.
+                rvServerRefreshLayout.setRefreshing(false);
+                PIAServerHandler.getInstance(context).triggerLatenciesUpdate(completionCallback);
+                return null;
+            }
+        });
     }
 
     private void initView(Context context) {
@@ -266,10 +244,15 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
         PIAServer selectedServer = mHandler.getSelectedRegion(context, true);
         int selectedPosition = -1;
         if (reset) {
-            //Add other options
-            for (PIAServer ps : mHandler.getServers(context, types)) {
-                if (ps == selectedServer) {
-                    selectedPosition = serverItems.size() - 1;
+            if (selectedServer != null) {
+                for (int idx = 0; idx < serverItems.size(); idx ++) {
+                    ServerItem serverItem = serverItems.get(idx);
+                    if (serverItem.getKey().equals(selectedServer.getKey()) &&
+                            serverItem.getIso().equals(selectedServer.getIso()) &&
+                            serverItem.getFlagId() == mHandler.getFlagResource(selectedServer)) {
+                        selectedPosition = idx;
+                        break;
+                    }
                 }
             }
 
@@ -378,7 +361,7 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                     getString(R.string.server_search),
                     "",
                     false,
-                    false,
+                    true,
                     false,
                     ""
             ));
@@ -390,7 +373,7 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                 context.getString(R.string.automatic_server_selection_main),
                 "",
                 mHandler.isSelectedRegionAuto(context),
-                false,
+                true,
                 false,
                 ""
         ));
@@ -419,18 +402,6 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                 continue;
             }
 
-            // Populate latency for legacy
-            Long latencyValue = PingHandler.getInstance(context).getPings().get(ps.getKey());
-            if (latencyValue == null) {
-                latencyValue = 0L;
-            }
-            String latency = String.valueOf(latencyValue);
-
-            // Populate latency for GEN4
-            if (Prefs.with(context).get(PiaPrefHandler.GEN4_ACTIVE, true)) {
-                latency = ServerUtils.getLatencyForActiveSetting(context, ps.getLatencies());
-            }
-
             items.add(new ServerItem(
                     ps.getKey(),
                     mHandler.getFlagResource(ps),
@@ -439,7 +410,7 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                     ps == selectedServer,
                     ps.isAllowsPF(),
                     ps.isGeo(),
-                    latency
+                    ps.getLatency()
             ));
         }
         return items;

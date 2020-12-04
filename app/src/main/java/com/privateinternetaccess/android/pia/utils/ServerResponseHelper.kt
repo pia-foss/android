@@ -31,12 +31,18 @@ class ServerResponseHelper {
                 val wireguardDetails = region.servers[RegionsProtocol.WIREGUARD.protocol]
                 val ovpnTcpDetails = region.servers[RegionsProtocol.OPENVPN_TCP.protocol]
                 val ovpnUdpDetails = region.servers[RegionsProtocol.OPENVPN_UDP.protocol]
+                val metaDetails = region.servers[RegionsProtocol.META.protocol]
 
                 val bestWireguard = wireguardDetails?.firstOrNull()?.ip
                 val bestOvpnTcp = ovpnTcpDetails?.firstOrNull()?.ip
                 val bestOvpnUdp = ovpnUdpDetails?.firstOrNull()?.ip
+                val bestMeta = metaDetails?.firstOrNull()?.ip
 
-                if (bestWireguard == null && bestOvpnTcp == null && bestOvpnUdp == null) {
+                if (bestWireguard == null &&
+                        bestOvpnTcp == null &&
+                        bestOvpnUdp == null &&
+                        bestMeta == null
+                ) {
                     continue
                 }
 
@@ -59,6 +65,12 @@ class ServerResponseHelper {
                 }
                 commonNames[PIAServer.Protocol.OPENVPN_UDP] = ovpnUdpCommonNames
 
+                val metaCommonNames = mutableListOf<Pair<String, String>>()
+                metaDetails?.forEach {
+                    metaCommonNames.add(Pair(it.ip, it.cn))
+                }
+                commonNames[PIAServer.Protocol.META] = metaCommonNames
+
                 // Application does not support the user option to choose wg ports and expect the
                 // format `endpoint:port`, as it is not aware of wg ports.
                 val wireguardPortEndpoint = bestWireguard?.let {
@@ -73,8 +85,9 @@ class ServerResponseHelper {
                         region.country,
                         region.dns,
                         wireguardPortEndpoint,
+                        bestMeta,
                         null,
-                        mapOf<PIAServer.Protocol, String>(),
+                        null,
                         commonNames,
                         bestOvpnTcp,
                         bestOvpnUdp,

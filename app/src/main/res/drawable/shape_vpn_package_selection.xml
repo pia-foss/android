@@ -18,6 +18,9 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_selected="true" android:drawable="@drawable/shape_rounded_border_green_sold_white"/>
-    <item android:drawable="@drawable/shape_rounded_grey_border"/>
+
+    <item android:state_focused="true" android:state_selected="true" android:drawable="@drawable/shape_rounded_border_green_solid_grey15_focused" />
+    <item android:state_focused="false" android:state_selected="true" android:drawable="@drawable/shape_rounded_border_green_sold_white" />
+    <item android:state_focused="true" android:state_selected="false" android:drawable="@drawable/shape_rounded_border_grey55_focused" />
+    <item android:state_focused="false" android:state_selected="false" android:drawable="@drawable/shape_rounded_grey_border" />
 </selector>

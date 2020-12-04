@@ -19,12 +19,9 @@
 package com.privateinternetaccess.android.pia.account
 
 import android.content.Context
-import com.privateinternetaccess.account.AccountBuilder
-import com.privateinternetaccess.account.AndroidAccountAPI
-import com.privateinternetaccess.account.Platform
-import com.privateinternetaccess.android.BuildConfig
+import com.privateinternetaccess.account.*
 import com.privateinternetaccess.android.pia.api.PiaApi.ANDROID_HTTP_CLIENT
-import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler
+import com.privateinternetaccess.android.pia.providers.ModuleClientStateProvider
 
 class PIAAccount {
 
@@ -32,14 +29,11 @@ class PIAAccount {
         private var api: AndroidAccountAPI? = null
 
         fun getApi(context: Context): AndroidAccountAPI {
-            val staging = PiaPrefHandler.useStaging(context)
-            if (api == null || api?.isStaging() != staging) {
+            if (api == null) {
                 val builder = AccountBuilder<AndroidAccountAPI>()
+                        .setClientStateProvider(ModuleClientStateProvider(context))
                         .setPlatform(Platform.ANDROID)
                         .setUserAgentValue(ANDROID_HTTP_CLIENT)
-                if (staging) {
-                    builder.setStagingEndpoint(BuildConfig.STAGEINGHOST)
-                }
                 api = builder.build()
             }
             return api!!

@@ -25,7 +25,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.model.events.SnoozeEvent;
@@ -40,7 +39,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.VpnStatus;
 
 public class SnoozeView extends LinearLayout {
 

@@ -120,7 +120,7 @@ public class PurchasingFragment extends Fragment {
 
         if(!PIAApplication.isRelease())
             bSubmit.setOnLongClickListener(view -> {
-                ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true, false, false);
+                ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true, false);
                 return true;
             });
 

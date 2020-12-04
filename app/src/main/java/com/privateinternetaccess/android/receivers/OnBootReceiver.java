@@ -23,9 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.VpnService;
 
+import com.privateinternetaccess.android.pia.PIAFactory;
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.PingDelayStartHandler;
-import com.privateinternetaccess.android.pia.handlers.PingHandler;
 import com.privateinternetaccess.android.ui.LauncherActivity;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 
@@ -49,15 +49,18 @@ public class OnBootReceiver extends BroadcastReceiver {
 
     private void launchVPN(Context context) {
         Intent intent = VpnService.prepare(context);
-        if (intent != null) {
+
+        // `intent` null means its prepared and not null means go to the VPNPermission activity
+        if (intent == null) {
+            PIAServerHandler.getInstance(context).triggerLatenciesUpdate(error -> {
+                PIAFactory.getInstance().getVPN(context).start();
+                return null;
+            });
+        } else {
             Intent i = new Intent(context.getApplicationContext(), LauncherActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.setAction(MainActivity.START_VPN_SHORTCUT);
             context.startActivity(i);
-        } else {
-            PingDelayStartHandler handler = new PingDelayStartHandler();
-            handler.setTimeDiff(PingHandler.PING_TIME_30_DIFFERENCE);
-            handler.startPings(context.getApplicationContext());
         }
     }
 }

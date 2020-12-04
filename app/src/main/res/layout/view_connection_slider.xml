@@ -20,15 +20,13 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    >
+    android:layout_height="wrap_content" >
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="400dp"
-        android:paddingBottom="20dp"
-        >
+        android:paddingBottom="20dp" >
 
         <ProgressBar
             android:id="@+id/connect_progress"
@@ -43,8 +41,7 @@
             android:layout_width="200dp"
             android:id="@+id/connection_background"
             app:srcCompat="@drawable/ic_connection_connecting"
-            android:layout_gravity="center"
-            />
+            android:layout_gravity="center" />
 
     </FrameLayout>
 

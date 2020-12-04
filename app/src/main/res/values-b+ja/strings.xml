@@ -170,7 +170,7 @@
     <string name="save">保存</string>
     <string name="saved">保存されました</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">表示されている速度は、あなたのVPN接続上のトラフィックです</string>
-    <string name="ip_short">パブリックIP</string>
+    <string name="ip_short">IPアドレス</string>
     <string name="login_throttled_text">このユーザー名で最大ログイン試行回数を超えました。後でもう一度お試しください。</string>
     <string name="tap_to_connect">タップして接続</string>
     <string name="building_configration">構成を構成中…</string>
@@ -553,9 +553,6 @@
     <string name="tunnel_error_already_exists">トンネル「%s」はすでに存在します</string>
     <string name="tunnel_error_invalid_name">無効な名前</string>
     <string name="preview">プレビュー</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">次世代ネットワーク</string>
-    <string name="gen4_next_generation_network_message">サーバーネットワークを変更するにはVPNを切断してください。</string>
     <!-- GEO Servers -->
     <string name="geo_servers">ジオロケーション地域を含める</string>
     <!-- Rating -->
@@ -577,6 +574,7 @@
     <string name="purchasing_return">ホーム画面に戻りますか？いつでもサブスクリプション手続きを再開できます。再開するには、[ログイン] → [購入領収書を使用してログイン] をクリックしてください。</string>
     <string name="purchasing_magic_link">魔法のメールリンクを使用してログイン</string>
     <string name="purchasing_magic_send">リンクを送信</string>
+    <string name="magic_login_enter_email">メールアドレスを入力</string>
     <string name="purchasing_magic_success">ログインリンクについては、メールを確認してください。</string>
     <string name="connection_tile_header">接続</string>
     <string name="connection_tile_tcp">TCP</string>

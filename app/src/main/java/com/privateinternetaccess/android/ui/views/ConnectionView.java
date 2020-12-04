@@ -21,17 +21,14 @@ package com.privateinternetaccess.android.ui.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.states.VPNProtocol;
-import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.utils.Prefs;
-import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -39,9 +36,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.ProfileManager;
 
 public class ConnectionView extends FrameLayout {
 
@@ -94,36 +89,26 @@ public class ConnectionView extends FrameLayout {
     }
 
     private void setupValues(boolean isConnected) {
-        if (isConnected) {
-            tvConnection.setText(PiaPrefHandler.getProtocol(getContext()));
+        tvConnection.setText(PiaPrefHandler.getProtocol(getContext()));
 
-            if (VPNProtocol.activeProtocol(getContext()) == VPNProtocol.Protocol.Wireguard) {
-                tvSocket.setText(WG_SOCKET);
-                tvEncryption.setText(WG_ENCRYPTION);
-                tvAuthentication.setText(WG_AUTH);
-                tvHandshake.setText(WG_HANDSHAKE);
-                tvPort.setText(WG_PORT);
-            }
-            else {
-                boolean usesTCP = Prefs.with(getContext()).get(PiaPrefHandler.USE_TCP, false);
-                tvSocket.setText(usesTCP ?
-                        getResources().getString(R.string.connection_tile_tcp) :
-                        getResources().getString(R.string.connection_tile_udp));
-                tvEncryption.setText(Prefs.with(getContext()).get(PiaPrefHandler.CIPHER,
-                        getResources().getStringArray(R.array.ciphers_values)[0]));
-                tvAuthentication.setText(Prefs.with(getContext()).get(PiaPrefHandler.AUTH,
-                        getResources().getStringArray(R.array.auth_values)[0]));
-                tvHandshake.setText(Prefs.with(getContext()).get(PiaPrefHandler.TLSCIPHER,
-                        "rsa2048"));
-                tvPort.setText("-");
-            }
+        if (VPNProtocol.activeProtocol(getContext()) == VPNProtocol.Protocol.Wireguard) {
+            tvSocket.setText(WG_SOCKET);
+            tvEncryption.setText(WG_ENCRYPTION);
+            tvAuthentication.setText(WG_AUTH);
+            tvHandshake.setText(WG_HANDSHAKE);
+            tvPort.setText(WG_PORT);
         }
         else {
-            tvConnection.setText("-");
-            tvSocket.setText("-");
-            tvEncryption.setText("-");
-            tvAuthentication.setText("-");
-            tvHandshake.setText("-");
+            boolean usesTCP = Prefs.with(getContext()).get(PiaPrefHandler.USE_TCP, false);
+            tvSocket.setText(usesTCP ?
+                    getResources().getString(R.string.connection_tile_tcp) :
+                    getResources().getString(R.string.connection_tile_udp));
+            tvEncryption.setText(Prefs.with(getContext()).get(PiaPrefHandler.CIPHER,
+                    getResources().getStringArray(R.array.ciphers_values)[0]));
+            tvAuthentication.setText(Prefs.with(getContext()).get(PiaPrefHandler.AUTH,
+                    getResources().getStringArray(R.array.auth_values)[0]));
+            tvHandshake.setText(Prefs.with(getContext()).get(PiaPrefHandler.TLSCIPHER,
+                    "rsa2048"));
             tvPort.setText("-");
         }
     }

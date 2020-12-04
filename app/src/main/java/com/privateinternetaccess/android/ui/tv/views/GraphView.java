@@ -36,10 +36,10 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.VPNTrafficDataPointEvent;
+import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
@@ -60,7 +60,6 @@ import de.blinkt.openvpn.core.OpenVPNManagement;
 import de.blinkt.openvpn.core.TrafficHistory;
 import de.blinkt.openvpn.core.VpnStatus;
 
-import static java.lang.Math.max;
 
 public class GraphView extends FrameLayout {
 
@@ -73,15 +72,14 @@ public class GraphView extends FrameLayout {
     @BindView(R.id.view_graph_under_down) TextView tvDown;
     @BindView(R.id.view_graph_title) TextView tvTitle;
 
-    private static LineData mData;
     private Handler mHandler;
 
-    private boolean mLogScale = false;
     private int colorDown;
     private int textColor;
     private int maxGraphItems;
     private boolean showLegend;
     private boolean showDownloadSpeed;
+    private List<Long> wireguardRxBytes = new ArrayList<>();
 
 
     public GraphView(Context context) {
@@ -153,7 +151,6 @@ public class GraphView extends FrameLayout {
         XAxis xAxis = chartConnection.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
-        //xAxis.setAxisMinimum(0f);
         xAxis.setTextColor(ContextCompat.getColor(getContext(), R.color.transparent));
         xAxis.setDrawAxisLine(true);
 
@@ -190,7 +187,12 @@ public class GraphView extends FrameLayout {
     private void setupChart() {
         int textColor = ContextCompat.getColor(getContext(), R.color.textColorSecondaryDark);
 
-        BarData dataSets = getDataSet(TIME_PERIOD_SECONDS);
+        BarData dataSets;
+        if (VPNProtocol.activeProtocol(getContext()) == VPNProtocol.Protocol.OpenVPN) {
+            dataSets = getOpenVPNDataSet(TIME_PERIOD_SECONDS);
+        } else {
+            dataSets = getWireguardDataSet();
+        }
 
         dataSets.setBarWidth(0.25f);
         dataSets.setValueTextColor(textColor);
@@ -218,14 +220,16 @@ public class GraphView extends FrameLayout {
     }
 
     // From icsopenvpn: GraphFragment.java
-    private BarData getDataSet(int timeperiod) {
+    private BarData getOpenVPNDataSet(int timeperiod) {
         long interval;
         long totalInterval;
 
         LinkedList<TrafficHistory.TrafficDatapoint> list = new LinkedList<>();
+
         //Load Dummy items
         for(int i = 0; i < maxGraphItems; i++)
             list.add(new TrafficHistory.TrafficDatapoint(0, 0, System.currentTimeMillis()));
+
         switch (timeperiod) {
             case TIME_PERIOD_HOURS:
                 list.addAll(VpnStatus.trafficHistory.getHours());
@@ -240,15 +244,15 @@ public class GraphView extends FrameLayout {
             default:
                 list.addAll(VpnStatus.trafficHistory.getSeconds());
                 interval = OpenVPNManagement.mBytecountInterval * 1000;
-//                totalInterval = TrafficHistory.TIME_PERIOD_MINTUES * TrafficHistory.PERIODS_TO_KEEP;
                 // PIA only uses 60s
                 totalInterval = TrafficHistory.TIME_PERIOD_MINTUES;
                 break;
         }
+
         // Max of ten elements
         List<TrafficHistory.TrafficDatapoint> clippedList = list.subList(Math.max(list.size() - maxGraphItems, 0), list.size());
-        long now = System.currentTimeMillis();
 
+        long now = System.currentTimeMillis();
         long firstTimestamp = 0;
         long lastBytecountIn = 0;
 
@@ -256,21 +260,18 @@ public class GraphView extends FrameLayout {
 
         int i = 0;
         for (TrafficHistory.TrafficDatapoint tdp : clippedList) {
-            if (totalInterval != 0 && (now - tdp.timestamp) > totalInterval)
+            if (totalInterval != 0 && (now - tdp.timestamp) > totalInterval) {
                 continue;
+            }
 
             if (firstTimestamp == 0) {
-                firstTimestamp = list.peek().timestamp;
-                lastBytecountIn = list.peek().in;
+                firstTimestamp = clippedList.get(0).timestamp;
+                lastBytecountIn = clippedList.get(0).in;
             }
 
             float in = (tdp.in - lastBytecountIn) / (float) (interval / 1000);
 
             lastBytecountIn = tdp.in;
-
-            if (mLogScale) {
-                in = max(2f, (float) Math.log10(in * 8));
-            }
 
             dataIn.add(new BarEntry(i, in));
             i++;
@@ -287,10 +288,40 @@ public class GraphView extends FrameLayout {
         return new BarData(dataSets);
     }
 
+    private BarData getWireguardDataSet() {
+        List<BarEntry> dataIn = new LinkedList<>();
+
+        // Load Dummy items
+        for (int i = 0; i < maxGraphItems; i++) {
+            dataIn.add(new BarEntry(i, 0));
+        }
+
+        for (int i = 0; i < wireguardRxBytes.size(); i++) {
+            int index = maxGraphItems + i;
+            dataIn.add(new BarEntry(index, wireguardRxBytes.get(i)));
+        }
+
+        dataIn = dataIn.subList(dataIn.size() - maxGraphItems, dataIn.size());
+        List<IBarDataSet> dataSets = new ArrayList<>();
+        BarDataSet indata = new BarDataSet(dataIn, getContext().getString(R.string.data_in));
+        setupBarDataOptions(textColor, colorDown, indata);
+        dataSets.add(indata);
+        return new BarData(dataSets);
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onVPNTrafficReceived(final VPNTrafficDataPointEvent event){
-        if (!VpnStatus.trafficHistory.getSeconds().isEmpty())
+        if (VPNProtocol.activeProtocol(getContext()) == VPNProtocol.Protocol.Wireguard) {
+            // No reason to keep more events than the max supported.
+            if (wireguardRxBytes.size() > maxGraphItems) {
+                wireguardRxBytes.remove(0);
+            }
+            wireguardRxBytes.add(event.getDiffIn());
+        }
+
+        if (!VpnStatus.trafficHistory.getSeconds().isEmpty()) {
             updateSpeedText(event.getDiffIn(), event.getDiffOut());
+        }
 
         updateChart();
     }
@@ -308,8 +339,11 @@ public class GraphView extends FrameLayout {
     }
 
     private void clearGraph(){
+        wireguardRxBytes = new ArrayList<>();
         LinkedList<BarEntry> dataIn = new LinkedList<>();
-        //Load Dummy items
+        // Filled list with max items. We increase one by one as we receive the events.
+        // Not doing this will mean the graph bar starting with a large size and slowly decrease
+        // as we receive the events.
         for(int i = 0; i < maxGraphItems; i++) {
             dataIn.add(new BarEntry(0, 0));
         }

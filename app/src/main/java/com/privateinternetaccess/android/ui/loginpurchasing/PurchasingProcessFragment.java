@@ -21,6 +21,7 @@ package com.privateinternetaccess.android.ui.loginpurchasing;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import android.text.InputType;
@@ -57,27 +58,34 @@ public class PurchasingProcessFragment extends Fragment {
 
     private static final String TAG = "PurchaseProcess";
 
-    @BindView(R.id.fragment_purchase_process_progress_area) LinearLayout aProgress;
-    @BindView(R.id.fragment_purchase_process_success_area) View aSuccess;
-    @BindView(R.id.fragment_purchase_process_failure_area) View aFailure;
-    @BindView(R.id.fragment_purchase_process_email_area) LinearLayout aEmail;
-
-    @BindView(R.id.fragment_purchase_process_button) Button button;
-    @BindView(R.id.fragment_purchase_process_button_progress) View progress;
-
-    @BindView(R.id.fragment_success_redeemed_username) TextView tvUsername;
-    @BindView(R.id.fragment_success_redeemed_password) TextView tvPassword;
-
-    @BindView(R.id.fragment_purchase_process_failure_title) TextView tvFailureTitle;
-    @BindView(R.id.fragment_purchase_process_failure_text) TextView tvFailureMessage;
-    @BindView(R.id.fragment_purchasing_email) PiaxEditText etEmail;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_purchase_process_progress_area) LinearLayout aProgress;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_purchase_process_success_area) View aSuccess;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_purchase_process_failure_area) View aFailure;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_purchase_process_email_area) LinearLayout aEmail;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_purchase_process_button) Button button;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_purchase_process_button_progress) View progress;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_success_redeemed_username) TextView tvUsername;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_success_redeemed_password) TextView tvPassword;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_purchase_process_failure_title) TextView tvFailureTitle;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_purchase_process_failure_text) TextView tvFailureMessage;
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public @BindView(R.id.fragment_purchasing_email) PiaxEditText etEmail;
 
     private boolean firePurchasing;
     private boolean isTrial;
-
-    private boolean hasEmail = true;
-    private boolean hasPassword = false;
     private boolean loggingIn = false;
+    private String temporaryPassword;
+    private IAccount account;
 
     @Nullable
     @Override
@@ -86,6 +94,7 @@ public class PurchasingProcessFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         etEmail.etMain.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        account = PIAFactory.getInstance().getAccount(getContext());
 
         return view;
     }
@@ -96,26 +105,43 @@ public class PurchasingProcessFragment extends Fragment {
         initView();
     }
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public void setAccount(IAccount account) {
+        this.account = account;
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public boolean hasToken() {
+        return !TextUtils.isEmpty(PiaPrefHandler.getAuthToken(getContext()));
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public boolean hasTempPassword() {
+        return !TextUtils.isEmpty(temporaryPassword);
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public boolean hasEmail() {
+        return PiaPrefHandler.hasSetEmail(getContext());
+    }
+
     private void initView() {
-        boolean hasToken = !TextUtils.isEmpty(PiaPrefHandler.getAuthToken(getContext()));
-        boolean hasUsername = !TextUtils.isEmpty(PiaPrefHandler.getLogin(getContext()));
-        hasEmail = PiaPrefHandler.hasSetEmail(getContext());
 
         if (loggingIn) {
             return;
         }
 
-        if (!hasToken) {
+        if (!hasToken()) {
             showProgress();
             if (firePurchasing) {
                 firePurchasing = false;
                 notifySubscriptionToBackend();
             }
         }
-        else if (!hasEmail) {
+        else if (!hasEmail()) {
             onSubscriptionSuccess();
         }
-        else if (hasUsername){
+        else if (hasTempPassword()) {
             onSuccess();
         }
         else {
@@ -141,22 +167,18 @@ public class PurchasingProcessFragment extends Fragment {
 
     private void onSuccess() {
         String username = PiaPrefHandler.getLogin(getContext());
-        String password = PiaPrefHandler.getSavedPassword(getContext());
 
         tvUsername.setText(username);
-        tvPassword.setText(password);
+        tvPassword.setText(temporaryPassword);
 
         button.setVisibility(View.VISIBLE);
         button.setText(R.string.get_started);
 
         button.setOnClickListener(v -> {
-            IAccount account = PIAFactory.getInstance().getAccount(v.getContext());
-            account.loginWithCredentials(username, password, (token, requestResponseStatus) -> {
-                handleAuthenticationResponse(token, requestResponseStatus);
-                return null;
-            });
+            ((BaseActivity) getActivity()).goToMainActivity();
             button.setVisibility(View.INVISIBLE);
             progress.setVisibility(View.VISIBLE);
+            temporaryPassword = null;
         });
 
         loggingIn = true;
@@ -195,7 +217,7 @@ public class PurchasingProcessFragment extends Fragment {
             });
         } else {
             tvFailureTitle.setText(R.string.account_creation_failure);
-            tvFailureMessage.setText(getString(R.string.account_creation_failure_message_no_ticket_id));
+            tvFailureMessage.setText(R.string.account_creation_failure_message_no_ticket_id);
 
             button.setText(R.string.go_to_login);
             button.setOnClickListener(view -> {
@@ -263,20 +285,17 @@ public class PurchasingProcessFragment extends Fragment {
         if (!AppUtilities.isValidEmail(email)) {
             etEmail.setError(getString(R.string.invalid_email_signup));
             return;
-        } else {
-            etEmail.setError(null);
         }
 
+        etEmail.setError(null);
         PiaPrefHandler.saveLoginEmail(context, email);
-        hasPassword = !TextUtils.isEmpty(PiaPrefHandler.getSavedPassword(context));
 
-        boolean resetPassword = !hasPassword;
         String token = PiaPrefHandler.getAuthToken(context);
-        PIAFactory.getInstance().getAccount(context).updateEmail(
+        account.updateEmail(
                 token,
                 email,
-                resetPassword,
-                (temporaryPassword, requestResponseStatus) -> {
+                false,
+                (tempPassword, requestResponseStatus) -> {
                     boolean successful = false;
                     switch (requestResponseStatus) {
                         case SUCCEEDED:
@@ -294,10 +313,6 @@ public class PurchasingProcessFragment extends Fragment {
                         return null;
                     }
 
-                    if (resetPassword) {
-                        PiaPrefHandler.setSavedPassword(context, temporaryPassword);
-                    }
-
                     PiaPrefHandler.setHasSetEmail(context, true);
                     initView();
                     return null;
@@ -306,50 +321,98 @@ public class PurchasingProcessFragment extends Fragment {
         showProgress();
     }
 
-    /**
-     * notifies the backend. It will check if the email is valid.
-     */
     public void notifySubscriptionToBackend() {
         Context context = getContext();
-        IAccount account = PIAFactory.getInstance().getAccount(context);
         if (isTrial) {
             TrialData data = PiaPrefHandler.getTempTrialData(context);
-            account.createTrialAccount(
-                    data.getEmail(),
-                    data.getPin(),
-                    (username, password, message, requestResponseStatus) -> {
-                        boolean successful = false;
-                        switch (requestResponseStatus) {
-                            case SUCCEEDED:
-                                successful = true;
-                                break;
-                            case AUTH_FAILED:
-                            case THROTTLED:
-                            case OP_FAILED:
-                                break;
-                        }
-
-                        if (!successful) {
-                            DLog.d(TAG, "createTrialAccount unsuccessful " + requestResponseStatus);
-                            onTrialFailure(message);
-                            return null;
-                        }
-
-                        PiaPrefHandler.cleanTempTrialData(context);
-                        initView();
-                        return null;
-                    }
-            );
+            String email = data.getEmail();
+            String pin = data.getPin();
+            account.createTrialAccount(email, pin, (username, tempPassword, message, responseStatus) -> {
+                handleTrialAccountResponse(username, tempPassword, message, responseStatus);
+                return null;
+            });
         } else {
             String orderId = PiaPrefHandler.getPurchasingOrderId(context);
             String token = PiaPrefHandler.getPurchasingToken(context);
             String sku = PiaPrefHandler.getPurchasingSku(context);
-            account.signUp(orderId, token, sku, (signUpInformation, requestResponseStatus) -> {
-                handleSignUpResponse(signUpInformation, requestResponseStatus);
+            account.signUp(orderId, token, sku, (signUpInformation, responseStatus) -> {
+                handleSignUpResponse(signUpInformation, responseStatus);
                 return null;
             });
         }
     }
+
+    private void handleTrialAccountResponse(
+            String username,
+            String tempPassword,
+            String message,
+            RequestResponseStatus requestResponseStatus
+    ) {
+        Context context = getContext();
+        boolean successful = false;
+        switch (requestResponseStatus) {
+            case SUCCEEDED:
+                successful = true;
+                break;
+            case AUTH_FAILED:
+            case THROTTLED:
+            case OP_FAILED:
+                break;
+        }
+
+        if (!successful) {
+            DLog.d(TAG, "createTrialAccount unsuccessful " + requestResponseStatus);
+            onTrialFailure(message);
+            return;
+        }
+
+        temporaryPassword = tempPassword;
+        PiaPrefHandler.setLogin(context, username);
+        PiaPrefHandler.cleanTempTrialData(context);
+        account.loginWithCredentials(
+                username,
+                tempPassword,
+                (token, loginRequestResponseStatus) -> {
+                    handleAuthenticationResponse(token, loginRequestResponseStatus);
+                    return null;
+                }
+        );
+    }
+
+    private void handleSignUpResponse(
+            SignUpInformation information,
+            RequestResponseStatus signUpRequestResponseStatus
+    ) {
+        Context context = getContext();
+        boolean successful = false;
+        switch (signUpRequestResponseStatus) {
+            case SUCCEEDED:
+                successful = true;
+                break;
+            case AUTH_FAILED:
+            case THROTTLED:
+            case OP_FAILED:
+                break;
+        }
+
+        if (!successful) {
+            DLog.d(TAG, "handleSignUpResponse unsuccessful " + signUpRequestResponseStatus);
+            onFailure();
+            return;
+        }
+
+        temporaryPassword = information.getPassword();
+        PiaPrefHandler.setLogin(context, information.getUsername());
+        account.loginWithReceipt(
+                PiaPrefHandler.getPurchasingToken(context),
+                PiaPrefHandler.getPurchasingSku(context),
+                (token, loginRequestResponseStatus) -> {
+                    handleAuthenticationResponse(token, loginRequestResponseStatus);
+                    return null;
+                }
+        );
+    }
+
 
     private void handleAuthenticationResponse(
             String token,
@@ -376,48 +439,8 @@ public class PurchasingProcessFragment extends Fragment {
 
         PiaPrefHandler.saveAuthToken(context, token);
         PiaPrefHandler.clearPurchasingInfo(context);
-        initView();
-
-        if (!hasPassword) {
-            return;
-        }
-
         PiaPrefHandler.setUserIsLoggedIn(getContext(), true);
-        PiaPrefHandler.clearUserData(getContext());
-        ((BaseActivity) getActivity()).goToMainActivity();
-    }
-
-    private void handleSignUpResponse(
-            SignUpInformation information,
-            RequestResponseStatus signUpRequestResponseStatus
-    ) {
-        Context context = getContext();
-        boolean successful = false;
-        switch (signUpRequestResponseStatus) {
-            case SUCCEEDED:
-                successful = true;
-                break;
-            case AUTH_FAILED:
-            case THROTTLED:
-            case OP_FAILED:
-                break;
-        }
-
-        if (!successful) {
-            DLog.d(TAG, "handleSignUpResponse unsuccessful " + signUpRequestResponseStatus);
-            onFailure();
-            return;
-        }
-
-        PiaPrefHandler.saveUserPW(context, information.getUsername(), information.getPassword());
-        PIAFactory.getInstance().getAccount(context).loginWithReceipt(
-                PiaPrefHandler.getPurchasingToken(context),
-                PiaPrefHandler.getPurchasingSku(context),
-                (token, loginRequestResponseStatus) -> {
-                    handleAuthenticationResponse(token, loginRequestResponseStatus);
-                    return null;
-                }
-        );
+        initView();
     }
 
     public void setFirePurchasing(boolean firePurchasing) {
@@ -427,6 +450,4 @@ public class PurchasingProcessFragment extends Fragment {
     public void setTrial(boolean trial) {
         isTrial = trial;
     }
-
-    public void setShowEmail(boolean showEmail) { hasEmail = false; }
 }

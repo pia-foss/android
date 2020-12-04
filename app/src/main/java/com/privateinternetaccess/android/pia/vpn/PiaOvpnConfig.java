@@ -46,7 +46,8 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.ProfileManager;
 
-import static com.privateinternetaccess.android.pia.api.MaceApi.GEN4_MACE_ENABLED_DNS;
+import static com.privateinternetaccess.android.pia.api.PiaApi.GEN4_MACE_ENABLED_DNS;
+
 
 public class PiaOvpnConfig {
 
@@ -95,7 +96,7 @@ public class PiaOvpnConfig {
         vp.mDNS2 = "";
 
         String dns = prefs.get(PiaPrefHandler.DNS, "");
-        if (prefs.get(PiaPrefHandler.GEN4_ACTIVE, true) && PiaPrefHandler.isMaceEnabled(c)) {
+        if (PiaPrefHandler.isMaceEnabled(c)) {
             dns = GEN4_MACE_ENABLED_DNS;
         }
         DLog.d("PiaOvpnConfig", "Custom DNS: " + dns);

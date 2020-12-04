@@ -21,7 +21,7 @@
     <item android:state_focused="true">
         <shape>
             <solid
-                android:color="@color/transparent"
+                android:color="@color/pia_gen_gray"
                 />
             <stroke
                 android:color="@color/white"

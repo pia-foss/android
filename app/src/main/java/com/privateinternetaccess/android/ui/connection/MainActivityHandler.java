@@ -127,8 +127,7 @@ public class MainActivityHandler {
                             .withTextColorRes(textColor)
                     );
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                VPNProtocol.activeProtocol(act) == VPNProtocol.Protocol.OpenVPN) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             drawerItems.add(new PIAPrimaryDrawerItem()
                     .withIdentifier(IDEN_PER_APP)
                     .withName(R.string.per_app_settings)

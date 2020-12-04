@@ -18,4 +18,4 @@
 
 package com.privateinternetaccess.android.pia.model.events
 
-class FetchIPEvent(val ip: String)
+class FetchIPEvent(val ip: String, val connected: Boolean)

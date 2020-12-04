@@ -84,7 +84,7 @@ class AccountImpl(private val context: Context) : IAccount {
     override fun loginLink(email: String, callback: (status: RequestResponseStatus) -> Unit) {
         androidAccountAPI?.loginLink(email) { error ->
             error?.let {
-                DLog.w(TAG, "loginWithCredentials error: $error")
+                DLog.w(TAG, "loginLink error: $error")
                 callback(adaptResponseCode(it.code))
                 return@loginLink
             }

@@ -19,7 +19,6 @@
 package com.privateinternetaccess.android.ui.adapters;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;

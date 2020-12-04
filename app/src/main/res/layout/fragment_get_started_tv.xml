@@ -1,22 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~  Copyright (c) 2020 Private Internet Access, Inc.
-  ~
-  ~  This file is part of the Private Internet Access Android Client.
-  ~
-  ~  The Private Internet Access Android Client is free software: you can redistribute it and/or
-  ~  modify it under the terms of the GNU General Public License as published by the Free
-  ~  Software Foundation, either version 3 of the License, or (at your option) any later version.
-  ~
-  ~  The Private Internet Access Android Client is distributed in the hope that it will be useful,
-  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-  ~  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-  ~  details.
-  ~
-  ~  You should have received a copy of the GNU General Public License along with the Private
-  ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
-  -->
-
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -27,22 +9,11 @@
     android:background="@color/windowBackground"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/activity_login_purchasing_background"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:scaleType="center"
-        android:alpha=".5"
-        app:srcCompat="@drawable/map_getstarted"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/activity_login_purchasing_container"/>
-
     <FrameLayout
         android:id="@+id/activity_login_purchasing_container"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/activity_login_purchasing_logo_layout"
@@ -52,28 +23,20 @@
         android:id="@+id/activity_login_purchasing_logo_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/guideline2"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:orientation="vertical">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="32dp"
-                android:layout_marginRight="32dp"
-                android:layout_marginTop="16dp"
-                app:srcCompat="@drawable/ic_pia_logo_new"
-                android:scaleType="centerInside"
-                />
-
-        </LinearLayout>
-
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp"
+            android:clickable="false"
+            android:focusable="false"
+            app:srcCompat="@drawable/ic_pia_logo_new"
+            android:scaleType="centerInside" />
 
         <ImageView
             android:layout_width="50dp"
@@ -86,21 +49,25 @@
             android:visibility="gone"
             android:padding="10dp"
             android:layout_alignParentRight="true"
-            android:background="@drawable/shape_standard_background"
-            />
+            android:background="@drawable/shape_standard_background" />
+
     </RelativeLayout>
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/guideline"
-        app:layout_constraintGuide_end="222dp"
-        android:orientation="horizontal"/>
+        android:clickable="false"
+        android:focusable="false"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="222dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="false"
         android:orientation="horizontal"
         app:layout_constraintGuide_end="320dp" />
 
@@ -108,20 +75,11 @@
         android:id="@+id/activity_login_purchasing_button_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:clickable="true"
         android:animateLayoutChanges="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline"
-        >
-
-        <com.github.mmin18.widget.RealtimeBlurView
-            android:id="@+id/activity_login_purchasing_blur"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:realtimeBlurRadius="20dp"
-            app:realtimeOverlayColor="@color/purchase_panel_blur" />
+        app:layout_constraintTop_toBottomOf="@id/guideline" >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -142,6 +100,8 @@
                 android:layout_marginBottom="4dp"
                 android:text='@string/getstarted_free_trial'
                 android:textAppearance="@style/PiaTextSubheading"
+                android:clickable="false"
+                android:focusable="false"
                 style="@style/Style08"/>
 
             <TextView
@@ -153,8 +113,9 @@
                 android:layout_marginBottom="16dp"
                 android:textColor="?attr/grey20_white"
                 tools:text="@string/getstarted_trial_price"
-                style="@style/Style02"
-                />
+                android:clickable="false"
+                android:focusable="false"
+                style="@style/Style02" />
 
             <Button
                 style="@style/PiaxGreenButton"
@@ -162,33 +123,42 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginBottom="8dp"
-                android:text="@string/getstarted_subscribe" />
+                android:text="@string/getstarted_subscribe"
+                android:clickable="true"
+                android:focusable="true" />
 
             <Button
                 style="@style/BuyAccountButton"
                 android:id="@+id/activity_login_purchasing_login_button"
-                android:background="?attr/buy_account_button"
+                android:background="@drawable/shape_rounded_border_white"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:text="@string/login" />
+                android:layout_marginBottom="8dp"
+                android:text="@string/login"
+                android:clickable="true"
+                android:focusable="true" />
 
             <Button
-                style="@style/RedeemButton"
+                style="@style/BuyAccountButton"
                 android:id="@+id/activity_login_purchasing_all_plans_button"
-                android:background="@color/transparent"
+                android:background="@drawable/shape_rounded_no_border"
                 android:layout_width="match_parent"
-                android:layout_marginTop="16dp"
-                android:layout_height="30dp"
-                android:text="@string/purchasing_all_plans"/>
+                android:layout_height="50dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/purchasing_all_plans"
+                android:clickable="true"
+                android:focusable="true" />
 
             <Button
-                style="@style/RedeemButton"
+                style="@style/BuyAccountButton"
                 android:id="@+id/activity_login_purchasing_redeem_button"
-                android:background="@color/transparent"
+                android:background="@drawable/shape_rounded_no_border"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="50dp"
                 android:text="@string/redeem_gift_card"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true" />
 
             <TextView
                 android:layout_marginLeft="30dp"
@@ -209,6 +179,5 @@
         </LinearLayout>
 
     </RelativeLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -26,14 +26,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -44,7 +42,6 @@ import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.PingHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.events.ReportEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
@@ -252,9 +249,7 @@ public class DeveloperActivity extends BaseActivity {
             public void onClick(View v) {
                 Prefs prefs = Prefs.with(getApplicationContext());
                 prefs.remove(PIAServerHandler.LAST_SERVER_GRAB);
-                prefs.remove(PIAServerHandler.LAST_SERVER_BODY);
                 prefs.remove(PIAServerHandler.GEN4_LAST_SERVER_BODY);
-                Prefs.with(getApplicationContext(), PingHandler.PREFS_PINGS).remove(PingHandler.LAST_PING_GRAB);
             }
         });
 

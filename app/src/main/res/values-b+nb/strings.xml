@@ -170,7 +170,7 @@
     <string name="save">Lagre</string>
     <string name="saved">Lagret</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Hastigheter som vises her er for trafikk gjennom VPN-tilkoblingen din</string>
-    <string name="ip_short">Offentlig IP</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">For mange mislykkede påloggingsforsøk med dette brukernavnet. Prøv igjen senere.</string>
     <string name="tap_to_connect">TRYKK FOR Å KOBLE TIL</string>
     <string name="building_configration">Bygger konfigurasjonen …</string>
@@ -561,9 +561,6 @@
     <string name="tunnel_error_already_exists">Tunnelen «%s» eksisterer allerede</string>
     <string name="tunnel_error_invalid_name">Ugyldig navn</string>
     <string name="preview">FORHÅNDSVIS</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">Neste generasjons nettverk</string>
-    <string name="gen4_next_generation_network_message">VPN-en må kobles fra for å endre servernettverket.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Inkluder geo-lokaliserte regioner</string>
     <!-- Rating -->
@@ -585,6 +582,7 @@
     <string name="purchasing_return">Vil du gå tilbake til startskjermen? Du kan gjenoppta abonnementsprosessen når som helst ved å klikke på Logg inn -&gt; Logg inn med kvittering.</string>
     <string name="purchasing_magic_link">Innlogging med en magisk e-postkobling</string>
     <string name="purchasing_magic_send">SEND KOBLING</string>
+    <string name="magic_login_enter_email">Skriv inn e-posten din</string>
     <string name="purchasing_magic_success">Du finner en påloggingskobling i e-posten din.</string>
     <string name="connection_tile_header">TILKOBLING</string>
     <string name="connection_tile_tcp">TCP</string>

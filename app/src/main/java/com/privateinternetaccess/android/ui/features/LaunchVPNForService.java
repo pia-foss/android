@@ -23,12 +23,8 @@ import android.content.Intent;
 import android.net.VpnService;
 import android.os.Bundle;
 
-import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.handlers.PingDelayStartHandler;
-import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.connection.VPNPermissionActivity;
-import com.privateinternetaccess.android.ui.widgets.WidgetProvider;
 
 /**
  * Created by arne on 16.06.16.
@@ -56,13 +52,6 @@ public class LaunchVPNForService extends Activity {
     }
 
     private void startVPNService() {
-//        IVPN vpn = PIAFactory.getInstance().getVPN(this);
-//        vpn.start();
-
-        PingDelayStartHandler handler = new PingDelayStartHandler();
-        handler.setTimeDiff(0);
-        handler.startPings(getApplicationContext());
-
         new Thread() {
             @Override
             public void run() {

@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
@@ -35,7 +34,6 @@ import com.privateinternetaccess.android.model.events.SeverListUpdateEvent;
 import com.privateinternetaccess.android.model.events.SeverListUpdateEvent.ServerListUpdateState;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.drawer.ServerListActivity;
@@ -134,14 +132,16 @@ public class ServerSelectionView extends FrameLayout {
 
     private void setServerName() {
         String name = getContext().getString(R.string.automatic_server_selection_main);
+        PIAServerHandler serverHandler = PIAServerHandler.getInstance(getContext());
+        PIAServer nonNullSelectedServer = serverHandler.getSelectedRegion(getContext(), false);
+        PIAServer nullOnAutomaticServer = serverHandler.getSelectedRegion(getContext(), true);
 
-        PIAServerHandler handler = PIAServerHandler.getInstance(getActivity());
-        PIAServer selectedServer = handler.getSelectedRegion(tvServer.getContext(), true);
-        if (selectedServer != null) {
-            name = selectedServer.getName();
+        if (nullOnAutomaticServer != null) {
+            name = nullOnAutomaticServer.getName();
         }
+
         tvServer.setText(name);
-        mapView.setServer(selectedServer);
+        mapView.setServer(nonNullSelectedServer);
     }
 
     private Activity getActivity() {
@@ -175,6 +175,7 @@ public class ServerSelectionView extends FrameLayout {
             case GEN4_PING_SERVERS_FINISHED:
                 aServer.setEnabled(true);
                 progressBar.setVisibility(GONE);
+                setServerName();
                 break;
         }
     }

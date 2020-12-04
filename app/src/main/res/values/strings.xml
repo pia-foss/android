@@ -614,10 +614,6 @@
     <string name="tunnel_error_invalid_name">Invalid name</string>
     <string name="preview">PREVIEW</string>
 
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">Next generation network</string>
-    <string name="gen4_next_generation_network_message">The VPN has to be disconnected to change the server network.</string>
-
     <!-- GEO Servers -->
     <string name="geo_servers">Include geo-located regions</string>
 

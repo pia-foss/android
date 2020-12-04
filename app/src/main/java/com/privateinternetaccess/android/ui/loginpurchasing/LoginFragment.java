@@ -21,6 +21,8 @@ package com.privateinternetaccess.android.ui.loginpurchasing;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import android.text.Editable;
@@ -92,8 +94,8 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         initView();
     }
 
@@ -267,7 +269,7 @@ public class LoginFragment extends Fragment {
                     return null;
                 }
 
-                PiaPrefHandler.saveUser(context, getUsername());
+                PiaPrefHandler.setLogin(context, getUsername());
                 PiaPrefHandler.saveAuthToken(context, token);
                 PiaPrefHandler.setUserIsLoggedIn(context, true);
                 PiaPrefHandler.saveAccountInformation(context, accountInformation);
@@ -358,7 +360,7 @@ public class LoginFragment extends Fragment {
             Toaster.l(getContext(), R.string.error_active_subscription);
         }
         else {
-            ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true, false, false);
+            ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true, false);
         }
     }
 

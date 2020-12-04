@@ -52,8 +52,6 @@ import butterknife.ButterKnife;
  */
 public class TrialFragment extends Fragment{
 
-    public static final int MAX_LENGTH_CARD_PIN = 16;
-
     @BindView(R.id.fragment_trial_email) PiaxEditText etEmail;
     @BindView(R.id.fragment_trial_card_pin) PiaxEditText etPin;
 
@@ -63,9 +61,6 @@ public class TrialFragment extends Fragment{
     private ViewTreeObserver.OnGlobalLayoutListener listener;
 
     @BindView(R.id.fragment_trial_qr) ImageView qrCode;
-
-    //@BindView(R.id.fragment_trial_warning_layout) RelativeLayout rlWarning;
-    //@BindView(R.id.fragment_trial_warning_text) TextView tvWarning;
 
     @Nullable
     @Override
@@ -133,8 +128,7 @@ public class TrialFragment extends Fragment{
                 if(validEmail && validPin) {
                     //send off
                     PiaPrefHandler.saveTempTrialData(etEmail.getContext(), new TrialData(email, cleanedPin));
-                    ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true, true, false);
-                    //((LoginPurchaseActivity) getActivity()).switchToProgress();
+                    ((LoginPurchaseActivity) getActivity()).switchToPurchasingProcess(true, true);
                 }
                 if(!validEmail) {
                     etEmail.setError(getContext().getResources().getString(R.string.invalid_email_signup));

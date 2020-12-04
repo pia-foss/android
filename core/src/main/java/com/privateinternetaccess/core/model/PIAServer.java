@@ -26,6 +26,11 @@ public class PIAServer {
             public String toString() {
                 return "wg";
             }
+        },
+        META {
+            public String toString() {
+                return "meta";
+            }
         }
     }
 
@@ -33,8 +38,9 @@ public class PIAServer {
     private String iso;
     private String dns;
     private String wgHost;
+    private String metaHost;
     private String pingEndpoint;
-    private Map<Protocol, String> latencies;
+    private String latency;
     private Map<Protocol, List<Pair<String, String>>> certCommonNames;
     private String tcpbest;
     private String udpbest;
@@ -53,8 +59,9 @@ public class PIAServer {
             String iso,
             String dns,
             String wgHost,
+            String metaHost,
             String pingEndpoint,
-            Map<Protocol, String> latencies,
+            String latency,
             Map<Protocol, List<Pair<String, String>>> certCommonNames,
             String tcpbest,
             String udpbest,
@@ -70,8 +77,9 @@ public class PIAServer {
         this.iso = iso;
         this.dns = dns;
         this.wgHost = wgHost;
+        this.metaHost = metaHost;
         this.pingEndpoint = pingEndpoint;
-        this.latencies = latencies;
+        this.latency = latency;
         this.certCommonNames = certCommonNames;
         this.tcpbest = tcpbest;
         this.udpbest = udpbest;
@@ -95,7 +103,7 @@ public class PIAServer {
         iso = json.optString("country");
         certCommonNames = new HashMap<>();
         JSONObject udp = json.optJSONObject("openvpn_udp");
-        if(udp != null) {
+        if (udp != null) {
             udpbest = udp.optString("best");
             certCommonNames.put(
                     Protocol.OPENVPN_UDP,
@@ -103,10 +111,9 @@ public class PIAServer {
                             new Pair<>(udpbest.split(":")[0], tlsRemote)
                     )
             );
-
         }
         JSONObject tcp = json.optJSONObject("openvpn_tcp");
-        if(tcp != null) {
+        if (tcp != null) {
             tcpbest = tcp.optString("best");
             certCommonNames.put(
                     Protocol.OPENVPN_TCP,
@@ -185,12 +192,12 @@ public class PIAServer {
         this.pingEndpoint = ping;
     }
 
-    public Map<Protocol, String> getLatencies() {
-        return latencies;
+    public String getLatency() {
+        return latency;
     }
 
-    public void setLatencies(Map<Protocol, String> latencies) {
-        this.latencies = latencies;
+    public void setLatency(String latency) {
+        this.latency = latency;
     }
 
     public String getTcpbest() {
@@ -211,7 +218,7 @@ public class PIAServer {
 
     public String getWgHost() { return wgHost; }
 
-    public void setWgHost(String host) { this.wgHost = host; }
+    public String getMetaHost() { return metaHost; }
 
     public String getKey() {
         return key;

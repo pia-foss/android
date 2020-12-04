@@ -204,7 +204,7 @@ class Rating(val context: Context) : CoroutineScope {
     private fun setRatingState(state: RatingState) {
         PiaPrefHandler.setRatingState(
                 context,
-                Json.stringify(RatingState.serializer(), state)
+                Json.encodeToString(RatingState.serializer(), state)
         )
     }
 
@@ -213,7 +213,7 @@ class Rating(val context: Context) : CoroutineScope {
 
         // If there is no initial state. Defaults to active.
         return stringState?.let {
-            Json.parse(RatingState.serializer(), it)
+            Json.decodeFromString(RatingState.serializer(), it)
         } ?: RatingState(active = true, counter = 0)
     }
     

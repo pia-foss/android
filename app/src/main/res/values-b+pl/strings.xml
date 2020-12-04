@@ -170,7 +170,7 @@
     <string name="save">Zapisz</string>
     <string name="saved">Zapisano</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">Podane prędkości dotyczą ruchu realizowanego przez twój VPN</string>
-    <string name="ip_short">Publiczne IP</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">Za dużo prób logowania z tą nazwą użytkownika. Spróbuj ponownie później.</string>
     <string name="tap_to_connect">DOTKNIJ I POŁĄCZ</string>
     <string name="building_configration">Tworzenie konfiguracji</string>
@@ -553,9 +553,6 @@
     <string name="tunnel_error_already_exists">Tunel „%s” już istnieje</string>
     <string name="tunnel_error_invalid_name">Nieprawidłowa nazwa</string>
     <string name="preview">PODGLĄD</string>
-    <!-- GEN4 -->
-    <string name="gen4_next_generation_network">Sieć następnej generacji</string>
-    <string name="gen4_next_generation_network_message">VPN musi zostać odłączony, aby zmienić sieć serwerów.</string>
     <!-- GEO Servers -->
     <string name="geo_servers">Uwzględnij regiony geolokalizowane</string>
     <!-- Rating -->
@@ -577,6 +574,7 @@
     <string name="purchasing_return">Czy chcesz wrócić do ekranu głównego? Możesz wznowić proces subskrypcji w dowolnym momencie, klikając Zaloguj-&gt; Zaloguj się, używając dowodu zakupu.</string>
     <string name="purchasing_magic_link">Zaloguj się za pomocą magicznego linku e-mail</string>
     <string name="purchasing_magic_send">WYŚLIJ LINK</string>
+    <string name="magic_login_enter_email">Wpisz e-mail</string>
     <string name="purchasing_magic_success">Sprawdź pocztę e-mail, aby uzyskać link do logowania.</string>
     <string name="connection_tile_header">POŁĄCZENIE</string>
     <string name="connection_tile_tcp">TCP</string>

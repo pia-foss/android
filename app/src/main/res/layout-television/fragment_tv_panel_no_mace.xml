@@ -52,12 +52,13 @@
         app:shouldChangeTextColors="true"
         app:focusedTextColor="@color/tv_grey_15"
         app:unfocusedTextColor="@color/white"
-        android:layout_weight="1">
+        android:layout_weight="1.5">
 
         <com.privateinternetaccess.android.ui.tv.views.IPPortView
             android:id="@+id/panel_port_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:paddingBottom="6dp"
@@ -74,7 +75,7 @@
         app:shouldChangeTextColors="true"
         app:focusedTextColor="@color/tv_grey_15"
         app:unfocusedTextColor="@color/white"
-        android:layout_weight="3">
+        android:layout_weight="2.5">
 
         <com.privateinternetaccess.android.ui.tv.views.GraphView
             android:layout_width="match_parent"
@@ -131,16 +132,18 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:textColor="@color/white"
-                android:textSize="16dp"
+                android:textSize="14sp"
                 android:text="@string/tv_per_app_settings"/>
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="21dp"
+                android:layout_width="17dp"
                 android:layout_height="24dp"
                 android:scaleType="fitXY"
-                android:layout_alignParentRight="true"
+                android:layout_marginEnd="3.5dp"
+                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                app:srcCompat="@drawable/ic_drawer_per_app"/>
+                android:layout_centerHorizontal="true"
+                app:srcCompat="@drawable/ic_lock_closed"/>
 
         </RelativeLayout>
 
@@ -170,15 +173,16 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:text="@string/favorites_panel_title"/>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="24dp"
                 android:layout_height="20dp"
                 android:scaleType="fitXY"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
                 app:srcCompat="@drawable/ic_heart"/>
 
         </RelativeLayout>
@@ -233,8 +237,7 @@
                         android:textColor="@color/white"
                         android:textSize="14sp"
                         android:text="@string/menu_settings"
-                        android:gravity="center_vertical"
-                        app:autoSizeTextType="uniform"/>
+                        android:gravity="center_vertical" />
 
                 </LinearLayout>
 
@@ -281,8 +284,7 @@
                         android:textColor="@color/white"
                         android:textSize="14sp"
                         android:text="@string/logout_title"
-                        android:gravity="center_vertical"
-                        app:autoSizeTextType="uniform"/>
+                        android:gravity="center_vertical" />
 
                 </LinearLayout>
 

@@ -77,12 +77,12 @@
     </string-array>
 
     <string-array name="tls_cipher" >
-        <item>RSA-2048</item>
-        <item>RSA-3072</item>
-        <item>RSA-4096</item>
-        <item>ECC-256k1</item>
-        <item>ECC-256r1</item>
-        <item>ECC-521</item>
+        <item>rsa2048</item>
+        <item>rsa3072</item>
+        <item>rsa4096</item>
+        <item>ecdsa256k1</item>
+        <item>ecdsa256</item>
+        <item>ecdsa521</item>
     </string-array>
 
     <string-array name="tls_values" >

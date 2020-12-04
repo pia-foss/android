@@ -32,9 +32,7 @@ import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.model.AccountInformation;
 import com.privateinternetaccess.android.pia.model.PurchaseData;
 import com.privateinternetaccess.android.pia.model.TrialData;
-import com.privateinternetaccess.android.pia.subscription.Base64DecoderException;
 import com.privateinternetaccess.android.pia.utils.DLog;
-import com.privateinternetaccess.android.pia.utils.PasswordObfuscation;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.core.model.PIAServer;
 
@@ -42,8 +40,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -80,18 +76,14 @@ public class PiaPrefHandler {
     public static final String HAS_SET_EMAIL = "hasSetEmail";
 
     public static final String EMAIL = "email";
-    public static final String PASSWORD = "password";
     public static final String TOKEN = "token";
     public static final String LASTEXPIRYNOTIFICATION = "lastexpirynotification";
-    public static final String OBS_PASSWORD = "obs_password";
     public static final String ACTIVE = "active";
     public static final String SHOW_EXPIRE = "showExpire";
     public static final String TIMELEFT = "timeleft";
     public static final String RENEWABLE = "renewable";
-    public static final int UPDATE_INTERVAL = 15;
     public static final String LAST_IP = "lastIP";
     public static final String LAST_IP_VPN = "lastIPVPN";
-    public static final String PORTFORWARINDSTATUS = "portforwarindstatus";
     public static final String PORTFORWARDING = "portforwarding";
     private static final String PORTFORWARDING_INFO = "portforwarding_info";
 
@@ -107,10 +99,7 @@ public class PiaPrefHandler {
     public static final String NETWORK_RULES = "networkRules";
     public static final String NETWORK_MANAGEMENT = "networkManagement";
 
-    public static final String MACE_ACTIVE = "mace_active";
     public static final String PIA_MACE = "pia_mace";
-
-    public static final String GEN4_ACTIVE = "gen4_active_default";
 
     public static final String GEO_SERVERS_ACTIVE = "geo_servers_active";
 
@@ -164,7 +153,6 @@ public class PiaPrefHandler {
 
     public static final String BASE_PROXY_PATH = "baseURLProxyPath";
 
-    private static final String IP_TRACKING = "ip_tracking";
     private static final String PREF_DEBUG_MODE = "developer_mode3";
     private static final String PREF_DEBUG_LEVEL = "debug_level";
 
@@ -210,7 +198,6 @@ public class PiaPrefHandler {
     public static final String QUICK_SETTINGS_NETWORK = "quickSettingsNetwork";
     public static final String QUICK_SETTING_PRIVATE_BROWSER = "quickSettingsPrivateBrowser";
 
-    private static final String QUICK_CONNECT_LIST = "quickConnectList";
     private static final String GEN4_QUICK_CONNECT_LIST = "gen4QuickConnectList";
 
     public static final String USAGE_BYTE_COUNT = "usageByteCount";
@@ -237,7 +224,7 @@ public class PiaPrefHandler {
     ) {
         Prefs.with(context).set(
                 INVITES_DETAILS,
-                Json.Default.stringify(
+                Json.Default.encodeToString(
                         InvitesDetailsInformation.Companion.serializer(),
                         invitesDetailsInformation
                 )
@@ -249,7 +236,7 @@ public class PiaPrefHandler {
         InvitesDetailsInformation invitesDetailsInformation = null;
         if (persistedValue != null) {
             invitesDetailsInformation =
-                    Json.Default.parse(
+                    Json.Default.decodeFromString(
                             InvitesDetailsInformation.Companion.serializer(),
                             persistedValue
                     );
@@ -263,7 +250,7 @@ public class PiaPrefHandler {
     ) {
         Prefs.with(context).set(
                 AVAILABLE_SUBSCRIPTIONS,
-                Json.Default.stringify(
+                Json.Default.encodeToString(
                         AndroidSubscriptionsInformation.Companion.serializer(),
                         subscriptions
                 )
@@ -275,7 +262,7 @@ public class PiaPrefHandler {
         AndroidSubscriptionsInformation subscriptionsInformation = null;
         if (persistedValue != null) {
             subscriptionsInformation =
-                    Json.Default.parse(
+                    Json.Default.decodeFromString(
                             AndroidSubscriptionsInformation.Companion.serializer(),
                             persistedValue
                     );
@@ -342,44 +329,6 @@ public class PiaPrefHandler {
         Prefs.with(context).set(BASE_PROXY_PATH, index);
     }
 
-    public static String getSavedPassword(Context context) {
-        Prefs prefs = new Prefs(context, LOGINDATA);
-        String password = prefs.get(OBS_PASSWORD, "");
-        if (!TextUtils.isEmpty(password)) {
-            try {
-                password = PasswordObfuscation.deobfuscate(password);
-            } catch (GeneralSecurityException | IOException | Base64DecoderException e) {
-                e.printStackTrace();
-            }
-        } else {
-            password = prefs.get(PASSWORD, "");
-        }
-        return password;
-    }
-
-    public static void setSavedPassword(Context context, String password){
-        Prefs prefs = new Prefs(context, LOGINDATA);
-        if(!TextUtils.isEmpty(password)){
-            try {
-                prefs.set(OBS_PASSWORD, PasswordObfuscation.obfuscate(password));
-            } catch (GeneralSecurityException | IOException e) {
-                prefs.set(PASSWORD, password);
-            }
-        } else {
-            prefs.remove(PASSWORD);
-            prefs.remove(OBS_PASSWORD);
-        }
-    }
-
-    public static void saveUserPW(Context context, String user, String password) {
-        // make sure no old cleartext Password is saved
-        Prefs prefs = new Prefs(context, LOGINDATA);
-        prefs.remove(PASSWORD);
-        prefs.set(LOGIN, user);
-
-        setSavedPassword(context, password);
-    }
-
     public static boolean getLocationRequest(Context context) {
         return Prefs.with(context).get(FIRST_PERMISSION_REQUEST, false);
     }
@@ -402,6 +351,11 @@ public class PiaPrefHandler {
 
     public static void setHasSetEmail(Context context, boolean hasSet) {
         Prefs.with(context).set(HAS_SET_EMAIL, hasSet);
+    }
+
+    public static void setLogin(Context context, String user) {
+        Prefs prefs = new Prefs(context, LOGINDATA);
+        prefs.set(LOGIN, user);
     }
 
     public static String getLogin(Context context) {
@@ -432,21 +386,9 @@ public class PiaPrefHandler {
         return Prefs.with(context).get(TRIAL_EMAIL_TEMP, "");
     }
 
-    public static void saveUser(Context context, String user) {
-        Prefs prefs = new Prefs(context, LOGINDATA);
-        prefs.remove(PASSWORD);
-        prefs.set(LOGIN, user);
-    }
-
     public static void saveAuthToken(Context context, String token) {
         Prefs prefs = new Prefs(context, LOGINDATA);
         prefs.set(TOKEN, token);
-    }
-
-    public static void clearUserData(Context context) {
-        Prefs prefs = new Prefs(context, LOGINDATA);
-        prefs.remove(PASSWORD);
-        prefs.remove(OBS_PASSWORD);
     }
 
     public static String getAuthToken(Context context) {
@@ -584,11 +526,7 @@ public class PiaPrefHandler {
         Arrays.fill(items, "");
 
         try {
-            String key = QUICK_CONNECT_LIST;
-            if (Prefs.with(c).get(GEN4_ACTIVE, true)) {
-                key = GEN4_QUICK_CONNECT_LIST;
-            }
-            JSONArray array = new JSONArray(Prefs.with(c).get(key, "[]"));
+            JSONArray array = new JSONArray(Prefs.with(c).get(GEN4_QUICK_CONNECT_LIST, "[]"));
             for (int i = 0; i < array.length(); i++) {
                 items[i] = array.getString(i);
             }
@@ -605,12 +543,7 @@ public class PiaPrefHandler {
         for (int i = 0; i < items.length; i++) {
             array.put(items[i]);
         }
-
-        String key = QUICK_CONNECT_LIST;
-        if (Prefs.with(c).get(GEN4_ACTIVE, true)) {
-            key = GEN4_QUICK_CONNECT_LIST;
-        }
-        Prefs.with(c).set(key, array.toString());
+        Prefs.with(c).set(GEN4_QUICK_CONNECT_LIST, array.toString());
     }
 
     public static List<String> getWidgetOrder(Context context) {
@@ -711,8 +644,6 @@ public class PiaPrefHandler {
         prefs.remove(SHOW_EXPIRE);
         prefs.remove(RENEWABLE);
         prefs.remove(LOGIN);
-        prefs.remove(PASSWORD);
-        prefs.remove(OBS_PASSWORD);
         prefs.remove(TOKEN);
         prefs.set(IS_USER_LOGGED_IN, false);
     }
@@ -819,31 +750,6 @@ public class PiaPrefHandler {
         return Prefs.with(context).getBoolean(PIA_MACE);
     }
 
-    public static boolean isMaceActive(Context context){
-        return Prefs.with(context).getBoolean(MACE_ACTIVE);
-    }
-    public static void setMaceActive(Context context, boolean active){
-        Prefs.with(context).set(MACE_ACTIVE, active);
-    }
-
-    public static boolean isIPTracking(Context context){
-        return Prefs.with(context).get(IP_TRACKING, true);
-    }
-    public static void setIPTracking(Context context, boolean ipTracking){
-        Prefs.with(context).set(IP_TRACKING, ipTracking);
-    }
-    public static int getPurchaseTestingStatus(Context context){
-        return Prefs.with(context).getInt(PURCHASING_TESTING_STATUS);
-    }
-    public static String getPurchaseTestingUsername(Context context){
-        return Prefs.with(context).getString(PURCHASING_TESTING_USERNAME);
-    }
-    public static String getPurchaseTestingPassword(Context context){
-        return Prefs.with(context).getString(PURCHASING_TESTING_PASSWORD);
-    }
-    public static String getPurchaseTestingException(Context context){
-        return Prefs.with(context).getString(PURCHASING_TESTING_EXCEPTION);
-    }
     public static void setPurchaseTestingStatus(Context context, int data){
         Prefs.with(context).set(PURCHASING_TESTING_STATUS, data);
     }
@@ -855,18 +761,6 @@ public class PiaPrefHandler {
     }
     public static void setPurchaseTestingException(Context context, String data){
         Prefs.with(context).set(PURCHASING_TESTING_EXCEPTION, data);
-    }
-    public static boolean getVPNPerAppAllowed(Context context){
-        return Prefs.with(context).getBoolean(VPN_PER_APP_ARE_ALLOWED);
-    }
-    public static void setVPNPerAppAllowed(Context context, boolean data){
-        Prefs.with(context).set(VPN_PER_APP_ARE_ALLOWED, data);
-    }
-    public static Set<String> getVPNPerAppPackages(Context context){
-        return Prefs.with(context).getStringSet(VPN_PER_APP_PACKAGES);
-    }
-    public static void setVPNPerAppPackages(Context context, Set<String> data){
-        Prefs.with(context).set(VPN_PER_APP_PACKAGES, data);
     }
     public static boolean getDebugMode(Context context){
         return Prefs.with(context).getBoolean(PREF_DEBUG_MODE);

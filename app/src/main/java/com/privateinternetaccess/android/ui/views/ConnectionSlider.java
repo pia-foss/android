@@ -22,7 +22,6 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -32,7 +31,6 @@ import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.wireguard.backend.GoBackend;
 
 import org.greenrobot.eventbus.EventBus;
@@ -51,7 +49,9 @@ public class ConnectionSlider extends FrameLayout {
 
     public static GoBackend wireguard;
     public static final String TAG = "ConnectionSlider";
+
     @BindView(R.id.connection_background) AppCompatImageView background;
+    @Nullable @BindView(R.id.connection_focused) AppCompatImageView focusedImageView;
     @Nullable @BindView(R.id.connect_progress) ProgressBar progressBar;
 
     private static final long TAP_DELAY = 750;
@@ -134,17 +134,20 @@ public class ConnectionSlider extends FrameLayout {
                 EventBus.getDefault().getStickyEvent(VpnStateEvent.class).getLevel();
         switch (status) {
             case LEVEL_CONNECTED:
+                background.setContentDescription(getContext().getString(R.string.wg_connected));
                 background.setImageDrawable(
                         getResources().getDrawable(R.drawable.ic_connection_on)
                 );
                 break;
             case LEVEL_NOTCONNECTED:
+                background.setContentDescription(getContext().getString(R.string.tap_to_connect));
                 background.setImageDrawable(
                         getResources().getDrawable(R.drawable.ic_connection_off)
                 );
                 break;
             case LEVEL_NONETWORK:
             case LEVEL_AUTH_FAILED:
+                background.setContentDescription(getContext().getString(R.string.api_check_failure_title));
                 background.setImageDrawable(
                         getResources().getDrawable(R.drawable.ic_connection_error)
                 );
@@ -155,6 +158,7 @@ public class ConnectionSlider extends FrameLayout {
             case LEVEL_START:
             case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
             case LEVEL_CONNECTING_SERVER_REPLIED:
+                background.setContentDescription(getContext().getString(R.string.wg_connecting));
                 background.setImageDrawable(
                         getResources().getDrawable(R.drawable.ic_connection_connecting)
                 );
@@ -163,12 +167,16 @@ public class ConnectionSlider extends FrameLayout {
     }
 
     public void animateFocus(boolean focused) {
-        float scale = focused ? 1.1f : 1f;
+        // Android TV only
+        if (focusedImageView == null) {
+            return;
+        }
 
-        setScaleX(scale);
-        setScaleY(scale);
-
-        updateState();
+        if (focused) {
+            focusedImageView.setVisibility(View.VISIBLE);
+        } else {
+            focusedImageView.setVisibility(View.GONE);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
