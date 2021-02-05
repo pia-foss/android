@@ -18,10 +18,8 @@
 
 package com.privateinternetaccess.android.pia.interfaces
 
-import com.privateinternetaccess.account.model.response.AndroidSubscriptionsInformation
-import com.privateinternetaccess.account.model.response.ClientStatusInformation
-import com.privateinternetaccess.account.model.response.InvitesDetailsInformation
-import com.privateinternetaccess.account.model.response.SignUpInformation
+import com.privateinternetaccess.account.model.response.*
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse.DedicatedIPInformation
 import com.privateinternetaccess.android.pia.model.AccountInformation
 import com.privateinternetaccess.android.pia.model.PurchaseData
 import com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus
@@ -84,6 +82,17 @@ interface IAccount {
     fun accountInformation(
             token: String,
             callback: (accountInformation: AccountInformation?, status: RequestResponseStatus) -> Unit
+    )
+
+    /**
+     * @param token
+     * @param ipTokens
+     * @param callback
+     */
+    fun dedicatedIPs(
+            token: String,
+            ipTokens: List<String>,
+            callback: (details: List<DedicatedIPInformation>, status: RequestResponseStatus) -> Unit
     )
 
     /**
@@ -161,6 +170,35 @@ interface IAccount {
                     subscriptions: AndroidSubscriptionsInformation?,
                     status: RequestResponseStatus
             ) -> Unit
+    )
+
+    /**
+     * @param token
+     * @param callback
+     */
+    fun message(
+            token: String,
+            callback: (
+                    message: MessageInformation?,
+                    status: RequestResponseStatus
+            ) -> Unit
+    )
+
+    /**
+     * @param callback
+    */
+    fun featureFlags(
+            callback: (
+                    featureFlags: FeatureFlagsInformation?,
+                    status: RequestResponseStatus
+            ) -> Unit
+    )
+
+    /**
+     * @param callback
+     */
+    fun sendDebugReport(
+            callback: (reportIdentifier: String?, status: RequestResponseStatus) -> Unit
     )
 
     /**

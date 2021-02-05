@@ -21,15 +21,21 @@ package com.privateinternetaccess.android.ui.adapters;
 import android.app.Activity;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.PIAApplication;
@@ -39,10 +45,10 @@ import com.privateinternetaccess.android.model.listModel.ServerItem;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.android.pia.utils.PIAColorUtils;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
 import com.privateinternetaccess.android.ui.views.ConnectionSlider;
@@ -53,6 +59,8 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.blinkt.openvpn.core.ConnectionStatus;
 
 import static com.privateinternetaccess.regions.RegionsAPIKt.REGIONS_PING_TIMEOUT;
@@ -130,46 +138,121 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
 
             if (!PIAApplication.isAndroidTV(mContext)) {
+                sHolder.image.setImageResource(item.getFlagId());
+                sHolder.name.setText(item.getName());
+
+                sHolder.vDivider.setVisibility(View.VISIBLE);
+                sHolder.vLargeDivider.setVisibility(View.GONE);
+
                 if (item.isSelected()) {
                     sHolder.selected.setVisibility(View.VISIBLE);
-                    if (sHolder.totalArea != null) {
-                        sHolder.totalArea.setBackgroundResource(R.drawable.shape_server_selected);
-                    } else {
-                        sHolder.view.setBackgroundResource(R.drawable.shape_standard_background);
-                    }
                 } else {
                     sHolder.selected.setVisibility(View.INVISIBLE);
-                    if (sHolder.totalArea != null) {
-                        sHolder.totalArea.setBackgroundResource(R.drawable.shape_server_unselected);
+                }
+
+                sHolder.view.setBackgroundResource(R.drawable.shape_standard_background);
+
+                Long ping = null;
+                if (item.getLatency() != null && !item.getLatency().isEmpty()) {
+                    ping = Long.valueOf(item.getLatency());
+                }
+
+                int targetGeoVisibility = View.GONE;
+                if (Prefs.with(mContext).get(PiaPrefHandler.GEO_SERVERS_ACTIVE, true)) {
+                    targetGeoVisibility = item.isGeo() ? View.VISIBLE : View.GONE;
+                    sHolder.geoServerImage.setImageDrawable(
+                            AppCompatResources.getDrawable(mContext, R.drawable.ic_geo_unselected)
+                    );
+                    if (item.isSelected()) {
+                        sHolder.geoServerImage.setImageDrawable(
+                                AppCompatResources.getDrawable(mContext, R.drawable.ic_geo_selected)
+                        );
+                    }
+                }
+                sHolder.geoServerImage.setVisibility(targetGeoVisibility);
+
+
+                if (!item.isAllowsPF() && PiaPrefHandler.isPortForwardingEnabled(mContext)) {
+                    sHolder.portForwarding.setVisibility(View.VISIBLE);
+                    sHolder.image.setColorFilter(ContextCompat.getColor(mContext, R.color.server_fade), android.graphics.PorterDuff.Mode.MULTIPLY);
+                    sHolder.name.setTextColor(ContextCompat.getColor(mContext, R.color.text_fade));
+
+                    if (ping != null && ping > 0L && ping < REGIONS_PING_TIMEOUT) {
+                        if (ping < 200) {
+                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.latency_green_faded));
+                        } else if (ping < 500) {
+                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.latency_yellow_faded));
+                        } else {
+                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.latency_red_faded));
+                        }
+                        sHolder.ping.setText(String.format(mContext.getString(R.string.ping_string), ping));
+                        sHolder.ping.setVisibility(View.VISIBLE);
                     } else {
-                        sHolder.view.setBackgroundResource(R.drawable.shape_standard_background);
+                        sHolder.ping.setText("");
+                        sHolder.ping.setVisibility(View.GONE);
+                    }
+                } else {
+                    sHolder.portForwarding.setVisibility(View.GONE);
+                    sHolder.image.setColorFilter(null);
+                    sHolder.portForwarding.setColorFilter(null);
+                    sHolder.name.setTextColor(sHolder.originalColor);
+
+                    if (ping != null && ping > 0L && ping < REGIONS_PING_TIMEOUT) {
+                        if (ping < 200) {
+                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.pia_gen_green));
+                        } else if (ping < 500) {
+                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.md_yellow_800));
+                        } else {
+                            sHolder.ping.setTextColor(ContextCompat.getColor(mContext, R.color.pia_gen_red));
+                        }
+                        sHolder.ping.setText(String.format(mContext.getString(R.string.ping_string), ping));
+                        sHolder.ping.setVisibility(View.VISIBLE);
+                    } else {
+                        sHolder.ping.setText("");
+                        sHolder.ping.setVisibility(View.GONE);
                     }
                 }
 
-                sHolder.name.setTextColor(sHolder.originalColor);
-                sHolder.view.setTag(item.getName() + "," + item.getHash());
-                sHolder.view.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String tag = (String) v.getTag();
-                        String[] array = tag.split(",");
-                        String serverName = array[0];
-                        int hash = Integer.parseInt(array[1]);
-                        DLog.d("ServerListAdapter", "Connecting to selection");
-                        DLog.d("ServerListAdapter", "Tag: " + v.getTag());
-                        EventBus.getDefault().post(new ServerClickedEvent(serverName, hash));
+                if (item.getDedicatedIp() != null) {
+                    sHolder.lDip.setVisibility(View.VISIBLE);
+                    sHolder.tvDip.setText(item.getDedicatedIp());
+
+                    if (position == getDipCount()) {
+                        sHolder.vDivider.setVisibility(View.GONE);
+                        sHolder.vLargeDivider.setVisibility(View.VISIBLE);
                     }
+                }
+                else {
+                    sHolder.lDip.setVisibility(View.GONE);
+                }
+
+                String itemName = item.getDedicatedIp() != null ? item.getDedicatedIp() : item.getName();
+                sHolder.view.setTag(itemName + "," + item.getHash());
+                sHolder.view.setOnClickListener(v -> {
+                    String tag = (String) v.getTag();
+                    String[] array = tag.split(",");
+                    String serverName = array[0];
+                    int hash = Integer.parseInt(array[1]);
+                    DLog.d("ServerListAdapter", "Connecting to selection");
+                    DLog.d("ServerListAdapter", "Tag: " + v.getTag());
+
+                    EventBus.getDefault().post(new ServerClickedEvent(serverName, hash));
                 });
 
-                sHolder.favoriteImage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        PiaPrefHandler.toggleFavorite(mContext, item.getName());
-                        notifyItemChanged(position);
-                    }
+                String favoriteName;
+                if (!TextUtils.isEmpty(item.getDedicatedIp())) {
+                    favoriteName = item.getDedicatedIp();
+                }
+                else {
+                    favoriteName = item.getName();
+                }
+
+                sHolder.favoriteImage.setOnClickListener(view -> {
+                    PiaPrefHandler.toggleFavorite(mContext, favoriteName);
+                    notifyItemChanged(position);
                 });
 
-                if (PiaPrefHandler.isFavorite(mContext, item.getName())) {
+                if (PiaPrefHandler.isFavorite(mContext, favoriteName)) {
                     sHolder.favoriteImage.setImageDrawable(AppCompatResources.getDrawable(mContext, R.drawable.ic_heart_selected));
                 }
                 else {
@@ -192,12 +275,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 sHolder.favoriteImage.setVisibility(PiaPrefHandler.isFavorite(
                         mContext, item.getName()) ? View.VISIBLE : View.GONE);
 
-                sHolder.view.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        trySelection();
-                    }
-                });
+                sHolder.view.setOnClickListener(v -> trySelection());
             }
 
             int serverFadedColor = ContextCompat.getColor(mContext, R.color.server_fade);
@@ -253,14 +331,19 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 sHolder.portForwarding.setVisibility(View.VISIBLE);
             }
             // endregion
+
+            // region Server offline
+            if (item.isOffline()) {
+                sHolder.view.setClickable(false);
+                sHolder.image.setColorFilter(PIAColorUtils.INSTANCE.grayColorFilter());
+                sHolder.name.setTextColor(ContextCompat.getColor(mContext, R.color.text_fade));
+                sHolder.ping.setVisibility(View.GONE);
+            }
+            // endregion
         }
         else if (holder instanceof ConnectionHolder) {
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    trySelection();
-                }
-            });
+            ((ConnectionHolder) holder).connectionButton.animateFocus(mSelectedItem == position);
+            holder.itemView.setOnClickListener(v -> trySelection());
         }
     }
 
@@ -316,61 +399,57 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         serverItem.setSelected(true);
         mConnectedItem = mSelectedItem;
         mServerSelected = mSelectedItem;
-        EventBus.getDefault().post(new ServerClickedEvent(serverItem.getName(), serverItem.getHash()));
+
+        String itemName = serverItem.getDedicatedIp() != null ? serverItem.getDedicatedIp() : serverItem.getName();
+        EventBus.getDefault().post(new ServerClickedEvent(itemName, serverItem.getHash()));
 
         return true;
     }
 
     private void clearHolder(final RecyclerView.ViewHolder holder) {
         if (holder != null && holder instanceof ServerHolder) {
-            mRecyclerView.post(new Runnable() {
-                @Override
-                public void run() {
-                    ServerHolder sHolder = (ServerHolder) holder;
-                    sHolder.view.setActivated(false);
-                    sHolder.connectedImage.setVisibility(View.GONE);
-                    sHolder.connectionProgress.setVisibility(View.GONE);
-                }
+            mRecyclerView.post(() -> {
+                ServerHolder sHolder = (ServerHolder) holder;
+                sHolder.view.setActivated(false);
+                sHolder.connectedImage.setVisibility(View.GONE);
+                sHolder.connectionProgress.setVisibility(View.GONE);
             });
         }
     }
 
     public void handleVpnState(final VpnStateEvent event) {
-        mRecyclerView.post(new Runnable() {
-            @Override
-            public void run() {
-                PIAServerHandler handler = PIAServerHandler.getInstance(mContext);
-                PIAServer selectedServer = handler.getSelectedRegion(mContext, true);
+        mRecyclerView.post(() -> {
+            PIAServerHandler handler = PIAServerHandler.getInstance(mContext);
+            PIAServer selectedServer = handler.getSelectedRegion(mContext, true);
 
-                RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(
-                        getPositionByRegion(selectedServer) + (isSearchMode ? 0 : 1));
-                updateStatuses(selectedServer);
+            RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(
+                    getPositionByRegion(selectedServer) + (isSearchMode ? 0 : 1));
+            updateStatuses(selectedServer);
 
-                if (holder != null && holder instanceof ServerHolder) {
-                    ServerHolder sHolder = (ServerHolder) holder;
+            if (holder != null && holder instanceof ServerHolder) {
+                ServerHolder sHolder = (ServerHolder) holder;
 
-                    if (event != null) {
-                        ConnectionStatus status = event.getLevel();
+                if (event != null) {
+                    ConnectionStatus status = event.getLevel();
 
-                        if (status == ConnectionStatus.LEVEL_CONNECTED) {
-                            sHolder.connectionProgress.setVisibility(View.GONE);
-                            sHolder.view.setActivated(true);
-                            sHolder.view.setClickable(false);
-                            sHolder.connectedImage.setVisibility(View.VISIBLE);
-                        } else if (status == ConnectionStatus.LEVEL_NOTCONNECTED ||
-                                status == ConnectionStatus.LEVEL_AUTH_FAILED || status == null) {
-                            sHolder.connectionProgress.setVisibility(View.GONE);
-                            sHolder.view.setClickable(true);
-                            sHolder.connectedImage.setVisibility(View.GONE);
-                        } else {
-                            sHolder.connectionProgress.setVisibility(View.VISIBLE);
-                            sHolder.view.setClickable(false);
-                            sHolder.connectedImage.setVisibility(View.GONE);
-                        }
-                    } else {
+                    if (status == ConnectionStatus.LEVEL_CONNECTED) {
                         sHolder.connectionProgress.setVisibility(View.GONE);
+                        sHolder.view.setActivated(true);
+                        sHolder.view.setClickable(false);
+                        sHolder.connectedImage.setVisibility(View.VISIBLE);
+                    } else if (status == ConnectionStatus.LEVEL_NOTCONNECTED ||
+                            status == ConnectionStatus.LEVEL_AUTH_FAILED || status == null) {
+                        sHolder.connectionProgress.setVisibility(View.GONE);
+                        sHolder.view.setClickable(true);
+                        sHolder.connectedImage.setVisibility(View.GONE);
+                    } else {
+                        sHolder.connectionProgress.setVisibility(View.VISIBLE);
+                        sHolder.view.setClickable(false);
                         sHolder.connectedImage.setVisibility(View.GONE);
                     }
+                } else {
+                    sHolder.connectionProgress.setVisibility(View.GONE);
+                    sHolder.connectedImage.setVisibility(View.GONE);
                 }
             }
         });
@@ -444,6 +523,10 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return -1;
     }
 
+    private int getDipCount() {
+        return PiaPrefHandler.getDedicatedIps(mContext).size();
+    }
+
     private void updateStatuses(PIAServer currentRegion) {
         List<ServerItem> serverItems = getServerList();
 
@@ -465,68 +548,66 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     class ServerHolder extends RecyclerView.ViewHolder {
         View view;
-        View totalArea;
-        ImageView image;
-        TextView name;
-        View selected;
-        TextView ping;
-        ImageView portForwarding;
-        ProgressBar connectionProgress;
 
-        ImageView geoServerImage;
-        ImageView favoriteImage;
-        ImageView connectedImage;
+        @BindView(R.id.list_server_flag) ImageView image;
+        @BindView(R.id.list_server_name) TextView name;
+        @Nullable
+        @BindView(R.id.list_server_selected) View selected;
+        @BindView(R.id.list_server_ping) TextView ping;
+        @BindView(R.id.list_server_allows_port_forwarding) ImageView portForwarding;
+        @Nullable
+        @BindView(R.id.list_server_basic_divider) View vDivider;
+        @Nullable
+        @BindView(R.id.list_server_large_divider) View vLargeDivider;
+        @Nullable
+        @BindView(R.id.list_server_connection) ProgressBar connectionProgress;
+
+        @BindView(R.id.list_server_geo) ImageView geoServerImage;
+        @BindView(R.id.list_server_favorite) ImageView favoriteImage;
+        @Nullable
+        @BindView(R.id.list_server_connected_icon) ImageView connectedImage;
+
+        @Nullable
+        @BindView(R.id.list_server_dip) TextView tvDip;
+        @Nullable
+        @BindView(R.id.list_server_dip_layout) LinearLayout lDip;
 
         int originalColor;
 
         public ServerHolder(final View itemView) {
             super(itemView);
             view = itemView;
-            image = itemView.findViewById(R.id.list_server_flag);
-            name = itemView.findViewById(R.id.list_server_name);
-            selected = itemView.findViewById(R.id.list_server_selected);
-            ping = itemView.findViewById(R.id.list_server_ping);
-            portForwarding = itemView.findViewById(R.id.list_server_allows_port_forwarding);
-            connectionProgress = itemView.findViewById(R.id.list_server_connection);
 
-            geoServerImage = itemView.findViewById(R.id.list_server_geo);
-            favoriteImage = itemView.findViewById(R.id.list_server_favorite);
-            connectedImage = itemView.findViewById(R.id.list_server_connected_icon);
+            ButterKnife.bind(this, itemView);
 
             originalColor = name.getCurrentTextColor();
 
             if (PIAApplication.isAndroidTV(mContext)) {
                 itemView.setFocusable(true);
-                itemView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                    @Override
-                    public void onFocusChange(View view, final boolean b) {
+                itemView.setOnFocusChangeListener((view, b) -> {
+                    if (b) {
+                        mSelectedItem = getAdapterPosition();
+                    }
+
+                    mRecyclerView.post(() -> {
+                        float scalingFactor = 1.0f;
+                        int cardElevation = 0;
+
                         if (b) {
-                            mSelectedItem = getAdapterPosition();
+                            itemView.setSelected(true);
+                            name.setTextColor(mContext.getResources().getColor(R.color.black));
+
+                            scalingFactor = 1.1f;
+                            cardElevation = 1;
+                        } else {
+                            itemView.setSelected(false);
+                            name.setTextColor(mContext.getResources().getColor(R.color.white));
                         }
 
-                        mRecyclerView.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                float scalingFactor = 1.0f;
-                                int cardElevation = 0;
-
-                                if (b) {
-                                    itemView.setSelected(true);
-                                    name.setTextColor(mContext.getResources().getColor(R.color.black));
-
-                                    scalingFactor = 1.1f;
-                                    cardElevation = 1;
-                                } else {
-                                    itemView.setSelected(false);
-                                    name.setTextColor(mContext.getResources().getColor(R.color.white));
-                                }
-
-                                itemView.setScaleX(scalingFactor);
-                                itemView.setScaleY(scalingFactor);
-                                ViewCompat.setElevation(itemView, cardElevation);
-                            }
-                        });
-                    }
+                        itemView.setScaleX(scalingFactor);
+                        itemView.setScaleY(scalingFactor);
+                        ViewCompat.setElevation(itemView, cardElevation);
+                    });
                 });
             }
         }

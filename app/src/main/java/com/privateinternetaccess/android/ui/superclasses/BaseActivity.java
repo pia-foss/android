@@ -22,6 +22,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.VpnService;
@@ -49,7 +50,6 @@ import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.handlers.PurchasingHandler;
 import com.privateinternetaccess.android.model.events.TrustedWifiEvent;
 import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.api.PIAAuthenticator.PIAAuthenticatorFailureEvent;
 import com.privateinternetaccess.android.pia.handlers.LogoutHandler;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
@@ -79,8 +79,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
+import io.github.inflationx.viewpump.ViewPumpContextWrapper;
 import kotlin.jvm.functions.Function0;
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity.EXTRA_GOTO_PURCHASING;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
@@ -120,6 +120,10 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (!PIAApplication.isAndroidTV(this)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
         getDelegate().setLocalNightMode(ThemeHandler.getThemeMode(this));
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
@@ -534,7 +538,7 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
      */
     @Override
     protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+        super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase));
     }
 
     public void goToMainActivity(){
@@ -629,9 +633,7 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
             case UNKNOWN_LEVEL:
                 break;
             case LEVEL_AUTH_FAILED:
-                EventBus.getDefault().post(
-                        new PIAAuthenticatorFailureEvent(401, "VPN State Event: Auth Failed")
-                );
+                //EventBus.getDefault().post(new PIAAuthenticatorFailureEvent(401, "VPN State Event: Auth Failed"));
                 break;
         }
     }

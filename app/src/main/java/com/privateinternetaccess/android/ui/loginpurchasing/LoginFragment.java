@@ -99,6 +99,20 @@ public class LoginFragment extends Fragment {
         initView();
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        if (PIAApplication.isAndroidTV(getContext())) {
+            tvLogin.setText("");
+            tvPassword.setText("");
+        }
+        else {
+            etPassword.setText("");
+            etLogin.setText("");
+        }
+    }
+
     private void initView() {
         loadUserPW();
 
@@ -189,14 +203,14 @@ public class LoginFragment extends Fragment {
 
     private String getPassword() {
         if (!PIAApplication.isAndroidTV(getContext()))
-            return etPassword.getText().toString();
+            return etPassword.getText();
         else
             return tvPassword.getText().toString();
     }
 
     private String getUsername() {
         if (!PIAApplication.isAndroidTV(getContext()))
-            return etLogin.getText().toString().trim();
+            return etLogin.getText().trim();
         else
             return tvLogin.getText().toString().trim();
     }
@@ -207,7 +221,7 @@ public class LoginFragment extends Fragment {
         boolean connected = PIAApplication.isNetworkAvailable(context);
 
         if (!PIAApplication.isAndroidTV(getContext())) {
-            if (!TextUtils.isEmpty(etLogin.getText().toString()) && !TextUtils.isEmpty(etPassword.getText().toString()) && connected) {
+            if (!TextUtils.isEmpty(etLogin.getText()) && !TextUtils.isEmpty(etPassword.getText()) && connected) {
                 startLogin();
             } else if (!connected) {
                 Toaster.s(context, R.string.no_internet_connection_available);

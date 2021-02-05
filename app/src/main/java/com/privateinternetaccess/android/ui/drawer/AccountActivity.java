@@ -37,8 +37,6 @@ import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -52,11 +50,6 @@ import butterknife.OnClick;
  * Created by half47 on 2/23/16.
  */
 public class AccountActivity extends BaseActivity {
-
-    private static final String EMAIL = "email";
-    private static final int PASSWORD_REQUEST_CODE = 21;
-    private static final String UNLOCKED = "unlocked";
-    private static final int SAVE_REQUEST_CODE = 22;
 
     @BindView (R.id.settings_account_expiration_date) TextView tvExpirationDate;
     @BindView (R.id.settings_account_expiration_text) TextView tvExpirationText;
@@ -109,12 +102,6 @@ public class AccountActivity extends BaseActivity {
             tvExpirationDate.setText(R.string.timeleft_expired);
             tvExpirationText.setText(R.string.subscription_expired);
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        EventBus.getDefault().unregister(this);
     }
 
     private void setUpUserNamePassword() {

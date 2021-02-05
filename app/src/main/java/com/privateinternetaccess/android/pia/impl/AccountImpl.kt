@@ -22,23 +22,47 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.privateinternetaccess.account.AndroidAccountAPI
 import com.privateinternetaccess.account.model.request.AndroidSignupInformation
-import com.privateinternetaccess.account.model.response.AndroidSubscriptionsInformation
-import com.privateinternetaccess.account.model.response.ClientStatusInformation
-import com.privateinternetaccess.account.model.response.InvitesDetailsInformation
-import com.privateinternetaccess.account.model.response.SignUpInformation
+import com.privateinternetaccess.account.model.response.*
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse.DedicatedIPInformation
+import com.privateinternetaccess.android.BuildConfig
 import com.privateinternetaccess.android.pia.account.PIAAccount
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler
+import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.PREFNAME
 import com.privateinternetaccess.android.pia.interfaces.IAccount
 import com.privateinternetaccess.android.pia.model.AccountInformation
 import com.privateinternetaccess.android.pia.model.PurchaseData
 import com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus
+import com.privateinternetaccess.android.pia.providers.ModuleClientStateProvider
 import com.privateinternetaccess.android.pia.utils.DLog
+import com.privateinternetaccess.android.utils.CSIHelper
+import com.privateinternetaccess.csi.*
 
-class AccountImpl(private val context: Context) : IAccount {
+
+class AccountImpl(private val context: Context) : IAccount, ProtocolInformationProvider, RegionInformationProvider {
 
     companion object {
         private const val TAG = "AccountImpl"
         private const val STORE = "google_play"
+        private lateinit var CSI: CSIAPI
+    }
+
+    init {
+        CSI = CSIBuilder()
+                .setAndroidPreferenceFilename(PREFNAME)
+                .setPlatform(Platform.ANDROID)
+                .setAppVersion(BuildConfig.VERSION_NAME)
+                .setCSIClientStateProvider(ModuleClientStateProvider(context))
+                .setProtocolInformationProvider(this)
+                .setRegionInformationProvider(this)
+                .build()
+    }
+
+    override fun protocolInformation(): String {
+        return CSIHelper.getProtocol(context)
+    }
+
+    override fun regionInformation(): String {
+        return CSIHelper.getRegions(context)
     }
 
     private var androidAccountAPI: AndroidAccountAPI? = null
@@ -213,6 +237,21 @@ class AccountImpl(private val context: Context) : IAccount {
         }
     }
 
+    override fun dedicatedIPs(
+            token: String,
+            ipTokens: List<String>,
+            callback: (details: List<DedicatedIPInformation>, status: RequestResponseStatus) -> Unit
+    ) {
+        androidAccountAPI?.dedicatedIPs(token, ipTokens) { details, error ->
+            error?.let {
+                callback(emptyList(), adaptResponseCode(it.code))
+                return@dedicatedIPs
+            }
+
+            callback(details, RequestResponseStatus.SUCCEEDED)
+        }
+    }
+
     override fun createTrialAccount(
             email: String,
             code: String,
@@ -323,6 +362,72 @@ class AccountImpl(private val context: Context) : IAccount {
             }
 
             callback(details, RequestResponseStatus.SUCCEEDED)
+        }
+    }
+
+    override fun message(
+            token: String,
+            callback: (
+                    message: MessageInformation?,
+                    status: RequestResponseStatus
+            ) -> Unit
+    ) {
+        androidAccountAPI?.message(token, BuildConfig.VERSION_NAME) { message, error ->
+            error?.let {
+                DLog.w(TAG, "messages error: $error")
+                callback(null, adaptResponseCode(it.code))
+                return@message
+            }
+
+            if (message == null) {
+                DLog.w(TAG, "message Invalid response")
+                callback(null, RequestResponseStatus.OP_FAILED)
+                return@message
+            }
+
+            callback(message, RequestResponseStatus.SUCCEEDED)
+        }
+    }
+
+    override fun featureFlags(
+            callback: (
+                    featureFlags: FeatureFlagsInformation?,
+                    status: RequestResponseStatus
+            ) -> Unit) {
+        androidAccountAPI?.featureFlags { flags, error ->
+            error?.let {
+                DLog.w(TAG, "feature flags error: $error")
+                callback(null, adaptResponseCode(it.code))
+                return@featureFlags
+            }
+
+            if (flags == null) {
+                DLog.w(TAG, "feature flags Invalid response")
+                callback(null, RequestResponseStatus.OP_FAILED)
+                return@featureFlags
+            }
+
+            callback(flags, RequestResponseStatus.SUCCEEDED)
+        }
+    }
+
+    override fun sendDebugReport(
+            callback: (reportIdentifier: String?, status: RequestResponseStatus) -> Unit
+    ) {
+        CSI.send(true) { reportIdentifier, error ->
+            error?.let {
+                DLog.w(TAG, "debug report error: $error")
+                callback(null, adaptResponseCode(it.code))
+                return@send
+            }
+
+            if (reportIdentifier == null) {
+                DLog.w(TAG, "debug report Invalid response")
+                callback(null, RequestResponseStatus.OP_FAILED)
+                return@send
+            }
+
+            callback(reportIdentifier, RequestResponseStatus.SUCCEEDED)
         }
     }
 

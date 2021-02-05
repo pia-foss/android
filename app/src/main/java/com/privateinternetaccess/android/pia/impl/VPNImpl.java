@@ -27,11 +27,20 @@ import com.privateinternetaccess.android.PIAOpenVPNTunnelLibrary;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.model.states.VPNProtocol.Protocol;
+import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
+import com.privateinternetaccess.android.pia.model.events.ConnectionAttemptsExhaustedEvent;
+import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
+import com.privateinternetaccess.android.pia.providers.VPNFallbackEndpointProvider;
+import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig;
+import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.ui.widgets.WidgetBaseProvider;
 import com.privateinternetaccess.android.utils.SnoozeUtils;
+import com.privateinternetaccess.core.model.PIAServer;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
@@ -61,32 +70,48 @@ public class VPNImpl implements IVPN {
 
     @Override
     public void start(boolean connectPressed) {
-        SnoozeUtils.resumeVpn(context, false);
-        PiaPrefHandler.setLastConnection(context, System.currentTimeMillis());
-        PiaPrefHandler.clearLastIPVPN(context);
-        WidgetBaseProvider.updateWidget(context, true);
+        PIAServer region = PIAServerHandler.getInstance(context).getSelectedRegion(context, false);
+        if (region.isOffline()) {
+            DLog.d(TAG, "Unable to start VPN. Selected region is offline");
+            EventBus.getDefault().postSticky(
+                    new VpnStateEvent(
+                            "CONNECT",
+                            "Region offline",
+                            R.string.failed_connect_status,
+                            ConnectionStatus.LEVEL_NONETWORK
+                    )
+            );
+            return;
+        }
 
-        if (VPNProtocol.activeProtocol(context) == Protocol.OpenVPN) {
-            try {
-                VpnStatus.updateStateString("GEN_CONFIG", "", R.string.state_gen_config,
-                        ConnectionStatus.LEVEL_START);
-
-                final VpnProfile vp = PiaOvpnConfig.generateVpnProfile(context);
-
-                new Thread() {
-                    @Override
-                    public void run() {
-                        VPNLaunchHelper.startOpenVpn(vp, context);
-                    }
-                }.start();
-
-            } catch (IOException | ConfigParser.ConfigParseError e) {
-                e.printStackTrace();
+        VPNFallbackEndpointProvider.Companion.getSharedInstance().start(context, (vpnEndpoint, error) -> {
+            if (error != null) {
+                DLog.d(TAG, error.getMessage());
+                EventBus.getDefault().post(new ConnectionAttemptsExhaustedEvent());
+                stop();
+                return null;
             }
-        }
-        else {
-            PIAApplication.getAsyncWorker().runAsync(PIAApplication.getWireguard()::startVpn);
-        }
+
+            PIAVpnStatus.setLastConnectedRegion(region);
+            SnoozeUtils.resumeVpn(context, false);
+            PiaPrefHandler.setLastConnection(context, System.currentTimeMillis());
+            PiaPrefHandler.clearLastIPVPN(context);
+            WidgetBaseProvider.updateWidget(context, true);
+            if (VPNProtocol.activeProtocol(context) == Protocol.OpenVPN) {
+                try {
+                    VpnProfile profile = PiaOvpnConfig.generateVpnProfile(context, vpnEndpoint);
+                    PIAApplication.getAsyncWorker().runAsync(() ->
+                            VPNLaunchHelper.startOpenVpn(profile, context));
+                } catch (IOException | ConfigParser.ConfigParseError e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                PIAApplication.getAsyncWorker().runAsync(() ->
+                        PIAApplication.getWireguard().startVpn(vpnEndpoint));
+            }
+            return null;
+        });
     }
 
     @Override
@@ -96,6 +121,7 @@ public class VPNImpl implements IVPN {
 
     @Override
     public void stop(boolean disconnectPressed) {
+        VPNFallbackEndpointProvider.Companion.getSharedInstance().stop();
         PiaPrefHandler.setUserEndedConnection(context, true);
         PiaPrefHandler.setLastDisconnection(context, System.currentTimeMillis());
 

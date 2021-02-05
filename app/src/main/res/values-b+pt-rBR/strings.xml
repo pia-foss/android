@@ -102,6 +102,8 @@
     <string name="current_region">REGIÃO ATUAL</string>
     <string name="full_licenses">Licenças completas</string>
     <string name="email">E-mail</string>
+    <string name="please_wait">Aguarde</string>
+    <string name="still_connecting">Ainda tentando conectar</string>
     <string name="account_details_password_bottom_text">Toque no \"olho\" para revelar. Toque de novo para copiar a Senha para a área de transferência.</string>
     <string name="user_x_vs_p_error">Verifique se você está conectado com seu nome de usuário principal que começa com a letra \"p\" (p. ex. p12345)</string>
     <string name="vpn_revoke_text">A permissão de acesso à VPN da PIA foi revogada. A VPN, o killswitch da internet e a segurança não estão ativos. Toque aqui para reiniciar este serviço e para proteger a sua conexão de internet.</string>
@@ -245,6 +247,9 @@
     <string name="done">CONCLUÍDO</string>
     <string name="update_account">ATUALIZAR CONTA</string>
     <string name="local_port_titla">Porta local</string>
+    <string name="connection_couldnt_establish_title">Não foi possível estabelecer a conexão</string>
+    <string name="connection_couldnt_establish_message">Você pode tentar selecionar uma região diferente ou nos contar o que aconteceu abrindo um tíquete de suporte</string>
+    <string name="send_feedback">Enviar feedback</string>
     <string name="preference_application_settings">CONFIGURAÇÕES GERAIS</string>
     <string name="preference_vpn_settings">CONFIGURAÇÕES DA VPN</string>
     <string name="preference_haptic_title">Feedback táctil ao conectar</string>
@@ -550,6 +555,7 @@
     <string name="wg_connected">VPN Conectada</string>
     <string name="ks_removal_warning">Nós detectamos que você possui o Killswitch habilitado. Nós alteramos o funcionamento deste recurso, ao integrar a configuração \"Bloquear conexões sem VPN\" do Android para WireGuard e OpenVPN. Examine as alterações nas Configurações para assegurar que você continue protegido.</string>
     <string name="preference_on_boot_always_on">Conectar ao inicializar o sistema. Nós recomendamos ativar esta configuração se você estiver usando VPN Sempre Ativa.</string>
+    <string name="ovpn_cipher_removal_description">Estamos atualizando nossa implementação do OpenVPN. Para mais informações, clique <b>aqui</b></string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">O túnel “%s” já existe</string>
     <string name="tunnel_error_invalid_name">Nome inválido</string>
@@ -602,4 +608,20 @@
     <string name="nmt_settings_title">Gerenciamento de rede</string>
     <string name="nmt_settings_description">Crie regras para lidar com regras de autoconexão para redes confiáveis e não confiáveis.</string>
     <string name="nmt_management_title">Gerenciar automação</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">IP dedicado</string>
+    <string name="dip_description">Ative o seu IP dedicado colando o token no formulário abaixo. Se comprou um IP dedicado recentemente, você pode gerar o token acessando o site da PIA.</string>
+    <string name="dip_your_header">SEUS IPS DEDICADOS</string>
+    <string name="dip_activate">Ativar</string>
+    <string name="dip_remove_header">Remover IP dedicado</string>
+    <string name="dip_remove_body">Remover %s - %s?</string>
+    <string name="dip_expired_warning">Seu token expirou. Gere um novo na página da sua conta no site.</string>
+    <string name="dip_invalid">O seu token é inválido. Verifique se você inseriu o token corretamente.</string>
+    <string name="dip_success">O seu IP dedicado foi ativado com sucesso. Ele estará disponível em sua lista de seleção de regiões.</string>
+    <string name="dip_tag">IP DEDICADO</string>
+    <string name="dip_enter_token_hint">Cole o seu token aqui</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Interrompa as mensagens de comunicação no aplicativo</string>
+    <string name="settings_updated">As configurações foram atualizadas</string>
+    <string name="hide_payment">Por problemas técnicos, compras através do Google Play foram desativadas. Estamos trabalhando para resolver a situação.\n\nSe você já tem uma conta com uma assinatura, pode fazer login pressionando o botão Entrar.</string>
 </resources>

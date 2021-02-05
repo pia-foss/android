@@ -102,6 +102,8 @@
     <string name="current_region">AKTUELLE REGION</string>
     <string name="full_licenses">Volle Lizenzen</string>
     <string name="email">E-Mail</string>
+    <string name="please_wait">Bitte warten...</string>
+    <string name="still_connecting">Versucht immer noch, eine Verbindung herzustellen</string>
     <string name="account_details_password_bottom_text">Für Klartextansicht auf das ‚Auge‘ tippen. Erneut tippen, um Passwort in die Zwischenablage zu kopieren.</string>
     <string name="user_x_vs_p_error">Bitte stelle sicher, dass du mit deinem Hauptbenutzernamen anmeldest, der mit „p“ beginnt (z.B. p12345)</string>
     <string name="vpn_revoke_text">PIAs VPN-Erlaubnis wurde widerrufen. VPN, Internet-Killswitch und Sicherheit sind nicht aktiv. Bitte hier tippen, um diesen Dienst neu zu starten und deine Internetverbindung zu sichern.</string>
@@ -245,6 +247,9 @@
     <string name="done">FERTIG</string>
     <string name="update_account">KONTO AKTUALISIEREN</string>
     <string name="local_port_titla">Lokaler Port</string>
+    <string name="connection_couldnt_establish_title">Die Verbindung konnte nicht hergestellt werden</string>
+    <string name="connection_couldnt_establish_message">Sie können versuchen, eine andere Region auszuwählen oder uns darüber zu informieren, indem Sie ein Support-Ticket öffnen</string>
+    <string name="send_feedback">Feedback senden</string>
     <string name="preference_application_settings">ALLGEMEINE EINSTELLUNGEN</string>
     <string name="preference_vpn_settings">VPN-EINSTELLUNGEN</string>
     <string name="preference_haptic_title">Haptische Rückmeldung bei Verbindung</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">VPN verbunden</string>
     <string name="ks_removal_warning">Wir haben festgestellt, dass du den Killswitch aktiviert hast. Wir haben die Funktionsweise dieser Funktion geändert, indem wir die Android-Einstellung „Verbindungen ohne VPN blockieren“ für WireGuard und OpenVPN integriert haben. Bitte überprüfe die Änderungen in den Einstellungen, um sicherzustellen, dass du geschützt bleibst.</string>
     <string name="preference_on_boot_always_on">Beim Systemstart verbinden. Wir empfehlen, diese Einstellung zu aktivieren, wenn du „VPN immer ein“ verwendest.</string>
+    <string name="ovpn_cipher_removal_description">Wir aktualisieren unsere OpenVPN-Implementierung. Für weitere Infos klicken Sie <b>hier</b>.</string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Tunnel „%s“ existiert bereits</string>
     <string name="tunnel_error_invalid_name">Ungültiger Name</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">Netzwerkverwaltung</string>
     <string name="nmt_settings_description">Lege Regeln für die automatische Verbindung für vertrauenswürdige und nicht vertrauenswürdige Netzwerke fest.</string>
     <string name="nmt_management_title">Automatisierung verwalten</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">Dedizierte IP</string>
+    <string name="dip_description">Aktivieren Sie Ihre Dedizierte IP, indem Sie Ihr Token in das unten stehende Formular einfügen. Wenn Sie kürzlich eine dedizierte IP erworben haben, können Sie das Token generieren, indem Sie die PIA-Website aufrufen.</string>
+    <string name="dip_your_header">IHRE DEDIZIERTEN IPS</string>
+    <string name="dip_activate">Aktivieren</string>
+    <string name="dip_remove_header">Dedizierte IP entfernen</string>
+    <string name="dip_remove_body">%s - %s entfernen?</string>
+    <string name="dip_expired_warning">Ihr Token ist abgelaufen. Bitte generieren Sie von Ihrer Konto-Seite auf der Website ein neues.</string>
+    <string name="dip_invalid">Ihr Token ist ungültig. Bitte stellen Sie sicher, dass Sie das Token korrekt eingegeben haben.</string>
+    <string name="dip_success">Ihre Dedizierte IP wurde erfolgreich aktiviert. Sie wird in der Auswahlliste Ihrer Region verfügbar sein.</string>
+    <string name="dip_tag">DEDIZIERTE IP</string>
+    <string name="dip_enter_token_hint">Fügen Sie Ihr Token hier ein.</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">In-App-Kommunikation beenden</string>
+    <string name="settings_updated">Die Einstellungen wurden aktualisiert.</string>
+    <string name="hide_payment">Aufgrund eines technischen Problems sind Käufe über Google Play derzeit deaktiviert. Wir kümmern uns um das Problem. \n\nWenn Sie bereits ein Konto und ein Abonnement haben, können Sie sich anmelden, indem Sie auf „Anmelden“ klicken.</string>
 </resources>

@@ -43,6 +43,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/pia_theme_3_0"
         android:name=".PIAApplication"
+        android:extractNativeLibs="true"
         android:usesCleartextTraffic="true"
         android:label="@string/launcher_name"
         android:appCategory="productivity"
@@ -50,9 +51,14 @@
         android:hardwareAccelerated="true" >
 
         <provider
+            android:name=".pia.utils.MultiProvider"
             android:authorities="com.privateinternetaccess.multipreferences.MultiProvider"
-            android:name=".pia.utils.MultiProvider" >
-        </provider>
+            android:exported="false" />
+
+        <provider
+            android:name="com.privateinternetaccess.csi.CSIContentProvider"
+            android:authorities="com.privateinternetaccess.csi.CSIContentProvider"
+            android:exported="false" />
 
         <activity
             android:name=".ui.LauncherActivity"
@@ -218,6 +224,9 @@
                 android:minHeight="350dp"
                 android:minWidth="300dp" />
             </activity>
+
+        <activity android:name=".ui.drawer.DedicatedIPActivity"
+            android:windowSoftInputMode="stateHidden"/>
 
         <activity android:name=".ui.drawer.settings.DeveloperActivity"
             android:windowSoftInputMode="stateHidden">

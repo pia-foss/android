@@ -72,6 +72,38 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/list_server_dip_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Style06"
+                android:textColor="@color/grey40"
+                android:id="@+id/list_server_dip"
+                tools:text="8.8.8.8" />
+
+            <TextView
+                android:background="@drawable/shape_rounded_border_grey40"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="1dp"
+                android:paddingBottom="1dp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                style="@style/Style06"
+                android:textColor="@color/grey40"
+                android:text="@string/dip_tag"/>
+
+        </LinearLayout>
+
     </LinearLayout>
 
     <ProgressBar

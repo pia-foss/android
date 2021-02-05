@@ -368,7 +368,7 @@ public class WidgetBaseProvider extends AppWidgetProvider  {
             PIAServer currentServer = PIAVpnStatus.getLastConnectedRegion();
             if (!(event.getLevel() == ConnectionStatus.LEVEL_NOTCONNECTED ||
                     event.getLevel() == ConnectionStatus.LEVEL_AUTH_FAILED) && currentServer != null) {
-                int flag = handler.getFlagResource(currentServer);
+                int flag = handler.getFlagResource(currentServer.getIso());
                 if(setText) {
                     String name = currentServer.getName();
                     views.setTextViewText(R.id.widget_top_text, name);
@@ -388,7 +388,7 @@ public class WidgetBaseProvider extends AppWidgetProvider  {
         PIAServerHandler handler = PIAServerHandler.getInstance(context);
         PIAServer selectedServer = handler.getSelectedRegion(context, true);
         if (selectedServer != null) {
-            flag = handler.getFlagResource(selectedServer);
+            flag = handler.getFlagResource(selectedServer.getIso());
             name = selectedServer.getName();
         }
         if(setText)

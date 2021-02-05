@@ -21,7 +21,7 @@
     <item>
         <shape>
             <solid
-                android:color="@color/grey15"
+                android:color="@color/grey20"
                 />
             <corners
                 android:radius="@dimen/piax_button_radius" />

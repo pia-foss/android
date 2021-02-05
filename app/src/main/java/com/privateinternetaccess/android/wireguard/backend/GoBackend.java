@@ -42,6 +42,7 @@ import com.privateinternetaccess.android.pia.api.PIACertPinningAPI;
 import com.privateinternetaccess.android.pia.api.PiaApi;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
+import com.privateinternetaccess.android.pia.providers.VPNFallbackEndpointProvider;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.receivers.PortForwardingReceiver;
 import com.privateinternetaccess.android.pia.utils.DLog;
@@ -50,6 +51,7 @@ import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.tunnel.PortForwardingStatus;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.notifications.PIANotifications;
+import com.privateinternetaccess.android.utils.DedicatedIpUtils;
 import com.privateinternetaccess.android.utils.ServerUtils;
 import com.privateinternetaccess.android.utils.SnoozeUtils;
 import com.privateinternetaccess.android.wireguard.config.Interface;
@@ -76,6 +78,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -210,7 +213,11 @@ public final class GoBackend implements Backend {
     }
 
     @Override
-    public State setState(final Tunnel tunnel, State state) throws Exception {
+    public State setState(
+            VPNFallbackEndpointProvider.VPNEndpoint endpoint,
+            final Tunnel tunnel,
+            State state
+    ) throws Exception {
         final State originalState = getState(tunnel);
         if (state == State.TOGGLE)
             state = originalState == State.UP ? State.DOWN : State.UP;
@@ -219,11 +226,12 @@ public final class GoBackend implements Backend {
         if (state == State.UP && currentTunnel != null)
             throw new IllegalStateException("Only one userspace tunnel can run at a time");
         Log.d(TAG, "Changing tunnel " + tunnel.getName() + " to state " + state);
-        setStateInternal(tunnel, tunnel.getConfig(), state);
+        setStateInternal(endpoint, tunnel, tunnel.getConfig(), state);
         return getState(tunnel);
     }
 
     private void setStateInternal(
+            VPNFallbackEndpointProvider.VPNEndpoint endpoint,
             final Tunnel tunnel,
             @Nullable final Config config,
             final State state
@@ -306,7 +314,7 @@ public final class GoBackend implements Backend {
             service.backend = this;
 
             //PIA Specific up logic
-            service.setActiveTunnel(currentTunnel);
+            service.setActiveTunnel(endpoint, currentTunnel);
 
             VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
                     R.string.wg_connected, ConnectionStatus.LEVEL_CONNECTED);
@@ -401,24 +409,17 @@ public final class GoBackend implements Backend {
         void alwaysOnTriggered();
     }
 
-    public void startVpn() {
-        PIAServerHandler handler = PIAServerHandler.getInstance(context);
-        final PIAServer server = handler.getSelectedRegion(context, false);
-
+    public void startVpn(VPNFallbackEndpointProvider.VPNEndpoint endpoint) {
         if (PIAApplication.wireguardTunnel != null &&
                 !PiaPrefHandler.hasDnsChanged(context)) {
             if (PIAApplication.wireguardServer != null &&
-                    server.getKey() != PIAApplication.wireguardServer.getKey()) {
-                startWireguardService();
+                    !endpoint.getKey().equals(PIAApplication.wireguardServer.getKey())) {
+                startWireguardService(endpoint);
             }
             else {
                 try {
-                    VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
-                            R.string.wg_connecting, ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET);
-                    EventBus.getDefault().postSticky(event);
                     isConnecting = true;
-
-                    setState(PIAApplication.wireguardTunnel, State.UP);
+                    setState(endpoint, PIAApplication.wireguardTunnel, State.UP);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -426,7 +427,7 @@ public final class GoBackend implements Backend {
             }
         }
         else {
-            startWireguardService();
+            startWireguardService(endpoint);
         }
     }
 
@@ -437,7 +438,7 @@ public final class GoBackend implements Backend {
     public void stopVpn(boolean killTunnel) {
         if (PIAApplication.wireguardTunnel != null) {
             try {
-                setState(PIAApplication.wireguardTunnel, State.DOWN);
+                setState(null, PIAApplication.wireguardTunnel, State.DOWN);
 
                 if (killTunnel) {
                     PIAApplication.wireguardTunnel = null;
@@ -466,7 +467,7 @@ public final class GoBackend implements Backend {
         return false;
     }
 
-    public void startWireguardService() {
+    private void startWireguardService(VPNFallbackEndpointProvider.VPNEndpoint endpoint) {
         PIAServerHandler handler = PIAServerHandler.getInstance(context);
         final PIAServer server = handler.getSelectedRegion(context, false);
 
@@ -474,51 +475,58 @@ public final class GoBackend implements Backend {
 
         if (PIAApplication.wireguardTunnel != null &&
                 PIAApplication.wireguardServer != null &&
-                PIAApplication.wireguardServer.getKey() != server.getKey()) {
+                !PIAApplication.wireguardServer.getKey().equals(endpoint.getKey())) {
             try {
-                setState(PIAApplication.wireguardTunnel, State.DOWN);
+                setState(endpoint, PIAApplication.wireguardTunnel, State.DOWN);
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        if (server.getWgHost() == null || server.getWgHost().length() <= 0) {
-            VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
-                    R.string.failed_connect_status, ConnectionStatus.LEVEL_NONETWORK);
+        if (endpoint.getEndpoint() == null || endpoint.getEndpoint().length() <= 0) {
+            VpnStateEvent event = new VpnStateEvent(
+                    "CONNECT",
+                    "Wireguard Connect",
+                    R.string.failed_connect_status,
+                    ConnectionStatus.LEVEL_NONETWORK
+            );
             EventBus.getDefault().postSticky(event);
             return;
         }
 
-        String[] splitPort = server.getWgHost().split(":");
+        String[] splitPort = endpoint.getEndpoint().split(":");
         String host = splitPort[0];
         int port = Integer.parseInt(splitPort[1]);
 
         final KeyPair wgKeyPair = new KeyPair();
-
-        VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
-                R.string.wg_connecting, ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET);
-        EventBus.getDefault().postSticky(event);
         isConnecting = true;
 
         try {
+            String authToken;
+
+            if (server.isDedicatedIp()) {
+                authToken = "dedicated_ip_" + server.getDipToken() + "_" + DedicatedIpUtils.randomAlphaNumeric(8);
+            }
+            else {
+                authToken = PiaPrefHandler.getAuthToken(context);
+            }
+
             HttpUrl httpUrl = new HttpUrl.Builder()
                     .scheme("https")
                     .host(host)
                     .port(port)
                     .addPathSegment("addKey")
                     .addQueryParameter("pubkey", wgKeyPair.getPublicKey().toBase64())
-                    .addQueryParameter("pt", PiaPrefHandler.getAuthToken(context))
+                    .addQueryParameter("pt", authToken)
                     .build();
 
             Request request = new Request.Builder().url(httpUrl).build();
             PIACertPinningAPI piaApi = new PIACertPinningAPI();
 
             // Set the endpoints/cn for the selected protocol before the request
-            List<Pair<String, String>> endpointCommonNames =
-                    server.getCommonNames().get(ServerUtils.getUserSelectedProtocol(context));
-            if (endpointCommonNames != null) {
-                piaApi.setKnownEndpointCommonName(endpointCommonNames);
-            }
+            List<Pair<String, String>> endpointCommonNames = new ArrayList<>();
+            endpointCommonNames.add(new Pair<>(host, endpoint.getCommonName()));
+            piaApi.setKnownEndpointCommonName(endpointCommonNames);
 
             OkHttpClient client = piaApi.getOkHttpClient();
             DLog.d("Wireguard", "httpUrl: " + httpUrl.toString());
@@ -540,17 +548,21 @@ public final class GoBackend implements Backend {
                     try {
                         JSONObject jsonResponse = new JSONObject(res);
                         Config.Builder wgConfigBuilder = new Config.Builder();
-                        wgConfigBuilder.addPeer(Peer.parse(generatePeer(wgKeyPair, jsonResponse, server)));
-                        wgConfigBuilder.setInterface(Interface.parse(generateInterface(wgKeyPair, jsonResponse, server)));
+                        wgConfigBuilder.addPeer(Peer.parse(generatePeer(jsonResponse)));
+                        wgConfigBuilder.setInterface(Interface.parse(generateInterface(wgKeyPair, jsonResponse)));
 
                         Tunnel testTunnel = new Tunnel("PIATunnel", wgConfigBuilder.build(), State.DOWN);
                         PIAApplication.wireguardTunnel = testTunnel;
-                        PIAApplication.wireguardServer = server;
-                        setState(testTunnel, State.UP);
+                        PIAApplication.wireguardServer = endpoint.getWireguardServer();
+                        setState(endpoint, testTunnel, State.UP);
                     }
                     catch (Throwable e) {
-                        VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
-                                de.blinkt.openvpn.R.string.state_waitconnectretry, ConnectionStatus.LEVEL_NOTCONNECTED);
+                        VpnStateEvent event = new VpnStateEvent(
+                                "CONNECT",
+                                "Wireguard Connect",
+                                R.string.failed_connect_status,
+                                ConnectionStatus.LEVEL_NONETWORK
+                        );
                         EventBus.getDefault().postSticky(event);
                         lastState = State.DOWN;
                         isConnecting = false;
@@ -566,13 +578,17 @@ public final class GoBackend implements Backend {
         }
         catch (Exception e) {
             e.printStackTrace();
-            event = new VpnStateEvent("CONNECT", "Wireguard Connect",
-                    de.blinkt.openvpn.R.string.state_waitconnectretry, ConnectionStatus.LEVEL_NOTCONNECTED);
+            VpnStateEvent event = new VpnStateEvent(
+                    "CONNECT",
+                    "Wireguard Connect",
+                    R.string.failed_connect_status,
+                    ConnectionStatus.LEVEL_NONETWORK
+            );
             EventBus.getDefault().postSticky(event);
         }
     }
 
-    private List<String> generateInterface(KeyPair keys, JSONObject response, PIAServer server) throws JSONException {
+    private List<String> generateInterface(KeyPair keys, JSONObject response) throws JSONException {
         List<String> wgSettings = new ArrayList<>();
         Object dns = response.getJSONArray("dns_servers").get(0);
 
@@ -596,14 +612,13 @@ public final class GoBackend implements Backend {
         return wgSettings;
     }
 
-    private List<String> generatePeer(KeyPair keys, JSONObject response, PIAServer server) throws JSONException {
+    private List<String> generatePeer(JSONObject response) throws JSONException {
         List<String> wgSettings = new ArrayList<>();
 
         wgSettings.add("publickey=" + response.getString("server_key"));
         wgSettings.add("endpoint=" + response.getString("server_ip") + ":" + response.getString("server_port"));
         wgSettings.add("persistentkeepalive=25");
 
-        Prefs prefs = new Prefs(context);
         if (PiaPrefHandler.getBlockLocal(context)) {
             wgSettings.add("allowedips=0.0.0.0/0");
         }
@@ -750,7 +765,7 @@ public final class GoBackend implements Backend {
             this.backend = owner;
         }
 
-        public void setActiveTunnel(Tunnel tunnel) {
+        private void setActiveTunnel(VPNFallbackEndpointProvider.VPNEndpoint endpoint, Tunnel tunnel) {
             activeTunnel = tunnel;
 
             if (reconnectHandler != null) {
@@ -762,7 +777,7 @@ public final class GoBackend implements Backend {
             }
 
             if (activeTunnel != null) {
-                startUsageMonitor();
+                startUsageMonitor(endpoint);
             }
             else {
                 stopUsageMonitor();
@@ -777,7 +792,7 @@ public final class GoBackend implements Backend {
             usageHandler = null;
         }
 
-        private void startUsageMonitor() {
+        private void startUsageMonitor(VPNFallbackEndpointProvider.VPNEndpoint endpoint) {
             usageRunnable = new Runnable() {
                 @Override
                 public void run() {
@@ -801,10 +816,7 @@ public final class GoBackend implements Backend {
                         staleCount += 1;
 
                         if (staleCount > 3) {
-                            PIAServerHandler handler = PIAServerHandler.getInstance(VpnService.this);
-                            PIAServer server = handler.getSelectedRegion(VpnService.this, false);
-
-                            Request request = new Request.Builder().url("http://" + server.getPingEndpoint()).
+                            Request request = new Request.Builder().url("http://" + endpoint.getEndpoint()).
                                     build();
 
                             PiaApi piaApi = new PiaApi();
@@ -824,7 +836,7 @@ public final class GoBackend implements Backend {
 
                         if (staleCount > 5) {
                             staleCount = 0;
-                            startReconnect();
+                            startReconnect(endpoint);
 
                             prevStats = null;
                             return;
@@ -848,10 +860,10 @@ public final class GoBackend implements Backend {
             usageHandler.postDelayed(usageRunnable, USAGE_INTERVAL_MS);
         }
 
-        private void startReconnect() {
+        private void startReconnect(VPNFallbackEndpointProvider.VPNEndpoint endpoint) {
             if (backend != null && activeTunnel != null) {
                 try {
-                    backend.setState(activeTunnel, State.DOWN);
+                    backend.setState(endpoint, activeTunnel, State.DOWN);
                     PIAApplication.wireguardTunnel = null;
 
                     stopUsageMonitor();
@@ -859,7 +871,7 @@ public final class GoBackend implements Backend {
                     reconnectHandler = new Handler(Looper.getMainLooper());
                     reconnectRunnable = () -> {
                         try {
-                            backend.startVpn();
+                            backend.startVpn(endpoint);
 
                             reconnectHandler.postDelayed(reconnectRunnable, 30000);
                         }

@@ -43,7 +43,7 @@ import butterknife.OnClick;
 
 public class MagicLoginFragment extends Fragment {
 
-    @BindView(R.id.fragment_login_user) PiaxEditText etLogin;
+    @BindView(R.id.fragment_login_user_magic) PiaxEditText etLogin;
 
     @Nullable
     @Override

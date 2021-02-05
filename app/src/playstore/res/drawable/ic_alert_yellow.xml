@@ -1,0 +1,36 @@
+<!--
+  ~  Copyright (c) 2020 Private Internet Access, Inc.
+  ~
+  ~  This file is part of the Private Internet Access Android Client.
+  ~
+  ~  The Private Internet Access Android Client is free software: you can redistribute it and/or
+  ~  modify it under the terms of the GNU General Public License as published by the Free
+  ~  Software Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~  The Private Internet Access Android Client is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  ~  details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with the Private
+  ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:pathData="M13.1576,4.1927C13.0436,4.0027 12.8846,3.8437 12.6946,3.7297C12.0552,3.3461 11.226,3.5534 10.8424,4.1927L2.3748,18.3054C2.2489,18.5152 2.1824,18.7553 2.1824,19C2.1824,19.7456 2.7868,20.35 3.5324,20.35L20.4676,20.35C20.7123,20.35 20.9524,20.2835 21.1622,20.1576C21.8015,19.774 22.0088,18.9448 21.6252,18.3054L13.1576,4.1927Z"
+      android:strokeWidth="1.3"
+      android:fillColor="#00000000"
+      android:strokeColor="#E6B400"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M12.7604,14.5L11.2396,14.5L11,9L13,9L12.7604,14.5ZM11,17C11,16.7081 11.0954,16.4684 11.2861,16.2811C11.4768,16.0937 11.7148,16 12,16C12.2852,16 12.5232,16.0937 12.7139,16.2811C12.9046,16.4684 13,16.7081 13,17C13,17.2919 12.9046,17.5316 12.7139,17.7189C12.5232,17.9063 12.2852,18 12,18C11.7148,18 11.4768,17.9063 11.2861,17.7189C11.0954,17.5316 11,17.2919 11,17Z"
+      android:strokeWidth="1"
+      android:fillColor="#E6B400"
+      android:fillType="evenOdd"
+      android:strokeColor="#00000000"/>
+</vector>

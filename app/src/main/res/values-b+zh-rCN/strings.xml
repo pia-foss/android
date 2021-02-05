@@ -102,6 +102,8 @@
     <string name="current_region">当前地区</string>
     <string name="full_licenses">完整许可证</string>
     <string name="email">电子邮件</string>
+    <string name="please_wait">请稍候</string>
+    <string name="still_connecting">仍在尝试连接</string>
     <string name="account_details_password_bottom_text">点击“眼睛”以显示。再次点击可将密码复制到剪贴板。</string>
     <string name="user_x_vs_p_error">请确保您使用主用户名登录，该用户名应以“p”开头（例如 p12345）</string>
     <string name="vpn_revoke_text">PIA 的 VPN 权限已撤销。VPN、Internet Killswitch和安全功能未生效。请点击此处重新启动此服务并获得互联网连接。</string>
@@ -245,6 +247,9 @@
     <string name="done">完成</string>
     <string name="update_account">更新帐户</string>
     <string name="local_port_titla">本地端口</string>
+    <string name="connection_couldnt_establish_title">无法建立连接</string>
+    <string name="connection_couldnt_establish_message">您可以尝试选择其他地区，也可以提交支持请求来告知我们</string>
+    <string name="send_feedback">发送反馈</string>
     <string name="preference_application_settings">通用设置</string>
     <string name="preference_vpn_settings">VPN 设置</string>
     <string name="preference_haptic_title">连接时的触觉反馈</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">VPN 已连接</string>
     <string name="ks_removal_warning">我们检测到您已启用 Killswitch。通过为 WireGuard 和 OpenVPN 集成 Android“阻止未使用 VPN 时的连接”设置，我们已经更改了此功能的运作方式。请查看“设置”中的更改，以确保您仍受到保护。</string>
     <string name="preference_on_boot_always_on">在系统启动时连接。如果您使用的是“VPN 始终打开”，则建议您打开此设置。</string>
+    <string name="ovpn_cipher_removal_description">我们正在更新 OpenVPN 实施，有关更多信息，请点击<b>此处</b></string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">隧道“%s”已存在</string>
     <string name="tunnel_error_invalid_name">名称无效</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">网络管理</string>
     <string name="nmt_settings_description">设置规则，为受信任和不受信任的网络处理自动连接规则。</string>
     <string name="nmt_management_title">管理自动化</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">专用 IP</string>
+    <string name="dip_description">将您的令牌粘贴到以下表格中，激活您的专用 IP。如果您最近购买了专用 IP，则可以访问 PIA 网站来生成令牌。</string>
+    <string name="dip_your_header">您的专用 IP</string>
+    <string name="dip_activate">激活</string>
+    <string name="dip_remove_header">删除专用 IP</string>
+    <string name="dip_remove_body">删除 %s - %s？</string>
+    <string name="dip_expired_warning">您的令牌已过期。请从网站的“账户”页面中生成一个新的令牌。</string>
+    <string name="dip_invalid">您的令牌无效。请确保您输入的令牌正确无误。</string>
+    <string name="dip_success">您的专用 IP 已成功激活。您可以在“地区”选择列表中使用该专用 IP。</string>
+    <string name="dip_tag">专用 IP</string>
+    <string name="dip_enter_token_hint">在这里粘贴您的令牌</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">停止应用内通信消息</string>
+    <string name="settings_updated">设置已更新</string>
+    <string name="hide_payment">由于出现技术问题，目前无法通过 Google Play 进行购买。我们正在努力解决这种情况。\n\n如果您已经有一个订阅账户，可以按一下“登录”按钮来登录。</string>
 </resources>

@@ -156,10 +156,14 @@
             android:title="@string/data_auth"
             app:iconSpaceReserved="false"/>
 
-
         <androidx.preference.PreferenceScreen
             android:key="tlscipher"
             android:title="@string/handshake"
+            app:iconSpaceReserved="false"/>
+
+        <androidx.preference.PreferenceScreen
+            android:key="ovpn_cipher_warning"
+            android:summary="@string/ovpn_cipher_removal_description"
             app:iconSpaceReserved="false"/>
 
     </com.privateinternetaccess.android.ui.views.PIAPreferenceCategory>
@@ -208,6 +212,12 @@
             android:key="geo_servers_active"
             android:title="@string/geo_servers"
             android:defaultValue="true"
+            app:iconSpaceReserved="false"/>
+
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="hide_inapp_messages"
+            android:title="@string/inapp_pref_title"
+            android:defaultValue="false"
             app:iconSpaceReserved="false"/>
 
         <androidx.preference.SwitchPreferenceCompat

@@ -37,6 +37,10 @@ import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 
 import org.greenrobot.eventbus.Subscribe;
 
+import static com.privateinternetaccess.android.utils.InAppMessageManager.EXTRA_KEY;
+import static com.privateinternetaccess.android.utils.InAppMessageManager.KEY_OVPN;
+import static com.privateinternetaccess.android.utils.InAppMessageManager.KEY_WG;
+
 /**
  * Created by half47 on 8/3/16.
  */
@@ -91,6 +95,13 @@ public class SettingsActivity extends BaseActivity {
         } else {
             if(frag instanceof SettingsFragment)
                 fragment = (SettingsFragment) getSupportFragmentManager().findFragmentById(R.id.activity_secondary_container);
+        }
+
+        Bundle bundle = getIntent().getExtras();
+
+        if (bundle != null) {
+            String message = bundle.getString(EXTRA_KEY);
+            handleKey(message);
         }
     }
 
@@ -156,5 +167,20 @@ public class SettingsActivity extends BaseActivity {
         }
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    private void handleKey(String key) {
+        if (key == null || key.length() < 1) {
+            return;
+        }
+
+        String[] protocolArray = getResources().getStringArray(R.array.protocol_options);
+
+        if (key.equals(KEY_OVPN)) {
+            SettingsFragmentHandler.changeProtocol(this, protocolArray[0], fragment);
+        }
+        else if (key.equals(KEY_WG)) {
+            SettingsFragmentHandler.changeProtocol(this, protocolArray[1], fragment);
+        }
     }
 }

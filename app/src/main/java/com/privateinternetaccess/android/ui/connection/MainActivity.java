@@ -50,6 +50,7 @@ import com.privateinternetaccess.android.pia.handlers.LogoutHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
+import com.privateinternetaccess.android.pia.model.events.ConnectionAttemptsExhaustedEvent;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.Toaster;
@@ -58,6 +59,7 @@ import com.privateinternetaccess.android.ui.WidgetManager;
 import com.privateinternetaccess.android.ui.adapters.WidgetsAdapter;
 import com.privateinternetaccess.android.ui.drawer.AccountActivity;
 import com.privateinternetaccess.android.ui.drawer.AllowedAppsActivity;
+import com.privateinternetaccess.android.ui.drawer.DedicatedIPActivity;
 import com.privateinternetaccess.android.ui.drawer.SettingsActivity;
 import com.privateinternetaccess.android.ui.drawer.settings.AboutActivity;
 import com.privateinternetaccess.android.ui.features.WebviewActivity;
@@ -248,6 +250,11 @@ public class MainActivity extends BaseActivity {
                 i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com/pages/privacy-policy/");
                 startActivity(i);
             }
+            else if (iden == MainActivityHandler.IDEN_DIP) {
+                Intent i = new Intent(getApplicationContext(), DedicatedIPActivity.class);
+                startActivity(i);
+            }
+
             if (finishing) {
                 overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
                 drawerItemOpened = true;
@@ -460,6 +467,19 @@ public class MainActivity extends BaseActivity {
     @Subscribe
     public void newLogRecieved(LogItem logItem) {
         DLog.d("PIA", logItem.getString(this));
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onConnectionAttemptsExhausted(ConnectionAttemptsExhaustedEvent event) {
+        new AlertDialog.Builder(this).setTitle(R.string.connection_couldnt_establish_title)
+                .setMessage(R.string.connection_couldnt_establish_message)
+                .setPositiveButton(R.string.send_feedback, (dialog, which) -> {
+                    Intent i = new Intent(this, WebviewActivity.class);
+                    i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com/helpdesk/new-ticket/");
+                    startActivity(i);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

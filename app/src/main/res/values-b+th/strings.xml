@@ -102,6 +102,8 @@
     <string name="current_region">ภูมิภาคปัจจุบัน</string>
     <string name="full_licenses">ใบอนุญาตฉบับสมบูรณ์</string>
     <string name="email">อีเมล</string>
+    <string name="please_wait">กรุณารอ</string>
+    <string name="still_connecting">ยังคงพยายามเชื่อมต่อ</string>
     <string name="account_details_password_bottom_text">แตะที่ “ตา” เพื่อแสดงตัวอักษร แตะอีกครั้งเพื่อคัดลอกรหัสผ่านไปยังคลิปบอร์ด</string>
     <string name="user_x_vs_p_error">โปรดตรวจสอบให้แน่ใจว่าคุณกำลังเข้าสู่ระบบด้วยชื่อผู้ใช้หลักของคุณ ซึ่งขึ้นต้นด้วยตัว \"p\" (ตัวอย่าง p12345)</string>
     <string name="vpn_revoke_text">การอนุญาตเข้าใช้ VPN ของ PIA ถูกเพิกถอนแล้ว VPN, Internet killswitch และระบบป้องกันไม่ได้เปิดใช้งานอยู่ โปรดแตะที่นี่เพื่อรีสตาร์ทบริการนี้ใหม่และป้องกันความปลิดภัยในการการเชื่อมต่ออินเตอร์เน็ตของคุณ</string>
@@ -246,6 +248,9 @@
     <string name="done">เสร็จสิ้น</string>
     <string name="update_account">อัพเดตบัญชี</string>
     <string name="local_port_titla">พอร์ตในเครื่อง</string>
+    <string name="connection_couldnt_establish_title">ไม่สามารถสร้างการเชื่อมต่อได้</string>
+    <string name="connection_couldnt_establish_message">คุณสามารถลองเลือกภูมิภาคอื่นหรือแจ้งให้เราทราบโดยเปิดทิกเก็ตความช่วยเหลือ</string>
+    <string name="send_feedback">ส่งคำติชม</string>
     <string name="preference_application_settings">การตั้งค่าทั่วไป</string>
     <string name="preference_vpn_settings">การตั้งค่า VPN</string>
     <string name="preference_haptic_title">ข้อคิดเห็นตอบรับแบบสัมผัสเกี่ยวกับการเชื่อมต่อ</string>
@@ -550,6 +555,7 @@
     <string name="wg_connected">เชื่อมต่อ VPN แล้ว</string>
     <string name="ks_removal_warning">เราตรวจพบว่าคุณเปิดใช้งาน Killswitch เราได้เปลี่ยนวิธีการทำงานของคุณสมบัตินี้โดยรวมการตั้งค่า \"ปิดกั้นการเชื่อมต่อที่ไม่มี VPN\" ของ Android สำหรับทั้ง WireGuard และ OpenVPN โปรดตรวจสอบการเปลี่ยนแปลงในการตั้งค่าเพื่อให้แน่ใจว่าคุณได้รับการปกป้อง</string>
     <string name="preference_on_boot_always_on">เชื่อมต่อเมื่อเริ่มต้นระบบ เราขอแนะนำให้เปิดการตั้งค่านี้หากคุณเลือกให้ VPN เปิดอยู่เสมอ</string>
+    <string name="ovpn_cipher_removal_description">เรากำลังอัปเดตการใช้งาน OpenVPN ของเรา สำหรับข้อมูลเพิ่มเติม โปรดคลิก<b>ที่นี่</b></string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">ท่อ “%s” มีอยู่แล้ว</string>
     <string name="tunnel_error_invalid_name">ชื่อไม่ถูกต้อง</string>
@@ -602,4 +608,20 @@
     <string name="nmt_settings_title">การจัดการเครือข่าย</string>
     <string name="nmt_settings_description">ตั้งค่ากฎเพื่อใช้กับกฎการเชื่อมต่ออัตโนมัติของเครือข่ายที่เชื่อถือและไม่เชื่อถือ</string>
     <string name="nmt_management_title">จัดการระบบอัตโนมัติ</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">IP เฉพาะ</string>
+    <string name="dip_description">เปิดใช้งาน IP เฉพาะของคุณโดยวางโทเคนของคุณในแบบฟอร์มด้านล่าง หากคุณเพิ่งซื้อ IP เฉพาะ คุณสามารถสร้างโทเค็นได้โดยไปที่เว็บไซต์ PIA</string>
+    <string name="dip_your_header">IP เฉพาะของคุณ</string>
+    <string name="dip_activate">เปิดการใช้งาน</string>
+    <string name="dip_remove_header">ลบ IP เฉพาะ</string>
+    <string name="dip_remove_body">ลบ %s - %s หรือไม่</string>
+    <string name="dip_expired_warning">โทเคนของคุณหมดอายุแล้ว โปรดสร้างใหม่จากหน้าบัญชีของคุณในเว็บไซต์</string>
+    <string name="dip_invalid">โทเคนของคุณไม่ถูกต้อง โปรดตรวจสอบว่าคุณได้ป้อนโทเคนอย่างถูกต้อง</string>
+    <string name="dip_success">IP เฉพาะของคุณเปิดใช้งานสำเร็จแล้ว จะมีอยู่ในรายการเลือกภูมิภาคของคุณ</string>
+    <string name="dip_tag">IP เฉพาะ</string>
+    <string name="dip_enter_token_hint">วางโทเค็นของคุณที่นี่</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">หยุดการส่งข้อความพูดคุยภายในแอป</string>
+    <string name="settings_updated">อัปเดตการตั้งค่าแล้ว</string>
+    <string name="hide_payment">เนื่องด้วยปัญหาทางเทคนิค การซื้อผ่าน Google Play จึงถูกปิดใช้งานในขณะนี้ เรากำลังดำเนินการแก้ไขสถานการณ์\n\nหากคุณมีบัญชีที่เป็นสมาชิกอยู่แล้ว คุณสามารถเข้าสู่ระบบได้โดยกดปุ่ม \'เข้าสู่ระบบ\'</string>
 </resources>

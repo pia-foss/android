@@ -102,6 +102,8 @@
     <string name="current_region">ТЕКУЩИЙ РЕГИОН</string>
     <string name="full_licenses">Полные лицензии</string>
     <string name="email">Эл. адрес</string>
+    <string name="please_wait">Подождите</string>
+    <string name="still_connecting">Еще пытаемся подключиться</string>
     <string name="account_details_password_bottom_text">Коснитесь значка глаза, чтобы показать пароль. Коснитесь еще раз, чтобы скопировать пароль в буфер обмена.</string>
     <string name="user_x_vs_p_error">Убедитесь, что вы выполняете вход с помощью основного имени пользователя, которое должно начинаться с латинской буквы «p» (напр., p12345)</string>
     <string name="vpn_revoke_text">Разрешение на использование PIA VPN отозвано. VPN, аварийный блокиратор Интернета и система защиты не активны. Коснитесь здесь, чтобы перезапустить службу и защитить свое интернет-соединение.</string>
@@ -245,6 +247,9 @@
     <string name="done">ГОТОВО</string>
     <string name="update_account">ОБНОВИТЬ УЧЕТНУЮ ЗАПИСЬ</string>
     <string name="local_port_titla">Локальный порт</string>
+    <string name="connection_couldnt_establish_title">Не удалось установить подключение</string>
+    <string name="connection_couldnt_establish_message">Попробуйте выбрать другой регион или сообщите нам об этом, создав запрос в службу поддержки</string>
+    <string name="send_feedback">Отправить отзыв</string>
     <string name="preference_application_settings">ОБЩИЕ НАСТРОЙКИ</string>
     <string name="preference_vpn_settings">НАСТРОЙКИ VPN</string>
     <string name="preference_haptic_title">Сенсорная реакция при подключении</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">VPN подключен</string>
     <string name="ks_removal_warning">Мы обнаружили, что у вас включен аварийный блокиратор. Мы изменили принцип работы этой функции, добавив настройку Android «Блокировать подключения без VPN» для WireGuard и OpenVPN. Посмотрите изменения в Настройках, чтобы убедиться, что вы под защитой.</string>
     <string name="preference_on_boot_always_on">Подключение при запуске системы. Мы рекомендуем включить эту настройку при использовании функции «VPN всегда вкл».</string>
+    <string name="ovpn_cipher_removal_description">Мы обновляем реализацию функции OpenVPN. Нажмите <b>здесь</b> для получения более детальной информации.</string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Туннель «%s» уже существует</string>
     <string name="tunnel_error_invalid_name">Неверное имя</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">Управление сетями</string>
     <string name="nmt_settings_description">Настройте правила автоматического подключения для надежных и ненадежных сетей.</string>
     <string name="nmt_management_title">Настроить автоматизацию</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">Выделенный IP</string>
+    <string name="dip_description">Активируйте выделенный IP, вставив свой токен в форму ниже. Если вы недавно купили выделенный IP, то можете создать токен на сайте PIA.</string>
+    <string name="dip_your_header">ВАШИ ВЫДЕЛЕННЫЕ IP</string>
+    <string name="dip_activate">Активировать</string>
+    <string name="dip_remove_header">Удалить выделенный IP</string>
+    <string name="dip_remove_body">Удалить %s – %s?</string>
+    <string name="dip_expired_warning">Срок действия токена истек. Создайте новый токен на странице своей учетной записи на веб-сайте.</string>
+    <string name="dip_invalid">Недействительный токен. Проверьте правильность ввода токена.</string>
+    <string name="dip_success">Выделенный IP успешно активирован. Он будет доступен в вашем списке выбора региона.</string>
+    <string name="dip_tag">ВЫДЕЛЕННЫЙ IP</string>
+    <string name="dip_enter_token_hint">Вставьте свой токен здесь</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Остановить обмен сообщениями в приложении</string>
+    <string name="settings_updated">Настройки обновлены</string>
+    <string name="hide_payment">Ввиду технических проблем временно отключена возможность совершать покупки через Google Play. Мы работаем над устранением этой проблемы.\n\nЕсли у вас уже имеется учетная запись с подпиской, вы можете войти в нее, нажав на кнопку «Вход».</string>
 </resources>

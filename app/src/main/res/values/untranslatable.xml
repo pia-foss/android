@@ -65,33 +65,19 @@
     </string-array>
 
     <string-array name="auth_values">
-        <item>SHA1</item>
         <item>SHA256</item>
-        <item>none</item>
     </string-array>
 
     <string-array name="auth_list">
-        <item>HMAC-SHA1</item>
         <item>HMAC-SHA256</item>
-        <item>None</item>
     </string-array>
 
     <string-array name="tls_cipher" >
-        <item>rsa2048</item>
-        <item>rsa3072</item>
         <item>rsa4096</item>
-        <item>ecdsa256k1</item>
-        <item>ecdsa256</item>
-        <item>ecdsa521</item>
     </string-array>
 
     <string-array name="tls_values" >
-        <item>rsa2048</item>
-        <item>rsa3072</item>
         <item>rsa4096</item>
-        <item>ecdsa256k1</item>
-        <item>ecdsa256</item>
-        <item>ecdsa521</item>
     </string-array>
 
     <string name="license_gpl" translatable="false">The software included in this product contains copyrighted software that is licensed under the GPL.

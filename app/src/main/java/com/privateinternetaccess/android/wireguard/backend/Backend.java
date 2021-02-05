@@ -18,19 +18,15 @@
 
 package com.privateinternetaccess.android.wireguard.backend;
 
-import androidx.annotation.Nullable;
-
+import com.privateinternetaccess.android.pia.providers.VPNFallbackEndpointProvider;
 import com.privateinternetaccess.android.wireguard.model.Tunnel;
-import com.privateinternetaccess.android.wireguard.model.Tunnel.State;
 import com.privateinternetaccess.android.wireguard.model.Tunnel.Statistics;
-import com.privateinternetaccess.android.wireguard.config.Config;
-
 import java.util.Set;
+
 
 /**
  * Interface for implementations of the WireGuard secure network tunnel.
  */
-
 public interface Backend {
     /**
      * Enumerate names of currently-running tunnels.
@@ -68,11 +64,15 @@ public interface Backend {
      * Set the state of a tunnel, updating it's configuration. If the tunnel is already up, config
      * may update the running configuration; config may be null when setting the tunnel down.
      *
+     * @param endpoint The endpoint data we are currently working on.
      * @param tunnel The tunnel to control the state of.
      * @param state  The new state for this tunnel. Must be {@code UP}, {@code DOWN}, or
      *               {@code TOGGLE}.
-     * @param config The configuration for this tunnel, may be null if state is {@code DOWN}.
      * @return The updated state of the tunnel.
      */
-    Tunnel.State setState(Tunnel tunnel, Tunnel.State state) throws Exception;
+    Tunnel.State setState(
+            VPNFallbackEndpointProvider.VPNEndpoint endpoint,
+            Tunnel tunnel,
+            Tunnel.State state
+    ) throws Exception;
 }

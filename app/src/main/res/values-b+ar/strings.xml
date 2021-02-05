@@ -102,6 +102,8 @@
     <string name="current_region">المنطقة الحالية</string>
     <string name="full_licenses">تراخيص كاملة</string>
     <string name="email">البريد الإلكتروني</string>
+    <string name="please_wait">يرجى الانتظار</string>
+    <string name="still_connecting">قيد محاولة الاتصال</string>
     <string name="account_details_password_bottom_text">اضغط \"عين\" لإظهارها. اضغط مرة أخرى لنسخ كلمة المرور إلى الحافظة.</string>
     <string name="user_x_vs_p_error">يرجى التأكد من تسجيل دخولك باسم المستخدم الرئيسي، والذي يجب أن يبدأ بـ \"P\" (مثال: p12345)</string>
     <string name="vpn_revoke_text">تم إلغاء الإذن من خدمة VPN من PIA. خدمة VPN وInternet killswitch والحماية غير نشطين. يرجى الضغط هنا لإعادة تشغيل هذه الخدمة وتأمين اتصالك بالإنترنت.</string>
@@ -245,6 +247,9 @@
     <string name="done">تم</string>
     <string name="update_account">تحديث الحساب</string>
     <string name="local_port_titla">منفذ محلي</string>
+    <string name="connection_couldnt_establish_title">تعذّر تأسيس اتصال</string>
+    <string name="connection_couldnt_establish_message">يمكنك محاولة تحديد منطقة مختلفة أو إعلامنا بها عن طريق فتح تذكرة دعم</string>
+    <string name="send_feedback">إرسال ملاحظات</string>
     <string name="preference_application_settings">الإعدادات العامة</string>
     <string name="preference_vpn_settings">إعدادات VPN</string>
     <string name="preference_haptic_title">رد فعل لمسي عند الاتصال</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">متصل بـVPN</string>
     <string name="ks_removal_warning">لقد اكتشفنا أنك قمت بتفعيل خدمة إغلاق الإنترنت (Killswitch). لقد قمنا بتغيير كيفية عمل هذه الخاصية عبر دمج إعداد \"حظر الاتصالات بدون VPN\" في Android لكل من WireGuard وOpenVPN. يرجى مراجعة التغييرات في الإعدادات لضمان الحفاظ على حمايتك.</string>
     <string name="preference_on_boot_always_on">الاتصال عند تشغيل النظام. نوصي بتشغيل هذا الإعداد إذا كنت تستخدم خاصية التشغيل الدائم لـ VPN.</string>
+    <string name="ovpn_cipher_removal_description">نحن نقوم بتحديث تطبيق OpenVPN، لمزيد من المعلومات، اضغط <b>هنا</b></string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">نفق “%s” موجود بالفعل</string>
     <string name="tunnel_error_invalid_name">اسم غير صالح</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">إدارة الشبكات</string>
     <string name="nmt_settings_description">قم بإعداد القواعد للتعامل مع قواعد الاتصال التلقائي للشبكات الموثوقة وغير الموثوق بها.</string>
     <string name="nmt_management_title">أتمتة الإدارة</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">عنوان IP مخصّص</string>
+    <string name="dip_description">قم بتنشيط عنوان IP المخصّص عن طريق لصق الرمز في النموذج أدناه. إذا كنت قد اشتريت عنوان IP مخصصًا مؤخرًا، يمكنك إنشاء الرمز من خلال الذهاب إلى موقع PIA الإلكتروني.</string>
+    <string name="dip_your_header">عناوين IP المخصّصة</string>
+    <string name="dip_activate">تنشيط</string>
+    <string name="dip_remove_header">إزالة عنوان IP المخصّص</string>
+    <string name="dip_remove_body">إزالة %s - %s؟</string>
+    <string name="dip_expired_warning">انتهت صلاحية الرمز. يرجى إنشاء رمز جديد من صفحة حسابك على الموقع الإلكتروني.</string>
+    <string name="dip_invalid">الرمز غير صالح. يرجى التأكد من إدخال الرمز بشكل صحيح.</string>
+    <string name="dip_success">تم تنشيط عنوان IP المخصّص بنجاح. سيكون متاحًا في قائمة اختيار المنطقة.</string>
+    <string name="dip_tag">عنوان IP مخصّص</string>
+    <string name="dip_enter_token_hint">الصق الرمز هنا</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">إيقاف رسائل الاتصال من داخل التطبيق</string>
+    <string name="settings_updated">تم تحديث الإعدادات</string>
+    <string name="hide_payment">نظرًا لوجود مشكلة فنية، تم تعطيل عمليات الشراء عبر Google Play حاليًا. نحن نعمل حاليًا على حل المشكلة.\n\nإذا كان لديك بالفعل حساب به اشتراك، يمكنك تسجيل الدخول بالضغط على زر تسجيل الدخول.</string>
 </resources>

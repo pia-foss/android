@@ -87,9 +87,6 @@ open class PIACertPinningAPI {
             e.printStackTrace()
         }
         builder.connectTimeout(8, TimeUnit.SECONDS)
-        if (PiaApi.INTERCEPTOR != null) {
-            builder.addInterceptor(PiaApi.INTERCEPTOR)
-        }
 
         if (trustManager != null && sslSocketFactory != null) {
             builder.sslSocketFactory(sslSocketFactory, trustManager)

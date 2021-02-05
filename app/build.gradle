@@ -38,6 +38,7 @@ dependencies {
     implementation project(":core")
     implementation project(":regions")
     implementation project(":account")
+    implementation project(":csi")
 
     // Commons
     implementation "io.ktor:ktor-client-okhttp:1.4.0"
@@ -79,7 +80,8 @@ dependencies {
     //https://github.com/apl-devs/AppIntro
     implementation 'com.github.paolorotolo:appintro:4.1.0'
     //https://github.com/chrisjenx/Calligraphy
-    implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
+    implementation 'io.github.inflationx:calligraphy3:3.1.1'
+    implementation 'io.github.inflationx:viewpump:2.0.3'
     // https://github.com/mikepenz/MaterialDrawer
     implementation('com.mikepenz:materialdrawer:6.0.9@aar') {
         transitive = true
@@ -127,7 +129,7 @@ android {
             renderscriptSupportModeEnabled true
 
             versionCode code
-            versionName "3.8.2"
+            versionName "3.10.0"
             setProperty("archivesBaseName", "pia-$versionName-$versionCode")
             vectorDrawables {
                 useSupportLibrary = true
@@ -168,7 +170,7 @@ android {
         }
 
         qa {
-            buildConfigField 'String','STAGEINGHOST','"https://staging-1-77b8e3a311bcb6ec5e96.privateinternetaccess.com/"'
+            buildConfigField 'String','STAGEINGHOST','"https://staging-5-77b8e3a311bcb6ec5e96.privateinternetaccess.com/"'
             dimension "pia"
         }
 
@@ -245,7 +247,7 @@ android {
 
 task fetchRegions {
     println "Fetching initial list of regions"
-    def response = new URL("https://serverlist.piaservers.net/vpninfo/servers/v4").getText()
+    def response = new URL("https://serverlist.piaservers.net/vpninfo/servers/v5").getText()
     new File("app/src/main/assets/regions.json").write response
 }
 preBuild.dependsOn fetchRegions

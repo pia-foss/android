@@ -102,6 +102,8 @@
     <string name="current_region">BIEŻĄCY REGION</string>
     <string name="full_licenses">Pełne licencje</string>
     <string name="email">E-mail</string>
+    <string name="please_wait">Proszę czekać</string>
+    <string name="still_connecting">Trwa próba połączenia</string>
     <string name="account_details_password_bottom_text">Dotknij „oka”, aby odkryć. Dotknij ponownie, aby skopiować hasło do schowka.</string>
     <string name="user_x_vs_p_error">Sprawdź, czy logujesz się, używając głównej nazwy użytkownika, która powinna zaczynać się od litery \"P\" (np. p12345)</string>
     <string name="vpn_revoke_text">Uprawnienia do VPN PIA zostały odwołane. VPN, wyłącznik awaryjny Internetu i ochrona nie są aktywne. Dotknij tutaj, aby ponownie uruchomić tę usługę i chronić swoje połączenie z internetem.</string>
@@ -245,6 +247,9 @@
     <string name="done">GOTOWE</string>
     <string name="update_account">ZMIEŃ ABONAMENT</string>
     <string name="local_port_titla">Port lokalny</string>
+    <string name="connection_couldnt_establish_title">Nie udało się nawiązać połączenia</string>
+    <string name="connection_couldnt_establish_message">Możesz spróbować wybrać inny region lub powiadomić nas, wypełniając zgłoszenie do pomocy technicznej.</string>
+    <string name="send_feedback">Wyślij opinię</string>
     <string name="preference_application_settings">OGÓLNE USTAWIENIA</string>
     <string name="preference_vpn_settings">USTAWIENIA VPN</string>
     <string name="preference_haptic_title">Informacje haptyczne przy połączeniu</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">Połączono z VPN</string>
     <string name="ks_removal_warning">Wykryliśmy, że masz włączony Killswitch. Zmieniliśmy sposób działania tej funkcji, integrując ustawienie Android „Blokuj połączenia bez VPN” zarówno dla WireGuard, jak i OpenVPN. Przejrzyj zmiany w Ustawieniach, aby upewnić się, że jesteś chroniony.</string>
     <string name="preference_on_boot_always_on">Połącz przy starcie systemu. Zalecamy włączenie tego ustawienia, jeśli korzystasz z „Zawsze przez VPN”.</string>
+    <string name="ovpn_cipher_removal_description">Aktualizujemy naszą implementację OpenVPN, aby uzyskać więcej informacji, kliknij <b>tutaj</b></string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Tunel „%s” już istnieje</string>
     <string name="tunnel_error_invalid_name">Nieprawidłowa nazwa</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">Zarządzanie sieciami</string>
     <string name="nmt_settings_description">Skonfiguruj reguły do obsługi reguł automatycznego łączenia dla zaufanych i niezaufanych sieci.</string>
     <string name="nmt_management_title">Zarządzaj automatyzacją</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">Dedykowane IP</string>
+    <string name="dip_description">Aktywuj dedykowany adres IP, wklejając swój token w poniższym formularzu. Jeśli niedawno nabyłeś(-aś) dedykowany adres IP, możesz wygenerować token na stronie PIA.</string>
+    <string name="dip_your_header">TWOJE DEDYKOWANE ADRESY IP</string>
+    <string name="dip_activate">Aktywuj</string>
+    <string name="dip_remove_header">Usuń dedykowane. IP</string>
+    <string name="dip_remove_body">Usunąć %s - %s?</string>
+    <string name="dip_expired_warning">Twój token stracił ważność. Wygeneruj nowy na swoim koncie na stronie internetowej.</string>
+    <string name="dip_invalid">Twój token jest nieprawidłowy. Sprawdź, czy wprowadzony token jest prawidłowy.</string>
+    <string name="dip_success">Twój dedykowany adres IP został aktywowany. Będzie dostępny na liście wyboru regionu.</string>
+    <string name="dip_tag">DEDYKOWANY ADRES IP</string>
+    <string name="dip_enter_token_hint">Wklej swój token tutaj</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Zatrzymaj wiadomości komunikacyjne w aplikacji</string>
+    <string name="settings_updated">Ustawienia zostały zaktualizowane</string>
+    <string name="hide_payment">Z powodu problemu technicznego zakupy w Google Play są obecnie wyłączone. Pracujemy nad rozwiązaniem tej sytuacji.\n\nJeśli masz już konto z subskrypcją, możesz zalogować się, naciskając przycisk Zaloguj.</string>
 </resources>

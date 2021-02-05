@@ -41,11 +41,9 @@ import com.privateinternetaccess.android.model.events.ServerClickedEvent;
 import com.privateinternetaccess.android.model.listModel.ServerItem;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
-import com.privateinternetaccess.android.pia.model.events.ServerPingEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.ui.adapters.ServerListAdapter;
 import com.privateinternetaccess.android.ui.tv.views.ServerSelectionItemDecoration;
-import com.privateinternetaccess.android.utils.ServerUtils;
 import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
@@ -124,12 +122,13 @@ public class SearchFragment extends Fragment {
             mServerItems.add(
                     new ServerItem(
                             ps.getKey(),
-                            handler.getFlagResource(ps),
+                            handler.getFlagResource(ps.getIso()),
                             ps.getName(),
                             ps.getIso(),
                             false,
                             ps.isAllowsPF(),
                             ps.isGeo(),
+                            ps.isOffline(),
                             ps.getLatency()
                     )
             );
@@ -188,12 +187,5 @@ public class SearchFragment extends Fragment {
         if(!region.equals(oldRegionName) ||
                 !PIAFactory.getInstance().getVPN(getActivity()).isVPNActive())
             PIAFactory.getInstance().getVPN(getContext()).start();
-    }
-
-    @Subscribe
-    public void onServerChange(ServerPingEvent event){
-        if(mAdapter != null) {
-            mAdapter.notifyDataSetChanged();
-        }
     }
 }

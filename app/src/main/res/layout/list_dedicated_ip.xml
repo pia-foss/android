@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Copyright (c) 2020 Private Internet Access, Inc.
+  ~
+  ~  This file is part of the Private Internet Access Android Client.
+  ~
+  ~  The Private Internet Access Android Client is free software: you can redistribute it and/or
+  ~  modify it under the terms of the GNU General Public License as published by the Free
+  ~  Software Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~  The Private Internet Access Android Client is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  ~  details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with the Private
+  ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:focusable="true">
+
+    <RelativeLayout
+        android:id="@+id/list_server_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:background="?attr/region_list_item_background">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:id="@+id/list_server_flag_layout"
+            >
+
+            <ImageView
+                android:id="@+id/list_server_flag"
+                android:layout_width="32dp"
+                android:layout_height="22dp"
+                android:scaleType="fitCenter"
+                tools:background="@drawable/flag_jp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/quick_dip_5"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="parent"
+                app:srcCompat="@drawable/ic_dip_badge"
+                app:layout_constraintTop_toTopOf="parent"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/list_server_flag_layout"
+            android:layout_toEndOf="@id/list_server_flag_layout"
+            android:layout_toLeftOf="@+id/list_server_icons_layout"
+            android:layout_toStartOf="@+id/list_server_icons_layout"
+            android:layout_marginLeft="10dp"
+            android:layout_centerVertical="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Style06"
+                android:textColor="?attr/grey20_white"
+                android:id="@+id/list_server_name"
+                tools:text="Japan"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/list_server_icons_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_toStartOf="@+id/list_server_close_button"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp">
+
+            <TextView
+                android:id="@+id/list_server_ping"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="right"
+                style="@style/Style11"
+                tools:text="234 ms"
+                android:textColor="?attr/grey20_white"
+                />
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:tint="?attr/grey20_white"
+            android:id="@+id/list_server_close_button"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_centerVertical="true"
+            app:srcCompat="@drawable/ic_close"
+            android:layout_alignParentRight="true" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_below="@+id/list_server_layout"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/region_selection_background" />
+
+</RelativeLayout>

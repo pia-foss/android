@@ -26,10 +26,11 @@ import androidx.annotation.NonNull;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
+import com.privateinternetaccess.android.pia.providers.VPNFallbackEndpointProvider;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
-import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.ui.drawer.settings.DeveloperActivity;
+import com.privateinternetaccess.android.utils.DedicatedIpUtils;
 import com.privateinternetaccess.core.model.PIAServer;
 
 import java.io.BufferedReader;
@@ -52,34 +53,43 @@ import static com.privateinternetaccess.android.pia.api.PiaApi.GEN4_MACE_ENABLED
 public class PiaOvpnConfig {
 
     public static final String DEFAULT_CIPHER = "AES-128-GCM";
-    public static final String DEFAULT_AUTH = "SHA1";
+    public static final String DEFAULT_AUTH = "SHA256";
+    public static final String DEFAULT_HANDSHAKE = "rsa4096";
 
     @NonNull
-    public static VpnProfile generateVpnProfile(Context c) throws IOException, ConfigParser.ConfigParseError {
-        String token = PiaPrefHandler.getAuthToken(c);
-        String user = token.substring(0, token.length() / 2);
-        String pw = token.substring(token.length() / 2);
+    public static VpnProfile generateVpnProfile(Context context, VPNFallbackEndpointProvider.VPNEndpoint endpoint) throws IOException, ConfigParser.ConfigParseError {
+        PIAServer region = PIAServerHandler.getInstance(context).getSelectedRegion(context, false);
+
+        String user, pw;
+
+        if (region.isDedicatedIp()) {
+            user = "dedicated_ip_" + region.getDipToken() + "_" + DedicatedIpUtils.randomAlphaNumeric(8);
+            pw = region.getDedicatedIp();
+        }
+        else {
+            String token = PiaPrefHandler.getAuthToken(context);
+
+            user = token.substring(0, token.length() / 2);
+            pw = token.substring(token.length() / 2);
+        }
 
         ConfigParser cp = new ConfigParser();
-        cp.parseConfig(new StringReader(PiaOvpnConfig.genConfig(c, user, pw)));
+        cp.parseConfig(new StringReader(PiaOvpnConfig.genConfig(context, user, pw, endpoint)));
         final VpnProfile vp = cp.convertProfile();
-        Prefs prefs = new Prefs(c);
-        if (vp.checkProfile(c) != R.string.no_error_found)
-            DLog.d("PIA", c.getString(vp.checkProfile(c)));
+        Prefs prefs = new Prefs(context);
+        if (vp.checkProfile(context) != R.string.no_error_found)
+            DLog.d("PIA", context.getString(vp.checkProfile(context)));
 
-        PIAServer region = PIAServerHandler.getInstance(c).getSelectedRegion(c, false);
         vp.mName = region.getName();
         vp.mAllowedAppsVpnAreDisallowed = !prefs.getBoolean(PiaPrefHandler.VPN_PER_APP_ARE_ALLOWED);
         vp.mAllowedAppsVpn = new HashSet<>(prefs.getStringSet(PiaPrefHandler.VPN_PER_APP_PACKAGES));
         /* Always include PIA itself, so the current IP mechanism works */
         if (!vp.mAllowedAppsVpnAreDisallowed)
-            vp.mAllowedAppsVpn.add(c.getPackageName());
-
-        PIAVpnStatus.setLastConnectedRegion(region);
+            vp.mAllowedAppsVpn.add(context.getPackageName());
 
         DLog.d("MainActivity", "apps disallowed = " + vp.mAllowedAppsVpnAreDisallowed);
 
-        vp.mAllowLocalLAN = !PiaPrefHandler.getBlockLocal(c);
+        vp.mAllowLocalLAN = !PiaPrefHandler.getBlockLocal(context);
 
         if (prefs.get("proxyisorbot", false))
             for (Connection conn : vp.mConnections)
@@ -96,7 +106,7 @@ public class PiaOvpnConfig {
         vp.mDNS2 = "";
 
         String dns = prefs.get(PiaPrefHandler.DNS, "");
-        if (PiaPrefHandler.isMaceEnabled(c)) {
+        if (PiaPrefHandler.isMaceEnabled(context)) {
             dns = GEN4_MACE_ENABLED_DNS;
         }
         DLog.d("PiaOvpnConfig", "Custom DNS: " + dns);
@@ -110,11 +120,11 @@ public class PiaOvpnConfig {
             vp.mDNS2 = secondaryDns;
         }
 
-        if (prefs.get("mssfix", c.getResources().getBoolean(R.bool.usemssfix))) {
+        if (prefs.get("mssfix", context.getResources().getBoolean(R.bool.usemssfix))) {
             vp.mMssFix = 1350;
         }
 
-        ProfileManager.setTemporaryProfile(c, vp);
+        ProfileManager.setTemporaryProfile(context, vp);
 
         DLog.d("PiaOvpnConfig", "Primary: " + vp.mDNS1);
         DLog.d("PiaOvpnConfig", "Secondary: " + vp.mDNS2);
@@ -122,11 +132,15 @@ public class PiaOvpnConfig {
         return vp;
     }
 
+    public static String genConfig(
+            Context context,
+            String user,
+            String password,
+            VPNFallbackEndpointProvider.VPNEndpoint endpoint
+    ) throws IOException {
+        Prefs prefs = new Prefs(context);
 
-    public static String genConfig(Context a, String user, String password) throws IOException {
-        Prefs prefs = new Prefs(a);
-
-        InputStream conf = a.getAssets().open("vpn.conf");
+        InputStream conf = context.getAssets().open("vpn.conf");
         InputStreamReader isr = new InputStreamReader(conf);
         BufferedReader br = new BufferedReader(isr);
         StringBuilder config = new StringBuilder();
@@ -134,30 +148,24 @@ public class PiaOvpnConfig {
         while ((line = br.readLine()) != null){
             config.append(line).append("\n");
         }
-        PIAServerHandler handler = PIAServerHandler.getInstance(a);
-        PIAServer ps = handler.getSelectedRegion(a, false);
-        if (ps == null) {
-            throw new IOException("Invalid server");
-        }
-        if (!ps.isValid()) {
-            throw new IOException("Invalid server properties");
-        }
 
-        String autoserver;
+        PIAServerHandler handler = PIAServerHandler.getInstance(context);
+        PIAServer ps = handler.getSelectedRegion(context, false);
+        String autoserver = endpoint.getEndpoint();;
         boolean useTCP = prefs.getBoolean(PiaPrefHandler.USE_TCP);
-        if (useTCP) {
+
+        if (ps.isDedicatedIp()) {
+            autoserver = ps.getDedicatedIp();
+        }
+        else if (useTCP) {
             config.append("proto tcp\n");
-            autoserver = ps.getTcpbest();
         } else {
             config.append("proto udp\n");
-            autoserver = ps.getUdpbest();
         }
 
-        config.append(getInlineCa(a, prefs.get("tlscipher", "rsa2048")));
-
+        config.append(getInlineCa(context, prefs.get("tlscipher", DEFAULT_HANDSHAKE)));
         config.append("cipher ").append(prefs.get("cipher", DEFAULT_CIPHER)).append("\n");
         config.append("auth ").append(prefs.get("auth", DEFAULT_AUTH)).append("\n");
-
         config.append("pia-signal-settings\n");
 
         String remoteip = autoserver;
@@ -193,14 +201,6 @@ public class PiaOvpnConfig {
         if (prefs.getBoolean("useproxy"))
             config.append(String.format(Locale.ENGLISH, "socks-proxy 127.0.0.1 %s\n", prefs.get("proxyport", "8080")));
 
-        // Might be null when autoconnect is on and an old Config (ver 28) is still in the cache
-        if (!TextUtils.isEmpty(ps.getTlsRemote())) {
-            if (VpnProfile.mIsOpenVPN22)
-                config.append(String.format("tls-remote %s\n", ps.getTlsRemote()));
-            else
-                config.append(String.format("verify-x509-name \"%s\" name\n", ps.getTlsRemote()));
-        }
-
         String lport = prefs.get("lport", "auto");
         if (lport.equals("") || lport.equals("auto"))
             config.append("nobind\n");
@@ -211,17 +211,12 @@ public class PiaOvpnConfig {
         config.append(String.format("<auth-user-pass>\n%s\n%s\n</auth-user-pass>\n",
                 user, password));
 
-        if (prefs.getBoolean("killswitch")) {
-            // The tun fd is hold by the app
-            //config += "\npersist-tun\n";
-        }
-
-        if (prefs.get("mssfix", a.getResources().getBoolean(R.bool.usemssfix)))
+        if (prefs.get("mssfix", context.getResources().getBoolean(R.bool.usemssfix)))
             config.append("mssfix 1250\n");
 
 
         // IPv6 kill
-        if (prefs.get("blockipv6", a.getResources().getBoolean(R.bool.useblockipv6))) {
+        if (prefs.get("blockipv6", context.getResources().getBoolean(R.bool.useblockipv6))) {
             if (!VpnProfile.mIsOpenVPN22) {
                 config.append("ifconfig-ipv6 fd15:53b6:dead::2/64 fd15:53b6:dead::1\n");
                 config.append("route-ipv6 ::/0 ::1\n");
@@ -229,13 +224,9 @@ public class PiaOvpnConfig {
             config.append("block-ipv6\n");
         }
 
-        Prefs p = new Prefs(a);
-
-        String devConfigurations = p.getString(DeveloperActivity.PREF_DEVELOPER_CONFIGURATION);
+        String devConfigurations = prefs.getString(DeveloperActivity.PREF_DEVELOPER_CONFIGURATION);
         DLog.d("PIAOVPNConfig", "dev = " + devConfigurations);
         if (!TextUtils.isEmpty(devConfigurations)) {
-//            config += "# Developer configurations\n";
-//            config += "# Hopefully I'm doing this right\n";
             config.append("\n").append(devConfigurations).append("\n");
         }
 
@@ -251,8 +242,6 @@ public class PiaOvpnConfig {
         while ((line = br.readLine()) != null) {
             cafile.append(line).append("\n");
         }
-
-
         return String.format("<ca>\n%s\n</ca>\n", cafile.toString());
     }
 }

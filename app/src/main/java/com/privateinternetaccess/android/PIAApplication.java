@@ -41,7 +41,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import android.text.TextUtils;
 
-import com.privateinternetaccess.android.model.exceptions.CustomExceptionHandler;
 import com.privateinternetaccess.android.pia.PIABuilder;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.connection.ConnectionResponder;
@@ -51,7 +50,6 @@ import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.model.events.SubscriptionsEvent;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
-import com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig;
 import com.privateinternetaccess.android.receivers.OnAutoConnectNetworkReceiver;
 import com.privateinternetaccess.android.ui.notifications.OVPNNotificationsBridge;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
@@ -73,10 +71,11 @@ import java.util.List;
 import java.util.Set;
 
 import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.PRNGFixes;
 import de.blinkt.openvpn.core.VpnStatus;
-import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import io.github.inflationx.calligraphy3.CalligraphyConfig;
+import io.github.inflationx.calligraphy3.CalligraphyInterceptor;
+import io.github.inflationx.viewpump.ViewPump;
 
 /**
  * Setups up {@link PIABuilder} and updates all the old variables and issues created along the years in {@link #updateOrResetValues()}
@@ -115,11 +114,8 @@ public class PIAApplication extends Application {
         final PIAApplication app = get();
         synchronized (app.futureBackend) {
             if (app.backend == null) {
-                GoBackend backend;
-                backend = new GoBackend(app.getApplicationContext());
-
+                GoBackend backend = new GoBackend(app.getApplicationContext());
                 GoBackend.setAlwaysOnCallback(() -> PIAFactory.getInstance().getVPN(get()).start());
-
                 app.backend = backend;
             }
             return app.backend;
@@ -139,7 +135,8 @@ public class PIAApplication extends Application {
 
         @Override
         public VpnProfile getAlwaysOnProfile() {
-            return PIAApplication.this.getAlwaysOnProfile();
+            PIAFactory.getInstance().getVPN(get()).start();
+            return null;
         }
 
         @Override
@@ -172,10 +169,6 @@ public class PIAApplication extends Application {
 
         Context context = getApplicationContext();
         asyncWorker = new AsyncWorker(AsyncTask.THREAD_POOL_EXECUTOR, new Handler(Looper.getMainLooper()));
-
-        CustomExceptionHandler crashHandler = new CustomExceptionHandler(context.getFilesDir().getAbsolutePath(),"");
-        crashHandler.setDefaultUEH(Thread.getDefaultUncaughtExceptionHandler());
-        Thread.setDefaultUncaughtExceptionHandler(crashHandler);
 
         boolean notRelease = !BuildConfig.BUILD_TYPE.equals("release");
         boolean debugMode = PiaPrefHandler.getDebugMode(context);
@@ -227,23 +220,13 @@ public class PIAApplication extends Application {
         ThemeHandler.setAppTheme(this);
 
         //enable Calligraphy for fonts
-        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-                .setDefaultFontPath("fonts/Roboto-RobotoRegular.ttf")
-                .setFontAttrId(R.attr.fontPath)
-                .build()
-        );
-
-    }
-
-    public VpnProfile getAlwaysOnProfile() {
-        try {
-            return PiaOvpnConfig.generateVpnProfile(getApplicationContext());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ConfigParser.ConfigParseError configParseError) {
-            configParseError.printStackTrace();
-        }
-        return null;
+        ViewPump.init(ViewPump.builder()
+                .addInterceptor(new CalligraphyInterceptor(
+                        new CalligraphyConfig.Builder()
+                                .setDefaultFontPath("fonts/Roboto-RobotoRegular.ttf")
+                                .setFontAttrId(R.attr.fontPath)
+                                .build()))
+                .build());
     }
 
     public void updateOrResetValues() {

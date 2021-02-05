@@ -40,8 +40,12 @@ import com.privateinternetaccess.android.model.states.VPNProtocol;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
+import com.privateinternetaccess.android.pia.model.events.SettingsUpdateEvent;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.drawer.TrustedWifiActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -80,8 +84,17 @@ public class QuickSettingsView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        EventBus.getDefault().register(this);
+
         setupStates();
     }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        EventBus.getDefault().unregister(this);
+    }
+
 
     @OnClick(R.id.quick_settings_layout)
     public void onTileClicked() {
@@ -145,6 +158,11 @@ public class QuickSettingsView extends FrameLayout {
             }
         }
 
+        setupStates();
+    }
+
+    @Subscribe
+    public void settingsUpdate(SettingsUpdateEvent event) {
         setupStates();
     }
 

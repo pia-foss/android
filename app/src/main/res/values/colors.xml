@@ -39,7 +39,7 @@
     <color name="latency_yellow_faded">#EAD995</color>
     <color name="latency_red_faded">#b2352d</color>
 
-    <color name="server_fade">#DDDDDD</color>
+    <color name="server_fade">#66FFFFFF</color>
     <color name="text_fade">#ACA5B9</color>
 
     <!-- Primary light and dark -->
@@ -165,5 +165,8 @@
     <color name="rule_retain">#1EAEAE</color>
     <color name="rule_disconnect">#D64003</color>
     <color name="rule_connect">#39B54B</color>
+
+    <!-- DIP -->
+    <color name="dip_panel_background">#FFFFFF</color>
 
 </resources>

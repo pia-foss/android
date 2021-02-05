@@ -102,6 +102,8 @@
     <string name="current_region">NÅVÆRENDE REGION</string>
     <string name="full_licenses">Fullstendige lisenser</string>
     <string name="email">E-post</string>
+    <string name="please_wait">Vennligst vent</string>
+    <string name="still_connecting">Prøver fortsatt å koble til</string>
     <string name="account_details_password_bottom_text">Trykk på «øyet» for å vise det. Trykk igjen for å kopiere passordet til utklippstavlen.</string>
     <string name="user_x_vs_p_error">Sørg for at du logger inn med hovedbrukernavnet ditt, som starter med «p» (f.eks. p12345)</string>
     <string name="vpn_revoke_text">PIAs VPN-tillatelse er annullert. VPN, Internet-nødbryter og sikkerhet er ikke aktiv. Trykk her for å starte denne tjenesten på nytt og sikre Internett-tilkoblingen din.</string>
@@ -245,6 +247,9 @@
     <string name="done">FERDIG</string>
     <string name="update_account">OPPDATER KONTO</string>
     <string name="local_port_titla">Lokal port</string>
+    <string name="connection_couldnt_establish_title">Tilkoblingen kunne ikke opprettes</string>
+    <string name="connection_couldnt_establish_message">Du kan velge en annen region eller fortelle oss om det ved å åpne en støttesak</string>
+    <string name="send_feedback">Send tilbakemelding</string>
     <string name="preference_application_settings">GENERELLE INNSTILLINGER</string>
     <string name="preference_vpn_settings">VPN-INNSTILLINGER</string>
     <string name="preference_haptic_title">Haptikktilbakemelding ved tilkobling</string>
@@ -557,6 +562,7 @@
     <string name="wg_connected">VPN-tilkoblet</string>
     <string name="ks_removal_warning">Vi har oppdaget at du har aktivert Killswitch. Vi har endret hvordan denne funksjonen fungerer ved å integrere Android-blokkeringsforbindelser uten VPN-innstillingen for både WireGuard og OpenVPN. Les endringene i Innstillinger for å sikre at du forblir beskyttet.</string>
     <string name="preference_on_boot_always_on">Koble til ved systemstart. Vi anbefaler å slå på denne innstillingen hvis du bruker VPN Always On.</string>
+    <string name="ovpn_cipher_removal_description">Vi oppdaterer OpenVPN-implementeringen. Du får mer informasjon ved å klikke <b>her</b></string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Tunnelen «%s» eksisterer allerede</string>
     <string name="tunnel_error_invalid_name">Ugyldig navn</string>
@@ -609,4 +615,20 @@
     <string name="nmt_settings_title">Nettverksadministrasjon</string>
     <string name="nmt_settings_description">Angi regler for å håndtere regler for automatisk tilkobling av pålitelige og upålitelige nettverk.</string>
     <string name="nmt_management_title">Administrer automatisering</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">Dedikert IP</string>
+    <string name="dip_description">Aktiver din dedikerte IP ved å lime inn tokenet ditt i skjemaet nedenfor. Hvis du nylig har kjøpt en dedikert IP, kan du generere tokenet ved å gå til PIA-nettstedet.</string>
+    <string name="dip_your_header">DINE DEDIKERTE IP-ER</string>
+    <string name="dip_activate">Aktiver</string>
+    <string name="dip_remove_header">Fjern dedikert IP</string>
+    <string name="dip_remove_body">Vil du fjerne %s - %s?</string>
+    <string name="dip_expired_warning">Tokenet er utløpt. Generer et nytt et fra kontosiden din på nettstedet.</string>
+    <string name="dip_invalid">Tokenet er ugyldig. Kontroller at du har skrevet tokenet riktig.</string>
+    <string name="dip_success">Den dedikerte IP-en din ble aktivert. Den blir tilgjengelig i regionvalg-listen.</string>
+    <string name="dip_tag">DEDIKERT IP</string>
+    <string name="dip_enter_token_hint">Lim inn tokenet her</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Stopp kommunikasjonsmeldinger i appen</string>
+    <string name="settings_updated">Innstillingene er oppdatert</string>
+    <string name="hide_payment">På grunn av et teknisk problem er kjøp via Google Play for øyeblikket deaktivert. Vi jobber med å løse problemet.\n\nHvis du allerede har en konto med et abonnement, kan du logge inn ved å trykke på Logg inn-knappen.</string>
 </resources>

@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:id="@+id/fragment_login_user"
+            android:id="@+id/fragment_login_user_magic"
             app:hint="@string/magic_login_enter_email"
             app:textColorMain="?attr/piax_edit_text_color"
             app:underlineColor="?attr/piax_edit_underline_color"/>

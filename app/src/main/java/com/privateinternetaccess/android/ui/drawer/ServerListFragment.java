@@ -39,6 +39,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.ServerClickedEvent;
@@ -50,16 +51,14 @@ import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler.ServerSortingType;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
-import com.privateinternetaccess.android.pia.model.events.ServerPingEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.adapters.ServerListAdapter;
 import com.privateinternetaccess.android.ui.tv.views.ServerSelectionItemDecoration;
-import com.privateinternetaccess.android.utils.ServerUtils;
+import com.privateinternetaccess.android.utils.DedicatedIpUtils;
 import com.privateinternetaccess.core.model.PIAServer;
-import com.privateinternetaccess.core.utils.IPIACallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -249,7 +248,7 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                     ServerItem serverItem = serverItems.get(idx);
                     if (serverItem.getKey().equals(selectedServer.getKey()) &&
                             serverItem.getIso().equals(selectedServer.getIso()) &&
-                            serverItem.getFlagId() == mHandler.getFlagResource(selectedServer)) {
+                            serverItem.getFlagId() == mHandler.getFlagResource(selectedServer.getIso())) {
                         selectedPosition = idx;
                         break;
                     }
@@ -363,6 +362,7 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                     false,
                     true,
                     false,
+                    false,
                     ""
             ));
         }
@@ -375,8 +375,34 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                 mHandler.isSelectedRegionAuto(context),
                 true,
                 false,
+                false,
                 ""
         ));
+
+        //Add dedicated IPs
+        if (PiaPrefHandler.getDedicatedIps(getContext()).size() > 0) {
+            List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(getContext());
+
+            for (int i = 0; i < ipList.size(); i++) {
+                DedicatedIPInformationResponse.DedicatedIPInformation ip = ipList.get(i);
+                PIAServer ps = DedicatedIpUtils.serverForDip(ip, getContext());
+
+                ServerItem item = new ServerItem(
+                        ps.getKey(),
+                        mHandler.getFlagResource(ps.getIso()),
+                        ps.getName(),
+                        ps.getIso(),
+                        ps == selectedServer,
+                        ps.isAllowsPF(),
+                        ps.isGeo(),
+                        false,
+                        ""
+                );
+
+                item.setDedicatedIp(ip.getIp());
+                items.add(item);
+            }
+        }
 
         //Add other options
         for (PIAServer ps : mHandler.getServers(context, types)) {
@@ -384,32 +410,15 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                 continue;
             }
 
-            // Check for protocol's server support
-            boolean protocolSupportedByServer = false;
-            PIAServer.Protocol protocol = ServerUtils.getUserSelectedProtocol(context);
-            switch (protocol) {
-                case WIREGUARD:
-                    protocolSupportedByServer = ps.getWgHost() != null && !ps.getWgHost().isEmpty();
-                    break;
-                case OPENVPN_TCP:
-                    protocolSupportedByServer = ps.getTcpbest() != null && !ps.getTcpbest().isEmpty();
-                    break;
-                case OPENVPN_UDP:
-                    protocolSupportedByServer = ps.getUdpbest() != null && !ps.getUdpbest().isEmpty();
-                    break;
-            }
-            if (!protocolSupportedByServer) {
-                continue;
-            }
-
             items.add(new ServerItem(
                     ps.getKey(),
-                    mHandler.getFlagResource(ps),
+                    mHandler.getFlagResource(ps.getIso()),
                     ps.getName(),
                     ps.getIso(),
                     ps == selectedServer,
                     ps.isAllowsPF(),
                     ps.isGeo(),
+                    ps.isOffline(),
                     ps.getLatency()
             ));
         }
@@ -470,10 +479,23 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
         PIAServerHandler handler = PIAServerHandler.getInstance(getContext());
 
         String region = "";
-        for (PIAServer ps : handler.getServers().values()) {
-            if (ps.getName().equals(event.getName())) {
-                region = ps.getKey();
+
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(getContext());
+
+        //TODO: Connection logic for DIP starts with something here
+        for (DedicatedIPInformationResponse.DedicatedIPInformation dip : ipList) {
+            if (dip.getIp().equals(event.getName())) {
+                region = dip.getIp();
                 break;
+            }
+        }
+
+        if (TextUtils.isEmpty(region)) {
+            for (PIAServer ps : handler.getServers().values()) {
+                if (ps.getName().equals(event.getName())) {
+                    region = ps.getKey();
+                    break;
+                }
             }
         }
 
@@ -507,13 +529,6 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
             if(!region.equals(oldRegionName) ||
                     !PIAFactory.getInstance().getVPN(getActivity()).isVPNActive())
                 PIAFactory.getInstance().getVPN(getContext()).start();
-        }
-    }
-
-    @Subscribe
-    public void onServerChange(ServerPingEvent event){
-        if(mAdapter != null) {
-            mAdapter.notifyDataSetChanged();
         }
     }
 

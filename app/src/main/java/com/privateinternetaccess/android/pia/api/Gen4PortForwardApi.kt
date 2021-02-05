@@ -73,7 +73,7 @@ class Gen4PortForwardApi : PIACertPinningAPI() {
 
         // Set the gateway's CN for the selected protocol before the binding request
         val server = PIAServerHandler.getInstance(context).getSelectedRegion(context, false)
-        server.commonNames[ServerUtils.getUserSelectedProtocol(context)]?.let {
+        server.endpoints[ServerUtils.getUserSelectedProtocol(context)]?.let {
             val tunnelCommonName = mutableListOf<Pair<String, String>>()
             for ((_, commonName) in it) {
                 tunnelCommonName.add(Pair(gateway, commonName))

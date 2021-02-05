@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Copyright (c) 2020 Private Internet Access, Inc.
+  ~
+  ~  This file is part of the Private Internet Access Android Client.
+  ~
+  ~  The Private Internet Access Android Client is free software: you can redistribute it and/or
+  ~  modify it under the terms of the GNU General Public License as published by the Free
+  ~  Software Foundation, either version 3 of the License, or (at your option) any later version.
+  ~
+  ~  The Private Internet Access Android Client is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  ~  details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with the Private
+  ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:id="@+id/snippet_dip_top_frame"
+        android:padding="16dp"
+        android:background="@color/dip_panel_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <TextView
+            android:id="@+id/trusted_wifi_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Style02"
+            android:textColor="?attr/grey20_white"
+            android:textStyle="bold"
+            android:text="@string/dip_menu_title" />
+
+        <TextView
+            android:id="@+id/trusted_wifi_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Style13"
+            android:text="@string/dip_description" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/shape_share_link">
+
+            <EditText
+                android:background="@null"
+                android:id="@+id/snippet_dip_entry_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/dip_enter_token_hint"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="normal"
+                android:lineSpacingExtra="-7sp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/snippet_dip_activate_button"
+                android:scrollHorizontally="true"
+                android:inputType="text"
+                android:maxLines="1"
+                android:ellipsize="end"
+                />
+
+            <Button
+                android:layout_height="42dp"
+                android:layout_width="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="8dp"
+                android:id="@+id/snippet_dip_activate_button"
+                style="@style/PiaxGreenButton"
+                android:text="@string/dip_activate"
+                />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/snippet_dip_list_layout"
+        app:layout_constraintTop_toBottomOf="@+id/snippet_dip_top_frame"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textSize="14dp"
+            android:textStyle="bold"
+            style="@style/Style04"
+            android:text="@string/dip_your_header" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/snippet_dip_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

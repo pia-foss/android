@@ -49,7 +49,8 @@ public class Prefs {
             PiaPrefHandler.PURCHASING_EMAIL,
             PiaPrefHandler.SUBSCRIPTION_EMAIL,
             PiaPrefHandler.TRIAL_EMAIL,
-            PiaPrefHandler.TRIAL_EMAIL_TEMP
+            PiaPrefHandler.TRIAL_EMAIL_TEMP,
+            PiaPrefHandler.DIP_TOKENS
     };
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)

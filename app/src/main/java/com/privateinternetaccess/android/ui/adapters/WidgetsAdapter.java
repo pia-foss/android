@@ -66,7 +66,7 @@ public class WidgetsAdapter extends RecyclerView.Adapter<WidgetsAdapter.WidgetVi
     @Override
     public void onBindViewHolder(WidgetViewHolder viewHolder, int position) {
         final WidgetManager.WidgetItem item = widgets.get(position);
-        final WidgetViewHolder holder = (WidgetViewHolder) viewHolder;
+        final WidgetViewHolder holder = viewHolder;
 
         setVisibleIcon(holder.ivVisible, item.isVisible);
 
@@ -74,24 +74,18 @@ public class WidgetsAdapter extends RecyclerView.Adapter<WidgetsAdapter.WidgetVi
         holder.ivVisible.setVisibility(isReordering ? View.VISIBLE : View.GONE);
         holder.lContent.addView(WidgetManager.getView(mContext, item.widgetType));
 
-        holder.ivVisible.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                item.isVisible = !item.isVisible;
-                setVisibleIcon(holder.ivVisible, item.isVisible);
+        holder.ivVisible.setOnClickListener(view -> {
+            item.isVisible = !item.isVisible;
+            setVisibleIcon(holder.ivVisible, item.isVisible);
 
-                widgetManager.saveWidgets(widgets);
-            }
+            widgetManager.saveWidgets(widgets);
         });
 
-        holder.ivDrag.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                    mDragStartListener.onStartDrag(holder);
-                }
-                return false;
+        holder.ivDrag.setOnTouchListener((v, event) -> {
+            if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                mDragStartListener.onStartDrag(holder);
             }
+            return false;
         });
     }
 

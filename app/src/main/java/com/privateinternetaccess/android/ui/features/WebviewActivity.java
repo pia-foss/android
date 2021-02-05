@@ -60,7 +60,8 @@ public class WebviewActivity extends BaseActivity {
             "https://www.privateinternetaccess.com/pages/buy-vpn/",
             "https://bra.privateinternetaccess.com/pages/buy-vpn/",
             "https://www.privateinternetaccess.com/helpdesk/new-ticket/",
-            "https://www.privateinternetaccess.com/blog/wireguide-all-about-the-wireguard-vpn-protocol/"
+            "https://www.privateinternetaccess.com/blog/wireguide-all-about-the-wireguard-vpn-protocol/",
+            "https://www.privateinternetaccess.com/helpdesk/kb/articles/removing-openvpn-handshake-and-authentication-settings/"
             };
 
     private WebView mWebView;

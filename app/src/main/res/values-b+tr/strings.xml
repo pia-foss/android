@@ -102,6 +102,8 @@
     <string name="current_region">MEVCUT BÖLGE</string>
     <string name="full_licenses">Tam lisanslar</string>
     <string name="email">E-posta</string>
+    <string name="please_wait">Lütfen bekleyin</string>
+    <string name="still_connecting">Bağlanma işlemi devam ediyor</string>
     <string name="account_details_password_bottom_text">Açmak için \"göz\" simgesine dokunun. Tekrar dokunarak Şifreyi panoya kopyalayın.</string>
     <string name="user_x_vs_p_error">Lütfen ana kullanıcı adınızla giriş yaptığınızdan emin olun; \"p\" ile başlaması gerekiyor (örn. p12345)</string>
     <string name="vpn_revoke_text">PIA\'nın VPN izni kaldırıldı. VPN, acil İnternet anahtarı ve koruma etkin değil. Lütfen buraya dokunup bu hizmeti yeniden başlatarak İnternet bağlantınızı güvenceye alın.</string>
@@ -245,6 +247,9 @@
     <string name="done">TAMAM</string>
     <string name="update_account">HESABI GÜNCELLE</string>
     <string name="local_port_titla">Yerel B. Noktası</string>
+    <string name="connection_couldnt_establish_title">Bağlantı kurulamadı</string>
+    <string name="connection_couldnt_establish_message">Farklı bir bölge seçebilir ya da bir destek bileti açarak bize bilgi verebilirsiniz</string>
+    <string name="send_feedback">Geri Bildirim Gönder</string>
     <string name="preference_application_settings">GENEL AYARLAR</string>
     <string name="preference_vpn_settings">VPN AYARLARI</string>
     <string name="preference_haptic_title">Bağlanma geri bildirimi</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">VPN Bağlandı</string>
     <string name="ks_removal_warning">Acil İnternet Anahtarı\'nın etkin durumda olduğunu tespit ettik. Bu özelliğin çalışma şeklini Android\'in \"VPN\'siz bağlantıları engelle\" ayarını entegre ederek hem WireGuard hem Open VPN için değiştirmiş bulunuyoruz. Koruma altında olduğunuzdan emin olmak için lütfen bu değişiklikleri Ayarlar\'dan gözden geçirin.</string>
     <string name="preference_on_boot_always_on">Sistem başlatıldığında bağlan. Her Zaman VPN Açık seçeneğini kullanıyorsanız bu ayarı açık konuma getirmenizi öneririz.</string>
+    <string name="ovpn_cipher_removal_description">OpenVPN uygulamamızı güncelliyoruz, daha fazla bilgi için <b>buraya</b> tıklayın</string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">“%s” tüneli zaten mevcut</string>
     <string name="tunnel_error_invalid_name">Geçersiz ad</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">Ağ Yönetimi</string>
     <string name="nmt_settings_description">Güvenilen ve güvenilmeyen ağlar için otomatik bağlantı kurallarını yönetmek için kurallar belirleyin.</string>
     <string name="nmt_management_title">Otomasyonu Yönet</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">Özel IP</string>
+    <string name="dip_description">Belirtecinizi aşağıdaki forma yapıştırarak Özel IP\'nizi etkinleştirin. Kısa süre önce bir özel IP satın aldıysanız belirteci PIA web sitesine giderek oluşturabilirsiniz.</string>
+    <string name="dip_your_header">ÖZEL IP\'LERİNİZ</string>
+    <string name="dip_activate">Etkinleştir</string>
+    <string name="dip_remove_header">Özel IP\'yi Kaldır</string>
+    <string name="dip_remove_body">%s - %s kaldırılsın mı?</string>
+    <string name="dip_expired_warning">Belirtecinizin süresi dolmuş bulunuyor. Lütfen web sitesindeki Hesap sayfanızdan yeni bir tane oluşturun.</string>
+    <string name="dip_invalid">Belirteciniz geçersiz. Lütfen belirteci doğru şekilde girdiğinizden emin olun.</string>
+    <string name="dip_success">Özel IP\'niz başarıyla etkinleştirildi. Bölge seçim listenizde mevcut olacak.</string>
+    <string name="dip_tag">ÖZEL IP</string>
+    <string name="dip_enter_token_hint">Belirtecinizi buraya yapıştırın</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Uygulama içi iletişim mesajlarını durdur</string>
+    <string name="settings_updated">Ayarlar güncellendi</string>
+    <string name="hide_payment">Teknik bir sorundan dolayı, Google Play üzerinden satın alma işlemleri şu anda devre dışı bırakıldı. Sorunu çözmeye çalışıyoruz.\n\nZaten üyeliği olan bir hesabınız varsa, Giriş Yap düğmesine basarak giriş yapabilirsiniz.</string>
 </resources>

@@ -23,7 +23,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -32,6 +31,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -43,10 +43,7 @@ import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
-import com.privateinternetaccess.android.pia.model.events.ReportEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
-import com.privateinternetaccess.android.pia.model.response.ReportResponse;
-import com.privateinternetaccess.android.pia.tasks.VPNReportTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.Toaster;
@@ -63,6 +60,8 @@ import de.blinkt.openvpn.core.OpenVPNService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus.SUCCEEDED;
 
 /**
  * Created by half47 on 11/22/16.
@@ -114,24 +113,13 @@ public class DeveloperActivity extends BaseActivity {
 
     @BindView(R.id.developer_testing_webview_site) EditText etWebviewUrl;
 
-    @BindView(R.id.developer_testing_server_area) View aServer;
-    @BindView(R.id.developer_testing_server_input_area) View aServerInput;
-    @BindView(R.id.developer_testing_server_switch) Switch sServer;
-
-    @BindView(R.id.developer_testing_server_url) EditText etServerRemote;
-    @BindView(R.id.developer_testing_server_ping_port) EditText etServerPing;
-    @BindView(R.id.developer_testing_server_udp_port) EditText etServerUDP;
-    @BindView(R.id.developer_testing_server_tcp_port) EditText etServerTCP;
-    @BindView(R.id.developer_testing_server_serial_tls) EditText etServerSerial;
-    @BindView(R.id.developer_testing_server_dns) EditText etServerDNS;
-    @BindView(R.id.developer_testing_server_port_forwarding) EditText etServerPortForwarding;
-    @BindView(R.id.developer_testing_server_country_code) EditText etServerCountryCode;
-
     @BindView(R.id.developer_theme_toggle) Switch sTheme;
 
     @BindView(R.id.developer_testing_updater_area) View aUpdater;
     @BindView(R.id.developer_testing_updater_input_area) View aUpdaterTestingInput;
     @BindView(R.id.developer_testing_updater_switch) Switch sUpdaterSwitch;
+    @BindView(R.id.developer_testing_region_offline_random_switch) Switch sRegionOfflineSwitch;
+    @BindView(R.id.developer_testing_region_initial_conn_success_random_switch) Switch sRegionInitialConnSuccessSwitch;
     @BindView(R.id.developer_testing_update_show_dialog) EditText etUpdaterShowDialog;
     @BindView(R.id.developer_testing_update_show_notification) EditText etUpdaterShowNotification;
     @BindView(R.id.developer_testing_update_interval) EditText etUpdaterInterval;
@@ -206,13 +194,15 @@ public class DeveloperActivity extends BaseActivity {
 
         setupWebViewTesting();
 
-        setupServerTesting();
-
         setupTrialTesting();
 
         setupThemeTesting();
 
         setupSendDebugLog();
+
+        setupRegionOfflineRandomTesting();
+
+        setupRegionInitialConnectionSuccessRandomTesting();
 
         setupUpdaterTesting();
 
@@ -268,6 +258,26 @@ public class DeveloperActivity extends BaseActivity {
             public void onClick(View view) {
                 Prefs.with(view.getContext()).remove(PREF_DEVELOPER_CONFIGURATION);
                 tvText.setText("");
+            }
+        });
+    }
+
+    private void setupRegionOfflineRandomTesting() {
+        sRegionOfflineSwitch.setChecked(PiaPrefHandler.getRegionOfflineRandomizerTesting(getApplicationContext()));
+        sRegionOfflineSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                PiaPrefHandler.setRegionOfflineRandomizerTesting(getApplicationContext(), b);
+            }
+        });
+    }
+
+    private void setupRegionInitialConnectionSuccessRandomTesting() {
+        sRegionInitialConnSuccessSwitch.setChecked(PiaPrefHandler.getRegionInitialConnectionRandomizerTesting(getApplicationContext()));
+        sRegionInitialConnSuccessSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                PiaPrefHandler.setRegionInitialConnectionRandomizerTesting(getApplicationContext(), b);
             }
         });
     }
@@ -397,33 +407,26 @@ public class DeveloperActivity extends BaseActivity {
     }
 
     private void setupSendDebugLog() {
+        Context context = this;
         tvSendDebugLog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Context context = getApplicationContext();
-                VPNReportTask task = new VPNReportTask(context);
-                task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                PIAFactory.getInstance().getAccount(context).sendDebugReport((reportIdentifier, requestResponseStatus) -> {
+
+                    if (reportIdentifier == null && requestResponseStatus != SUCCEEDED) {
+                        Toast.makeText(context, getString(R.string.failure_sending_log, requestResponseStatus.toString()), Toast.LENGTH_LONG).show();
+                        return null;
+                    }
+
+                    androidx.appcompat.app.AlertDialog.Builder ab = new androidx.appcompat.app.AlertDialog.Builder(context);
+                    ab.setTitle(R.string.log_send_done_title);
+                    ab.setMessage(getString(R.string.log_send_done_msg, reportIdentifier));
+                    ab.setPositiveButton(getString(android.R.string.ok), null);
+                    ab.create().show();
+                    return null;
+                });
             }
         });
-    }
-
-    @Subscribe
-    public void onReportReceived(ReportEvent event){
-        Context context = this;
-        ReportResponse response = event.getResponse();
-        try {
-            if (response.getTicketId() == null && response.getException() != null) {
-                Toast.makeText(context, getString(R.string.failure_sending_log, response.getException().getLocalizedMessage()), Toast.LENGTH_LONG).show();
-            } else if (response.getException() == null){
-                AlertDialog.Builder ab = new AlertDialog.Builder(context);
-                ab.setTitle(R.string.log_send_done_title);
-                ab.setMessage(getString(R.string.log_send_done_msg, response.getTicketId()));
-                ab.setPositiveButton(getString(android.R.string.ok), null);
-                ab.create().show();
-            }
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
     }
 
     @Subscribe
@@ -435,34 +438,6 @@ public class DeveloperActivity extends BaseActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(PREF_DEVELOPER_CONFIGURATION, tvText.getText().toString());
-    }
-
-    private void setupServerTesting() {
-        boolean serverTesting = PiaPrefHandler.getServerTesting(getApplicationContext());
-        aServerInput.setVisibility(serverTesting ? View.VISIBLE : View.GONE);
-        sServer.setChecked(serverTesting);
-
-        aServer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean serverTesting = PiaPrefHandler.getServerTesting(getApplicationContext());
-                serverTesting = !serverTesting;
-                sServer.setChecked(serverTesting);
-                aServerInput.setVisibility(serverTesting ? View.VISIBLE : View.GONE);
-                PiaPrefHandler.setServerTesting(getApplicationContext(), serverTesting);
-            }
-        });
-
-        Prefs prefs = Prefs.with(getApplicationContext());
-        etServerRemote.setText(prefs.get(PiaPrefHandler.TESTING_SERVER_URL, ""));
-        etServerPing.setText(prefs.get(PiaPrefHandler.TESTING_SERVER_PING_PORT, 0) + "");
-        etServerUDP.setText(prefs.get(PiaPrefHandler.TESTING_SERVER_UDP_PORT, 0) + "");
-        etServerTCP.setText(prefs.get(PiaPrefHandler.TESTING_SERVER_TCP_PORT, 0) + "");
-        etServerSerial.setText(prefs.get(PiaPrefHandler.TESTING_SERVER_SERIAL_TLS, ""));
-        etServerCountryCode.setText(prefs.get(PiaPrefHandler.TESTING_SERVER_COUNTRY_CODE, ""));
-        etServerDNS.setText(prefs.get(PiaPrefHandler.TESTING_SERVER_DNS, ""));
-        boolean pf = prefs.get(PiaPrefHandler.TESTING_SERVER_PORT_FORWARDING, false);
-        etServerPortForwarding.setText(pf ? "1" : "0");
     }
 
     private void setupWebViewTesting() {
@@ -657,42 +632,6 @@ public class DeveloperActivity extends BaseActivity {
         prefs.set(PiaPrefHandler.TRIAL_TESTING_STATUS, trialStatusNum);
         prefs.set(PiaPrefHandler.TRIAL_TESTING_USERNAME, etTrialUsername.getText().toString());
         prefs.set(PiaPrefHandler.TRIAL_TESTING_PASSWORD, etTrialPassword.getText().toString());
-
-        if(PiaPrefHandler.getServerTesting(getApplicationContext())) {
-            // server testing
-            int pingPort = 0, udpPort = 0, tcpPort = 0, portForwarding = 0;
-
-            try {
-                pingPort = Integer.parseInt(etServerPing.getText().toString());
-            } catch (NumberFormatException e) {
-            }
-            try {
-                udpPort = Integer.parseInt(etServerUDP.getText().toString());
-            } catch (NumberFormatException e) {
-            }
-            try {
-                tcpPort = Integer.parseInt(etServerTCP.getText().toString());
-            } catch (NumberFormatException e) {
-            }
-            try {
-                portForwarding = Integer.parseInt(etServerPortForwarding.getText().toString());
-            } catch (NumberFormatException e) {
-            }
-
-            // Remove the old one
-            PIAServerHandler.getInstance(getApplicationContext()).removeTestingServer(PiaPrefHandler.TEST_SERVER_KEY);
-
-            PiaPrefHandler.saveServerTesting(getApplicationContext(), etServerRemote.getText().toString(),
-                    pingPort, tcpPort, udpPort,
-                    portForwarding != 0,
-                    etServerSerial.getText().toString(),
-                    etServerDNS.getText().toString(),
-                    etServerCountryCode.getText().toString()
-            );
-            PIAServerHandler.getInstance(getApplicationContext()).addTestingServer(PiaPrefHandler.getTestServer(getApplicationContext()));
-        } else {
-            PIAServerHandler.getInstance(getApplicationContext()).removeTestingServer(PiaPrefHandler.TEST_SERVER_KEY);
-        }
     }
 
     private void setLogLevel() {

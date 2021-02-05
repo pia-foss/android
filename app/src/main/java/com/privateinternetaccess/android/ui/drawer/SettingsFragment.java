@@ -25,7 +25,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -38,7 +37,6 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreferenceCompat;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Toast;
 
 import com.privateinternetaccess.android.BuildConfig;
@@ -49,9 +47,6 @@ import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
-import com.privateinternetaccess.android.pia.model.events.ReportEvent;
-import com.privateinternetaccess.android.pia.model.response.ReportResponse;
-import com.privateinternetaccess.android.pia.tasks.VPNReportTask;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.Toaster;
@@ -61,9 +56,6 @@ import com.privateinternetaccess.android.ui.drawer.settings.DeveloperActivity;
 import com.privateinternetaccess.android.ui.features.WebviewActivity;
 import com.privateinternetaccess.android.ui.widgets.WidgetBaseProvider;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -72,9 +64,10 @@ import me.philio.preferencecompatextended.PreferenceFragmentCompat;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEO_SERVERS_ACTIVE;
-import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.KILLSWITCH;
+import static com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus.SUCCEEDED;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_AUTH;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_CIPHER;
+import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_HANDSHAKE;
 
 /**
  * Created by half47 on 8/3/16.
@@ -87,7 +80,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private PreferenceScreen pRemotePort;
 
     private String[] ovpnKeys = {
-            "useTCP", "rport", "lport", "mssfix", "proxy_settings",
+            "useTCP", "rport", "lport", "mssfix", "proxy_settings", "ovpn_cipher_warning",
             "useproxy", "blockipv6", "encryption", "cipher", "auth", "killswitch", "tlscipher"};
     private String[] wgKeys = {};
 
@@ -113,7 +106,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
         Preference tlsCipher = findPreference("tlscipher");
         tlsCipher.setSummary(SettingsFragmentHandler.getSummaryItem(getActivity(), "tlscipher",
-                "rsa2048", getResources().getStringArray(R.array.tls_cipher),
+                DEFAULT_HANDSHAKE, getResources().getStringArray(R.array.tls_cipher),
                 getResources().getStringArray(R.array.tls_values)));
 
         setLportSummary(prefs.get("lport", "auto"));
@@ -170,8 +163,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         super.onResume();
 
         ViewCompat.setNestedScrollingEnabled(getListView(), false);
-
-        EventBus.getDefault().register(this);
 
         PreferenceManager.getDefaultSharedPreferences(pRemotePort.getContext()).registerOnSharedPreferenceChangeListener(this);
 
@@ -362,6 +353,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             PreferenceCategory category = findPreference("app_settings");
             Preference haptic = findPreference(PiaPrefHandler.HAPTIC_FEEDBACK);
             Preference theme = findPreference("darktheme");
+            Preference inapp = findPreference(PiaPrefHandler.HIDE_INAPP_MESSAGES);
+
             if(pref != null && category != null && haptic != null && theme != null) {
                 category.removePreference(pref);
                 category.removePreference(haptic);
@@ -374,20 +367,24 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 if (viewVPN != null) {
                     category.removePreference(viewVPN);
                 }
+
+                if (inapp != null) {
+                    category.removePreference(inapp);
+                }
             }
-            PreferenceCategory info = (PreferenceCategory) findPreference("app_info_cat");
+            PreferenceCategory info = findPreference("app_info_cat");
             Preference recentChanges = findPreference("update_and_patch_notes");
             if(recentChanges != null){
                 info.removePreference(recentChanges);
             }
 
-            PreferenceCategory blocking = (PreferenceCategory) findPreference("blocking");
+            PreferenceCategory blocking = findPreference("blocking");
             if (alwaysOn != null && blocking != null) {
                 blocking.removePreference(alwaysOn);
             }
 
             PreferenceScreen screen = getPreferenceScreen();
-            PreferenceCategory proxy = (PreferenceCategory) findPreference("proxy_settings");
+            PreferenceCategory proxy = findPreference("proxy_settings");
 
             if (proxy != null) {
                 screen.removePreference(proxy);
@@ -404,7 +401,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 blocking.removePreference(killswitch);
             }
 
-            PreferenceCategory connectionCat = (PreferenceCategory) findPreference("connection_setting");
+            PreferenceCategory connectionCat = findPreference("connection_setting");
             if (secureWifi != null)
                 category.removePreference(secureWifi);
         }
@@ -420,7 +417,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     @Override
     public void onPause() {
         super.onPause();
-        EventBus.getDefault().unregister(this);
         PreferenceManager.getDefaultSharedPreferences(pRemotePort.getContext()).unregisterOnSharedPreferenceChangeListener(this);
     }
 
@@ -494,54 +490,49 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private void setupOnClicks() {
         Preference p = findPreference("developer_mode");
         if(p != null)
-            p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    Intent i = new Intent(getActivity(), DeveloperActivity.class);
-                    startActivity(i);
-                    getActivity().overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
-                    return true;
-                }
+            p.setOnPreferenceClickListener(preference -> {
+                Intent i = new Intent(getActivity(), DeveloperActivity.class);
+                startActivity(i);
+                getActivity().overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
+                return true;
             });
 
-        findPreference("send_log").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Toaster.s(getActivity(), R.string.sending_debug_log);
-                preference.setEnabled(false);
-                sendDebugLog();
+        Preference ovpnWarning = findPreference("ovpn_cipher_warning");
+
+        if (ovpnWarning != null) {
+            ovpnWarning.setOnPreferenceClickListener(preference -> {
+                Intent i = new Intent(getContext(), WebviewActivity.class);
+                i.putExtra(WebviewActivity.EXTRA_URL, "https://www.privateinternetaccess.com/helpdesk/kb/articles/removing-openvpn-handshake-and-authentication-settings/");
+                getContext().startActivity(i);
+
                 return true;
-            }
+            });
+        }
+
+        findPreference("send_log").setOnPreferenceClickListener(preference -> {
+            Toaster.s(getActivity(), R.string.sending_debug_log);
+            preference.setEnabled(false);
+            sendDebugLog();
+            return true;
         });
 
-        findPreference("resetToDefault").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Context ctx = getActivity();
-                AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-                builder.setTitle(R.string.pref_reset_settings);
-                builder.setMessage(R.string.pref_reset_settings_message);
-                builder.setPositiveButton(R.string.reset, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        SettingsFragmentHandler.resetToDefault(getActivity());
-                        updateSettingsUiWithKnownPersistedData();
-                        if (!PIAFactory.getInstance().getVPN(ctx).isVPNActive()) {
-                            Toaster.s(ctx, ctx.getString(R.string.settings_reset));
-                        }
-                        WidgetBaseProvider.updateWidget(ctx, false);
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.setNegativeButton(R.string.dismiss, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.show();
-                return true;
-            }
+        findPreference("resetToDefault").setOnPreferenceClickListener(preference -> {
+            Context ctx = getActivity();
+            AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+            builder.setTitle(R.string.pref_reset_settings);
+            builder.setMessage(R.string.pref_reset_settings_message);
+            builder.setPositiveButton(R.string.reset, (dialogInterface, i) -> {
+                SettingsFragmentHandler.resetToDefault(getActivity());
+                updateSettingsUiWithKnownPersistedData();
+                if (!PIAFactory.getInstance().getVPN(ctx).isVPNActive()) {
+                    Toaster.s(ctx, ctx.getString(R.string.settings_reset));
+                }
+                WidgetBaseProvider.updateWidget(ctx, false);
+                dialogInterface.dismiss();
+            });
+            builder.setNegativeButton(R.string.dismiss, (dialogInterface, i) -> dialogInterface.dismiss());
+            builder.show();
+            return true;
         });
     }
 
@@ -723,29 +714,27 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void sendDebugLog() {
-        Context context = getActivity().getApplicationContext();
-        VPNReportTask task = new VPNReportTask(context);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
+        Context context = getContext();
+        PIAFactory.getInstance().getAccount(context).sendDebugReport((reportIdentifier, requestResponseStatus) -> {
 
-    @Subscribe
-    public void onReportReceived(ReportEvent event){
-        Context context = getActivity();
-        ReportResponse response = event.getResponse();
-        try {
-            if (response.getTicketId() == null && response.getException() != null) {
-                Toast.makeText(context, getString(R.string.failure_sending_log, response.getException().getLocalizedMessage()), Toast.LENGTH_LONG).show();
-            } else if (response.getException() == null){
-                androidx.appcompat.app.AlertDialog.Builder ab = new androidx.appcompat.app.AlertDialog.Builder(context);
-                ab.setTitle(R.string.log_send_done_title);
-                ab.setMessage(getString(R.string.log_send_done_msg, response.getTicketId()));
-                ab.setPositiveButton(getString(android.R.string.ok), null);
-                ab.create().show();
-                findPreference("send_log").setEnabled(true);
+            if (context == null) {
+                DLog.d("PIASettings", "Invalid context on sendDebugReport response");
+                return null;
             }
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
+
+            if (reportIdentifier == null && requestResponseStatus != SUCCEEDED) {
+                Toast.makeText(context, getString(R.string.failure_sending_log, requestResponseStatus.toString()), Toast.LENGTH_LONG).show();
+                return null;
+            }
+
+            androidx.appcompat.app.AlertDialog.Builder ab = new androidx.appcompat.app.AlertDialog.Builder(context);
+            ab.setTitle(R.string.log_send_done_title);
+            ab.setMessage(getString(R.string.log_send_done_msg, reportIdentifier));
+            ab.setPositiveButton(getString(android.R.string.ok), null);
+            ab.create().show();
+            findPreference("send_log").setEnabled(true);
+            return null;
+        });
     }
 
     @Override

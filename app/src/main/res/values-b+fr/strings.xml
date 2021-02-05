@@ -102,6 +102,8 @@
     <string name="current_region">RÉGION ACTUELLE</string>
     <string name="full_licenses">Licences complètes</string>
     <string name="email">E-mail</string>
+    <string name="please_wait">Veuillez patienter</string>
+    <string name="still_connecting">Tentative de connexion toujours en cours</string>
     <string name="account_details_password_bottom_text">Touchez l\'« œil » pour l\'afficher. Touchez de nouveau pour copier le mot de passe dans le presse-papier.</string>
     <string name="user_x_vs_p_error">Assurez-vous de vous connecter en utilisant votre nom d\'utilisateur principal, qui doit commencer par « p » (ex : p12345)</string>
     <string name="vpn_revoke_text">La permission du VPN de PIA a été révoquée. Le VPN, l\'interrupteur Internet et la sécurité ne sont pas actifs. Veuillez toucher ici pour redémarrer ce service et sécuriser votre connexion Internet.</string>
@@ -245,6 +247,9 @@
     <string name="done">TERMINÉ</string>
     <string name="update_account">METTRE À JOUR LE COMPTE</string>
     <string name="local_port_titla">Port local</string>
+    <string name="connection_couldnt_establish_title">La connexion n\'a pas pu être établie</string>
+    <string name="connection_couldnt_establish_message">Vous pouvez essayer de sélectionner une autre région ou de nous en informer en ouvrant un ticket d\'incident.</string>
+    <string name="send_feedback">Envoyer un commentaire</string>
     <string name="preference_application_settings">PARAMÈTRES GÉNÉRAUX</string>
     <string name="preference_vpn_settings">PARAMÈTRES VPN</string>
     <string name="preference_haptic_title">Retour tactile à la connexion</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">Connecté au VPN</string>
     <string name="ks_removal_warning">D\'après notre détection, vous avez activé le Killswitch. Nous avons modifié le fonctionnement de cette fonctionnalité en intégrant le paramètre Android « Bloquer les connexions sans VPN » pour WireGuard et OpenVPN. Veuillez vérifier ces modifications dans vos Paramètres pour vérifier que vous êtes toujours protégé.</string>
     <string name="preference_on_boot_always_on">Connexion au démarrage du système. Nous vous conseillons d\'activer ce paramètre si vous utilisez la fonction VPN toujours activé.</string>
+    <string name="ovpn_cipher_removal_description">Nous mettons à jour notre infrastructure OpenVPN. Pour en savoir plus, cliquez<b>ici</b></string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Le tunnel « %s » existe déjà</string>
     <string name="tunnel_error_invalid_name">Nom invalide</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">Gestion du réseau</string>
     <string name="nmt_settings_description">Configurer de règles de gestion des règles de connexion automatique pour les réseaux fiables et non fiables.</string>
     <string name="nmt_management_title">Gérer l\'automatisation</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">Adresse IP dédiée</string>
+    <string name="dip_description">Activez votre adresse IP dédiée en collant votre jeton dans le formulaire ci-dessous. Si vous avez récemment acheté une adresse IP dédiée, vous pouvez générer le jeton en vous rendant sur le site Web de PIA.</string>
+    <string name="dip_your_header">VOS ADRESSES IP DÉDIÉES</string>
+    <string name="dip_activate">Activer</string>
+    <string name="dip_remove_header">Supprimer l\'adresse IP dédiée</string>
+    <string name="dip_remove_body">Supprimer %s - %s ?</string>
+    <string name="dip_expired_warning">Votre jeton a expiré. Veuillez en générer un nouveau depuis la page de votre compte sur le site Web.</string>
+    <string name="dip_invalid">Votre jeton n\'est pas valide. Veuillez vous assurer d\'avoir correctement saisi le jeton.</string>
+    <string name="dip_success">Votre adresse IP dédiée a été activée avec succès. Elle sera disponible dans votre liste de sélection de région.</string>
+    <string name="dip_tag">ADRESSE IP DÉDIÉE</string>
+    <string name="dip_enter_token_hint">Collez votre jeton ici</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Arrêter les messages de communication intégrés</string>
+    <string name="settings_updated">Les paramètres ont été mis à jour</string>
+    <string name="hide_payment">Suite à un problème technique, les achats via Google Play sont actuellement désactivés. Nous faisons tout notre possible pour résoudre ce problème.\n\nSi vous possédez déjà un compte avec un abonnement, vous pouvez vous connecter en appuyant sur le bouton Connexion.</string>
 </resources>

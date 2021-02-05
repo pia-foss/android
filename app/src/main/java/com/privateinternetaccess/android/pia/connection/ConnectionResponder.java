@@ -52,7 +52,7 @@ import static de.blinkt.openvpn.core.OpenVpnManagementThread.GATEWAY;
 
 /**
  *
- * Use this to handle all connection features. This will handle port fowarding, MACE and fetching the new IP by using {@link PortForwardTask} and {@link HitMaceTask}.
+ * Use this to handle all connection features.
  *
  * You can toggle all of these features with {@link com.privateinternetaccess.android.pia.PIABuilder} or {@link PiaPrefHandler} methods.
  *
@@ -70,7 +70,6 @@ import static de.blinkt.openvpn.core.OpenVpnManagementThread.GATEWAY;
 public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwitchStatus.KillSwitchStateListener {
 
     public static final String TAG = "ConnectionResponder";
-    public static boolean MACE_IS_RUNNING;
 
     private Context context;
     private static ConnectionResponder mInstance;
@@ -83,8 +82,6 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
 
     private static int REQUESTING_PORT_STRING;
     public static boolean VPN_REVOKED;
-    private Runnable REVIVE_MECHANIC;
-    private int connectionAttempts;
 
     private ConnectionResponder(Context c, int resId) {
         context = c;
@@ -139,7 +136,6 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
         } else if(level == ConnectionStatus.LEVEL_NOTCONNECTED) {
             DLog.d(TAG, "Not connected Clear");
             PiaPrefHandler.clearLastIPVPN(context);
-            MACE_IS_RUNNING = false;
             PIAVpnStatus.clearOldData();
             cleanupExecutor();
             PiaPrefHandler.setVPNConnecting(context, false);
@@ -152,63 +148,10 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
         }
     }
 
-    private boolean isVPNReviveNeeded(){
-        boolean reviveNeeded = false;
-        String processName = PIAApplication.getProcessName(context);
-        boolean isCorrectProcess = processName != null && processName.equals("com.privateinternetaccess.android");
-        // Has the VPN been started before
-        // && thread is null, which means revival isn't already started
-        // && is this the regular process
-        DLog.d(TAG, "executor = " + (executor != null) + " mechanic = " + REVIVE_MECHANIC + " correctProcess = " + isCorrectProcess);
-        if((executor != null || PiaPrefHandler.wasVPNConnecting(context)) && REVIVE_MECHANIC == null && isCorrectProcess) {
-            // Was the connection ended by the user, if so, reset the condition
-            boolean connectionEndedByUser = PiaPrefHandler.wasConnectionEndedByUser(context, true);
-            // Also check if the VPN wasn't revoked by Samsung
-            DLog.d(TAG,"EndedByUser = " + connectionEndedByUser + " VPN Revoked = " + VPN_REVOKED);
-            if(!connectionEndedByUser){
-                Handler h = new Handler(Looper.getMainLooper());
-                REVIVE_MECHANIC = new Runnable() {
-                    @Override
-                    public void run() {
-                        IVPN vpn = PIAFactory.getInstance().getVPN(context);
-                        // 3s have past and the vpn is still not up. Restart
-                        DLog.d(TAG,"vpn_revoked = " + VPN_REVOKED);
-                        if (!vpn.isVPNActive() && !VPN_REVOKED) {
-                            vpn.start();
-                        } else {
-                            VPN_REVOKED = false;
-                        }
-                        REVIVE_MECHANIC = null; // Clear out REVIVE_MECHANIC to let another REVIVE HAPPEN
-                    }
-                };
-                // create delay
-                int delay = getDelay();
-                h.postDelayed(REVIVE_MECHANIC, delay);
-                if(connectionAttempts <= 7) // Maxing out at 10s delay. Starting off with 3s.
-                    connectionAttempts++;
-                // Send alert to the rest of the app alerting of retrying connection after x seconds
-                VpnStateEvent event = new VpnStateEvent("CONNECTRETRY", String.valueOf(getDelay() / 1000),
-                        de.blinkt.openvpn.R.string.state_waitconnectretry, ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET);
-                EventBus.getDefault().postSticky(event);
-
-                reviveNeeded = true;
-            }
-        }
-        return reviveNeeded;
-    }
-
-    private int getDelay(){
-        int delay = 3000;
-        delay += delay + (1000 * connectionAttempts);
-        return delay;
-    }
-
     private void resetRevivalMechanic() {
         PiaPrefHandler.setUserEndedConnection(context, false);
         PiaPrefHandler.setVPNConnecting(context, false);
-        REVIVE_MECHANIC = null;
         VPN_REVOKED = false;
-        connectionAttempts = 0;
     }
 
     private void cleanupExecutor() {

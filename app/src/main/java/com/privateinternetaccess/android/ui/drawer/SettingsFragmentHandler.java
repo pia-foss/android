@@ -133,47 +133,8 @@ public class SettingsFragmentHandler {
             builder.setPositiveButton(R.string.save, (dialogInterface, i) -> {
                 int index = adapter.getSelectedIndex();
                 String selectedProtocol = protocolArray[index];
-                String previousProtocol = Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]);
 
-                String warningMessage = "";
-
-                if (!selectedProtocol.equals(previousProtocol)) {
-                    if(PIAFactory.getInstance().getVPN(context).isVPNActive()) {
-                        Toaster.l(fragment.getActivity().getApplicationContext(), R.string.reconnect_vpn);
-                    }
-
-                    if (previousProtocol.equals(protocolArray[1])) {
-                        if (GoBackend.VpnService.backend != null) {
-                            GoBackend.VpnService.backend.stopVpn();
-                        }
-                    }
-                    else {
-                        IVPN vpn = PIAFactory.getInstance().getVPN(context);
-
-                        if(vpn.isVPNActive()) {
-                            vpn.stop();
-
-                            Handler handler = new Handler(Looper.getMainLooper());
-                            handler.postDelayed(() -> {
-                                if(vpn.isKillswitchActive()){
-                                    vpn.stopKillswitch();
-                                }
-                            }, 1000);
-                        }
-
-                        if (PiaPrefHandler.isKillswitchEnabled(context)) {
-                            warningMessage += context.getResources().getString(R.string.killswitch) + "\n";
-                        }
-                    }
-
-                    if (warningMessage.length() > 0) {
-                        showWarning(context, warningMessage);
-                    }
-
-                    Prefs.with(context).set(PiaPrefHandler.VPN_PROTOCOL, selectedProtocol);
-                    fragment.setProtocolSummary();
-                    PIAServerHandler.getInstance(context).triggerLatenciesUpdate();
-                }
+                changeProtocol(context, selectedProtocol, fragment);
 
                 dialogInterface.dismiss();
             });
@@ -184,6 +145,51 @@ public class SettingsFragmentHandler {
 
             return false;
         });
+    }
+
+    public static void changeProtocol(Context context, String selectedProtocol, final SettingsFragment fragment) {
+        final String[] protocolArray = context.getResources().getStringArray(R.array.protocol_options);
+        String previousProtocol = Prefs.with(context).get(PiaPrefHandler.VPN_PROTOCOL, protocolArray[0]);
+
+        String warningMessage = "";
+
+        if (!selectedProtocol.equals(previousProtocol)) {
+            if(PIAFactory.getInstance().getVPN(context).isVPNActive()) {
+                Toaster.l(fragment.getActivity().getApplicationContext(), R.string.reconnect_vpn);
+            }
+
+            if (previousProtocol.equals(protocolArray[1])) {
+                if (GoBackend.VpnService.backend != null) {
+                    GoBackend.VpnService.backend.stopVpn();
+                }
+            }
+            else {
+                IVPN vpn = PIAFactory.getInstance().getVPN(context);
+
+                if(vpn.isVPNActive()) {
+                    vpn.stop();
+
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    handler.postDelayed(() -> {
+                        if(vpn.isKillswitchActive()){
+                            vpn.stopKillswitch();
+                        }
+                    }, 1000);
+                }
+
+                if (PiaPrefHandler.isKillswitchEnabled(context)) {
+                    warningMessage += context.getResources().getString(R.string.killswitch) + "\n";
+                }
+            }
+
+            if (warningMessage.length() > 0) {
+                showWarning(context, warningMessage);
+            }
+
+            Prefs.with(context).set(PiaPrefHandler.VPN_PROTOCOL, selectedProtocol);
+            fragment.setProtocolSummary();
+            PIAServerHandler.getInstance(context).triggerLatenciesUpdate();
+        }
     }
 
     public static void setupDNSDialog(final Context context, final Preference screen, final SettingsFragment fragment){
@@ -648,8 +654,6 @@ public class SettingsFragmentHandler {
                 , context.getString(R.string.handshake), "rsa2048", null);
 
         setAuthEnabledFromCipher(context, Prefs.with(context).get("cipher", DEFAULT_CIPHER), auth);
-
-
     }
 
     public static void createListDialog(final Context context, Preference perf,
@@ -740,6 +744,11 @@ public class SettingsFragmentHandler {
             }
             pos++;
         }
+
+        if (pos >= names.length) {
+            return names[0];
+        }
+
         return names[pos];
     }
 
@@ -892,7 +901,14 @@ public class SettingsFragmentHandler {
         prefs.set(PiaPrefHandler.VPN_PER_APP_ARE_ALLOWED, false);
         prefs.set(PiaPrefHandler.VPN_PER_APP_PACKAGES, new HashSet<>());
 
+        // In App Messages
+        PiaPrefHandler.clearDismissedIds(ctx);
+
+        // Clear Favorites
+        PiaPrefHandler.clearFavorites(ctx);
+
         //PiaPrefHandler.clearTrustWifi(ctx);
         PiaPrefHandler.clearTrustedNetworks(ctx);
+        PiaPrefHandler.clearDedicatedIps(ctx);
     }
 }

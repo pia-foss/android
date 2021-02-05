@@ -19,6 +19,8 @@
 package com.privateinternetaccess.android.ui.loginpurchasing;
 
 import android.animation.LayoutTransition;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -42,6 +44,9 @@ import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.PricingLoadedEvent;
+import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
+import com.privateinternetaccess.android.ui.DialogFactory;
+import com.privateinternetaccess.android.ui.drawer.DedicatedIPActivity;
 import com.privateinternetaccess.android.ui.drawer.settings.DeveloperActivity;
 import com.privateinternetaccess.android.ui.startup.StartupContainerFragment;
 import com.privateinternetaccess.android.utils.SubscriptionsUtils;
@@ -53,17 +58,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.privateinternetaccess.android.ui.connection.MainActivityHandler.FEATURE_HIDE_PAYMENT;
+
 public class GetStartedFragment extends Fragment {
 
     @BindView(R.id.activity_login_purchasing_dev_button) View bDev;
     @BindView(R.id.activity_login_purchasing_button_layout) RelativeLayout lButtons;
 
-    @Nullable
-    @BindView(R.id.activity_login_purchasing_buy_button) Button bSignup;
-    @Nullable
-    @BindView(R.id.activity_login_purchasing_all_plans_button) Button bAllPlans;
-    @Nullable
-    @BindView(R.id.activity_login_purchasing_free_trial_text) TextView tvFreeTrial;
     @BindView(R.id.activity_login_purchasing_TOS) TextView tvToS;
     @BindView(R.id.activity_login_purchasing_yearly_text) TextView tvYearly;
 
@@ -197,6 +198,11 @@ public class GetStartedFragment extends Fragment {
 
     @OnClick(R.id.activity_login_purchasing_buy_button)
     public void buyPressed() {
+        if (PiaPrefHandler.isFeatureActive(getContext(), FEATURE_HIDE_PAYMENT)) {
+            showPaymentError();
+            return;
+        }
+
         if (pricesLoaded) {
             ((LoginPurchaseActivity) getActivity()).onSubscribeClicked(
                     SubscriptionsUtils.INSTANCE.getYearlySubscriptionId(getContext())
@@ -219,6 +225,11 @@ public class GetStartedFragment extends Fragment {
 
     @OnClick(R.id.activity_login_purchasing_all_plans_button)
     public void allPlansPressed() {
+        if (PiaPrefHandler.isFeatureActive(getContext(), FEATURE_HIDE_PAYMENT)) {
+            showPaymentError();
+            return;
+        }
+
         if (pricesLoaded) {
             ((LoginPurchaseActivity) getActivity()).switchToPurchasing();
         } else {
@@ -236,4 +247,13 @@ public class GetStartedFragment extends Fragment {
             ((LoginPurchaseActivity) getActivity()).switchToTrialAccount();
         }
     }
+
+    private void showPaymentError() {
+        AlertDialog.Builder ab = new AlertDialog.Builder(getContext());
+        ab.setMessage(R.string.hide_payment);
+        ab.setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss());
+        ab.setOnCancelListener(dialog -> onDestroy());
+        ab.show();
+    }
+
 }

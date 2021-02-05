@@ -24,6 +24,7 @@ import com.privateinternetaccess.core.model.ServerResponse;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Vector;
@@ -52,7 +53,7 @@ public class ServerResponseTest {
     @Test
     public void isValid_notNullNotEmptyServers_EmptyInfo_Test(){
         HashMap<String, PIAServer> map = new HashMap<>();
-        map.put("whatever", new PIAServer());
+        map.put("whatever", Mockito.mock(PIAServer.class));
 
         PIAServerInfo info = new PIAServerInfo();
         Vector<String> vector = new Vector<>();
@@ -69,7 +70,7 @@ public class ServerResponseTest {
     @Test
     public void isValid_NotEmptyServers_NotEmptyStringInfo_Test(){
         HashMap<String, PIAServer> map = new HashMap<>();
-        map.put("US California", new PIAServer());
+        map.put("US California", Mockito.mock(PIAServer.class));
 
         PIAServerInfo info = new PIAServerInfo();
         Vector<String> vector = new Vector<>();
@@ -87,7 +88,7 @@ public class ServerResponseTest {
     @Test
     public void sValid_notEmptyServers_NotEmptyIntInfo_Test(){
         HashMap<String, PIAServer> map = new HashMap<>();
-        map.put("US California", new PIAServer());
+        map.put("US California", Mockito.mock(PIAServer.class));
 
         PIAServerInfo info = new PIAServerInfo();
         Vector<String> vector = new Vector<>();
@@ -105,7 +106,7 @@ public class ServerResponseTest {
     @Test
     public void isValid_notEmptyServersNotEmptyInfo_Test(){
         HashMap<String, PIAServer> map = new HashMap<>();
-        map.put("US California", new PIAServer());
+        map.put("US California", Mockito.mock(PIAServer.class));
 
         PIAServerInfo info = new PIAServerInfo();
         Vector<String> vector = new Vector<>();

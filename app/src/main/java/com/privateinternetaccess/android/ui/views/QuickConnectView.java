@@ -30,6 +30,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.ServerClickedEvent;
 import com.privateinternetaccess.android.model.listModel.ServerItem;
@@ -39,6 +40,7 @@ import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
+import com.privateinternetaccess.android.utils.DedicatedIpUtils;
 import com.privateinternetaccess.android.utils.ServerUtils;
 import com.privateinternetaccess.core.model.PIAServer;
 
@@ -74,9 +76,17 @@ public class QuickConnectView extends FrameLayout {
     @BindView(R.id.quick_favorite_5) AppCompatImageView ivFavorite5;
     @BindView(R.id.quick_favorite_6) AppCompatImageView ivFavorite6;
 
+    @BindView(R.id.quick_dip_1) AppCompatImageView ivDip1;
+    @BindView(R.id.quick_dip_2) AppCompatImageView ivDip2;
+    @BindView(R.id.quick_dip_3) AppCompatImageView ivDip3;
+    @BindView(R.id.quick_dip_4) AppCompatImageView ivDip4;
+    @BindView(R.id.quick_dip_5) AppCompatImageView ivDip5;
+    @BindView(R.id.quick_dip_6) AppCompatImageView ivDip6;
+
     private ImageView[] flags;
     private AppCompatTextView[] names;
     private AppCompatImageView[] favorites;
+    private AppCompatImageView[] dips;
     private ServerItem[] servers;
 
     private static final int  MAX_QUICK_CONNECT_SERVERS= 6;
@@ -103,6 +113,7 @@ public class QuickConnectView extends FrameLayout {
         flags = new ImageView[6];
         names = new AppCompatTextView[6];
         favorites = new AppCompatImageView[6];
+        dips = new AppCompatImageView[6];
         servers = new ServerItem[6];
     }
 
@@ -131,6 +142,13 @@ public class QuickConnectView extends FrameLayout {
         favorites[3] = ivFavorite4;
         favorites[4] = ivFavorite5;
         favorites[5] = ivFavorite6;
+
+        dips[0] = ivDip1;
+        dips[1] = ivDip2;
+        dips[2] = ivDip3;
+        dips[3] = ivDip4;
+        dips[4] = ivDip5;
+        dips[5] = ivDip6;
 
         presentServers();
     }
@@ -169,15 +187,40 @@ public class QuickConnectView extends FrameLayout {
                 validServers.add(
                         new ServerItem(
                                 ps.getKey(),
-                                PIAServerHandler.getInstance(getContext()).getFlagResource(ps),
+                                PIAServerHandler.getInstance(getContext()).getFlagResource(ps.getIso()),
                                 ps.getName(),
                                 ps.getIso(),
                                 false,
                                 ps.isAllowsPF(),
                                 ps.isGeo(),
+                                ps.isOffline(),
                                 ps.getLatency()
                         )
                 );
+            }
+        }
+
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(getContext());
+
+        for (DedicatedIPInformationResponse.DedicatedIPInformation dip : ipList) {
+            if (PiaPrefHandler.isFavorite(getContext(), dip.getIp())) {
+                PIAServer dipServer = DedicatedIpUtils.serverForDip(dip, getContext());
+
+                dips[currentIndex].setVisibility(View.VISIBLE);
+                favorites[currentIndex++].setVisibility(View.VISIBLE);
+                ServerItem item = new ServerItem(
+                        dipServer.getKey(),
+                        PIAServerHandler.getInstance(getContext()).getFlagResource(dipServer.getIso()),
+                        dipServer.getName(),
+                        dipServer.getIso(),
+                        false,
+                        dipServer.isAllowsPF(),
+                        dipServer.isGeo(),
+                        false,
+                        ""
+                );
+                item.setDedicatedIp(dip.getIp());
+                validServers.add(item);
             }
         }
 
@@ -189,12 +232,13 @@ public class QuickConnectView extends FrameLayout {
                     validServers.add(
                             new ServerItem(
                                     server.getKey(),
-                                    PIAServerHandler.getInstance(getContext()).getFlagResource(server),
+                                    PIAServerHandler.getInstance(getContext()).getFlagResource(server.getIso()),
                                     server.getName(),
                                     server.getIso(),
                                     false,
                                     server.isAllowsPF(),
                                     server.isGeo(),
+                                    server.isOffline(),
                                     server.getLatency()
                             )
                     );
@@ -223,12 +267,13 @@ public class QuickConnectView extends FrameLayout {
                 validServers.add(
                         new ServerItem(
                                 ps.getKey(),
-                                PIAServerHandler.getInstance(getContext()).getFlagResource(ps),
+                                PIAServerHandler.getInstance(getContext()).getFlagResource(ps.getIso()),
                                 ps.getName(),
                                 ps.getIso(),
                                 false,
                                 ps.isAllowsPF(),
                                 ps.isGeo(),
+                                ps.isOffline(),
                                 ps.getLatency()
                         )
                 );
@@ -250,6 +295,10 @@ public class QuickConnectView extends FrameLayout {
             iv.setVisibility(View.GONE);
         }
 
+        for (AppCompatImageView dip : dips) {
+            dip.setVisibility(View.GONE);
+        }
+
         populateServers();
 
         for (int i = 0; i < servers.length; i++) {
@@ -263,27 +312,23 @@ public class QuickConnectView extends FrameLayout {
                 names[i].setContentDescription(servers[i].getName());
                 names[i].setText(servers[i].getIso());
 
-                final String selectedRegion = servers[i].getKey();
-                final String selectedRegionName = servers[i].getName();
-                flags[i].setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        PIAServerHandler handler = PIAServerHandler.getInstance(getContext());
+                final String selectedRegion = servers[i].getDedicatedIp() != null ? servers[i].getDedicatedIp() : servers[i].getKey();
+                final String selectedRegionName = servers[i].getDedicatedIp() != null ? servers[i].getDedicatedIp() : servers[i].getName();
+                flags[i].setOnClickListener(view -> {
+                    PIAServerHandler handler = PIAServerHandler.getInstance(getContext());
 
-                        PIAServer oldRegion = handler.getSelectedRegion(getContext(), true);
-                        String oldRegionName = oldRegion != null ? oldRegion.getKey() : "";
-                        handler.saveSelectedServer(getContext(), selectedRegion);
+                    PIAServer oldRegion = handler.getSelectedRegion(getContext(), true);
+                    String oldRegionName = oldRegion != null ? oldRegion.getKey() : "";
+                    handler.saveSelectedServer(getContext(), selectedRegion);
 
-                        EventBus.getDefault().post(new ServerClickedEvent(selectedRegionName, selectedRegionName.hashCode()));
+                    EventBus.getDefault().post(new ServerClickedEvent(selectedRegionName, selectedRegionName.hashCode()));
 
-                        if(!selectedRegion.equals(oldRegionName) ||
-                                !PIAFactory.getInstance().getVPN(getContext()).isVPNActive()) {
-                            Activity activity = getActivity();
+                    if(!selectedRegion.equals(oldRegionName) ||
+                            !PIAFactory.getInstance().getVPN(getContext()).isVPNActive()) {
+                        Activity activity = getActivity();
 
-                            if (activity != null && activity instanceof MainActivity) {
-                                DLog.d("QuickConnectView", "Reseting VPN");
-                                ((MainActivity)activity).startVPN(true);
-                            }
+                        if (activity != null && activity instanceof MainActivity) {
+                            ((MainActivity)activity).startVPN(true);
                         }
                     }
                 });

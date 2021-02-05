@@ -33,14 +33,19 @@ import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
+import com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.ui.connection.MainActivity;
 import com.privateinternetaccess.android.ui.connection.VPNPermissionActivity;
 import com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivity;
 import com.privateinternetaccess.android.ui.tv.DashboardActivity;
+import com.privateinternetaccess.android.utils.DedicatedIpUtils;
+import com.privateinternetaccess.android.utils.InAppMessageManager;
 
 import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.TOKEN;
+import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_AUTH;
+import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_HANDSHAKE;
 
 public class LauncherActivity extends AppCompatActivity {
 
@@ -65,6 +70,7 @@ public class LauncherActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         checkAuthentication();
+        loadFlags(this);
     }
 
     private void checkAuthentication() {
@@ -123,6 +129,8 @@ public class LauncherActivity extends AppCompatActivity {
             if (vpnIntent == null) {
                 DLog.i("Launcher", "Logged In");
 
+                loadOnLaunch(context);
+
                 if (PIAApplication.isAndroidTV(getApplicationContext())) {
                     intent = new Intent(this, DashboardActivity.class);
                 }
@@ -147,5 +155,62 @@ public class LauncherActivity extends AppCompatActivity {
         startActivity(intent);
         overridePendingTransition(R.anim.launcher_enter, R.anim.launcher_exit);
         finish();
+    }
+
+    void loadOnLaunch(Context context) {
+        DedicatedIpUtils.refreshTokens(context);
+        validatePreferences();
+
+        if (!Prefs.with(this).get(PiaPrefHandler.HIDE_INAPP_MESSAGES, false)) {
+            PIAFactory.getInstance().getAccount(context).message(PiaPrefHandler.getAuthToken(context), (message, response) -> {
+                if (response == RequestResponseStatus.SUCCEEDED) {
+                    InAppMessageManager.setActiveMessage(message);
+                }
+
+                return null;
+            });
+        }
+    }
+
+    void loadFlags(Context context) {
+        PIAFactory.getInstance().getAccount(context).featureFlags((flags, response) -> {
+            if (flags != null)
+                PiaPrefHandler.saveFeatureFlags(context, flags.getFlags());
+
+            return null;
+        });
+    }
+
+    private void validatePreferences() {
+        boolean authExists = false;
+        boolean handshakeExists = false;
+
+        String currentAuth = Prefs.with(this).get("auth", DEFAULT_AUTH);
+        String currentHandshake = Prefs.with(this).get("tlscipher", DEFAULT_HANDSHAKE);
+
+        String[] authOptions = getResources().getStringArray(R.array.auth_values);
+        String[] handshakeOptions = getResources().getStringArray(R.array.tls_values);
+
+        for (String auth : authOptions) {
+            if (auth.equals(currentAuth)) {
+                authExists = true;
+                break;
+            }
+        }
+
+        for (String handshake : handshakeOptions) {
+            if (handshake.equals(currentHandshake)) {
+                handshakeExists = true;
+                break;
+            }
+        }
+
+        if (!authExists) {
+            Prefs.with(this).set("auth", DEFAULT_AUTH);
+        }
+
+        if (!handshakeExists) {
+            Prefs.with(this).set("tlscipher", DEFAULT_HANDSHAKE);
+        }
     }
 }

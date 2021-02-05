@@ -102,6 +102,8 @@
     <string name="current_region">CURRENT REGION</string>
     <string name="full_licenses">Full licenses</string>
     <string name="email">Email</string>
+    <string name="please_wait">Please wait</string>
+    <string name="still_connecting">Still trying to connect</string>
     <string name="account_details_password_bottom_text">Tap \"eye\" to reveal. Tap again to copy Password to clipboard.</string>
     <string name="user_x_vs_p_error">Please make sure you are logging in with your main username, which should start with \"p\" (e.g. p12345)</string>
     <string name="vpn_revoke_text">PIA\'s VPN permission has been revoked. VPN, Internet killswitch and security are not active. Please tap here to restart this service and secure your internet connection.</string>
@@ -246,6 +248,9 @@
     <string name="done">DONE</string>
     <string name="update_account">UPDATE ACCOUNT</string>
     <string name="local_port_titla">Local Port</string>
+    <string name="connection_couldnt_establish_title">The connection couldn\'t be established</string>
+    <string name="connection_couldnt_establish_message">You can try selecting a different region or letting us know about it by opening a support ticket</string>
+    <string name="send_feedback">Send Feedback</string>
     <string name="preference_application_settings">GENERAL SETTINGS</string>
     <string name="preference_vpn_settings">VPN SETTINGS</string>
     <string name="preference_haptic_title">Haptic feedback on connect</string>
@@ -609,6 +614,8 @@
 
     <string name="preference_on_boot_always_on">Connect on system start. We recommend to turn on this setting if you are using VPN Always On.</string>
 
+    <string name="ovpn_cipher_removal_description">We are updating our OpenVPN implementation, for more information, click <b>here</b></string>
+
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Tunnel “%s” already exists</string>
     <string name="tunnel_error_invalid_name">Invalid name</string>
@@ -665,9 +672,27 @@
     <string name="nmt_rule_for">Rule for %s</string>
     <string name="nmt_remove_rule">Remove rule</string>
     <string name="nmt_add_new_rule">Add new rule</string>
-
     <string name="nmt_settings_title">Network Management</string>
     <string name="nmt_settings_description">Setup rules to handle auto-connect rules for trusted and untrusted networks.</string>
     <string name="nmt_management_title">Manage automation</string>
+
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">Dedicated IP</string>
+    <string name="dip_description">Activate your Dedicated IP by pasting your token in the form below. If you\'ve recently purchased a dedicated IP, you can generate the token by going to the PIA website.</string>
+    <string name="dip_your_header">YOUR DEDICATED IPS</string>
+    <string name="dip_activate">Activate</string>
+    <string name="dip_remove_header">Remove Dedicated IP</string>
+    <string name="dip_remove_body">Remove %s - %s?</string>
+    <string name="dip_expired_warning">Your token is expired. Please generate a new one from your Account page in the website.</string>
+    <string name="dip_invalid">Your token is invalid. Please make sure you have entered the token correctly.</string>
+    <string name="dip_success">Your Dedicated IP has been activated successfully. It will be available in your Region selection list.</string>
+    <string name="dip_tag">DEDICATED IP</string>
+    <string name="dip_enter_token_hint">Paste your token here</string>
+
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Stop in-app communication messages</string>
+    <string name="settings_updated">Settings have been updated</string>
+
+    <string name="hide_payment">Due to a technical problem, purchases through Google Play are currently disabled. We are working to resolve the situation.\n\nIf you already have an account with a subscription, you can login by pressing the Login button.</string>
 
 </resources>

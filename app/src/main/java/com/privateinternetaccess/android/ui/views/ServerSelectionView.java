@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
@@ -54,6 +55,9 @@ public class ServerSelectionView extends FrameLayout {
     @BindView(R.id.connect_server_list_progress_bar) View progressBar;
     @BindView(R.id.fragment_connect_server_map) RegionMapView mapView;
     @BindView(R.id.fragment_server_geo) View serverGeoImageView;
+
+    @BindView(R.id.list_server_dip_layout) LinearLayout lDipLayout;
+    @BindView(R.id.list_server_dip) TextView tvDip;
 
     public ServerSelectionView(Context context) {
         super(context);
@@ -114,6 +118,8 @@ public class ServerSelectionView extends FrameLayout {
     }
 
     private void setRegionDisplay() {
+        lDipLayout.setVisibility(View.GONE);
+
         if (PIAServerHandler.getInstance(getActivity()).isSelectedRegionAuto(tvServer.getContext()) && VpnStatus.isVPNActive()) {
             PIAServer currentServer = PIAVpnStatus.getLastConnectedRegion();
             VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
@@ -131,13 +137,21 @@ public class ServerSelectionView extends FrameLayout {
     }
 
     private void setServerName() {
+        lDipLayout.setVisibility(View.GONE);
         String name = getContext().getString(R.string.automatic_server_selection_main);
         PIAServerHandler serverHandler = PIAServerHandler.getInstance(getContext());
         PIAServer nonNullSelectedServer = serverHandler.getSelectedRegion(getContext(), false);
         PIAServer nullOnAutomaticServer = serverHandler.getSelectedRegion(getContext(), true);
 
-        if (nullOnAutomaticServer != null) {
-            name = nullOnAutomaticServer.getName();
+        PIAServerHandler handler = PIAServerHandler.getInstance(getActivity());
+        PIAServer selectedServer = handler.getSelectedRegion(tvServer.getContext(), true);
+        if (selectedServer != null) {
+            if (selectedServer.isDedicatedIp()) {
+                lDipLayout.setVisibility(View.VISIBLE);
+                tvDip.setText(selectedServer.getDedicatedIp());
+            }
+
+            name = selectedServer.getName();
         }
 
         tvServer.setText(name);

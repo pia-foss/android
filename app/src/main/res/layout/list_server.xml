@@ -41,7 +41,7 @@
             android:layout_width="32dp"
             android:layout_height="22dp"
             android:scaleType="fitCenter"
-            tools:background="@drawable/flag_japan"
+            tools:background="@drawable/flag_jp"
             android:layout_centerVertical="true"
             />
 
@@ -56,13 +56,52 @@
             android:layout_centerVertical="true"
             android:orientation="horizontal">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Style06"
-                android:textColor="?attr/grey20_white"
-                android:id="@+id/list_server_name"
-                tools:text="Japan"/>
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Style06"
+                    android:textColor="?attr/grey20_white"
+                    android:id="@+id/list_server_name"
+                    tools:text="Japan"/>
+
+                <LinearLayout
+                    android:id="@+id/list_server_dip_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/Style06"
+                        android:textColor="@color/grey40"
+                        android:id="@+id/list_server_dip"
+                        tools:text="8.8.8.8" />
+
+                    <TextView
+                        android:background="@drawable/shape_rounded_border_grey40"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:paddingTop="1dp"
+                        android:paddingBottom="1dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        style="@style/Style06"
+                        android:textColor="@color/grey40"
+                        android:text="@string/dip_tag"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/list_server_geo"
@@ -99,15 +138,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/list_server_offline"
+                android:layout_width="22dp"
+                android:layout_height="25dp"
+                android:layout_marginEnd="20dp"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_offline"/>
 
             <TextView
                 android:id="@+id/list_server_ping"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
+                android:layout_marginEnd="20dp"
                 android:layout_weight="1"
                 style="@style/Style11"
                 tools:text="234 ms"
@@ -118,6 +166,7 @@
                 android:layout_width="18dp"
                 android:layout_height="15dp"
                 android:layout_weight="1"
+                android:layout_gravity="center"
                 app:srcCompat="@drawable/ic_heart_mobile"/>
 
         </LinearLayout>
@@ -125,9 +174,17 @@
     </RelativeLayout>
 
     <View
+        android:id="@+id/list_server_basic_divider"
         android:layout_below="@+id/list_server_layout"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?attr/region_selection_background" />
+
+    <View
+        android:id="@+id/list_server_large_divider"
+        android:layout_below="@+id/list_server_layout"
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:background="?attr/search_background" />
 
 </RelativeLayout>

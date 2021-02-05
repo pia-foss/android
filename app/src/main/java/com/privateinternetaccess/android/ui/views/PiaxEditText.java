@@ -111,12 +111,7 @@ public class PiaxEditText extends FrameLayout {
         }
 
         etMain.addTextChangedListener(baseTextWatcher);
-        etMain.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                showHint();
-            }
-        });
+        etMain.setOnFocusChangeListener((view, b) -> showHint());
 
         ivIcon.setVisibility(View.GONE);
     }

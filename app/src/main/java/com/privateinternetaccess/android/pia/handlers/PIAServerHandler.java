@@ -29,7 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.os.ConfigurationCompat;
 
-import com.privateinternetaccess.android.BuildConfig;
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.SeverListUpdateEvent;
 import com.privateinternetaccess.android.model.events.SeverListUpdateEvent.ServerListUpdateState;
@@ -40,7 +40,7 @@ import com.privateinternetaccess.android.pia.receivers.PingReceiver;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.ServerResponseHelper;
-import com.privateinternetaccess.android.utils.ServerUtils;
+import com.privateinternetaccess.android.utils.DedicatedIpUtils;
 import com.privateinternetaccess.android.utils.SystemUtils;
 import com.privateinternetaccess.common.regions.RegionLowerLatencyInformation;
 import com.privateinternetaccess.common.regions.RegionsUtils;
@@ -48,26 +48,20 @@ import com.privateinternetaccess.common.regions.model.RegionsResponse;
 import com.privateinternetaccess.core.model.PIAServer;
 import com.privateinternetaccess.core.model.PIAServerInfo;
 import com.privateinternetaccess.core.model.ServerResponse;
-import com.privateinternetaccess.core.utils.IPIACallback;
 import com.privateinternetaccess.regions.RegionsAPI;
 import com.privateinternetaccess.regions.RegionsBuilder;
 
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -196,24 +190,13 @@ public class PIAServerHandler {
 
     private void offLoadResponse(ServerResponse response, boolean fromWeb){
         PIAServerHandler handler = getInstance(null);
-        if(handler != null){
-            boolean isValid = response.isValid();
-            if(isValid) {
+        if (handler != null) {
+            if (response.isValid()) {
                 handler.info = response.getInfo();
                 handler.servers = response.getServers();
-            }
-
-            if(PiaPrefHandler.getServerTesting(context)) {
-                PIAServer testServer = PiaPrefHandler.getTestServer(context);
-                if(!TextUtils.isEmpty(testServer.getIso()))
-                    removeTestingServer(testServer.getKey());
-                addTestingServer(testServer);
-            }
-            if(BuildConfig.FLAVOR_pia.equals("qa")){
-                loadExcessServers();
-            }
-            if(fromWeb && isValid){
-                prefs.set(GEN4_LAST_SERVER_BODY, response.getBody());
+                if (fromWeb) {
+                    prefs.set(GEN4_LAST_SERVER_BODY, response.getBody());
+                }
             }
         }
     }
@@ -228,7 +211,7 @@ public class PIAServerHandler {
 
         RegionsResponse regionsResponse = RegionsUtils.INSTANCE.parse(gen4LastBody);
         Map<String, PIAServer> serverMap =
-                ServerResponseHelper.Companion.adaptServers(regionsResponse);
+                ServerResponseHelper.Companion.adaptServers(context, regionsResponse);
         PIAServerInfo serverInfo =
                 ServerResponseHelper.Companion.adaptServersInfo(regionsResponse);
         ServerResponse response =
@@ -238,19 +221,6 @@ public class PIAServerHandler {
                         RegionsUtils.INSTANCE.stringify(regionsResponse)
                 );
         offLoadResponse(response, false);
-    }
-
-    public void loadExcessServers(){
-        try {
-            String body = readAssetsFile("testing_servers.json");
-            ServerResponse response = parseServers(body);
-            for (String key : response.getServers().keySet()) {
-                response.getServers().get(key).setTesting(true);
-            }
-            getServers().putAll(response.getServers());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private String readAssetsFile(String filename) throws IOException {
@@ -312,8 +282,24 @@ public class PIAServerHandler {
                 for (RegionLowerLatencyInformation latencyInformation : response) {
                     PIAServer server = serversCopy.get(latencyInformation.getRegion());
                     if (server != null) {
-                        server.setLatency(String.valueOf(latencyInformation.getLatency()));
-                        serversCopy.put(latencyInformation.getRegion(), server);
+                        serversCopy.put(
+                                latencyInformation.getRegion(),
+                                new PIAServer(
+                                        server.getName(),
+                                        server.getIso(),
+                                        server.getDns(),
+                                        String.valueOf(latencyInformation.getLatency()),
+                                        server.getEndpoints(),
+                                        server.getKey(),
+                                        server.getLatitude(),
+                                        server.getLongitude(),
+                                        server.isGeo(),
+                                        server.isOffline(),
+                                        server.isAllowsPF(),
+                                        server.getDipToken(),
+                                        server.getDedicatedIp()
+                                )
+                        );
                     }
                 }
                 servers = serversCopy;
@@ -351,7 +337,7 @@ public class PIAServerHandler {
                 }
 
                 Map<String, PIAServer> serverMap =
-                        ServerResponseHelper.Companion.adaptServers(regionsResponse);
+                        ServerResponseHelper.Companion.adaptServers(context, regionsResponse);
                 PIAServerInfo serverInfo =
                         ServerResponseHelper.Companion.adaptServersInfo(regionsResponse);
 
@@ -363,8 +349,26 @@ public class PIAServerHandler {
                             continue;
                         }
                         PIAServer serverDetails = serverMap.get(entry.getKey());
-                        serverDetails.setLatency(knownLatency);
-                        serverMap.put(entry.getKey(), serverDetails);
+                        if (serverDetails != null) {
+                            serverMap.put(
+                                    entry.getKey(),
+                                    new PIAServer(
+                                            serverDetails.getName(),
+                                            serverDetails.getIso(),
+                                            serverDetails.getDns(),
+                                            knownLatency,
+                                            serverDetails.getEndpoints(),
+                                            serverDetails.getKey(),
+                                            serverDetails.getLatitude(),
+                                            serverDetails.getLongitude(),
+                                            serverDetails.isGeo(),
+                                            serverDetails.isOffline(),
+                                            serverDetails.isAllowsPF(),
+                                            serverDetails.getDipToken(),
+                                            serverDetails.getDedicatedIp()
+                                    )
+                            );
+                        }
                     }
                 }
 
@@ -484,12 +488,36 @@ public class PIAServerHandler {
         }
 
         String region = prefs.get(SELECTEDREGION, "");
-        return !servers.containsKey(region);
+
+        if (isDedicatedServer(context, region) || servers.containsKey(region))
+            return false;
+
+        return true;
+    }
+
+    private boolean isDedicatedServer(Context context, String region) {
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> dipList = PiaPrefHandler.getDedicatedIps(context);
+
+        for (DedicatedIPInformationResponse.DedicatedIPInformation dip : dipList) {
+            if (dip.getIp().equals(region))
+                return true;
+        }
+
+        return false;
     }
 
     public PIAServer getSelectedRegion(Context context, boolean returnNullonAuto) {
         // Server region
         String region = prefs.get(SELECTEDREGION, "");
+
+        //Check DIP servers first
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(context);
+
+        for (DedicatedIPInformationResponse.DedicatedIPInformation dip : ipList) {
+            if (dip.getIp().equals(region)) {
+                return DedicatedIpUtils.serverForDip(dip, context);
+            }
+        }
 
         if (servers.containsKey(region)) {
             return servers.get(region);
@@ -500,6 +528,10 @@ public class PIAServerHandler {
             PIAServer lowestKnownLatencyServer = null;
 
             for (PIAServer server : autoRegionServers) {
+                if (server.isOffline()) {
+                    continue;
+                }
+
                 if (lowestKnownLatencyServer == null) {
                     lowestKnownLatencyServer = server;
                     continue;
@@ -516,15 +548,15 @@ public class PIAServerHandler {
                 }
 
                 if (!server.isGeo()) {
-                    Long latency = Long.valueOf(serverLatency);
-                    Long lowestKnownLatency = Long.valueOf(lowestKnownServerLatency);
+                    long latency = Long.parseLong(serverLatency);
+                    long lowestKnownLatency = Long.parseLong(lowestKnownServerLatency);
                     if (latency > 0 && latency < lowestKnownLatency) {
                         lowestKnownLatencyServer = server;
                     }
                 }
             }
 
-            if (lowestKnownLatencyServer.getLatency() == null) {
+            if (lowestKnownLatencyServer == null || lowestKnownLatencyServer.getLatency() == null) {
                 lowestKnownLatencyServer = getRandomServer();
             }
 
@@ -540,42 +572,6 @@ public class PIAServerHandler {
         }
 
         return randomServer;
-    }
-
-    /**
-     * Handy method to turn body from web or saved asset into a Server Response
-     *
-     * @param body
-     * @return
-     */
-    public static ServerResponse parseServers(String body){
-        PIAServerInfo info = null;
-        Map<String, PIAServer> servers = null;
-        try {
-            String[] parts = body.split("\n\n", 2);
-            String data = parts[0];
-
-            JSONObject json = new JSONObject(data);
-            Iterator<String> keyIter = json.keys();
-            while (keyIter.hasNext()){
-                String key = keyIter.next();
-                if(!key.equals("info")) {
-                    JSONObject serverJson = json.getJSONObject(key);
-                    PIAServer server = new PIAServer();
-                    server.parse(serverJson, key);
-                    if(servers == null)
-                        servers = new HashMap<>();
-                    servers.put(key, server);
-                } else {
-                    if(info == null)
-                        info = new PIAServerInfo();
-                    info.parse(json.getJSONObject(key));
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return new ServerResponse(servers, info);
     }
 
     public Map<String, PIAServer> getServers() {
@@ -606,14 +602,7 @@ public class PIAServerHandler {
     static public class ServerNameComperator implements Comparator<PIAServer> {
         @Override
         public int compare(PIAServer lhs, PIAServer rhs) {
-            if(!lhs.isTesting() && !rhs.isTesting())
-                return lhs.getName().compareTo(rhs.getName());
-            else if(rhs.isTesting() && !lhs.isTesting())
-                return 1;
-            else if(lhs.isTesting() && !rhs.isTesting())
-                return -1;
-            else
-                return 0;
+            return lhs.getName().compareTo(rhs.getName());
         }
     }
 
@@ -625,24 +614,17 @@ public class PIAServerHandler {
                 return 0;
             }
 
-            if (!lhs.isTesting() && !rhs.isTesting()) {
-                Long lhsPing = 999L;
-                Long rhsPing = 999L;
-                String lhsLatency = lhs.getLatency();
-                if (lhsLatency != null && !lhsLatency.isEmpty()) {
-                    lhsPing = Long.valueOf(lhsLatency);
-                }
-                String rhsLatency = rhs.getLatency();
-                if (rhsLatency != null && !rhsLatency.isEmpty()) {
-                    rhsPing = Long.valueOf(rhsLatency);
-                }
-                return lhsPing.compareTo(rhsPing);
-            } else if (rhs.isTesting() && !lhs.isTesting())
-                return 1;
-            else if (lhs.isTesting() && !rhs.isTesting())
-                return -1;
-            else
-                return 0;
+            Long lhsPing = 999L;
+            Long rhsPing = 999L;
+            String lhsLatency = lhs.getLatency();
+            if (lhsLatency != null && !lhsLatency.isEmpty()) {
+                lhsPing = Long.valueOf(lhsLatency);
+            }
+            String rhsLatency = rhs.getLatency();
+            if (rhsLatency != null && !rhsLatency.isEmpty()) {
+                rhsPing = Long.valueOf(rhsLatency);
+            }
+            return lhsPing.compareTo(rhsPing);
         }
     }
 
@@ -670,24 +652,13 @@ public class PIAServerHandler {
         }
     }
 
-    public int getFlagResource(PIAServer server){
-        String resName = server.getIso();
-        if (server.isTesting()) {
-            resName = resName.replace("Test Server", "").trim();
-        }
-        resName = String.format(Locale.US, "flag_%s", resName.replace(" ", "_").replace(",", "").toLowerCase(Locale.US));
+    public int getFlagResource(String serverIso){
+        String resName = String.format(Locale.US, "flag_%s", serverIso.replace(" ", "_").replace(",", "").toLowerCase(Locale.US));
         int flagResource = context.getResources().getIdentifier(resName, "drawable", context.getPackageName());
         if(flagResource == 0){
             flagResource = R.drawable.flag_world;
         }
         return flagResource;
-    }
-
-    public int getFlagResource(String serverName){
-        PIAServer server = new PIAServer();
-        server.setName(serverName);
-        server.setIso(serverName.toUpperCase());
-        return getFlagResource(server);
     }
 
     public PIAServer getRandom(Vector<PIAServer> servers) {

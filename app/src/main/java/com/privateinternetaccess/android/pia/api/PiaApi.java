@@ -19,21 +19,13 @@
 package com.privateinternetaccess.android.pia.api;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 
 import androidx.annotation.NonNull;
 
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.utils.DLog;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -42,7 +34,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.Deflater;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -50,8 +41,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 
 /**
@@ -68,11 +57,10 @@ public class PiaApi {
     public static final String ANDROID_HTTP_CLIENT = "privateinternetaccess.com Android Client/" + BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")";
 
     private OkHttpClient OKHTTPCLIENT;
-    protected static Interceptor INTERCEPTOR;
 
     public static final List<String> PROXY_PATHS = Arrays.asList(
             "https://www.privateinternetaccess.com/",
-            "https://piaproxy.net/");
+            "https://www.piaproxy.net/");
 
     public PiaApi() {
         X509TrustManager trustManager = null;
@@ -82,10 +70,6 @@ public class PiaApi {
         PIAAuthenticator AUTHENTICATOR = new PIAAuthenticator();
         builder.authenticator(AUTHENTICATOR);
         builder.connectTimeout(8, TimeUnit.SECONDS);
-
-        if (INTERCEPTOR != null) {
-            builder.addInterceptor(INTERCEPTOR);
-        }
 
         try {
             trustManager = getX509TrustManager();
@@ -151,71 +135,6 @@ public class PiaApi {
      */
     protected static URL getClientURL(Context context, String apiCall) throws MalformedURLException {
         return new URL(getBaseURL(context) + "api/client/" + apiCall);
-    }
-
-    /**
-     * Cycles through potential base URLs to find the first reachable.
-     *
-     * Returns FALSE if no network connection is present or no path is reachable
-     * Returns TRUE if a reachable path is found
-     * @param context
-     * @return
-     */
-    public static boolean selectBaseURL(Context context) {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-
-        DLog.d("PiaApi", "Selected Proxy Starting");
-
-        if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
-            DLog.d("PiaApi", "Selected Proxy : No Network");
-            return false;
-        }
-
-        for (int i = 0; i < PROXY_PATHS.size(); i++) {
-            String path = PROXY_PATHS.get(i);
-
-            try {
-                URL url = new URL(path);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setConnectTimeout(1000);
-                conn.connect();
-
-                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    PiaPrefHandler.setSelectedProxyPath(context, i);
-                    DLog.d("PiaApi", "Selected Proxy: " + PROXY_PATHS.get(i));
-                    return true;
-                }
-            } catch (Exception e) {
-                DLog.d("PiaApi", e.toString());
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Its in the name.
-     *
-     * @param outputStream
-     * @param data
-     * @throws IOException
-     */
-    public static void compress(ByteArrayOutputStream outputStream, byte[] data) throws IOException {
-        Deflater deflater = new Deflater();
-        deflater.setInput(data);
-        deflater.finish();
-        byte[] buffer = new byte[1024];
-        while (!deflater.finished()) {
-            int count = deflater.deflate(buffer); // returns the generated code... index
-            outputStream.write(buffer, 0, count);
-        }
-        outputStream.close();
-    }
-
-    public static void setInterceptor(Interceptor interceptor) {
-        INTERCEPTOR = interceptor;
     }
 
     public OkHttpClient getOkHttpClient(){

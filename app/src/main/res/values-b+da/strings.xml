@@ -102,6 +102,8 @@
     <string name="current_region">AKTUEL REGION</string>
     <string name="full_licenses">Fulde licenser</string>
     <string name="email">E-mail</string>
+    <string name="please_wait">Vent venligst</string>
+    <string name="still_connecting">Prøver stadigt at oprette forbindelse</string>
     <string name="account_details_password_bottom_text">Tryk på \"øjet\", for at afsløre. Tryk igen for at kopiere adgangskode til udklipsholder.</string>
     <string name="user_x_vs_p_error">Sørg venligst for at du logger ind med dit primære brugernavn, som skal starte med \"p\" (f.eks p12345)</string>
     <string name="vpn_revoke_text">PIAs VPN-tilladelse er blevet tilbagekaldt. VPN, Internet afbryderknap og sikkerhed er ikke aktiv. Tryk her for at genstarte denne service og sikre din internetforbindelse.</string>
@@ -245,6 +247,9 @@
     <string name="done">UDFØRT</string>
     <string name="update_account">OPDATER KONTO</string>
     <string name="local_port_titla">Lokal port</string>
+    <string name="connection_couldnt_establish_title">Forbindelsen kunne ikke oprettes</string>
+    <string name="connection_couldnt_establish_message">Du kan prøve at vælge en anden region, eller fortælle os om det, ved at åbne en supportbillet</string>
+    <string name="send_feedback">Send feedback</string>
     <string name="preference_application_settings">GENERELLE INDSTILLINGER</string>
     <string name="preference_vpn_settings">VPN-INDSTILLINGER</string>
     <string name="preference_haptic_title">Haptisk feedback på forbindelse</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">VPN forbundet</string>
     <string name="ks_removal_warning">Vi har opdaget, at du har afbryderknappen aktiveret. Vi har ændret, hvordan denne funktion fungerer ved at integrere Android-indstillingen \"Bloker forbindelser uden VPN\" til både WireGuard og OpenVPN. Gennemgå ændringerne i Indstillinger for at sikre, at du forbliver beskyttet.</string>
     <string name="preference_on_boot_always_on">Tilslut ved systemstart. Vi anbefaler at slå denne indstilling til, hvis du bruger VPN Altid til.</string>
+    <string name="ovpn_cipher_removal_description">Vi opdaterer vores OpenVPN-implementering. Klik <b>her</b> for at få flere oplysninger</string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Tunnelen \"%s\" eksisterer allerede.</string>
     <string name="tunnel_error_invalid_name">Ugyldigt navn</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">Netværksstyring</string>
     <string name="nmt_settings_description">Opsæt regler til håndtering af regler for automatisk forbindelse til pålidelige og ikke-pålidelige netværk.</string>
     <string name="nmt_management_title">Administrer automatisering</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">Dedikeret IP</string>
+    <string name="dip_description">Aktiver din dedikerede IP ved at indsætte dit token i nedenstående formular. Hvis du for nylig har købt en dedikeret IP, kan du generere tokenet ved at gå til PIA-websiden.</string>
+    <string name="dip_your_header">DINE DEDIKEREDE IP\'ER</string>
+    <string name="dip_activate">Aktiver</string>
+    <string name="dip_remove_header">Fjern dedikeret IP</string>
+    <string name="dip_remove_body">Fjern %s - %s?</string>
+    <string name="dip_expired_warning">Dit token er udløbet. Generer et nyt fra din kontoside på websiden.</string>
+    <string name="dip_invalid">Dit token er ugyldigt. Sørg for, at du har indtastet tokenet korrekt.</string>
+    <string name="dip_success">Din dedikerede IP er blevet aktiveret. Den vil være tilgængelig på din liste over Valg af regioner.</string>
+    <string name="dip_tag">DEDIKERET IP</string>
+    <string name="dip_enter_token_hint">Indsæt dit token her</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Stop kommunikationsmeddelelser i appen</string>
+    <string name="settings_updated">Indstillinger er blevet opdateret</string>
+    <string name="hide_payment">På grund af et teknisk problem er køb i Google Play i øjeblikket deaktiveret. Vi arbejder på at løse situationen.\n\nHvis du allerede har en konto med et abonnement, kan du logge ind ved at trykke på knappen Log ind.</string>
 </resources>

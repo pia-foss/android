@@ -56,6 +56,9 @@ import java.util.LinkedList;
 
 public class MainActivityHandler {
 
+    public static final String DIP_FEATURE = "dedicated-ip";
+    public static final String FEATURE_HIDE_PAYMENT = "hide-payment-processing";
+
     public static final int IDEN_REGION_SELECTION = 1000;
     public static final int IDEN_ACCOUNT = 2000;
     public static final int IDEN_SETTINGS = 3000;
@@ -67,6 +70,7 @@ public class MainActivityHandler {
     public static final long IDEN_PER_APP = 9000;
     public static final int IDEN_RENEW = 10000;
     public static final int IDEN_PRIVACY = 11000;
+    public static final int IDEN_DIP = 12000;
 
     public static Drawer createDrawer(Activity act, Toolbar toolbar, Drawer.OnDrawerItemClickListener itemClickListener){
         String version = BuildConfig.VERSION_NAME;
@@ -126,6 +130,14 @@ public class MainActivityHandler {
                     .withIcon(R.drawable.ic_drawer_account)
                             .withTextColorRes(textColor)
                     );
+
+        if (!isAndroidTv) {
+            if (PiaPrefHandler.isFeatureActive(act, DIP_FEATURE) || PIAApplication.isQA())
+            drawerItems.add(new PIAPrimaryDrawerItem()
+                    .withIdentifier(IDEN_DIP).withName(R.string.dip_menu_title)
+                    .withIcon(R.drawable.ic_dip_settings_wrapper).withTextColorRes(textColor)
+            );
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             drawerItems.add(new PIAPrimaryDrawerItem()

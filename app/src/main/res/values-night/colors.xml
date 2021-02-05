@@ -51,4 +51,7 @@
     <!-- Onboarding -->
     <color name="purchase_panel_blur">#88323642</color>
 
+    <!-- DIP -->
+    <color name="dip_panel_background">@color/grey40A</color>
+
 </resources>

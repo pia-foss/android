@@ -102,6 +102,8 @@
     <string name="current_region">HUIDIGE REGIO</string>
     <string name="full_licenses">Volledige licenties</string>
     <string name="email">E-mail</string>
+    <string name="please_wait">Even geduld</string>
+    <string name="still_connecting">Nog steeds bezig met verbinding maken</string>
     <string name="account_details_password_bottom_text">Tik op het \'oog\' om te tonen. Tik nogmaals om het wachtwoord naar het klembord te kopiëren.</string>
     <string name="user_x_vs_p_error">Zorg dat u bent ingelogd met uw gebruikersnaam. Deze begint met \'p\' (bijv. p12345)</string>
     <string name="vpn_revoke_text">PIA\'s VPN-toestemming is ingetrokken. VPN, internet-killswitch en beveiliging zijn niet actief. Tik hier om deze dienst opnieuw te starten en uw internetverbinding te beveiligen.</string>
@@ -245,6 +247,9 @@
     <string name="done">GEREED</string>
     <string name="update_account">ACCOUNT BIJWERKEN</string>
     <string name="local_port_titla">Lokale poort</string>
+    <string name="connection_couldnt_establish_title">De verbinding kan niet tot stand worden gebracht</string>
+    <string name="connection_couldnt_establish_message">U kunt een andere regio selecteren of ons hiervan op de hoogte stellen door een supportticket te openen</string>
+    <string name="send_feedback">Feedback sturen</string>
     <string name="preference_application_settings">ALGEMENE INSTELLINGEN</string>
     <string name="preference_vpn_settings">VPN-INSTELLINGEN</string>
     <string name="preference_haptic_title">Haptische feedback bij verbinding</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">VPN verbonden</string>
     <string name="ks_removal_warning">U heeft de Killswitch ingeschakeld. We hebben de werking van deze functie gewijzigd door de Android-instelling \'Verbindingen zonder VPN blokkeren\' voor zowel WireGuard als OpenVPN te integreren. Bekijk de wijzigingen in Instellingen om ervoor te zorgen dat u beschermd blijft.</string>
     <string name="preference_on_boot_always_on">Verbinden bij opstarten van systeem. We raden u aan deze instelling in te schakelen als u \'Altijd VPN gebruiken\' gebruikt.</string>
+    <string name="ovpn_cipher_removal_description">We werken onze OpenVPN-implementatie bij. Klik <b>hier</b> voor meer informatie.</string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Tunnel \'%s\' bestaat al</string>
     <string name="tunnel_error_invalid_name">Ongeldige naam</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">Netwerkbeheer</string>
     <string name="nmt_settings_description">Configuratieregels voor regels voor automatische verbinding voor vertrouwde en niet-vertrouwde netwerken.</string>
     <string name="nmt_management_title">Automatisering beheren</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">Dedicated IP</string>
+    <string name="dip_description">Activeer uw dedicated IP door uw code in het formulier hieronder te plakken. Als u onlangs een dedicated IP hebt gekocht, kunt u de code op de PIA-website genereren.</string>
+    <string name="dip_your_header">UW DEDICATED IP\'S</string>
+    <string name="dip_activate">Activeren</string>
+    <string name="dip_remove_header">Dedicated IP verwijderen</string>
+    <string name="dip_remove_body">%s - %s verwijderen?</string>
+    <string name="dip_expired_warning">Uw code is verlopen. Genereer een nieuwe via uw accountpagina op de website.</string>
+    <string name="dip_invalid">Uw code is ongeldig. Zorg ervoor dat u de code juist heeft ingevoerd.</string>
+    <string name="dip_success">Uw dedicated IP is geactiveerd. Het is beschikbaar in uw regioselectielijst.</string>
+    <string name="dip_tag">DEDICATED IP</string>
+    <string name="dip_enter_token_hint">Plak uw code hier</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Communicatieberichten in de app tegenhouden</string>
+    <string name="settings_updated">De instellingen zijn bijgewerkt</string>
+    <string name="hide_payment">Vanwege een technisch probleem zijn aankopen via Google Play momenteel niet mogelijk. We proberen deze situatie op te lossen.\n\nAls u al een account met een abonnement hebt, kunt u inloggen door op de knop Inloggen te drukken.</string>
 </resources>

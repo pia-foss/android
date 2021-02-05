@@ -102,6 +102,8 @@
     <string name="current_region">REGIÓN ACTUAL</string>
     <string name="full_licenses">Licencias completas</string>
     <string name="email">Email</string>
+    <string name="please_wait">Espera por favor</string>
+    <string name="still_connecting">Todavía intentando conectar</string>
     <string name="account_details_password_bottom_text">Toca el \"ojo\" para mostrar. Toca otra vez para copiar la contraseña al portapapeles.</string>
     <string name="user_x_vs_p_error">Por favor, asegúrate de que te conectaste con tu nombre de usuario principal, que debe empezar con \"p\" (p. ej. p12345)</string>
     <string name="vpn_revoke_text">El permiso de VPN de PIA ha sido revocado. VPN, el interruptor de corte de Internet y la seguridad no están activas. Por favor, toca aquí para reiniciar este servicio y asegurar tu conexión a Internet.</string>
@@ -245,6 +247,9 @@
     <string name="done">TERMINADO</string>
     <string name="update_account">ACTUALIZAR CUENTA</string>
     <string name="local_port_titla">Puerto local</string>
+    <string name="connection_couldnt_establish_title">No se pudo establecer la conexión</string>
+    <string name="connection_couldnt_establish_message">Puedes tratar de seleccionar una región diferente o notificarnos abriendo un boleto de soporte</string>
+    <string name="send_feedback">Enviar comentario</string>
     <string name="preference_application_settings">AJUSTES GENERALES</string>
     <string name="preference_vpn_settings">AJUSTES DE VPN</string>
     <string name="preference_haptic_title">Respuesta táctil al conectar</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">VPN conectada</string>
     <string name="ks_removal_warning">Detectamos que tiene habilitado el interruptor de emergencia. Hemos cambiado el funcionamiento de esta función mediante la integración del ajuste \"Bloquear conexiones sin VPN\" de Android en WireGuard y en OpenVPN. Revise los cambios en Configuración para asegurarse de que sigue protegido.</string>
     <string name="preference_on_boot_always_on">Conectar al iniciar el sistema. Recomendamos encender este ajuste si está usando VPN siempre encendido.</string>
+    <string name="ovpn_cipher_removal_description">Estamos actualizando nuestra implementación de OpenVPN, para obtener más información haz clic <b>aquí</b></string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Ya existe el túnel \"%s\"</string>
     <string name="tunnel_error_invalid_name">El nombre no es válido</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">Gestión de redes</string>
     <string name="nmt_settings_description">Configura reglas para manejar reglas de conexión automática para redes de confianza y sin confianza.</string>
     <string name="nmt_management_title">Gestionar automatización</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">IP Dedicada</string>
+    <string name="dip_description">Activa tu IP Dedicada pegando tu token en el siguiente formulario. Si recientemente compraste una IP dedicada, puedes generar el token visitando el sitio web de PIA.</string>
+    <string name="dip_your_header">TU IPS DEDICADA</string>
+    <string name="dip_activate">Activar</string>
+    <string name="dip_remove_header">Eliminar IP Dedicada</string>
+    <string name="dip_remove_body">¿Eliminar %s - %s?</string>
+    <string name="dip_expired_warning">Tu token ya expiró. Genera uno nuevo en la página de tu cuenta en el sitio web.</string>
+    <string name="dip_invalid">Tu token no es válido. Asegúrate de que ingresaste el token correctamente.</string>
+    <string name="dip_success">Tu IP Dedicada ha sido activada con éxito. Estará disponible en tu lista de selección de región.</string>
+    <string name="dip_tag">IP DEDICADA</string>
+    <string name="dip_enter_token_hint">Pega tu token aquí</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Detener mensajes de comunicación en la aplicación</string>
+    <string name="settings_updated">Se actualizó la configuración</string>
+    <string name="hide_payment">Debido a un problema técnico, las compras a través de Google Pay están deshabilitadas en este momento. Estamos trabajando para resolver la situación.\n\nSi ya tienes una cuenta con una suscripción puedes iniciar sesión presionando el botón de Inicio de sesión.</string>
 </resources>

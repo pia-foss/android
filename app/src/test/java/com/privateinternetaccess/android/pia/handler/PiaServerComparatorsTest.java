@@ -46,11 +46,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import kotlin.Pair;
+
 @RunWith(RobolectricTestRunner.class)
 public class PiaServerComparatorsTest {
 
     List<PIAServer> servers;
-    List<PIAServer> serversWithTesting;
     HashSet<String> favorites;
 
     final String[] serverNames = new String[]{"US San Francisco","JP Tokyo", "UK London",
@@ -84,39 +85,30 @@ public class PiaServerComparatorsTest {
     public void initLists(){
         servers = new ArrayList<>();
         favorites = new HashSet<>();
-        serversWithTesting = new ArrayList<>();
-
         for(int i = 0; i < serverNames.length; i++){
-            String s = serverNames[i];
-            PIAServer server = new PIAServer();
-            String key = nameToKey(s);
-            server.setKey(key);
-            server.setName(s);
-            server.setLatency(String.valueOf(pingsDefault[i]));
-            servers.add(server);
+            String name = serverNames[i];
+            String key = nameToKey(name);
+            servers.add(
+                    new PIAServer(
+                            name,
+                            "iso",
+                            "dns",
+                            String.valueOf(pingsDefault[i]),
+                            new HashMap<>(),
+                            key,
+                            "latitude",
+                            "longitude",
+                            false,
+                            false,
+                            false,
+                            "dipToken",
+                            "dedicatedIp"
+                    )
+            );
         }
 
         favorites.addAll(Arrays.asList(favs));
-        serversWithTesting.addAll(servers);
-        initTestServers();
     }
-
-    public void initTestServers(){
-        PIAServer test1 = new PIAServer();
-        test1.setName("US Ceres Station");
-        String key = nameToKey(test1.getName());
-        test1.setKey(key);
-        test1.setTesting(true);
-        serversWithTesting.add(test1);
-
-        PIAServer test2 = new PIAServer();
-        test2.setName("VS Fortuna");
-        String key2 = nameToKey(test2.getName());
-        test2.setKey(key2);
-        test2.setTesting(true);
-        serversWithTesting.add(test2);
-    }
-
 
     private String nameToKey(String name){
         return name.replace(" ", "_").toLowerCase();
@@ -198,52 +190,9 @@ public class PiaServerComparatorsTest {
         Assert.assertEquals("az_azeroth", first.getKey());
     }
 
-    //Add test servers to make sure the tests servers are in it. You can't confirm order
-
-    @Ignore("Waiting for the changes coming down to master with 3.7.0. Specifically MR #399")
-    public void sortingPingTest_withTestingServers_first(){
-        List<PIAServer> sortedByPing = new ArrayList<>(serversWithTesting);
-        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator());
-        PIAServer first = sortedByPing.get(0);
-        Assert.assertEquals("us_ceres_station", first.getKey());
-    }
-
-    @Ignore("Waiting for the changes coming down to master with 3.7.0. Specifically MR #399")
-    public void sortingPingTest_withTestingServers_second(){
-        List<PIAServer> sortedByPing = new ArrayList<>(serversWithTesting);
-        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator());
-        PIAServer first = sortedByPing.get(1);
-        Assert.assertEquals("vs_fortuna", first.getKey());
-    }
-
-    @Ignore("Waiting for the changes coming down to master with 3.7.0. Specifically MR #399")
-    public void sortingPingTest_withTestingServers_firstNonTesting(){
-        List<PIAServer> sortedByPing = new ArrayList<>(serversWithTesting);
-        Collections.sort(sortedByPing, new PIAServerHandler.PingComperator());
-        PIAServer first = sortedByPing.get(2);
-        Assert.assertEquals("us_new_york", first.getKey());
-    }
-
-    @Test
-    public void sortingNameTest_withTestingServers_first(){
-        List<PIAServer> sortedByName = new ArrayList<>(serversWithTesting);
-        Collections.sort(sortedByName, new PIAServerHandler.ServerNameComperator());
-        PIAServer first = sortedByName.get(0);
-        Assert.assertEquals("us_ceres_station", first.getKey());
-    }
-
-    @Test
-    public void sortingNameTest_withTestingServers_firstNonTesting(){
-        List<PIAServer> sortedByName = new ArrayList<>(serversWithTesting);
-        Collections.sort(sortedByName, new PIAServerHandler.ServerNameComperator());
-        PIAServer first = sortedByName.get(2);
-        Assert.assertEquals("au_sydney", first.getKey());
-    }
-
     @After
     public void close(){
         servers = null;
-        serversWithTesting = null;
         favorites = null;
     }
 }

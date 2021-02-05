@@ -102,6 +102,8 @@
     <string name="current_region">現在の地域</string>
     <string name="full_licenses">フルライセンス</string>
     <string name="email">メールアドレス</string>
+    <string name="please_wait">お待ちください</string>
+    <string name="still_connecting">接続中です</string>
     <string name="account_details_password_bottom_text">『目のマーク』をタップして表示。もう一度タップしてパスワードをクリップボードにコピーします。</string>
     <string name="user_x_vs_p_error">必ず「p」で始まるメイン ユーザー名（例: p12345）でログインしてください</string>
     <string name="vpn_revoke_text">PIAのVPN許可が取り消されました。VPN、インターネットキル スイッチおよびセキュリティが非アクティブとなっています。ここをタップして、このサービスを再開し、インターネット接続を確保してください。</string>
@@ -245,6 +247,9 @@
     <string name="done">完了</string>
     <string name="update_account">アカウントをアップデート</string>
     <string name="local_port_titla">ローカルポート</string>
+    <string name="connection_couldnt_establish_title">接続を確立できませんでした</string>
+    <string name="connection_couldnt_establish_message">別の地域を選択するか、サポートチケットを開いて問題についてお問い合わせください。</string>
+    <string name="send_feedback">フィードバックを送信</string>
     <string name="preference_application_settings">一般設定</string>
     <string name="preference_vpn_settings">VPN設定</string>
     <string name="preference_haptic_title">接続時の触覚フィードバック</string>
@@ -549,6 +554,7 @@
     <string name="wg_connected">VPN接続済み</string>
     <string name="ks_removal_warning">キルスイッチがオンに設定されていることが検出されました。当社はWireGuardとOpenVPNの両方でAndroidの「VPN 以外の接続のブロック」設定を統合することで、この機能の動作を変更しました。保護された状態を継続するため「設定」で変更を確認してください。</string>
     <string name="preference_on_boot_always_on">システム起動時に接続します。PNを「常にオン」に設定している場合は、この設定をオンに設定することが推奨されます。</string>
+    <string name="ovpn_cipher_removal_description">OpenVPNの導入を更新しています。詳細は、<b>こちら</b>をクリックしてご確認ください。</string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">トンネル「%s」はすでに存在します</string>
     <string name="tunnel_error_invalid_name">無効な名前</string>
@@ -601,4 +607,20 @@
     <string name="nmt_settings_title">ネットワーク管理</string>
     <string name="nmt_settings_description">信頼できるネットワークと信頼できないネットワークの自動接続ルールに対応するルールを設定します。</string>
     <string name="nmt_management_title">自動化を管理</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">専用IP</string>
+    <string name="dip_description">下のフォームにトークンを貼り付けて、専用IPをアクティベートしてください。専用IPを購入したばかりの場合は、PIAウェブサイトにアクセスしてトークンを生成できます。</string>
+    <string name="dip_your_header">お客様の専用IP</string>
+    <string name="dip_activate">アクティベート</string>
+    <string name="dip_remove_header">専用IPを削除</string>
+    <string name="dip_remove_body">%s - %sを削除しますか？</string>
+    <string name="dip_expired_warning">トークンの有効期限が切れています。ウェブサイトの「アカウント」ページで新しいトークンを生成してください。</string>
+    <string name="dip_invalid">トークンが無効です。トークンが正しく入力されていることを確認してください。</string>
+    <string name="dip_success">専用IPが正常にアクティベートされました。これで専用IPが地域選択リストで利用できるようになります。</string>
+    <string name="dip_tag">専用IP</string>
+    <string name="dip_enter_token_hint">ここにトークンを貼り付けてください</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">アプリ内の連絡メッセージを停止</string>
+    <string name="settings_updated">設定が更新されました</string>
+    <string name="hide_payment">技術的な問題により、Google Play経由での購入が現在無効になっています。現在当社はこの状況を解決するために取り組んでいます。\n\nサブスクリプション登録済みのアカウントをすでにお持ちの場合は、ログインボタンを押すとログインできます。</string>
 </resources>

@@ -103,6 +103,8 @@ privateinternetaccess.com</string>
     <string name="current_region">REGIONE ATTUALE</string>
     <string name="full_licenses">Licenze complete</string>
     <string name="email">Email</string>
+    <string name="please_wait">Attendi</string>
+    <string name="still_connecting">Tentativo di riconnessione ancora in corso</string>
     <string name="account_details_password_bottom_text">Tocca l\'icona dell\'occhio per visualizzare. Tocca di nuovo per copiare la password negli appunti.</string>
     <string name="user_x_vs_p_error">Assicurati di accedere con il tuo nome utente principale, che dovrebbe cominciare con la lettera \"p\" (es. p12345)</string>
     <string name="vpn_revoke_text">Concessione VPN di PIA revocata. VPN, interruttore Internet e sicurezza non attivi. Tocca qui per riavviare il servizio e garantire la sicurezza della connessione internet.</string>
@@ -246,6 +248,9 @@ privateinternetaccess.com</string>
     <string name="done">FATTO</string>
     <string name="update_account">AGGIORNA ACCOUNT</string>
     <string name="local_port_titla">Porta locale</string>
+    <string name="connection_couldnt_establish_title">Impossibile stabilire la connessione</string>
+    <string name="connection_couldnt_establish_message">Puoi provare a selezionare un altro paese o comunicarcelo aprendo un ticket di supporto.</string>
+    <string name="send_feedback">Invia feedback</string>
     <string name="preference_application_settings">IMPOSTAZIONI GENERALI</string>
     <string name="preference_vpn_settings">IMPOSTAZIONI VPN</string>
     <string name="preference_haptic_title">Feedback aptico alla connessione</string>
@@ -550,6 +555,7 @@ privateinternetaccess.com</string>
     <string name="wg_connected">VPN connessa</string>
     <string name="ks_removal_warning">Abbiamo rilevato che hai attivato il kill switch. Abbiamo modificato il funzionamento di questa funzione integrando l\'impostazione \"Blocca connessioni senza VPN\" di Android sia per WireGuard che per OpenVPN. Controlla le modifiche nelle Impostazioni per assicurarti di essere sempre protetto.</string>
     <string name="preference_on_boot_always_on">Connetti all\'avvio del sistema. Si consiglia di attivare questa impostazione se si utilizza VPN sempre attivo.</string>
+    <string name="ovpn_cipher_removal_description">Stiamo aggiornando la nostra implementazione OpenVPN; per ulteriori informazioni, clicca <b>qui</b></string>
     <!-- Wireguard -->
     <string name="tunnel_error_already_exists">Tunnel “%s” già esistente</string>
     <string name="tunnel_error_invalid_name">Nome non valido</string>
@@ -602,4 +608,20 @@ privateinternetaccess.com</string>
     <string name="nmt_settings_title">Gestione di rete</string>
     <string name="nmt_settings_description">Regole di impostazione per gestire le regole di connessione automatica alle reti affidabili e inaffidabili.</string>
     <string name="nmt_management_title">Gestisci automazione</string>
+    <!-- Dedicated IP -->
+    <string name="dip_menu_title">IP dedicato</string>
+    <string name="dip_description">Attiva il tuo IP dedicato incollando il token nel modulo qui sotto. Se hai recentemente acquistato un IP dedicato, puoi generare il token accedendo al sito web di PIA.</string>
+    <string name="dip_your_header">I TUOI IP DEDICATI</string>
+    <string name="dip_activate">Attiva</string>
+    <string name="dip_remove_header">Elimina IP dedicato</string>
+    <string name="dip_remove_body">Eliminare %s - %s?</string>
+    <string name="dip_expired_warning">Token scaduto. Generane uno nuovo dalla pagina del tuo account sul sito web.</string>
+    <string name="dip_invalid">Token non valido. Assicurati di averlo inserito correttamente.</string>
+    <string name="dip_success">Il tuo IP dedicato è stato attivato. Sarà disponibile nell\'elenco di selezione del paese.</string>
+    <string name="dip_tag">IP DEDICATO</string>
+    <string name="dip_enter_token_hint">Incolla il token qui</string>
+    <!-- Inapp Messaging -->
+    <string name="inapp_pref_title">Arresta i messaggi di comunicazione nell\'app</string>
+    <string name="settings_updated">Impostazioni aggiornate</string>
+    <string name="hide_payment">A causa di un problema tecnico, gli acquisti tramite Google Play sono temporaneamente disabilitati. Stiamo lavorando per risolvere la situazione.\n\nSe hai già un account con un abbonamento, puoi effettuare l\'accesso premendo il pulsante Accedi.</string>
 </resources>

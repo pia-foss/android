@@ -181,22 +181,29 @@ public class RegionMapView extends FrameLayout {
         double longitude;
 
         Coordinates(PIAServer server) {
-            boolean validLatitude = false;
-            boolean validLongitude = false;
-            if (server != null) {
-                validLatitude = !TextUtils.isEmpty(server.getLatitude());
-                validLongitude = !TextUtils.isEmpty(server.getLongitude());
-            }
 
-            // If the region is coming with latitude / longitude use that value.
-            // Otherwise fallback to legacy.
-            if (validLatitude && validLongitude) {
-                latitude = Double.parseDouble(server.getLatitude());
-                longitude = Double.parseDouble(server.getLongitude());
-            } else {
-                Pair coords = coordinates.get(server);
-                latitude = coords != null ? (double)coords.first : (double)defaultCoordinate.first;
-                longitude = coords != null ? (double)coords.second : (double) defaultCoordinate.second;
+            // Set the initial default values
+            Pair coords = coordinates.get(server);
+            latitude = coords != null ? (double)coords.first : (double)defaultCoordinate.first;
+            longitude = coords != null ? (double)coords.second : (double)defaultCoordinate.second;
+
+            if (server != null) {
+                String sanitizedLatitude =
+                        server.getLatitude() == null
+                                ? defaultCoordinate.first.toString()
+                                : server.getLatitude().replaceAll("\\s", "");
+                String sanitizedLongitude =
+                        server.getLongitude() == null
+                                ? defaultCoordinate.second.toString()
+                                : server.getLongitude().replaceAll("\\s", "");
+
+                boolean validLatitude = !TextUtils.isEmpty(sanitizedLatitude);
+                boolean validLongitude = !TextUtils.isEmpty(sanitizedLongitude);
+
+                if (validLatitude && validLongitude) {
+                    latitude = Double.parseDouble(sanitizedLatitude);
+                    longitude = Double.parseDouble(sanitizedLongitude);
+                }
             }
         }
 

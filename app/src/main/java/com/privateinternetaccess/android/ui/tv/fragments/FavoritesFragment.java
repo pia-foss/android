@@ -102,12 +102,13 @@ public class FavoritesFragment extends Fragment {
             mServerItems.add(
                     new ServerItem(
                             ps.getKey(),
-                            handler.getFlagResource(ps),
+                            handler.getFlagResource(ps.getIso()),
                             ps.getName(),
                             ps.getIso(),
                             false,
                             ps.isAllowsPF(),
                             ps.isGeo(),
+                            ps.isOffline(),
                             ps.getLatency()
                     )
             );

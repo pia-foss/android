@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.privateinternetaccess.account.model.response.AndroidSubscriptionsInformation;
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse;
 import com.privateinternetaccess.account.model.response.InvitesDetailsInformation;
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.model.events.TrustedWifiEvent;
@@ -34,6 +35,7 @@ import com.privateinternetaccess.android.pia.model.PurchaseData;
 import com.privateinternetaccess.android.pia.model.TrialData;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
+import com.privateinternetaccess.android.utils.DedicatedIpUtils;
 import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
@@ -48,6 +50,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import kotlinx.serialization.DeserializationStrategy;
+import kotlinx.serialization.SerializationStrategy;
 import kotlinx.serialization.json.Json;
 
 /**
@@ -156,23 +160,17 @@ public class PiaPrefHandler {
     private static final String PREF_DEBUG_MODE = "developer_mode3";
     private static final String PREF_DEBUG_LEVEL = "debug_level";
 
+    public static final String DIP_TOKENS = "dip_tokens";
+
+    public static final String HIDE_INAPP_MESSAGES = "hide_inapp_messages";
+
     public static final String LAST_VERSION = "last_version";
 
     public static final String REGION_PREFERRED_SORTING = "region_preferred_sorting";
 
     public static final String BLOCK_LOCAL_LAN = "blockLocalLan";
     public static final String TESTING_WEB_VIEW = "testingWebView";
-    public static final String TESTING_SERVER = "testingServer";
     public static final String TESTING_WEBVIEW_SITE = "testingWebviewSite";
-    public static final String TESTING_SERVER_TCP_PORT = "testingServerTcpPort";
-    public static final String TESTING_SERVER_UDP_PORT = "testingServerUdpPort";
-    public static final String TESTING_SERVER_PORT_FORWARDING = "testingServerPF";
-    public static final String TESTING_SERVER_SERIAL_TLS = "testingServerSerialTLS";
-    public static final String TESTING_SERVER_DNS = "testingServerDNS";
-    public static final String TESTING_SERVER_COUNTRY_CODE = "testingServerCountryCode";
-    public static final String TESTING_SERVER_PING_PORT = "testingServerPingPort";
-    public static final String TESTING_SERVER_URL = "testingServerURL";
-    public static final String TEST_SERVER_KEY = "testServerKey";
     public static final String TRIAL_EMAIL = "TRIAL_EMAIL";
     public static final String TRIAL_PIN = "TRIAL_PIN";
     public static final String TRIAL_TESTING = "TRIAL_TESTING";
@@ -198,11 +196,15 @@ public class PiaPrefHandler {
     public static final String QUICK_SETTINGS_NETWORK = "quickSettingsNetwork";
     public static final String QUICK_SETTING_PRIVATE_BROWSER = "quickSettingsPrivateBrowser";
 
+    public static final String INAPP_MESSAGE_DISMISSED_IDS = "inappMessageDismissedIds";
+
     private static final String GEN4_QUICK_CONNECT_LIST = "gen4QuickConnectList";
 
     public static final String USAGE_BYTE_COUNT = "usageByteCount";
     public static final String USAGE_BYTE_COUNT_OUT = "usageByteCountOut";
 
+    public static final String TESTING_REGION_INITIAL_CONNECTION = "testingRegionInitialConnection";
+    public static final String TESTING_REGION_OFFLINE = "testingRegionOffline";
     public static final String TESTING_UPDATER = "testingUpdater";
     public static final String TESTING_UPDATER_SHOW_DIALOG = "testingUpdaterDialog";
     public static final String TESTING_UPDATER_SHOW_NOTIFICATION = "testingUpdaterNotification";
@@ -217,6 +219,7 @@ public class PiaPrefHandler {
     private static final String RATING_STATE = "rating_state";
 
     private static final String INVITES_DETAILS = "invitesDetails";
+    private static final String FEATURE_FLAGS = "featureFlags";
 
     public static void setInvitesDetails(
             Context context,
@@ -589,6 +592,10 @@ public class PiaPrefHandler {
         return getFavorites(context).contains(serverName);
     }
 
+    public static void clearFavorites(Context context) {
+        Prefs.with(context).set(FAVORITES, new HashSet<>());
+    }
+
     public static void removeFavorite(Context context, String serverName) {
         Set<String> serverSet = getFavorites(context);
         Set<String> newServerSet = new HashSet<String>(serverSet);
@@ -604,6 +611,39 @@ public class PiaPrefHandler {
         else {
             addFavorite(context, serverName);
         }
+    }
+
+    public static Set<String> getFeatureFlags(Context context) {
+        return Prefs.with(context).get(FEATURE_FLAGS, new HashSet<>());
+    }
+
+    public static boolean isFeatureActive(Context context, String feature) {
+        Set<String> features = getFeatureFlags(context);
+        return features.contains(feature);
+    }
+
+    public static void saveFeatureFlags(Context context, List<String> featureFlags) {
+        Set<String> features = new HashSet<>();
+
+        for (String feature : featureFlags)
+            features.add(feature);
+
+        Prefs.with(context).set(FEATURE_FLAGS, features);
+    }
+
+    public static void addDismissedId(Context context, String id) {
+        Set<String> idSet = getDismissedIds(context);
+        idSet.add(id);
+
+        Prefs.with(context).set(INAPP_MESSAGE_DISMISSED_IDS, idSet);
+    }
+
+    public static void clearDismissedIds(Context context) {
+        Prefs.with(context).set(INAPP_MESSAGE_DISMISSED_IDS, new HashSet<>());
+    }
+
+    public static Set<String> getDismissedIds(Context context) {
+        return Prefs.with(context).getStringSet(INAPP_MESSAGE_DISMISSED_IDS);
     }
 
     public static void saveAccountInformation(Context context, AccountInformation pai) {
@@ -795,6 +835,22 @@ public class PiaPrefHandler {
         Prefs.with(context).set(TESTING_WEBVIEW_SITE, site);
     }
 
+    public static boolean getRegionInitialConnectionRandomizerTesting(Context context) {
+        return Prefs.with(context).get(TESTING_REGION_INITIAL_CONNECTION, false);
+    }
+
+    public static void setRegionInitialConnectionRandomizerTesting(Context context, boolean testing) {
+        Prefs.with(context).set(TESTING_REGION_INITIAL_CONNECTION, testing);
+    }
+
+    public static boolean getRegionOfflineRandomizerTesting(Context context) {
+        return Prefs.with(context).get(TESTING_REGION_OFFLINE, false);
+    }
+
+    public static void setRegionOfflineRandomizerTesting(Context context, boolean testing) {
+        Prefs.with(context).set(TESTING_REGION_OFFLINE, testing);
+    }
+
     public static boolean getUpdaterTesting(Context context) {
         return Prefs.with(context).get(TESTING_UPDATER, false);
     }
@@ -803,53 +859,12 @@ public class PiaPrefHandler {
         Prefs.with(context).set(TESTING_UPDATER, testing);
     }
 
-    public static boolean getServerTesting(Context context){
-        return Prefs.with(context).get(TESTING_SERVER, false);
-    }
-    public static void setServerTesting(Context context, boolean testing){
-        Prefs.with(context).set(TESTING_SERVER, testing);
-    }
-
     public static boolean hasDnsChanged(Context context) {
         return Prefs.with(context).get(DNS_CHANGED, false);
     }
 
     public static void setDnsChanged(Context context, boolean changed) {
         Prefs.with(context).set(DNS_CHANGED, changed);
-    }
-
-    public static void saveServerTesting(Context context, String url,
-                                         int pingPort, int tcpPort, int udpPort,
-                                         boolean portforwarding, String serialtls,
-                                         String dns, String countryCode){
-        Prefs prefs = Prefs.with(context);
-        prefs.set(TESTING_SERVER_URL, url);
-        prefs.set(TESTING_SERVER_TCP_PORT, tcpPort);
-        prefs.set(TESTING_SERVER_UDP_PORT, udpPort);
-        prefs.set(TESTING_SERVER_PING_PORT, pingPort);
-        prefs.set(TESTING_SERVER_PORT_FORWARDING, portforwarding);
-        prefs.set(TESTING_SERVER_SERIAL_TLS, serialtls);
-        prefs.set(TESTING_SERVER_DNS, dns);
-        prefs.set(TESTING_SERVER_COUNTRY_CODE, countryCode);
-    }
-
-    public static PIAServer getTestServer(Context context){
-        PIAServer server = new PIAServer();
-        Prefs prefs = Prefs.with(context);
-        String url = prefs.get(TESTING_SERVER_URL, "");
-        server.setPingEndpoint(url + ":" + prefs.get(TESTING_SERVER_PING_PORT, 0));
-        server.setTcpbest(url + ":" + prefs.get(TESTING_SERVER_TCP_PORT, 0));
-        server.setUdpbest(url + ":" + prefs.get(TESTING_SERVER_UDP_PORT, 0));
-        server.setAllowsPF(prefs.get(TESTING_SERVER_PORT_FORWARDING, false));
-
-        server.setTlsRemote(prefs.get(TESTING_SERVER_SERIAL_TLS, ""));
-        server.setDns(prefs.get(TESTING_SERVER_DNS, ""));
-        String iso = prefs.get(TESTING_SERVER_COUNTRY_CODE, "US");
-        server.setName(iso + " Test Server");
-        server.setIso(iso);
-        server.setKey(TEST_SERVER_KEY);
-        server.setTesting(true);
-        return server;
     }
 
     public static TrialData getTempTrialData(Context context){
@@ -924,6 +939,107 @@ public class PiaPrefHandler {
 
         rules.add(serializedRule);
         updateNetworkRules(context, rules);
+    }
+
+    public static void clearDedicatedIps(Context context) {
+        Prefs.with(context).remove(PiaPrefHandler.DIP_TOKENS);
+    }
+
+    public static List<DedicatedIPInformationResponse.DedicatedIPInformation> getDedicatedIps(Context context) {
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = new ArrayList<>();
+
+        try {
+            JSONArray array = new JSONArray(Prefs.with(context).get(DIP_TOKENS, "[]"));
+            DLog.d("DedicatedIp", Prefs.with(context).get(DIP_TOKENS, "[]"));
+
+            for (int i = 0; i < array.length(); i++) {
+                ipList.add(Json.Default.decodeFromString(DedicatedIPInformationResponse.DedicatedIPInformation.Companion.serializer(), array.getString(i)));
+            }
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return ipList;
+    }
+
+    public static void addDedicatedIp(Context context, DedicatedIPInformationResponse.DedicatedIPInformation dip) {
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = getDedicatedIps(context);
+
+        for (DedicatedIPInformationResponse.DedicatedIPInformation ip : ipList) {
+            if (dip.getDipToken().equals(ip.getDipToken()))
+                return;
+        }
+
+        ipList.add(dip);
+        saveDedicatedIps(context, ipList);
+    }
+
+    /*
+    Returns true if a DIP has been updated - does not return true if a DIP is removed
+     */
+    public static boolean updateDedicatedIp(Context context, List<DedicatedIPInformationResponse.DedicatedIPInformation> dips) {
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> savedDips = getDedicatedIps(context);
+        boolean hasChanged = false;
+
+        for (int i = 0; i < savedDips.size(); i++) {
+            DedicatedIPInformationResponse.DedicatedIPInformation dip = savedDips.get(i);
+
+            if (dip.getStatus() == DedicatedIPInformationResponse.Status.expired ||
+                    dip.getStatus() == DedicatedIPInformationResponse.Status.invalid) {
+                removeDedicatedIps(context, DedicatedIpUtils.serverForDip(dip, context));
+                savedDips.remove(i--);
+                continue;
+            }
+
+            for (DedicatedIPInformationResponse.DedicatedIPInformation savedDip : savedDips) {
+                if (savedDip.getDipToken().equals(dip.getDipToken())) {
+                    if (!savedDip.getIp().equals(dip.getIp())) {
+                        hasChanged = true;
+                        savedDips.set(i, dip);
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        saveDedicatedIps(context, savedDips);
+
+        return hasChanged;
+    }
+
+    public static void saveDedicatedIps(Context context, List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList) {
+        JSONArray jsonArray = new JSONArray();
+
+        for (int i = 0; i < ipList.size(); i++) {
+            jsonArray.put(Json.Default.encodeToString(DedicatedIPInformationResponse.DedicatedIPInformation.Companion.serializer(), ipList.get(i)));
+        }
+
+        Prefs.with(context).set(DIP_TOKENS, jsonArray.toString());
+    }
+
+    public static void removeDedicatedIps(Context context, PIAServer ps) {
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = getDedicatedIps(context);
+
+        if (ps.getDipToken() == null) {
+            for (DedicatedIPInformationResponse.DedicatedIPInformation ip : ipList) {
+                if (ip.getDipToken() == null) {
+                    ipList.remove(ip);
+                    break;
+                }
+            }
+        }
+        else {
+            for (DedicatedIPInformationResponse.DedicatedIPInformation ip : ipList) {
+                if (ps.getDipToken().equals(ip.getDipToken())) {
+                    ipList.remove(ip);
+                    break;
+                }
+            }
+        }
+
+        saveDedicatedIps(context, ipList);
     }
 
     public static List<String> getNetworkRules(Context context) {
