@@ -29,7 +29,9 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.events.DedicatedIPUpdatedEvent;
 import com.privateinternetaccess.android.model.events.ServerClickedEvent;
 import com.privateinternetaccess.android.model.events.SeverListUpdateEvent;
 import com.privateinternetaccess.android.model.events.SeverListUpdateEvent.ServerListUpdateState;
@@ -42,6 +44,7 @@ import com.privateinternetaccess.core.model.PIAServer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -123,8 +126,7 @@ public class ServerSelectionView extends FrameLayout {
         if (PIAServerHandler.getInstance(getActivity()).isSelectedRegionAuto(tvServer.getContext()) && VpnStatus.isVPNActive()) {
             PIAServer currentServer = PIAVpnStatus.getLastConnectedRegion();
             VpnStateEvent event = EventBus.getDefault().getStickyEvent(VpnStateEvent.class);
-            if (!(event.getLevel() == ConnectionStatus.LEVEL_NOTCONNECTED ||
-                    event.getLevel() == ConnectionStatus.LEVEL_AUTH_FAILED) && currentServer != null) {
+            if (!(event.getLevel() == ConnectionStatus.LEVEL_NOTCONNECTED || event.getLevel() == ConnectionStatus.LEVEL_AUTH_FAILED) && currentServer != null) {
                 String name = currentServer.getName();
                 tvServer.setText(getContext().getString(R.string.automatic_server_selection_main_region, name));
                 mapView.setServer(currentServer);
@@ -141,16 +143,13 @@ public class ServerSelectionView extends FrameLayout {
         String name = getContext().getString(R.string.automatic_server_selection_main);
         PIAServerHandler serverHandler = PIAServerHandler.getInstance(getContext());
         PIAServer nonNullSelectedServer = serverHandler.getSelectedRegion(getContext(), false);
-        PIAServer nullOnAutomaticServer = serverHandler.getSelectedRegion(getContext(), true);
+        PIAServer selectedServer = serverHandler.getSelectedRegion(getContext(), true);
 
-        PIAServerHandler handler = PIAServerHandler.getInstance(getActivity());
-        PIAServer selectedServer = handler.getSelectedRegion(tvServer.getContext(), true);
         if (selectedServer != null) {
             if (selectedServer.isDedicatedIp()) {
                 lDipLayout.setVisibility(View.VISIBLE);
                 tvDip.setText(selectedServer.getDedicatedIp());
             }
-
             name = selectedServer.getName();
         }
 
@@ -177,6 +176,30 @@ public class ServerSelectionView extends FrameLayout {
     @Subscribe
     public void serverListUpdateEvent(SeverListUpdateEvent event) {
         updateUiForFetchingState(event.getState());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateState(final VpnStateEvent event) {
+        switch (event.level) {
+            case LEVEL_CONNECTED:
+            case LEVEL_START:
+            case LEVEL_WAITING_FOR_USER_INPUT:
+            case LEVEL_CONNECTING_SERVER_REPLIED:
+            case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
+                break;
+            case UNKNOWN_LEVEL:
+            case LEVEL_NONETWORK:
+            case LEVEL_VPNPAUSED:
+            case LEVEL_AUTH_FAILED:
+            case LEVEL_NOTCONNECTED:
+                setServerName();
+                break;
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void dedicatedIPUpdatedEvent(DedicatedIPUpdatedEvent event) {
+        setServerName();
     }
 
     private void updateUiForFetchingState(ServerListUpdateState state) {

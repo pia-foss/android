@@ -172,7 +172,7 @@
     <string name="save">保存</string>
     <string name="saved">保存されました</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">表示されている速度は、あなたのVPN接続上のトラフィックです</string>
-    <string name="ip_short">IPアドレス</string>
+    <string name="ip_short">IP</string>
     <string name="login_throttled_text">このユーザー名で最大ログイン試行回数を超えました。後でもう一度お試しください。</string>
     <string name="tap_to_connect">タップして接続</string>
     <string name="building_configration">構成を構成中…</string>
@@ -610,11 +610,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">専用IP</string>
     <string name="dip_description">下のフォームにトークンを貼り付けて、専用IPをアクティベートしてください。専用IPを購入したばかりの場合は、PIAウェブサイトにアクセスしてトークンを生成できます。</string>
+    <string name="dip_summary">選択した国の専用IPを使用して、あらゆるアセットへのリモート接続を保護しましょう。サブスクリプション中、このIPはあなただけのIPとなり、最も強力な暗号化でデータ転送を保護します。</string>
     <string name="dip_your_header">お客様の専用IP</string>
     <string name="dip_activate">アクティベート</string>
     <string name="dip_remove_header">専用IPを削除</string>
     <string name="dip_remove_body">%s - %sを削除しますか？</string>
+    <string name="dip_will_expire_warning">専用IPがまもなく期限切れとなります。</string>
+    <string name="dip_get_a_new_one">新しいIPを取得してください。</string>
     <string name="dip_expired_warning">トークンの有効期限が切れています。ウェブサイトの「アカウント」ページで新しいトークンを生成してください。</string>
+    <string name="dip_updated_warning">専用IPが更新されました。</string>
     <string name="dip_invalid">トークンが無効です。トークンが正しく入力されていることを確認してください。</string>
     <string name="dip_success">専用IPが正常にアクティベートされました。これで専用IPが地域選択リストで利用できるようになります。</string>
     <string name="dip_tag">専用IP</string>

@@ -56,6 +56,8 @@ import java.util.LinkedList;
 
 public class MainActivityHandler {
 
+    public static final String DIP_CHECK_EXPIRATION_REQUEST = "check-dip-expiration-request";
+    public static final String DIP_DISABLE_MULTIPLE_TOKENS = "disable-multi-dip-tokens";
     public static final String DIP_FEATURE = "dedicated-ip";
     public static final String FEATURE_HIDE_PAYMENT = "hide-payment-processing";
 

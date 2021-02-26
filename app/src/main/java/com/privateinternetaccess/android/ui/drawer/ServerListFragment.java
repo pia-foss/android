@@ -482,9 +482,8 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
 
         List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(getContext());
 
-        //TODO: Connection logic for DIP starts with something here
         for (DedicatedIPInformationResponse.DedicatedIPInformation dip : ipList) {
-            if (dip.getIp().equals(event.getName())) {
+            if (dip.getIp() != null && dip.getIp().equals(event.getName())) {
                 region = dip.getIp();
                 break;
             }

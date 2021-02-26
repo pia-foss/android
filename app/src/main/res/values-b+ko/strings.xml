@@ -612,11 +612,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">전용 IP</string>
     <string name="dip_description">아래 양식에 회원님의 토큰을 붙여넣어서 전용 IP를 활성화하세요. 최근에 전용 IP를 구매하신 경우 PIA 웹사이트로 이동하여 토큰을 생성하실 수 있습니다.</string>
+    <string name="dip_summary">원하는 국가의 전용 IP를 사용하여 어떤 자산에 대해서든 원격 연결을 안전하게 보호하세요. 구독 기간 중 이 IP는 회원님만 사용하실 수 있으며, 가장 강력한 암호화 기술로 회원님의 데이터 전송을 보호합니다.</string>
     <string name="dip_your_header">회원님의 전용 IP</string>
     <string name="dip_activate">활성화</string>
     <string name="dip_remove_header">전용 IP 제거</string>
     <string name="dip_remove_body">%s - %s을(를) 제거할까요?</string>
+    <string name="dip_will_expire_warning">전용 IP가 곧 만료됩니다.</string>
+    <string name="dip_get_a_new_one">새로 받으세요.</string>
     <string name="dip_expired_warning">회원님의 토큰은 만료되었습니다. 웹사이트의 계정 페이지에서 새로운 토큰을 생성하세요.</string>
+    <string name="dip_updated_warning">전용 IP가 업데이트되었습니다.</string>
     <string name="dip_invalid">토큰이 유효하지 않습니다. 올바른 토큰을 입력했는지 확인하세요.</string>
     <string name="dip_success">회원님의 전용 IP가 성공적으로 활성화되었습니다. 지역 선택 목록에서 사용하실 수 있습니다.</string>
     <string name="dip_tag">전용 IP</string>

@@ -611,11 +611,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">IP เฉพาะ</string>
     <string name="dip_description">เปิดใช้งาน IP เฉพาะของคุณโดยวางโทเคนของคุณในแบบฟอร์มด้านล่าง หากคุณเพิ่งซื้อ IP เฉพาะ คุณสามารถสร้างโทเค็นได้โดยไปที่เว็บไซต์ PIA</string>
+    <string name="dip_summary">รักษาความปลอดภัยการเชื่อมต่อกับทุกสิ่งด้วย IP เฉพาะจากประเทศที่คุณเลือก ในระหว่างที่สมัครรับนั้น IP นี้จะเป็นของคุณแต่เพียงผู้เดียว ปกป้องการถ่ายโอนข้อมูลด้วยการเข้ารหัสที่แข็งแกร่งที่สุดได้เลย</string>
     <string name="dip_your_header">IP เฉพาะของคุณ</string>
     <string name="dip_activate">เปิดการใช้งาน</string>
     <string name="dip_remove_header">ลบ IP เฉพาะ</string>
     <string name="dip_remove_body">ลบ %s - %s หรือไม่</string>
+    <string name="dip_will_expire_warning">IP เฉพาะของคุณจะหมดอายุในไม่ช้า</string>
+    <string name="dip_get_a_new_one">ขออันใหม่</string>
     <string name="dip_expired_warning">โทเคนของคุณหมดอายุแล้ว โปรดสร้างใหม่จากหน้าบัญชีของคุณในเว็บไซต์</string>
+    <string name="dip_updated_warning">อัปเดต IP เฉพาะของคุณแล้ว</string>
     <string name="dip_invalid">โทเคนของคุณไม่ถูกต้อง โปรดตรวจสอบว่าคุณได้ป้อนโทเคนอย่างถูกต้อง</string>
     <string name="dip_success">IP เฉพาะของคุณเปิดใช้งานสำเร็จแล้ว จะมีอยู่ในรายการเลือกภูมิภาคของคุณ</string>
     <string name="dip_tag">IP เฉพาะ</string>

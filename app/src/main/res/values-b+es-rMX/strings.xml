@@ -610,11 +610,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">IP Dedicada</string>
     <string name="dip_description">Activa tu IP Dedicada pegando tu token en el siguiente formulario. Si recientemente compraste una IP dedicada, puedes generar el token visitando el sitio web de PIA.</string>
+    <string name="dip_summary">Protege tus conexiones remotas a cualquier activo con una IP dedicada del país que elijas. Durante tu suscripción, esta IP será tuya exclusivamente, por lo que tus transferencias de datos estarán protegidas con la encriptación más segura que existe.</string>
     <string name="dip_your_header">TU IPS DEDICADA</string>
     <string name="dip_activate">Activar</string>
     <string name="dip_remove_header">Eliminar IP Dedicada</string>
     <string name="dip_remove_body">¿Eliminar %s - %s?</string>
+    <string name="dip_will_expire_warning">Tu IP dedicada se vencerá pronto.</string>
+    <string name="dip_get_a_new_one">Obtén una nueva.</string>
     <string name="dip_expired_warning">Tu token ya expiró. Genera uno nuevo en la página de tu cuenta en el sitio web.</string>
+    <string name="dip_updated_warning">Tu IP dedicada ha sido actualizada.</string>
     <string name="dip_invalid">Tu token no es válido. Asegúrate de que ingresaste el token correctamente.</string>
     <string name="dip_success">Tu IP Dedicada ha sido activada con éxito. Estará disponible en tu lista de selección de región.</string>
     <string name="dip_tag">IP DEDICADA</string>

@@ -1,3 +1,4 @@
+include ':csi'
 include ':account'
 include ':regions'
 include ':core'

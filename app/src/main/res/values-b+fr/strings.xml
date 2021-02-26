@@ -610,11 +610,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">Adresse IP dédiée</string>
     <string name="dip_description">Activez votre adresse IP dédiée en collant votre jeton dans le formulaire ci-dessous. Si vous avez récemment acheté une adresse IP dédiée, vous pouvez générer le jeton en vous rendant sur le site Web de PIA.</string>
+    <string name="dip_summary">Sécurisez vos connexions distantes à n\'importe quelle ressource avec une IP dédiée d\'un pays de votre choix. Pendant votre abonnement, cette adresse IP est à vous et uniquement à vous et protège vos transferts de données avec le chiffrage de données le plus puissant qui soit.</string>
     <string name="dip_your_header">VOS ADRESSES IP DÉDIÉES</string>
     <string name="dip_activate">Activer</string>
     <string name="dip_remove_header">Supprimer l\'adresse IP dédiée</string>
     <string name="dip_remove_body">Supprimer %s - %s ?</string>
+    <string name="dip_will_expire_warning">Votre IP dédiée va bientôt expirer.</string>
+    <string name="dip_get_a_new_one">Obtenez-en une nouvelle.</string>
     <string name="dip_expired_warning">Votre jeton a expiré. Veuillez en générer un nouveau depuis la page de votre compte sur le site Web.</string>
+    <string name="dip_updated_warning">Votre IP dédiée a été mise à jour</string>
     <string name="dip_invalid">Votre jeton n\'est pas valide. Veuillez vous assurer d\'avoir correctement saisi le jeton.</string>
     <string name="dip_success">Votre adresse IP dédiée a été activée avec succès. Elle sera disponible dans votre liste de sélection de région.</string>
     <string name="dip_tag">ADRESSE IP DÉDIÉE</string>

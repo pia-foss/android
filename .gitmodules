@@ -1,3 +1,4 @@
 [submodule "openvpnTunnel"]
-	path = openvpnTunnel
-	url = ../android-tunnel.git
+    path = openvpnTunnel
+    url = ../tunnel-android.git
+    branch = tommie_test

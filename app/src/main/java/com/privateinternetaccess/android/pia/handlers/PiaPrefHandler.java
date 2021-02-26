@@ -220,6 +220,7 @@ public class PiaPrefHandler {
 
     private static final String INVITES_DETAILS = "invitesDetails";
     private static final String FEATURE_FLAGS = "featureFlags";
+    private static final String OVERRIDE_DIP_TOKENS = "overrideDipTokens";
 
     public static void setInvitesDetails(
             Context context,
@@ -631,18 +632,18 @@ public class PiaPrefHandler {
         Prefs.with(context).set(FEATURE_FLAGS, features);
     }
 
-    public static void addDismissedId(Context context, String id) {
-        Set<String> idSet = getDismissedIds(context);
+    public static void addDismissedInAppMessageId(Context context, String id) {
+        Set<String> idSet = getDismissedInAppMessageIds(context);
         idSet.add(id);
 
         Prefs.with(context).set(INAPP_MESSAGE_DISMISSED_IDS, idSet);
     }
 
-    public static void clearDismissedIds(Context context) {
+    public static void clearDismissedInAppMessageIds(Context context) {
         Prefs.with(context).set(INAPP_MESSAGE_DISMISSED_IDS, new HashSet<>());
     }
 
-    public static Set<String> getDismissedIds(Context context) {
+    public static Set<String> getDismissedInAppMessageIds(Context context) {
         return Prefs.with(context).getStringSet(INAPP_MESSAGE_DISMISSED_IDS);
     }
 
@@ -777,6 +778,16 @@ public class PiaPrefHandler {
         Prefs.with(context).set(USE_STAGING, testing);
     }
 
+    public static boolean overrideDIPTokens(Context context){
+        if (BuildConfig.FLAVOR_pia.equals("production"))
+            return false;
+        else
+            return Prefs.with(context).getBoolean(OVERRIDE_DIP_TOKENS);
+    }
+
+    public static void setOverrideDipTokens(Context context, boolean testing){
+        Prefs.with(context).set(OVERRIDE_DIP_TOKENS, testing);
+    }
 
     public static String getProtocol(Context context) {
         return Prefs.with(context).get(VPN_PROTOCOL, VPNProtocol.Protocol.OpenVPN.name());
@@ -950,8 +961,6 @@ public class PiaPrefHandler {
 
         try {
             JSONArray array = new JSONArray(Prefs.with(context).get(DIP_TOKENS, "[]"));
-            DLog.d("DedicatedIp", Prefs.with(context).get(DIP_TOKENS, "[]"));
-
             for (int i = 0; i < array.length(); i++) {
                 ipList.add(Json.Default.decodeFromString(DedicatedIPInformationResponse.DedicatedIPInformation.Companion.serializer(), array.getString(i)));
             }
@@ -975,43 +984,8 @@ public class PiaPrefHandler {
         saveDedicatedIps(context, ipList);
     }
 
-    /*
-    Returns true if a DIP has been updated - does not return true if a DIP is removed
-     */
-    public static boolean updateDedicatedIp(Context context, List<DedicatedIPInformationResponse.DedicatedIPInformation> dips) {
-        List<DedicatedIPInformationResponse.DedicatedIPInformation> savedDips = getDedicatedIps(context);
-        boolean hasChanged = false;
-
-        for (int i = 0; i < savedDips.size(); i++) {
-            DedicatedIPInformationResponse.DedicatedIPInformation dip = savedDips.get(i);
-
-            if (dip.getStatus() == DedicatedIPInformationResponse.Status.expired ||
-                    dip.getStatus() == DedicatedIPInformationResponse.Status.invalid) {
-                removeDedicatedIps(context, DedicatedIpUtils.serverForDip(dip, context));
-                savedDips.remove(i--);
-                continue;
-            }
-
-            for (DedicatedIPInformationResponse.DedicatedIPInformation savedDip : savedDips) {
-                if (savedDip.getDipToken().equals(dip.getDipToken())) {
-                    if (!savedDip.getIp().equals(dip.getIp())) {
-                        hasChanged = true;
-                        savedDips.set(i, dip);
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        saveDedicatedIps(context, savedDips);
-
-        return hasChanged;
-    }
-
     public static void saveDedicatedIps(Context context, List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList) {
         JSONArray jsonArray = new JSONArray();
-
         for (int i = 0; i < ipList.size(); i++) {
             jsonArray.put(Json.Default.encodeToString(DedicatedIPInformationResponse.DedicatedIPInformation.Companion.serializer(), ipList.get(i)));
         }
@@ -1019,27 +993,19 @@ public class PiaPrefHandler {
         Prefs.with(context).set(DIP_TOKENS, jsonArray.toString());
     }
 
-    public static void removeDedicatedIps(Context context, PIAServer ps) {
-        List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = getDedicatedIps(context);
-
-        if (ps.getDipToken() == null) {
-            for (DedicatedIPInformationResponse.DedicatedIPInformation ip : ipList) {
-                if (ip.getDipToken() == null) {
-                    ipList.remove(ip);
-                    break;
-                }
-            }
-        }
-        else {
-            for (DedicatedIPInformationResponse.DedicatedIPInformation ip : ipList) {
-                if (ps.getDipToken().equals(ip.getDipToken())) {
-                    ipList.remove(ip);
-                    break;
-                }
+    public static void removeDedicatedIp(
+            Context context,
+            DedicatedIPInformationResponse.DedicatedIPInformation dedicatedIPInformation
+    ) {
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> dips = getDedicatedIps(context);
+        for (DedicatedIPInformationResponse.DedicatedIPInformation dip : dips) {
+            if (dedicatedIPInformation.getDipToken().equals(dip.getDipToken())) {
+                dips.remove(dip);
+                break;
             }
         }
 
-        saveDedicatedIps(context, ipList);
+        saveDedicatedIps(context, dips);
     }
 
     public static List<String> getNetworkRules(Context context) {

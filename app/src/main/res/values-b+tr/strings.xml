@@ -610,11 +610,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">Özel IP</string>
     <string name="dip_description">Belirtecinizi aşağıdaki forma yapıştırarak Özel IP\'nizi etkinleştirin. Kısa süre önce bir özel IP satın aldıysanız belirteci PIA web sitesine giderek oluşturabilirsiniz.</string>
+    <string name="dip_summary">Herhangi bir  varlıkla olan uzaktan bağlantılarınızı, seçtiğiniz bir ülkeden özel bir IP ile  sabitleyin. Aboneliğiniz sırasında bu IP sadece size ait olacak ve veri transferleriniz en güçlü şifrelemeyle koruyacaktır.</string>
     <string name="dip_your_header">ÖZEL IP\'LERİNİZ</string>
     <string name="dip_activate">Etkinleştir</string>
     <string name="dip_remove_header">Özel IP\'yi Kaldır</string>
     <string name="dip_remove_body">%s - %s kaldırılsın mı?</string>
+    <string name="dip_will_expire_warning">Özel IP\'niz yakında sona erecek.</string>
+    <string name="dip_get_a_new_one">Yeni bir tane alın.</string>
     <string name="dip_expired_warning">Belirtecinizin süresi dolmuş bulunuyor. Lütfen web sitesindeki Hesap sayfanızdan yeni bir tane oluşturun.</string>
+    <string name="dip_updated_warning">Özel IP\'niz güncellendi.</string>
     <string name="dip_invalid">Belirteciniz geçersiz. Lütfen belirteci doğru şekilde girdiğinizden emin olun.</string>
     <string name="dip_success">Özel IP\'niz başarıyla etkinleştirildi. Bölge seçim listenizde mevcut olacak.</string>
     <string name="dip_tag">ÖZEL IP</string>

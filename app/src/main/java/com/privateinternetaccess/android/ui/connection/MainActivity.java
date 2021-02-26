@@ -35,10 +35,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.mikepenz.materialdrawer.Drawer;
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse.DedicatedIPInformation;
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
@@ -67,7 +67,6 @@ import com.privateinternetaccess.android.ui.loginpurchasing.LoginPurchaseActivit
 import com.privateinternetaccess.android.ui.drawer.ServerListActivity;
 import com.privateinternetaccess.android.ui.rating.Rating;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
-import com.privateinternetaccess.android.ui.views.CallingCardView;
 import com.privateinternetaccess.android.utils.drag.OnStartDragListener;
 import com.privateinternetaccess.android.utils.drag.SimpleItemTouchHelperCallback;
 
@@ -195,6 +194,8 @@ public class MainActivity extends BaseActivity {
             isOrganizing = false;
             organizeWidgets();
         }
+
+        renewDedicatedIP();
     }
 
     private void initView() {
@@ -449,6 +450,18 @@ public class MainActivity extends BaseActivity {
         super.onStop();
         if (mDrawer != null)
             mDrawer.getDrawerLayout().closeDrawer(GravityCompat.START, false);
+    }
+
+    private void renewDedicatedIP() {
+        IAccount account = PIAFactory.getInstance().getAccount(this);
+        String token = PiaPrefHandler.getAuthToken(this);
+        List<DedicatedIPInformation> dedicatedIps = PiaPrefHandler.getDedicatedIps(this);
+        for (DedicatedIPInformation dedicatedIP : dedicatedIps) {
+            account.renewDedicatedIP(token, dedicatedIP.getDipToken(), requestResponseStatus -> {
+                DLog.d(TAG, "Dedicated IP renewal response " + requestResponseStatus);
+                return null;
+            });
+        }
     }
 
     private void onAuthFailureLogout() {

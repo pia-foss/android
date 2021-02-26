@@ -151,18 +151,6 @@
                 android:id="@+id/fragment_trial_submit"
                 />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:background="?attr/scan_background"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:scaleType="fitCenter"
-                app:srcCompat="@drawable/ic_scan"
-                android:id="@+id/fragment_trial_qr"
-                android:visibility="gone"
-                android:clickable="true"
-                android:padding="8dp"
-                android:layout_centerVertical="true"
-                />
         </LinearLayout>
     </RelativeLayout>
 </ScrollView>

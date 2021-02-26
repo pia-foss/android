@@ -902,7 +902,7 @@ public class SettingsFragmentHandler {
         prefs.set(PiaPrefHandler.VPN_PER_APP_PACKAGES, new HashSet<>());
 
         // In App Messages
-        PiaPrefHandler.clearDismissedIds(ctx);
+        PiaPrefHandler.clearDismissedInAppMessageIds(ctx);
 
         // Clear Favorites
         PiaPrefHandler.clearFavorites(ctx);

@@ -18,7 +18,6 @@
 
 package com.privateinternetaccess.android.ui.loginpurchasing;
 
-import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -31,10 +30,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.zxing.integration.android.IntentIntegrator;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.model.TrialData;
@@ -60,18 +57,11 @@ public class TrialFragment extends Fragment{
 
     private ViewTreeObserver.OnGlobalLayoutListener listener;
 
-    @BindView(R.id.fragment_trial_qr) ImageView qrCode;
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_trial_account, container, false);
         ButterKnife.bind(this, view);
-
-        ((ViewGroup)qrCode.getParent()).removeView(qrCode);
-
-        etPin.addButton(qrCode);
-        qrCode.setVisibility(View.VISIBLE);
 
         etEmail.etMain.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         etPin.etMain.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -138,14 +128,6 @@ public class TrialFragment extends Fragment{
                 }
             }
         });
-
-        qrCode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getContext(), QRScanActivity.class);
-                startActivityForResult(i, IntentIntegrator.REQUEST_CODE);
-            }
-        });
     }
 
     @Override
@@ -154,30 +136,6 @@ public class TrialFragment extends Fragment{
         String email = etEmail.getText().toString();
         if (!TextUtils.isEmpty(email) && AppUtilities.isValidEmail(email)) {
             PiaPrefHandler.saveTrialEmail(etEmail.getContext(), email);
-        }
-    }
-
-    public void onGiftCardQRCodeReceived(String contents){
-        if(!TextUtils.isEmpty(contents)){
-            if(contents.matches("\\d{16}")) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(contents.substring(0,4));
-                sb.append("-");
-                sb.append(contents.substring(4,8));
-                sb.append("-");
-                sb.append(contents.substring(8, 12));
-                sb.append("-");
-                sb.append(contents.substring(12));
-                etPin.etMain.setText(sb.toString());
-            } else if (contents.matches("\\b\\d{4}(| |-)\\d{4}\\1\\d{4}\\1\\d{4}\\b")) {
-                etPin.etMain.setText(contents);
-            } else {
-                // invalid sequence
-                etPin.setError(getString(R.string.invalid_qr_code));
-            }
-        } else {
-            // Handle the error here
-            etPin.setError(getString(R.string.empty_qr_code));
         }
     }
 }

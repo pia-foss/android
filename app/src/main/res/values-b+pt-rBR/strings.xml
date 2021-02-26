@@ -611,11 +611,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">IP dedicado</string>
     <string name="dip_description">Ative o seu IP dedicado colando o token no formulário abaixo. Se comprou um IP dedicado recentemente, você pode gerar o token acessando o site da PIA.</string>
+    <string name="dip_summary">Proteja suas conexões remotas a qualquer ativo com um IP dedicado de um país de sua escolha. Durante a sua assinatura, esse IP será seu e somente seu, protegendo suas transferências de dados com a criptografia mais forte que existe.</string>
     <string name="dip_your_header">SEUS IPS DEDICADOS</string>
     <string name="dip_activate">Ativar</string>
     <string name="dip_remove_header">Remover IP dedicado</string>
     <string name="dip_remove_body">Remover %s - %s?</string>
+    <string name="dip_will_expire_warning">O seu IP dedicado irá expirar em breve.</string>
+    <string name="dip_get_a_new_one">Obtenha um novo.</string>
     <string name="dip_expired_warning">Seu token expirou. Gere um novo na página da sua conta no site.</string>
+    <string name="dip_updated_warning">Seu IP dedicado foi atualizado.</string>
     <string name="dip_invalid">O seu token é inválido. Verifique se você inseriu o token corretamente.</string>
     <string name="dip_success">O seu IP dedicado foi ativado com sucesso. Ele estará disponível em sua lista de seleção de regiões.</string>
     <string name="dip_tag">IP DEDICADO</string>

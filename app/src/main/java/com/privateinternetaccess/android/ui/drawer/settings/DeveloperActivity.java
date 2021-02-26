@@ -38,6 +38,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse;
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse.DedicatedIPInformation;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
@@ -48,6 +50,7 @@ import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
+import com.privateinternetaccess.android.utils.DedicatedIpUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -55,6 +58,8 @@ import org.greenrobot.eventbus.Subscribe;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Calendar;
+import java.util.List;
 
 import de.blinkt.openvpn.core.OpenVPNService;
 
@@ -153,6 +158,12 @@ public class DeveloperActivity extends BaseActivity {
     @BindView(R.id.developer_use_staging) Switch sStaging;
     @BindView(R.id.staging_servers) View aStaging;
 
+    @BindView(R.id.developer_override_dip_switch) Switch sDIPAddTokenSwitch;
+    @BindView(R.id.developer_add_dip_token_container) View aDIPAddTokenContainer;
+    @BindView(R.id.developer_add_dip_token_edit_text) EditText etDIPAddTokenEditText;
+    @BindView(R.id.developer_add_dip_token_button) Button bDIPAddTokenButton;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -189,6 +200,8 @@ public class DeveloperActivity extends BaseActivity {
         setupPurchaseTesting();
 
         setupStagingViews();
+
+        setupDIPTokenViews();
 
         setupOnClick();
 
@@ -544,7 +557,62 @@ public class DeveloperActivity extends BaseActivity {
                 PiaPrefHandler.setUseStaging(getApplicationContext(), newStaging);
             }
         });
+    }
 
+    private void setupDIPTokenViews()
+    {
+        boolean override = PiaPrefHandler.overrideDIPTokens(getApplicationContext());
+        sDIPAddTokenSwitch.setChecked(override);
+        sDIPAddTokenSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean override = !PiaPrefHandler.overrideDIPTokens(getApplicationContext());
+                sDIPAddTokenSwitch.setChecked(override);
+                PiaPrefHandler.setOverrideDipTokens(getApplicationContext(), override);
+
+                if (override) {
+                    aDIPAddTokenContainer.setVisibility(View.VISIBLE);
+                } else {
+                    aDIPAddTokenContainer.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        bDIPAddTokenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int daysToAddToExpiration = Integer.parseInt(etDIPAddTokenEditText.getText().toString());
+                DedicatedIPInformationResponse.Status tokenStatus = DedicatedIPInformationResponse.Status.active;
+                if (daysToAddToExpiration < 0) {
+                    tokenStatus = DedicatedIPInformationResponse.Status.expired;
+                }
+
+                Calendar expirationCalendar = Calendar.getInstance();
+                expirationCalendar.add(Calendar.DAY_OF_MONTH, daysToAddToExpiration);
+
+                List<DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(getApplicationContext());
+                DedicatedIPInformation mockDIP = new DedicatedIPInformation(
+                        "aus_melbourne",
+                        "1.1.1.1",
+                        "cn",
+                        null,
+                        expirationCalendar.getTimeInMillis() / 1000,
+                        DedicatedIpUtils.randomAlphaNumeric(10),
+                        tokenStatus
+                );
+                ipList.add(mockDIP);
+                PiaPrefHandler.saveDedicatedIps(getApplicationContext(), ipList);
+                DedicatedIpUtils.refreshTokensAndInAppMessages(getApplicationContext());
+                Toaster.l(getApplicationContext(), "Token added.");
+                etDIPAddTokenEditText.setText("");
+            }
+        });
+
+        if (override) {
+            aDIPAddTokenContainer.setVisibility(View.VISIBLE);
+        } else {
+            aDIPAddTokenContainer.setVisibility(View.GONE);
+        }
     }
 
     private void setupPurchaseTesting(){

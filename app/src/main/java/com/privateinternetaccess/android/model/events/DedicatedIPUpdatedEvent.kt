@@ -16,10 +16,10 @@
  *  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.privateinternetaccess.android.pia.model.events
+package com.privateinternetaccess.android.model.events
 
 /*
- *  Copyright (c) 2020 Private Internet Access, Inc.
+ *  Copyright (c) 2021 Private Internet Access, Inc.
  *
  *  This file is part of the Private Internet Access Android Client.
  *
@@ -37,4 +37,4 @@ package com.privateinternetaccess.android.pia.model.events
  */
 
 
-class ConnectionAttemptsExhaustedEvent
+public class DedicatedIPUpdatedEvent()

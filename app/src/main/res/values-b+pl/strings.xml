@@ -610,11 +610,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">Dedykowane IP</string>
     <string name="dip_description">Aktywuj dedykowany adres IP, wklejając swój token w poniższym formularzu. Jeśli niedawno nabyłeś(-aś) dedykowany adres IP, możesz wygenerować token na stronie PIA.</string>
+    <string name="dip_summary">Zabezpiecz swoje zdalne połączenia z dowolnym zasobem za pomocą dedykowanego adresu IP z wybranego kraju. Podczas Twojej subskrypcji ten adres IP będzie Twój i tylko Twój, chroniąc przesyłane dane za pomocą najsilniejszego dostępnego szyfrowania.</string>
     <string name="dip_your_header">TWOJE DEDYKOWANE ADRESY IP</string>
     <string name="dip_activate">Aktywuj</string>
     <string name="dip_remove_header">Usuń dedykowane. IP</string>
     <string name="dip_remove_body">Usunąć %s - %s?</string>
+    <string name="dip_will_expire_warning">Ważność Twojego dedykowanego IP wkrótce wygaśnie.</string>
+    <string name="dip_get_a_new_one">Uzyskaj nowy.</string>
     <string name="dip_expired_warning">Twój token stracił ważność. Wygeneruj nowy na swoim koncie na stronie internetowej.</string>
+    <string name="dip_updated_warning">Twój dedykowany IP został zaktualizowany.</string>
     <string name="dip_invalid">Twój token jest nieprawidłowy. Sprawdź, czy wprowadzony token jest prawidłowy.</string>
     <string name="dip_success">Twój dedykowany adres IP został aktywowany. Będzie dostępny na liście wyboru regionu.</string>
     <string name="dip_tag">DEDYKOWANY ADRES IP</string>

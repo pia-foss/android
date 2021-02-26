@@ -158,15 +158,14 @@ public class LauncherActivity extends AppCompatActivity {
     }
 
     void loadOnLaunch(Context context) {
-        DedicatedIpUtils.refreshTokens(context);
+        DedicatedIpUtils.refreshTokensAndInAppMessages(context);
         validatePreferences();
 
         if (!Prefs.with(this).get(PiaPrefHandler.HIDE_INAPP_MESSAGES, false)) {
             PIAFactory.getInstance().getAccount(context).message(PiaPrefHandler.getAuthToken(context), (message, response) -> {
                 if (response == RequestResponseStatus.SUCCEEDED) {
-                    InAppMessageManager.setActiveMessage(message);
+                    InAppMessageManager.queueRemoteMessage(message);
                 }
-
                 return null;
             });
         }

@@ -610,11 +610,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">专用 IP</string>
     <string name="dip_description">将您的令牌粘贴到以下表格中，激活您的专用 IP。如果您最近购买了专用 IP，则可以访问 PIA 网站来生成令牌。</string>
+    <string name="dip_summary">使用您所选国家/地区的专用 IP 保护与任何资产的远程连接。在订阅期间，此 IP 仅属于您本人所有，并通过最强大的加密技术保护您的数据传输。</string>
     <string name="dip_your_header">您的专用 IP</string>
     <string name="dip_activate">激活</string>
     <string name="dip_remove_header">删除专用 IP</string>
     <string name="dip_remove_body">删除 %s - %s？</string>
+    <string name="dip_will_expire_warning">您的专用 IP 即将过期。</string>
+    <string name="dip_get_a_new_one">获取一个新的。</string>
     <string name="dip_expired_warning">您的令牌已过期。请从网站的“账户”页面中生成一个新的令牌。</string>
+    <string name="dip_updated_warning">您的专用 IP 已更新。</string>
     <string name="dip_invalid">您的令牌无效。请确保您输入的令牌正确无误。</string>
     <string name="dip_success">您的专用 IP 已成功激活。您可以在“地区”选择列表中使用该专用 IP。</string>
     <string name="dip_tag">专用 IP</string>

@@ -612,11 +612,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">專屬 IP</string>
     <string name="dip_description">請在下方貼上權杖以啟用專屬 IP。若您近期有購買專屬 IP，即可前往 PIA 網站產生權杖。</string>
+    <string name="dip_summary">只要您使用了任何自選國家的專屬 IP，即可保障您與任何內容的遠端連線安全。在您訂閱期間，此 IP 只供您本人使用，我們會採用最強大的加密功能來保護您的資料傳輸。</string>
     <string name="dip_your_header">您的專屬 IP</string>
     <string name="dip_activate">啟用</string>
     <string name="dip_remove_header">移除專屬 IP</string>
     <string name="dip_remove_body">要移除 %s - %s 嗎？</string>
+    <string name="dip_will_expire_warning">您的專屬 IP 即將過期。</string>
+    <string name="dip_get_a_new_one">重新取得。</string>
     <string name="dip_expired_warning">您的權杖已到期。請前往網站的帳戶頁面產生新權杖。</string>
+    <string name="dip_updated_warning">您的專屬 IP 已更新。</string>
     <string name="dip_invalid">您的權杖無效。請確保輸入的權杖正確無誤。</string>
     <string name="dip_success">您已成功啟用專屬 IP。它將會出現在區域選擇清單中。</string>
     <string name="dip_tag">專屬 IP</string>

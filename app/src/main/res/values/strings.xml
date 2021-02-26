@@ -679,11 +679,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">Dedicated IP</string>
     <string name="dip_description">Activate your Dedicated IP by pasting your token in the form below. If you\'ve recently purchased a dedicated IP, you can generate the token by going to the PIA website.</string>
+    <string name="dip_summary">Secure your remote connections to any asset with a dedicated IP from a country of your choice. During your subscription, this IP will be yours and yours alone, protecting your data transfers with the strongest encryption out there.</string>
     <string name="dip_your_header">YOUR DEDICATED IPS</string>
     <string name="dip_activate">Activate</string>
     <string name="dip_remove_header">Remove Dedicated IP</string>
     <string name="dip_remove_body">Remove %s - %s?</string>
+    <string name="dip_will_expire_warning">Your dedicated IP will expire soon.</string>
+    <string name="dip_get_a_new_one">Get a new one.</string>
     <string name="dip_expired_warning">Your token is expired. Please generate a new one from your Account page in the website.</string>
+    <string name="dip_updated_warning">Your dedicated IP was updated.</string>
     <string name="dip_invalid">Your token is invalid. Please make sure you have entered the token correctly.</string>
     <string name="dip_success">Your Dedicated IP has been activated successfully. It will be available in your Region selection list.</string>
     <string name="dip_tag">DEDICATED IP</string>

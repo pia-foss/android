@@ -31,13 +31,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
-import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
-import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus;
 import com.privateinternetaccess.android.pia.utils.Toaster;
 import com.privateinternetaccess.android.ui.adapters.DedicatedIPAdapter;
+import com.privateinternetaccess.android.ui.connection.MainActivityHandler;
 import com.privateinternetaccess.android.ui.superclasses.BaseActivity;
 import com.privateinternetaccess.android.utils.DedicatedIpUtils;
 import com.privateinternetaccess.core.model.PIAServer;
@@ -54,6 +53,8 @@ public class DedicatedIPActivity extends BaseActivity {
     @BindView(R.id.snippet_dip_entry_field) EditText etDipToken;
     @BindView(R.id.snippet_dip_list) RecyclerView recyclerView;
     @BindView(R.id.snippet_dip_list_layout) LinearLayout lList;
+    @BindView(R.id.snippet_dip_top_summary) LinearLayout lTopSummary;
+    @BindView(R.id.snippet_dip_top_frame) LinearLayout lTopAddDIPFrame;
 
     private DedicatedIPAdapter mAdapter;
     private LinearLayoutManager layoutManager;
@@ -91,9 +92,16 @@ public class DedicatedIPActivity extends BaseActivity {
 
         if (ipList.size() <= 0) {
             lList.setVisibility(View.GONE);
+            lTopSummary.setVisibility(View.GONE);
+            lTopAddDIPFrame.setVisibility(View.VISIBLE);
         }
         else {
             lList.setVisibility(View.VISIBLE);
+
+            if (PiaPrefHandler.isFeatureActive(this, MainActivityHandler.DIP_DISABLE_MULTIPLE_TOKENS)) {
+                lTopAddDIPFrame.setVisibility(View.GONE);
+                lTopSummary.setVisibility(View.VISIBLE);
+            }
 
             for (DedicatedIPInformationResponse.DedicatedIPInformation dip : ipList) {
                 serverList.add(DedicatedIpUtils.serverForDip(dip, this));
@@ -107,19 +115,9 @@ public class DedicatedIPActivity extends BaseActivity {
         }
     }
 
-    public void removeDip(PIAServer ps) {
-        PIAServerHandler handler = PIAServerHandler.getInstance(this);
-        final PIAServer server = handler.getSelectedRegion(this, false);
-        IVPN vpnImpl = PIAFactory.getInstance().getVPN(this);
-
-        if (server.isDedicatedIp() && server.getDipToken().equals(ps.getDipToken())) {
-            if (vpnImpl.isVPNActive()) {
-                vpnImpl.stop(true);
-            }
-        }
-
-        PiaPrefHandler.removeDedicatedIps(this, ps);
-        PiaPrefHandler.removeFavorite(this, ps.getDedicatedIp());
+    public void removeDip(DedicatedIPInformationResponse.DedicatedIPInformation dip) {
+        PiaPrefHandler.removeDedicatedIp(this, dip);
+        PiaPrefHandler.removeFavorite(this, dip.getIp());
         setupList();
     }
 
@@ -140,9 +138,7 @@ public class DedicatedIPActivity extends BaseActivity {
                     return null;
                 }
 
-                List<DedicatedIPInformationResponse.DedicatedIPInformation> dedicatedIps = details;
-
-                for (DedicatedIPInformationResponse.DedicatedIPInformation ip : dedicatedIps) {
+                for (DedicatedIPInformationResponse.DedicatedIPInformation ip : details) {
                     if (ip.getStatus() == DedicatedIPInformationResponse.Status.active) {
                         PiaPrefHandler.addDedicatedIp(this, ip);
                         Toaster.l(this, R.string.dip_success);
@@ -155,10 +151,9 @@ public class DedicatedIPActivity extends BaseActivity {
                     }
                 }
 
+                DedicatedIpUtils.refreshTokensAndInAppMessages(this);
                 etDipToken.setText("");
-
                 setupList();
-
                 return null;
             });
         }

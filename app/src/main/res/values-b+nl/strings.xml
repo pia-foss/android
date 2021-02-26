@@ -610,11 +610,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">Dedicated IP</string>
     <string name="dip_description">Activeer uw dedicated IP door uw code in het formulier hieronder te plakken. Als u onlangs een dedicated IP hebt gekocht, kunt u de code op de PIA-website genereren.</string>
+    <string name="dip_summary">Beveilig uw remote verbindingen met activa met een speciale IP van een land naar keuze. Zo lang uw abonnement loopt, is dit IP alleen voor u, zodat uw gegevensoverdrachten met de krachtigste versleuteling die beschikbaar is, worden beschermd.</string>
     <string name="dip_your_header">UW DEDICATED IP\'S</string>
     <string name="dip_activate">Activeren</string>
     <string name="dip_remove_header">Dedicated IP verwijderen</string>
     <string name="dip_remove_body">%s - %s verwijderen?</string>
+    <string name="dip_will_expire_warning">Uw dedicated IP verloopt bijna.</string>
+    <string name="dip_get_a_new_one">Haal een nieuwe.</string>
     <string name="dip_expired_warning">Uw code is verlopen. Genereer een nieuwe via uw accountpagina op de website.</string>
+    <string name="dip_updated_warning">Uw dedicated IP is bijgewerkt.</string>
     <string name="dip_invalid">Uw code is ongeldig. Zorg ervoor dat u de code juist heeft ingevoerd.</string>
     <string name="dip_success">Uw dedicated IP is geactiveerd. Het is beschikbaar in uw regioselectielijst.</string>
     <string name="dip_tag">DEDICATED IP</string>

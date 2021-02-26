@@ -45,8 +45,6 @@ import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.PricingLoadedEvent;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.ui.DialogFactory;
-import com.privateinternetaccess.android.ui.drawer.DedicatedIPActivity;
 import com.privateinternetaccess.android.ui.drawer.settings.DeveloperActivity;
 import com.privateinternetaccess.android.ui.startup.StartupContainerFragment;
 import com.privateinternetaccess.android.utils.SubscriptionsUtils;

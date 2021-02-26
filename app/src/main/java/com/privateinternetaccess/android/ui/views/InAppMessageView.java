@@ -21,22 +21,20 @@ package com.privateinternetaccess.android.ui.views;
 import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.privateinternetaccess.account.model.response.MessageInformation;
 import com.privateinternetaccess.android.R;
-import com.privateinternetaccess.android.pia.utils.DLog;
+import com.privateinternetaccess.android.model.events.DedicatedIPUpdatedEvent;
 import com.privateinternetaccess.android.utils.InAppMessageManager;
 
-import java.util.Locale;
-import java.util.Map;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -69,29 +67,14 @@ public class InAppMessageView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        EventBus.getDefault().register(this);
         showMessage();
     }
 
-    private void showMessage() {
-        MessageInformation inappMessage = InAppMessageManager.getActiveMessage(getContext());
-
-        if (inappMessage != null) {
-            SpannableStringBuilder localizedMessage = InAppMessageManager.showMessage(getContext(), new ClickableSpan() {
-                @Override
-                public void onClick(@NonNull View view) {
-                    InAppMessageManager.handleLink(getContext(), inappMessage);
-                    showMessage();
-                }
-            });
-
-            this.setVisibility(View.VISIBLE);
-
-            tvMessage.setMovementMethod(LinkMovementMethod.getInstance());
-            tvMessage.setText(localizedMessage, TextView.BufferType.SPANNABLE);
-        }
-        else {
-            this.setVisibility(View.GONE);
-        }
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        EventBus.getDefault().unregister(this);
     }
 
     @OnClick(R.id.view_inapp_close)
@@ -99,4 +82,23 @@ public class InAppMessageView extends FrameLayout {
         InAppMessageManager.dismissMessage(getContext());
         showMessage();
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void dedicatedIPUpdatedEvent(DedicatedIPUpdatedEvent event) {
+        showMessage();
+    }
+
+    // region private
+    private void showMessage() {
+        if (!InAppMessageManager.hasQueuedMessages()) {
+            this.setVisibility(View.GONE);
+            return;
+        }
+
+        this.setVisibility(View.VISIBLE);
+        SpannableStringBuilder localizedMessage = InAppMessageManager.showMessage(getContext());
+        tvMessage.setMovementMethod(LinkMovementMethod.getInstance());
+        tvMessage.setText(localizedMessage, TextView.BufferType.SPANNABLE);
+    }
+    // endregion
 }

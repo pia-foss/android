@@ -96,6 +96,17 @@ interface IAccount {
     )
 
     /**
+     * @param token
+     * @param ipToken
+     * @param callback
+     */
+    fun renewDedicatedIP(
+            token: String,
+            ipToken: String,
+            callback: (status: RequestResponseStatus) -> Unit
+    )
+
+    /**
      * @return `AccountInformation`
      */
     fun persistedAccountInformation(): AccountInformation?

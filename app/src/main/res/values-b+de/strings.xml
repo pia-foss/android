@@ -610,11 +610,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">Dedizierte IP</string>
     <string name="dip_description">Aktivieren Sie Ihre Dedizierte IP, indem Sie Ihr Token in das unten stehende Formular einfügen. Wenn Sie kürzlich eine dedizierte IP erworben haben, können Sie das Token generieren, indem Sie die PIA-Website aufrufen.</string>
+    <string name="dip_summary">Sichern Sie Ihre Remoteverbindungen zu einem beliebigen Asset mit einer dedizierten IP aus einem Land Ihrer Wahl. Während Ihres Abonnements gehört diese IP ganz allein Ihnen und schützt Ihre Datenübertragungen mit der stärksten Verschlüsselung.</string>
     <string name="dip_your_header">IHRE DEDIZIERTEN IPS</string>
     <string name="dip_activate">Aktivieren</string>
     <string name="dip_remove_header">Dedizierte IP entfernen</string>
     <string name="dip_remove_body">%s - %s entfernen?</string>
+    <string name="dip_will_expire_warning">Ihre IP läuft demnächst ab.</string>
+    <string name="dip_get_a_new_one">Holen Sie sich eine neue IP.</string>
     <string name="dip_expired_warning">Ihr Token ist abgelaufen. Bitte generieren Sie von Ihrer Konto-Seite auf der Website ein neues.</string>
+    <string name="dip_updated_warning">Ihre IP wurde aktualisiert.</string>
     <string name="dip_invalid">Ihr Token ist ungültig. Bitte stellen Sie sicher, dass Sie das Token korrekt eingegeben haben.</string>
     <string name="dip_success">Ihre Dedizierte IP wurde erfolgreich aktiviert. Sie wird in der Auswahlliste Ihrer Region verfügbar sein.</string>
     <string name="dip_tag">DEDIZIERTE IP</string>

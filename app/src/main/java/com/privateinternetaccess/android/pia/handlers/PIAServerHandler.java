@@ -40,6 +40,7 @@ import com.privateinternetaccess.android.pia.receivers.PingReceiver;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.ServerResponseHelper;
+import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.utils.DedicatedIpUtils;
 import com.privateinternetaccess.android.utils.SystemUtils;
 import com.privateinternetaccess.common.regions.RegionLowerLatencyInformation;
@@ -68,6 +69,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function2;
@@ -488,22 +490,21 @@ public class PIAServerHandler {
         }
 
         String region = prefs.get(SELECTEDREGION, "");
-
-        if (isDedicatedServer(context, region) || servers.containsKey(region))
-            return false;
-
-        return true;
+        return !isDedicatedServer(context, region) && !servers.containsKey(region);
     }
 
     private boolean isDedicatedServer(Context context, String region) {
-        List<DedicatedIPInformationResponse.DedicatedIPInformation> dipList = PiaPrefHandler.getDedicatedIps(context);
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> dipList =
+                PiaPrefHandler.getDedicatedIps(context);
 
         for (DedicatedIPInformationResponse.DedicatedIPInformation dip : dipList) {
-            if (dip.getIp().equals(region))
+            if (dip.getIp() != null && dip.getIp().equals(region)) {
                 return true;
+            }
         }
 
-        return false;
+        PIAServer lastConnectedRegion = PIAVpnStatus.getLastConnectedRegion();
+        return VpnStatus.isVPNActive() && lastConnectedRegion!= null && lastConnectedRegion.isDedicatedIp();
     }
 
     public PIAServer getSelectedRegion(Context context, boolean returnNullonAuto) {
@@ -511,12 +512,18 @@ public class PIAServerHandler {
         String region = prefs.get(SELECTEDREGION, "");
 
         //Check DIP servers first
-        List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(context);
+        List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList =
+                PiaPrefHandler.getDedicatedIps(context);
 
         for (DedicatedIPInformationResponse.DedicatedIPInformation dip : ipList) {
-            if (dip.getIp().equals(region)) {
+            if (dip.getIp() != null && dip.getIp().equals(region)) {
                 return DedicatedIpUtils.serverForDip(dip, context);
             }
+        }
+
+        PIAServer lastConnectedRegion = PIAVpnStatus.getLastConnectedRegion();
+        if (VpnStatus.isVPNActive() && lastConnectedRegion!= null && lastConnectedRegion.isDedicatedIp()) {
+            return lastConnectedRegion;
         }
 
         if (servers.containsKey(region)) {

@@ -23,24 +23,36 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 
 import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse;
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse.Status;
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse.DedicatedIPInformation;
+import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.model.events.DedicatedIPUpdatedEvent;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
+import com.privateinternetaccess.android.pia.model.InAppLocalMessage;
+import com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus;
 import com.privateinternetaccess.core.model.PIAServer;
 
-import java.sql.Array;
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import kotlin.Pair;
 
+
 public class DedicatedIpUtils {
 
+    private static final int DIP_WILL_EXPIRE_WARNING_MIN_DAYS = 5;
+
     @Nullable
-    public static PIAServer serverForDip(DedicatedIPInformationResponse.DedicatedIPInformation dip, Context context) {
+    public static PIAServer serverForDip(DedicatedIPInformation dip, Context context) {
         PIAServerHandler serverHandler = PIAServerHandler.getInstance(context);
 
         for (PIAServer server : serverHandler.getServers(context, PIAServerHandler.ServerSortingType.NAME)) {
@@ -85,28 +97,8 @@ public class DedicatedIpUtils {
         return null;
     }
 
-    public static void refreshTokens(Context context) {
-        List<DedicatedIPInformationResponse.DedicatedIPInformation> dips = PiaPrefHandler.getDedicatedIps(context);
-        List<String> tokens = new ArrayList<>();
-
-        IAccount account = PIAFactory.getInstance().getAccount(context);
-        String authToken = PiaPrefHandler.getAuthToken(context);
-
-        for (DedicatedIPInformationResponse.DedicatedIPInformation dip : dips) {
-            tokens.add(dip.getDipToken());
-        }
-
-        if (!tokens.isEmpty()) {
-            account.dedicatedIPs(authToken, tokens, (details, requestResponseStatus) -> {
-                List<DedicatedIPInformationResponse.DedicatedIPInformation> dedicatedIps = details;
-
-                if (PiaPrefHandler.updateDedicatedIp(context, details)) {
-                    //TODO: Add logic to create a new in-app message for IP being updated in a DIP
-                }
-
-                return null;
-            });
-        }
+    public static void refreshTokensAndInAppMessages(Context context) {
+        updateDedicatedIpsIfNeeded(context);
     }
 
     public static String randomAlphaNumeric(int stringLength) {
@@ -120,4 +112,147 @@ public class DedicatedIpUtils {
 
         return builder.toString();
     }
+
+    // region private
+    private static void updateDedicatedIpsIfNeeded(Context context) {
+        List<String> tokens = new ArrayList<>();
+        List<DedicatedIPInformation> dips = PiaPrefHandler.getDedicatedIps(context);
+        for (DedicatedIPInformation dip : dips) {
+            tokens.add(dip.getDipToken());
+        }
+        if (tokens.isEmpty()) {
+            return;
+        }
+
+        IAccount account = PIAFactory.getInstance().getAccount(context);
+        String authToken = PiaPrefHandler.getAuthToken(context);
+        account.dedicatedIPs(authToken, tokens, (apiDips, requestResponseStatus) -> {
+            if (requestResponseStatus != RequestResponseStatus.SUCCEEDED) {
+                return null;
+            }
+
+            // Get the old list to check for IP updates
+            List<DedicatedIPInformation> oldDips = PiaPrefHandler.getDedicatedIps(context);
+
+            // Persist API state
+            PiaPrefHandler.saveDedicatedIps(context, apiDips);
+
+            // Queue InApp messages if needed
+            checkForIpUpdates(context, oldDips, apiDips);
+            checkForAboutToExpireTokens(context);
+            checkForExpiredTokens(context);
+
+            // Request to start showing message in case any was queued
+            if (InAppMessageManager.hasQueuedMessages()) {
+                EventBus.getDefault().post(new DedicatedIPUpdatedEvent());
+            }
+            return null;
+        });
+    }
+
+    private static void checkForIpUpdates(
+            Context context,
+            List<DedicatedIPInformation> oldDips,
+            List<DedicatedIPInformation> apiDips
+    ) {
+        for (DedicatedIPInformation savedDip : oldDips) {
+            for (DedicatedIPInformation apiDip : apiDips) {
+                if (savedDip.getDipToken().equals(apiDip.getDipToken()) &&
+                        savedDip.getIp() != null &&
+                        apiDip.getIp() != null &&
+                        !savedDip.getIp().equals(apiDip.getIp())
+                ) {
+                    InAppMessageManager.queueLocalMessage(
+                            new InAppLocalMessage(
+                                    randomAlphaNumeric(5),
+                                    context.getString(R.string.dip_updated_warning),
+                                    null,
+                                    null
+                            )
+                    );
+                }
+            }
+        }
+    }
+
+    private static void checkForAboutToExpireTokens(Context context) {
+        List<DedicatedIPInformation> dips = PiaPrefHandler.getDedicatedIps(context);
+        for (DedicatedIPInformation dip : dips) {
+            if (dip.getDip_expire() == null) {
+                continue;
+            }
+
+            Date currentDate = new Date();
+            Date expirationDate = new Date(TimeUnit.SECONDS.toMillis(dip.getDip_expire()));
+            long daysLeft = TimeUnit.DAYS.convert(
+                    expirationDate.getTime() - currentDate.getTime(),
+                    TimeUnit.MILLISECONDS
+            );
+            if (daysLeft >= 0 && daysLeft <= DIP_WILL_EXPIRE_WARNING_MIN_DAYS) {
+                String message = context.getString(R.string.dip_will_expire_warning) + " " +
+                        context.getString(R.string.dip_get_a_new_one);
+                Integer linkStartIndex = context.getString(R.string.dip_will_expire_warning).length() + 1;
+                Integer linkEndIndex = message.length();
+                InAppMessageManager.queueLocalMessage(
+                        new InAppLocalMessage(
+                                dip.getDipToken(),
+                                message,
+                                new Pair<>(linkStartIndex, linkEndIndex),
+                                "https://www.privateinternetaccess.com"
+                        )
+                );
+            }
+        }
+    }
+
+    private static void checkForExpiredTokens(Context context) {
+        List<DedicatedIPInformation> dips = PiaPrefHandler.getDedicatedIps(context);
+        DedicatedIPInformation expiredDip = null;
+
+        // Check expiration date
+        for (DedicatedIPInformation dip : dips) {
+            if (dip.getDip_expire() == null) {
+                continue;
+            }
+
+            Date currentDate = new Date();
+            Date expirationDate = new Date(TimeUnit.SECONDS.toMillis(dip.getDip_expire()));
+            long daysLeft = TimeUnit.DAYS.convert(
+                    expirationDate.getTime() - currentDate.getTime(),
+                    TimeUnit.MILLISECONDS
+            );
+            if (daysLeft < 0) {
+                expiredDip = dip;
+                break;
+            }
+        }
+
+        // Remove them from the persisted list depending on status
+        for (DedicatedIPInformation dip : dips) {
+            if (dip.getDip_expire() == null ||
+                    dip.getStatus() == Status.expired ||
+                    dip.getStatus() == Status.invalid
+            ) {
+                expiredDip = dip;
+            }
+        }
+
+        // If we have detected an expired token. Remove it and queue the InApp message
+        if (expiredDip != null) {
+            removeToken(context, expiredDip);
+            InAppMessageManager.queueLocalMessage(
+                    new InAppLocalMessage(
+                            expiredDip.getDipToken(),
+                            context.getString(R.string.dip_expired_warning),
+                            null,
+                            null
+                    )
+            );
+        }
+    }
+
+    private static void removeToken(Context context, DedicatedIPInformation dip) {
+        PiaPrefHandler.removeDedicatedIp(context, dip);
+    }
+    // endregion
 }

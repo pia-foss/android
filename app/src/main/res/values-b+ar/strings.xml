@@ -172,7 +172,7 @@
     <string name="save">حفظ</string>
     <string name="saved">تم الحفظ</string>
     <string name="speeds_shown_are_all_traffic_over_our_connection">السرعات المعروضة هي حركة المرور عبر اتصال VPN الخاصة بك</string>
-    <string name="ip_short">IP</string>
+    <string name="ip_short">عنوان IP</string>
     <string name="login_throttled_text">لقد أجريت الكثير من المحاولات الفاشلة باسم المستخدم هذا. يرجى إعادة المحاولة لاحقًا.</string>
     <string name="tap_to_connect">اضغط للاتصال</string>
     <string name="building_configration">جارٍ إنشاء التكوين…</string>
@@ -610,11 +610,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">عنوان IP مخصّص</string>
     <string name="dip_description">قم بتنشيط عنوان IP المخصّص عن طريق لصق الرمز في النموذج أدناه. إذا كنت قد اشتريت عنوان IP مخصصًا مؤخرًا، يمكنك إنشاء الرمز من خلال الذهاب إلى موقع PIA الإلكتروني.</string>
+    <string name="dip_summary">أمّن اتصالاتك بأي جهة عن بُعد باستخدام عنوان IP مخصّص من بلد من اختيارك. أثناء اشتراكك، سيكون عنوان IP هذا ملكًا لك وحدك، مما يحمي عمليات نقل البيانات الخاصة بك بأقوى تشفير في الوقت الحالي.</string>
     <string name="dip_your_header">عناوين IP المخصّصة</string>
     <string name="dip_activate">تنشيط</string>
     <string name="dip_remove_header">إزالة عنوان IP المخصّص</string>
     <string name="dip_remove_body">إزالة %s - %s؟</string>
+    <string name="dip_will_expire_warning">ستنتهي صلاحية عنوان IP المخصص قريبًا.</string>
+    <string name="dip_get_a_new_one">احصل على واحد جديد.</string>
     <string name="dip_expired_warning">انتهت صلاحية الرمز. يرجى إنشاء رمز جديد من صفحة حسابك على الموقع الإلكتروني.</string>
+    <string name="dip_updated_warning">تم تحديث عنوان IP المخصص.</string>
     <string name="dip_invalid">الرمز غير صالح. يرجى التأكد من إدخال الرمز بشكل صحيح.</string>
     <string name="dip_success">تم تنشيط عنوان IP المخصّص بنجاح. سيكون متاحًا في قائمة اختيار المنطقة.</string>
     <string name="dip_tag">عنوان IP مخصّص</string>

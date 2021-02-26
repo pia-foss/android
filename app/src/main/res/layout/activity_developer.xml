@@ -203,6 +203,69 @@
                 android:layout_height="1dp"
                 android:background="@color/per_app_divider"/>
 
+            <!-- Override DIP Tokens -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Override DIP Tokens"
+                    style="@style/PiaTextBody1"
+                    />
+
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/developer_override_dip_switch"
+                    android:checked="false"
+                    android:layout_alignParentRight="true"
+                    android:clickable="false"
+                    android:focusableInTouchMode="false"
+                    android:focusable="false"
+                    />
+            </RelativeLayout>
+
+            <!-- Add DIP Tokens -->
+            <LinearLayout
+                android:id="@+id/developer_add_dip_token_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:visibility="gone"
+                android:orientation="vertical"
+                >
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/developer_add_dip_token_edit_text"
+                    android:gravity="top"
+                    android:textSize="13sp"
+                    android:hint="Days to apply to today's date for the token's expiration date"
+                    android:layout_margin="5dp"
+                    />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/developer_add_dip_token_button"
+                    android:text="Add"
+                    style="@style/PIAButton.Green.Small"
+                    android:layout_gravity="center"
+                    />
+
+            </LinearLayout>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/per_app_divider"/>
+
             <!-- VPN Control -->
 
             <TextView

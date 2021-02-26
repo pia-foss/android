@@ -33,7 +33,6 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.zxing.client.android.Intents;
 import com.privateinternetaccess.android.BuildConfig;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
@@ -301,28 +300,6 @@ public class LoginPurchaseActivity extends BaseActivity {
         if(event.isSuccess()){
             PiaPrefHandler.setHasSetEmail(this, false);
             switchToPurchasingProcess(true, false);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(data != null){
-            if(data.getExtras() != null && data.getExtras().containsKey(Intents.Scan.RESULT)){
-                String giftCode = data.getExtras().getString(Intents.Scan.RESULT);
-                // Gots it.
-                TrialFragment fragment = getGiftCardFragment();
-                if(fragment != null)
-                    fragment.onGiftCardQRCodeReceived(giftCode);
-                else {
-                    //Save?
-                }
-            } else {
-                // Error message? Or should Trial Fragment handle the error
-            }
-        } else {
-            // probably not from parsing the QR reader
         }
     }
 

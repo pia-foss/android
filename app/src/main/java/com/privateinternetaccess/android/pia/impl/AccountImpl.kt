@@ -34,6 +34,7 @@ import com.privateinternetaccess.android.pia.model.PurchaseData
 import com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus
 import com.privateinternetaccess.android.pia.providers.ModuleClientStateProvider
 import com.privateinternetaccess.android.pia.utils.DLog
+import com.privateinternetaccess.android.ui.connection.MainActivityHandler
 import com.privateinternetaccess.android.utils.CSIHelper
 import com.privateinternetaccess.csi.*
 
@@ -249,6 +250,27 @@ class AccountImpl(private val context: Context) : IAccount, ProtocolInformationP
             }
 
             callback(details, RequestResponseStatus.SUCCEEDED)
+        }
+    }
+
+    override fun renewDedicatedIP(
+            token: String,
+            ipToken: String,
+            callback: (status: RequestResponseStatus) -> Unit
+    ) {
+        if (PiaPrefHandler.isFeatureActive(context, MainActivityHandler.DIP_CHECK_EXPIRATION_REQUEST)) {
+            androidAccountAPI?.renewDedicatedIP(token, ipToken) { error ->
+                error?.let {
+                    DLog.w(TAG, "renewDedicatedIP error: $error")
+                    callback(adaptResponseCode(it.code))
+                    return@renewDedicatedIP
+                }
+
+                callback(RequestResponseStatus.SUCCEEDED)
+            }
+        } else {
+            DLog.w(TAG, "renewDedicatedIP error: Feature flag missing.")
+            callback(RequestResponseStatus.OP_FAILED)
         }
     }
 

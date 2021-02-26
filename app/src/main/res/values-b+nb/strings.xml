@@ -618,11 +618,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">Dedikert IP</string>
     <string name="dip_description">Aktiver din dedikerte IP ved å lime inn tokenet ditt i skjemaet nedenfor. Hvis du nylig har kjøpt en dedikert IP, kan du generere tokenet ved å gå til PIA-nettstedet.</string>
+    <string name="dip_summary">Sikre eksterne tilkoblinger til alle eiendeler med en dedikert IP fra et land du velger. Under abonnementet ditt får du IP-en helt og holdent alene. I tillegg beskytter vi dataoverføringene dine med den sterkeste krypteringen som finnes.</string>
     <string name="dip_your_header">DINE DEDIKERTE IP-ER</string>
     <string name="dip_activate">Aktiver</string>
     <string name="dip_remove_header">Fjern dedikert IP</string>
     <string name="dip_remove_body">Vil du fjerne %s - %s?</string>
+    <string name="dip_will_expire_warning">Dedikerte IP-en din utløper snart.</string>
+    <string name="dip_get_a_new_one">Få en ny.</string>
     <string name="dip_expired_warning">Tokenet er utløpt. Generer et nytt et fra kontosiden din på nettstedet.</string>
+    <string name="dip_updated_warning">Den dedikerte IP-en ble oppdatert.</string>
     <string name="dip_invalid">Tokenet er ugyldig. Kontroller at du har skrevet tokenet riktig.</string>
     <string name="dip_success">Den dedikerte IP-en din ble aktivert. Den blir tilgjengelig i regionvalg-listen.</string>
     <string name="dip_tag">DEDIKERT IP</string>

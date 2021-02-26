@@ -23,17 +23,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
-        android:id="@+id/snippet_dip_top_frame"
+        android:id="@+id/snippet_dip_top_summary"
         android:padding="16dp"
         android:background="@color/dip_panel_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent">
 
         <TextView
-            android:id="@+id/trusted_wifi_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/Style02"
@@ -42,7 +42,32 @@
             android:text="@string/dip_menu_title" />
 
         <TextView
-            android:id="@+id/trusted_wifi_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Style13"
+            android:text="@string/dip_summary" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/snippet_dip_top_frame"
+        android:padding="16dp"
+        android:background="@color/dip_panel_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/snippet_dip_top_summary"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Style02"
+            android:textColor="?attr/grey20_white"
+            android:textStyle="bold"
+            android:text="@string/dip_menu_title" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/Style13"

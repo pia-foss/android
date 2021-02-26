@@ -610,11 +610,15 @@
     <!-- Dedicated IP -->
     <string name="dip_menu_title">Выделенный IP</string>
     <string name="dip_description">Активируйте выделенный IP, вставив свой токен в форму ниже. Если вы недавно купили выделенный IP, то можете создать токен на сайте PIA.</string>
+    <string name="dip_summary">Сделайте свои удаленные подключения безопасными с выделенным IP-адресом из страны на ваш выбор. Пока действует подписка, адрес будет только вашим – это лучшая защита передачи данных из всех возможных.</string>
     <string name="dip_your_header">ВАШИ ВЫДЕЛЕННЫЕ IP</string>
     <string name="dip_activate">Активировать</string>
     <string name="dip_remove_header">Удалить выделенный IP</string>
     <string name="dip_remove_body">Удалить %s – %s?</string>
+    <string name="dip_will_expire_warning">Ваш выделенный IP-адрес скоро устареет.</string>
+    <string name="dip_get_a_new_one">Получите новый.</string>
     <string name="dip_expired_warning">Срок действия токена истек. Создайте новый токен на странице своей учетной записи на веб-сайте.</string>
+    <string name="dip_updated_warning">Ваш выделенный IP-адрес обновлен.</string>
     <string name="dip_invalid">Недействительный токен. Проверьте правильность ввода токена.</string>
     <string name="dip_success">Выделенный IP успешно активирован. Он будет доступен в вашем списке выбора региона.</string>
     <string name="dip_tag">ВЫДЕЛЕННЫЙ IP</string>
