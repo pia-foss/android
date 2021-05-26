@@ -17,14 +17,20 @@
   ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<resources>
-    <!-- Updater strings -->
-    <string name="updater_alert_title">업데이트 이용 가능</string>
-    <string name="updater_alert_body">새로운 버전을 이용할 수 있습니다. 업데이트하시겠습니까?</string>
-    <string name="updater_alert_confirm">다운로드</string>
-    <string name="updater_alert_dismiss">나중에 알림</string>
-    <string name="updater_notification_title">지금 업데이트</string>
-    <string name="updater_notification_body">Private Internet Access 새 버전을 이용할 수 있습니다.</string>
-    <string name="pia_update_channel_title">PIA 업데이트</string>
-    <string name="pia_update_channel_description">앱 업데이트 알림</string>
-</resources>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
+    android:paddingTop="30dp"
+    android:background="?attr/dialog_body_background">
+
+    <com.privateinternetaccess.android.ui.views.PiaxEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/snippet_dialog_edit_text"
+        app:textColorMain="?attr/piax_edit_text_color"
+        app:underlineColor="?attr/piax_edit_underline_color"/>
+
+</FrameLayout>

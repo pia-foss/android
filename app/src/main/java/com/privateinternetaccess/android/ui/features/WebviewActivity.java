@@ -25,6 +25,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -94,6 +95,8 @@ public class WebviewActivity extends BaseActivity {
         mWebView = findViewById(R.id.webview_webview);
         swipeRefreshLayout = findViewById(R.id.swipe_to_refresh);
 
+        hideIconButton();
+
         mWebView.setWebChromeClient(new WebChromeClient(){
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
@@ -108,12 +111,7 @@ public class WebviewActivity extends BaseActivity {
         });
 
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getApplicationContext(), R.color.pia_gen_green));
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                mWebView.loadUrl(mWebView.getUrl());
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(() -> mWebView.loadUrl(mWebView.getUrl()));
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {

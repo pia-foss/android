@@ -111,17 +111,10 @@
             android:title="@string/settings_mace"
             app:iconSpaceReserved="false"/>
 
-        <androidx.preference.SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="killswitch"
-            android:summary="@string/killswitchsummary"
-            android:title="@string/killswitch"
-            app:iconSpaceReserved="false"/>
-
         <androidx.preference.Preference
             android:key="oreoalwayson"
             android:summary="@string/androidalwaysonsummary"
-            android:title="@string/androidalwayson"
+            android:title="@string/killswitch"
             app:iconSpaceReserved="false"/>
 
         <androidx.preference.SwitchPreferenceCompat

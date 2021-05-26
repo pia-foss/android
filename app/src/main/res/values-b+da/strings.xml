@@ -444,6 +444,7 @@
     <string name="network_permisions_top_text">PIA kræver adgang til dine placeringstjenester for at kunne opdage nærliggende wifi-netværk.</string>
     <string name="network_permissions_middle_text">Du får vist en prompt og vil blive bedt om placeringstilladelser. For at fortsætte tryk på \"OK\"</string>
     <string name="network_permission_network">Vi overvåger, filtrerer eller logger ikke nogen netværksaktivitet.</string>
+    <string name="account_invalid_warning">"Ugyldige kontooplysninger"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">KØB KONTO</string>
     <string name="redeem_gift_card">INDLØS GAVEKORT</string>
@@ -540,6 +541,7 @@
     <string name="quick_settings_private_browser">Privat browser</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">HURTIG-TILSLUTNING</string>
+    <string name="quick_connect_favorites_title">FAVORITSERVERE</string>
     <!-- Usage Strings -->
     <string name="usage_title">BRUG</string>
     <string name="usage_download">Download</string>

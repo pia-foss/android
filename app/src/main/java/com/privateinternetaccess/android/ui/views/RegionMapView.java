@@ -149,9 +149,6 @@ public class RegionMapView extends FrameLayout {
                                 (int)(getLocationX() + shapeRadius / 2),
                                 (int)(getLocationY() + shapeRadius / 2));
         locationShape.draw(canvas);
-        DLog.d("RegionMapView", "Updated map");
-        DLog.d("RegionMapView", "X: " + getLocationX() + " Y: " + getLocationY());
-        DLog.d("RegionMapView", "Bounds: " + locationShape.getBounds().toString());
     }
 
     // Top and bottom, Miller-projected

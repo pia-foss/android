@@ -20,9 +20,10 @@ package com.privateinternetaccess.android.pia.utils
 
 import android.content.Context
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler
-import com.privateinternetaccess.common.regions.RegionsProtocol
-import com.privateinternetaccess.common.regions.model.RegionsResponse
+import com.privateinternetaccess.regions.RegionsProtocol
+import com.privateinternetaccess.regions.model.RegionsResponse
 import com.privateinternetaccess.core.model.PIAServer
+import com.privateinternetaccess.core.model.PIAServer.PIAServerEndpointDetails
 import com.privateinternetaccess.core.model.PIAServerInfo
 
 
@@ -36,17 +37,22 @@ class ServerResponseHelper {
                 val ovpnUdpEndpoints = region.servers[RegionsProtocol.OPENVPN_UDP.protocol]
                 val metaEndpoints = region.servers[RegionsProtocol.META.protocol]
 
-                val regionEndpoints = mutableMapOf<PIAServer.Protocol, List<Pair<String, String>>>()
+                val regionEndpoints =
+                        mutableMapOf<PIAServer.Protocol, List<PIAServerEndpointDetails>>()
 
                 regionsResponse.groups[RegionsProtocol.WIREGUARD.protocol]?.let { group ->
                     val port = group.first().ports.first().toString()
                     wireguardEndpoints?.let {
-                        val mappedEndpoints = mutableListOf<Pair<String, String>>()
+                        val mappedEndpoints = mutableListOf<PIAServerEndpointDetails>()
                         for (wireguardEndpoint in it) {
                             // Application does not support the user option to choose wg ports and
                             // expect the format `endpoint:port`, as it is not aware of wg ports.
                             mappedEndpoints.add(
-                                    Pair("${wireguardEndpoint.ip}:$port", wireguardEndpoint.cn)
+                                    PIAServerEndpointDetails(
+                                            "${wireguardEndpoint.ip}:$port",
+                                            wireguardEndpoint.cn,
+                                            wireguardEndpoint.usesVanillaOVPN
+                                    )
                             )
 
                         }
@@ -55,27 +61,39 @@ class ServerResponseHelper {
                 }
 
                 ovpnTcpEndpoints?.let {
-                    val mappedEndpoints = mutableListOf<Pair<String, String>>()
+                    val mappedEndpoints = mutableListOf<PIAServerEndpointDetails>()
                     for (ovpnTcpEndpoint in it) {
-                        mappedEndpoints.add(Pair(ovpnTcpEndpoint.ip, ovpnTcpEndpoint.cn))
+                        mappedEndpoints.add(PIAServerEndpointDetails(
+                                ovpnTcpEndpoint.ip,
+                                ovpnTcpEndpoint.cn,
+                                ovpnTcpEndpoint.usesVanillaOVPN
+                        ))
 
                     }
                     regionEndpoints[PIAServer.Protocol.OPENVPN_TCP] = mappedEndpoints
                 }
 
                 ovpnUdpEndpoints?.let {
-                    val mappedEndpoints = mutableListOf<Pair<String, String>>()
+                    val mappedEndpoints = mutableListOf<PIAServerEndpointDetails>()
                     for (ovpnUdpEndpoint in it) {
-                        mappedEndpoints.add(Pair(ovpnUdpEndpoint.ip, ovpnUdpEndpoint.cn))
+                        mappedEndpoints.add(PIAServerEndpointDetails(
+                                ovpnUdpEndpoint.ip,
+                                ovpnUdpEndpoint.cn,
+                                ovpnUdpEndpoint.usesVanillaOVPN
+                        ))
 
                     }
                     regionEndpoints[PIAServer.Protocol.OPENVPN_UDP] = mappedEndpoints
                 }
 
                 metaEndpoints?.let {
-                    val mappedEndpoints = mutableListOf<Pair<String, String>>()
+                    val mappedEndpoints = mutableListOf<PIAServerEndpointDetails>()
                     for (metaEndpoint in it) {
-                        mappedEndpoints.add(Pair(metaEndpoint.ip, metaEndpoint.cn))
+                        mappedEndpoints.add(PIAServerEndpointDetails(
+                                metaEndpoint.ip,
+                                metaEndpoint.cn,
+                                metaEndpoint.usesVanillaOVPN
+                        ))
 
                     }
                     regionEndpoints[PIAServer.Protocol.META] = mappedEndpoints
@@ -120,12 +138,7 @@ class ServerResponseHelper {
             regionsResponse.groups[RegionsProtocol.OPENVPN_UDP.protocol]?.forEach { protocolPorts ->
                 ovpnudp.addAll(protocolPorts.ports)
             }
-            return PIAServerInfo(
-                    listOf("www.privateinternetaccess.com"),
-                    autoRegions,
-                    ovpnudp,
-                    ovpntcp
-            )
+            return PIAServerInfo(autoRegions, ovpnudp, ovpntcp)
         }
     }
 }

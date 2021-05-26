@@ -27,8 +27,13 @@ import androidx.annotation.VisibleForTesting;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.utils.KeyStoreUtils;
 
+import org.json.JSONArray;
+
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.privateinternetaccess.android.pia.handlers.PIAServerHandler.SELECTEDREGION_deprecated;
+
 
 /**
  * Created by half47 on 6/9/16.
@@ -50,7 +55,11 @@ public class Prefs {
             PiaPrefHandler.SUBSCRIPTION_EMAIL,
             PiaPrefHandler.TRIAL_EMAIL,
             PiaPrefHandler.TRIAL_EMAIL_TEMP,
-            PiaPrefHandler.DIP_TOKENS
+            PiaPrefHandler.DIP_TOKENS,
+            PiaPrefHandler.GEN4_LAST_SERVER_BODY,
+            PiaPrefHandler.GEN4_QUICK_CONNECT_LIST,
+            PiaPrefHandler.FAVORITE_REGIONS,
+            PiaPrefHandler.SELECTED_REGION,
     };
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
@@ -75,12 +84,38 @@ public class Prefs {
         preferences = new MultiPreferences(fileName, context.getContentResolver());
         oldPreferences = context.getSharedPreferences(fileName, 0);
         prepareKeyStoreUtils(context);
+        migrateSelectedRegion();
+        migrateFavorites();
     }
 
     private void prepareKeyStoreUtils(Context context) {
         if (keyStoreUtils == null) {
             keyStoreUtils = new KeyStoreUtils(context, preferences);
         }
+    }
+
+    private void migrateSelectedRegion() {
+        String oldSelectedRegion = get(SELECTEDREGION_deprecated, "");
+        remove(SELECTEDREGION_deprecated);
+        if (TextUtils.isEmpty(oldSelectedRegion)) {
+            return;
+        }
+
+        set(PiaPrefHandler.SELECTED_REGION, oldSelectedRegion);
+    }
+
+    private void migrateFavorites() {
+        Set<String> oldFavorites = get(PiaPrefHandler.FAVORITES_deprecated + STRING_SET_SUFFIX, new HashSet<>());
+        remove(PiaPrefHandler.FAVORITES_deprecated + STRING_SET_SUFFIX);
+        if (oldFavorites.isEmpty()) {
+            return;
+        }
+
+        JSONArray array = new JSONArray();
+        for (String favorite : oldFavorites) {
+            array.put(favorite);
+        }
+        set(PiaPrefHandler.FAVORITE_REGIONS, array.toString());
     }
 
     /**
@@ -211,6 +246,9 @@ public class Prefs {
 
     public void set(String key, String value) {
         if (isPrivacySensitiveKey(key)) {
+            // Remove old non-encrypted key if needed
+            preferences.removePreference(key);
+
             key = key + ENCRYPTED_SUFFIX;
             if (value != null) {
                 value = keyStoreUtils.encrypt(value);

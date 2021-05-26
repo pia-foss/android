@@ -445,6 +445,7 @@ privateinternetaccess.com</string>
     <string name="network_permisions_top_text">PIA richiede l\'accesso ai servizi di localizzazione per rilevare le reti Wi-Fi nelle vicinanze.</string>
     <string name="network_permissions_middle_text">Vedrai un messaggio che richiede l\'attivazione dei servizi di localizzazione. Per continuare, tocca \"OK\".</string>
     <string name="network_permission_network">Non monitoriamo, filtriamo o registriamo alcuna attività di rete.</string>
+    <string name="account_invalid_warning">"Informazioni account non valide"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">ACQUISTA ACCOUNT</string>
     <string name="redeem_gift_card">RISCATTA LA CARTA REGALO</string>
@@ -541,6 +542,7 @@ privateinternetaccess.com</string>
     <string name="quick_settings_private_browser">Browser privato</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">CONNESSIONE RAPIDA</string>
+    <string name="quick_connect_favorites_title">SERVER PREFERITI</string>
     <!-- Usage Strings -->
     <string name="usage_title">UTILIZZO</string>
     <string name="usage_download">Scarica</string>

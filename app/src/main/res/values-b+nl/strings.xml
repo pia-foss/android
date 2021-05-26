@@ -444,6 +444,7 @@
     <string name="network_permisions_top_text">PIA vereist toegang tot je locatieservices om wifinetwerken in de buurt te detecteren.</string>
     <string name="network_permissions_middle_text">U krijgt een melding te zien waarin om locatietoestemming wordt gevraagd. Tik op \'OK\' om door te gaan</string>
     <string name="network_permission_network">We monitoren, filteren of registreren geen netwerkactiviteit.</string>
+    <string name="account_invalid_warning">"Ongeldige accountinformatie"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">ACCOUNT KOPEN</string>
     <string name="redeem_gift_card">CADEAUBON INWISSELEN</string>
@@ -540,6 +541,7 @@
     <string name="quick_settings_private_browser">Privébrowser</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">SNEL VERBINDEN</string>
+    <string name="quick_connect_favorites_title">FAVORIETE SERVERS</string>
     <!-- Usage Strings -->
     <string name="usage_title">GEBRUIK</string>
     <string name="usage_download">Downloaden</string>

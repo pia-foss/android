@@ -126,8 +126,15 @@ android {
             renderscriptTargetApi rootProject.minSdkVersion
             renderscriptSupportModeEnabled true
 
+            def appVersionName = "3.11.3"
+            def bitriseBuildNumber = System.getenv("BITRISE_BUILD_NUMBER") ?: ""
+            if (!bitriseBuildNumber.isEmpty()) {
+                appVersionName = appVersionName + "-Bitrise(" + bitriseBuildNumber + ")"
+            }
+
             versionCode code
-            versionName "3.10.1"
+            versionName appVersionName
+
             setProperty("archivesBaseName", "pia-$versionName-$versionCode")
             vectorDrawables {
                 useSupportLibrary = true
@@ -245,10 +252,28 @@ android {
 
 task fetchRegions {
     println "Fetching initial list of regions"
-    def response = new URL("https://serverlist.piaservers.net/vpninfo/servers/v5").getText()
+    def response = new URL("https://serverlist.piaservers.net/vpninfo/servers/v6").getText()
     new File("app/src/main/assets/regions.json").write response
 }
 preBuild.dependsOn fetchRegions
+
+/*
+ *  Copyright (c) 2020 Private Internet Access, Inc.
+ *
+ *  This file is part of the Private Internet Access Android Client.
+ *
+ *  The Private Internet Access Android Client is free software: you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License as published by the Free
+ *  Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ *  The Private Internet Access Android Client is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *  details.
+ *
+ *  You should have received a copy of the GNU General Public License along with the Private
+ *  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 // Ensure native build is run before assets, so assets are ready to be merged into the apk
 android.applicationVariants.all { variant ->

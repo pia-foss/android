@@ -26,8 +26,8 @@ import com.privateinternetaccess.android.pia.PIAFactory
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler.ServerSortingType
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler
-import com.privateinternetaccess.common.regions.RegionClientStateProvider
-import com.privateinternetaccess.common.regions.RegionEndpoint
+import com.privateinternetaccess.regions.RegionClientStateProvider
+import com.privateinternetaccess.regions.RegionEndpoint
 import com.privateinternetaccess.core.model.PIAServer
 import com.privateinternetaccess.csi.CSIClientStateProvider
 import com.privateinternetaccess.csi.CSIEndpoint
@@ -75,10 +75,15 @@ class ModuleClientStateProvider(
                 )
         )
         if (PiaPrefHandler.useStaging(context)) {
+            var stagingHost = BuildConfig.STAGEINGHOST
+            if (stagingHost.contains("staging-1")) {
+                val stagingServerNumber = PiaPrefHandler.getStagingServerNumber(context)
+                stagingHost = stagingHost.replace("staging-1", "staging-$stagingServerNumber")
+            }
             endpoints.clear()
             endpoints.add(
                     AccountEndpoint(
-                            BuildConfig.STAGEINGHOST.replace("https://", ""),
+                            stagingHost.replace("https://", ""),
                             isProxy = false,
                             usePinnedCertificate = false,
                             certificateCommonName = null
@@ -134,7 +139,7 @@ class ModuleClientStateProvider(
                                 GATEWAY,
                                 isProxy = true,
                                 usePinnedCertificate = true,
-                                certificateCommonName = selectedEndpoints.first().second
+                                certificateCommonName = selectedEndpoints.first().cn
                         )
                 )
             }
@@ -172,10 +177,10 @@ class ModuleClientStateProvider(
             if (selectedEndpoint != null) {
                 endpoints.add(
                         GenericEndpoint(
-                                selectedEndpoint.first,
+                                selectedEndpoint.ip,
                                 isProxy = true,
                                 usePinnedCertificate = true,
-                                certificateCommonName = selectedEndpoint.second
+                                certificateCommonName = selectedEndpoint.cn
                         )
                 )
             }

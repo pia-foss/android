@@ -112,9 +112,14 @@ public class PiaApi {
             isStaging = PiaPrefHandler.useStaging(context);
         } catch (Exception e) {
         }
-        if (isStaging)
-            return BuildConfig.STAGEINGHOST;
-        else {
+        if (isStaging) {
+            String host = BuildConfig.STAGEINGHOST;
+            if (host.contains("staging-1")) {
+                int stagingServerNumber = PiaPrefHandler.getStagingServerNumber(context);
+                host = host.replace("staging-1", "staging-" +stagingServerNumber);
+            }
+            return host;
+        } else {
             String url = "https://www.privateinternetaccess.com/";
             try {
                 url = PROXY_PATHS.get(PiaPrefHandler.getSelectedProxyPath(context));

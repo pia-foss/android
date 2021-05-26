@@ -444,6 +444,7 @@
     <string name="network_permisions_top_text">يتطلب PIA الوصول إلى خدمات موقعك من أجل الكشف عن شبكات WiFi القريبة.</string>
     <string name="network_permissions_middle_text">سترى مطالبة تحتاج إلى أذونات الموقع. للمتابعة اضغط على \"موافق\"</string>
     <string name="network_permission_network">نحن لا نقوم بمراقبة أو تصفية أو تسجيل أي نشاط على الشبكة.</string>
+    <string name="account_invalid_warning">"معلومات الحساب غير الصالحة"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">شراء حساب</string>
     <string name="redeem_gift_card">استبدال بطاقة الهدية</string>
@@ -540,6 +541,7 @@
     <string name="quick_settings_private_browser">المتصفح الخاص</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">اتصال سريع</string>
+    <string name="quick_connect_favorites_title">الخوادم المفضلة</string>
     <!-- Usage Strings -->
     <string name="usage_title">الاستخدام</string>
     <string name="usage_download">تنزيل</string>

@@ -26,16 +26,14 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/search_icon"
-        android:layout_width="17dp"
-        android:layout_height="17dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="17dp"
-        android:layout_marginBottom="17dp"
-        android:scaleType="fitXY"
-        app:srcCompat="@drawable/ic_search"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:scaleType="fitCenter"
+        android:layout_marginStart="20dp"
+        android:layout_marginVertical="15dp"
         android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_alignParentStart="true"
+        app:srcCompat="@drawable/ic_search"/>
 
     <EditText
         style="@style/Style06"
@@ -45,21 +43,23 @@
         android:textColor="?attr/grey20_white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/search_icon"
-        android:layout_toLeftOf="@+id/cancel_icon"
+        android:layout_toEndOf="@+id/search_icon"
+        android:layout_toStartOf="@+id/cancel_icon"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="14dp"
+        android:layout_marginStart="14dp"
         android:inputType="text"
         android:hint="@string/search_region"/>
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/cancel_icon"
-        android:layout_width="13dp"
-        android:layout_height="13dp"
-        android:layout_marginRight="20dp"
-        app:srcCompat="@drawable/ic_search_cancel"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:scaleType="fitCenter"
+        android:layout_marginEnd="20dp"
+        android:layout_marginVertical="15dp"
         android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_alignParentEnd="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:srcCompat="@drawable/ic_search_cancel" />
 
 </RelativeLayout>

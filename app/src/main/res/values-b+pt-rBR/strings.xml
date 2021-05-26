@@ -444,6 +444,7 @@
     <string name="network_permisions_top_text">O PIA requer acesso aos seus serviços de localização para detectar redes wifi próximas.</string>
     <string name="network_permissions_middle_text">Você verá um aviso pedindo por permissões de Localização. Para continuar, toque em \"OK\"</string>
     <string name="network_permission_network">Não monitoramos, filtramos ou registramos nenhuma atividade de rede.</string>
+    <string name="account_invalid_warning">"Informações de conta inválidas"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">COMPRAR CONTA</string>
     <string name="redeem_gift_card">RESGATAR CARTÃO-PRESENTE</string>
@@ -541,6 +542,7 @@
     <string name="quick_settings_private_browser">Navegador Privado</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">CONEXÃO RÁPIDA</string>
+    <string name="quick_connect_favorites_title">SERVIDORES FAVORITOS</string>
     <!-- Usage Strings -->
     <string name="usage_title">USO</string>
     <string name="usage_download">Download</string>

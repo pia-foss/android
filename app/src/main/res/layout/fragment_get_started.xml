@@ -102,7 +102,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_end="320dp" />
+        app:layout_constraintGuide_end="360dp" />
 
     <RelativeLayout
         android:id="@+id/activity_login_purchasing_button_layout"
@@ -125,7 +125,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:layout_margin="25dp"
             android:layout_centerHorizontal="true"
@@ -195,7 +195,7 @@
                 android:layout_marginRight="30dp"
                 android:layout_marginTop="16dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:text="@string/tos_pos_text"
                 android:id="@+id/activity_login_purchasing_TOS"
                 android:textColorLink="@color/greendark20"

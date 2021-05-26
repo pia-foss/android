@@ -463,6 +463,7 @@
     <string name="network_permisions_top_text">PIA requires access to your location services in order to detect nearby wifi networks.</string>
     <string name="network_permissions_middle_text">You\'ll see a prompt asking for Location permissions. To proceed tap on \"OK\"</string>
     <string name="network_permission_network">We don\'t monitor, filter or log any network activity.</string>
+    <string name="account_invalid_warning">"Invalid account information"</string>
 
     <!-- PIAX Specific Strings -->
     <string name="buy_account">BUY ACCOUNT</string>
@@ -594,6 +595,7 @@
 
     <!-- Quick Connect String -->
     <string name="quick_connect_title">QUICK CONNECT</string>
+    <string name="quick_connect_favorites_title">FAVORITE SERVERS</string>
 
     <!-- Usage Strings -->
     <string name="usage_title">USAGE</string>

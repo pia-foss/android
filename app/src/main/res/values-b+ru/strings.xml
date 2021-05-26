@@ -444,6 +444,7 @@
     <string name="network_permisions_top_text">PIA для обнаружения ближайших сетей Wi-Fi требуется доступ к сервисам определения местоположения.</string>
     <string name="network_permissions_middle_text">Вы увидите подсказку с просьбой разрешить определение местоположения. Для продолжения коснитесь «ОК».</string>
     <string name="network_permission_network">Мы не отслеживаем, не фильтруем и не регистрируем действия в сети.</string>
+    <string name="account_invalid_warning">"Неверные данные учетной записи"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">КУПИТЬ УЧЕТНУЮ ЗАПИСЬ</string>
     <string name="redeem_gift_card">ИСП-ТЬ ПОДАРОЧНУЮ КАРТУ</string>
@@ -540,6 +541,7 @@
     <string name="quick_settings_private_browser">Приватный браузер</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">БЫСТРОЕ ПОДКЛЮЧЕНИЕ</string>
+    <string name="quick_connect_favorites_title">ИЗБРАННЫЕ СЕРВЕРЫ</string>
     <!-- Usage Strings -->
     <string name="usage_title">ИСПОЛЬЗОВАНИЕ</string>
     <string name="usage_download">Загрузить</string>

@@ -59,6 +59,7 @@ class VPNFallbackEndpointProvider : CoroutineScope {
             val name: String,
             val endpoint: String,
             val commonName: String,
+            val usesVanillaOpenVPN: Boolean,
             val wireguardServer: PIAServer
     )
 
@@ -192,7 +193,7 @@ class VPNFallbackEndpointProvider : CoroutineScope {
         region?.let {
             val protocol = ServerUtils.getUserSelectedProtocol(context)
             region.endpoints[protocol]?.forEach {
-                var endpoint = it.first
+                var endpoint = it.ip
 
                 // If we want to force fail the connection attempt for testing. Return an invalid value.
                 if (PiaPrefHandler.getRegionInitialConnectionRandomizerTesting(context)) {
@@ -205,7 +206,8 @@ class VPNFallbackEndpointProvider : CoroutineScope {
                         region.key,
                         region.name,
                         endpoint,
-                        it.second,
+                        it.cn,
+                        it.usesVanillaOpenVPN,
                         region
                 ))
             }

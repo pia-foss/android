@@ -68,6 +68,11 @@ public class PiaxEditText extends FrameLayout {
 
     private int underlineColor;
 
+    public PiaxEditText(Context context) {
+        super(context);
+        init(context, null);
+    }
+
     public PiaxEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
@@ -234,6 +239,16 @@ public class PiaxEditText extends FrameLayout {
         }
     };
 
+    public void setHint(int resId) {
+        etMain.setHint(resId);
+        tvHint.setText(resId);
+    }
+
+    public void setHint(String hint) {
+        etMain.setHint(hint);
+        tvHint.setText(hint);
+    }
+
     private void showHint() {
         if (hideHint) {
             tvHint.setVisibility(View.GONE);
@@ -246,6 +261,14 @@ public class PiaxEditText extends FrameLayout {
             tvHint.setVisibility(View.GONE);
             etMain.setHint(hint);
         }
+    }
+
+    public void hideLeftIcon() {
+        ivLeftIcon.setVisibility(View.GONE);
+    }
+
+    public void showLeftIcon() {
+        ivLeftIcon.setVisibility(View.VISIBLE);
     }
 
 }

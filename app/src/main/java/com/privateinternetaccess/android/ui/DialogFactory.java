@@ -34,11 +34,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.privateinternetaccess.android.R;
+import com.privateinternetaccess.android.ui.views.PiaxEditText;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.ktor.http.cio.websocket.Frame;
 
 public class DialogFactory {
 
@@ -56,6 +58,7 @@ public class DialogFactory {
     @BindView(R.id.dialog_title) TextView titleText;
 
     private RadioGroup radioGroup;
+    private PiaxEditText editText;
 
     public DialogFactory(Context context) {
         mContext = context;
@@ -72,6 +75,15 @@ public class DialogFactory {
         return builder.create();
     }
 
+    public void addTextBox() {
+        View editLayout = LayoutInflater.from(mContext).inflate(R.layout.snippet_dialog_edit_text, null);
+        PiaxEditText editText = editLayout.findViewById(R.id.snippet_dialog_edit_text);
+
+        this.editText = editText;
+
+        bodyView.addView(editLayout);
+    }
+
     /**
      *
      * @param options List<Pair<Integer, String>>. List of pair objects where the first parameter is
@@ -86,7 +98,6 @@ public class DialogFactory {
         RadioGroup group = radioLayout.findViewById(R.id.dialog_radio_group);
 
         for (Pair<Integer, String> option : options) {
-            //RadioButton button = (RadioButton) LayoutInflater.from(mContext).inflate(R.layout.snippet_dialog_radio_button, null);
             RadioButton button = new RadioButton(mContext);
             RadioGroup.LayoutParams params = new RadioGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins(0, 20, 0, 0);
@@ -162,5 +173,29 @@ public class DialogFactory {
     public void setNegativeButton(String negative, View.OnClickListener listener) {
         setNegativeButton(negative);
         negativeButton.setOnClickListener(listener);
+    }
+
+    public String getEditText() {
+        if (editText == null) {
+            return "";
+        }
+
+        return editText.getText();
+    }
+
+    public void setEditHint(String hint) {
+        if (editText == null) {
+            return;
+        }
+
+        editText.setHint(hint);
+    }
+
+    public void setEditText(String text) {
+        if (editText == null) {
+            return;
+        }
+
+        editText.setText(text);
     }
 }

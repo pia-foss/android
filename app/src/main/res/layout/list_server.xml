@@ -163,10 +163,11 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/list_server_favorite"
-                android:layout_width="18dp"
-                android:layout_height="15dp"
+                android:layout_width="24dp"
+                android:layout_height="20dp"
                 android:layout_weight="1"
                 android:layout_gravity="center"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 app:srcCompat="@drawable/ic_heart_mobile"/>
 
         </LinearLayout>

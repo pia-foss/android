@@ -99,25 +99,25 @@ public class MainActivityHandler {
                 .build();
         IAccount account = PIAFactory.getInstance().getAccount(act);
         AccountInformation accountInformation = account.persistedAccountInformation();
-        String upper = getExpiresText(act, accountInformation);
-
         final LinkedList<IDrawerItem> drawerItems = new LinkedList<>();
-        if (accountInformation.getShowExpire()) {
-            drawerItems.add(new PIAPrimaryDrawerItem()
-                    .withIdentifier(IDEN_RENEW)
-                    .withName(upper)
-                    .withIcon(R.drawable.ic_orange_arrow_circle)
-                    .withDescription(R.string.update_account)
-                    .withTextColorRes(R.color.textColorPrimary)
-                    .withDescriptionTextColorRes(R.color.textColorPrimaryDark)
-                    .withPostOnBindViewListener(new OnPostBindViewListener() {
-                        @Override
-                        public void onBindView(IDrawerItem drawerItem, View view) {
+
+        if (accountInformation != null) {
+            String upper = getExpiresText(act, accountInformation);
+
+            if (accountInformation.getShowExpire()) {
+                drawerItems.add(new PIAPrimaryDrawerItem()
+                        .withIdentifier(IDEN_RENEW)
+                        .withName(upper)
+                        .withIcon(R.drawable.ic_orange_arrow_circle)
+                        .withDescription(R.string.update_account)
+                        .withTextColorRes(R.color.textColorPrimary)
+                        .withDescriptionTextColorRes(R.color.textColorPrimaryDark)
+                        .withPostOnBindViewListener((drawerItem, view) -> {
                             view.setBackgroundResource(R.color.connecting_orange);
                             ((TextView) view.findViewById(R.id.material_drawer_name)).setTextSize(12);
                             ((TextView) view.findViewById(R.id.material_drawer_description)).setTextSize(10);
-                        }
-                    }));
+                        }));
+            }
         }
 
         drawerItems.add(new PIAPrimaryDrawerItem()
@@ -194,8 +194,6 @@ public class MainActivityHandler {
                 .build();
 
         mDrawer.deselect();
-        // This code closes drawer without animation
-        // mDrawer.getDrawerLayout().closeDrawer(mDrawer.getDrawerLayout().getForegroundGravity(), false);
 
         return mDrawer;
     }

@@ -97,7 +97,6 @@ public class PiaOvpnConfig {
 
         vp.mUseCustomConfig = true;
         vp.mCustomConfigOptions += "\nauth-nocache\n";
-        vp.mCustomConfigOptions +="forget-token-reconnect\n";
 
         // Unlimited number of retries
         vp.mConnectRetryMax = "-1";
@@ -157,7 +156,8 @@ public class PiaOvpnConfig {
         if (ps.isDedicatedIp()) {
             autoserver = ps.getDedicatedIp();
         }
-        else if (useTCP) {
+
+        if (useTCP) {
             config.append("proto tcp\n");
         } else {
             config.append("proto udp\n");
@@ -166,7 +166,6 @@ public class PiaOvpnConfig {
         config.append(getInlineCa(context, prefs.get("tlscipher", DEFAULT_HANDSHAKE)));
         config.append("cipher ").append(prefs.get("cipher", DEFAULT_CIPHER)).append("\n");
         config.append("auth ").append(prefs.get("auth", DEFAULT_AUTH)).append("\n");
-        config.append("pia-signal-settings\n");
 
         String remoteip = autoserver;
         String remoteport = "";
@@ -175,6 +174,12 @@ public class PiaOvpnConfig {
         }
 
         String rport = prefs.get("rport", "auto");
+
+        if (useSignalSettings(endpoint)) {
+            config.append("pia-signal-settings\n");
+            config.append("ncp-disable\n");
+        }
+
         if (!rport.equals("") && !rport.equals("auto")) {
             remoteport = rport;
             config.append(String.format(Locale.ENGLISH, "remote %s %s\n", remoteip, remoteport));
@@ -243,5 +248,14 @@ public class PiaOvpnConfig {
             cafile.append(line).append("\n");
         }
         return String.format("<ca>\n%s\n</ca>\n", cafile.toString());
+    }
+
+    //Temporary function to test different servers
+    private static boolean useSignalSettings(VPNFallbackEndpointProvider.VPNEndpoint endpoint) {
+        if (endpoint.getUsesVanillaOpenVPN()) {
+            return false;
+        }
+
+        return true;
     }
 }

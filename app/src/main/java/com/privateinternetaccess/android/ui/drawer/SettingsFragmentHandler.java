@@ -316,20 +316,12 @@ public class SettingsFragmentHandler {
         factory.setHeader(context.getString(R.string.custom_dns_warning_title));
         factory.setMessage(context.getString(R.string.custom_dns_warning_body));
 
-        factory.setPositiveButton(context.getString(R.string.ok), new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showCustomDNSDialog(context, fragment);
-                dialog.dismiss();
-            }
+        factory.setPositiveButton(context.getString(R.string.ok), view -> {
+            showCustomDNSDialog(context, fragment);
+            dialog.dismiss();
         });
 
-        factory.setNegativeButton(context.getString(R.string.cancel), new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
+        factory.setNegativeButton(context.getString(R.string.cancel), view -> dialog.dismiss());
 
         dialog.show();
     }
@@ -388,46 +380,35 @@ public class SettingsFragmentHandler {
             secondaryDns.setText(secondaryDNS);
         }
 
-        factory.setPositiveButton(context.getString(R.string.save), new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isDnsValid(primaryDns, context.getString(R.string.custom_primary_dns_invalid)) &&
-                        isSecondaryValid(secondaryDns, context.getString(R.string.custom_secondary_dns_invalid))) {
-                    Prefs.with(context).set(PiaPrefHandler.CUSTOM_DNS, primaryDns.getText().toString());
-                    Prefs.with(context).set(PiaPrefHandler.CUSTOM_SECONDARY_DNS, secondaryDns.getText().toString());
-                    Prefs.with(context).set(PiaPrefHandler.DNS, primaryDns.getText().toString());
-                    Prefs.with(context).set(PiaPrefHandler.DNS_SECONDARY, secondaryDns.getText().toString());
-                    Prefs.with(context).set(PiaPrefHandler.CUSTOM_DNS_SELECTED, true);
-                    fragment.setDNSSummary();
+        factory.setPositiveButton(context.getString(R.string.save), view -> {
+            if (isDnsValid(primaryDns, context.getString(R.string.custom_primary_dns_invalid)) &&
+                    isSecondaryValid(secondaryDns, context.getString(R.string.custom_secondary_dns_invalid))) {
+                Prefs.with(context).set(PiaPrefHandler.CUSTOM_DNS, primaryDns.getText().toString());
+                Prefs.with(context).set(PiaPrefHandler.CUSTOM_SECONDARY_DNS, secondaryDns.getText().toString());
+                Prefs.with(context).set(PiaPrefHandler.DNS, primaryDns.getText().toString());
+                Prefs.with(context).set(PiaPrefHandler.DNS_SECONDARY, secondaryDns.getText().toString());
+                Prefs.with(context).set(PiaPrefHandler.CUSTOM_DNS_SELECTED, true);
+                fragment.setDNSSummary();
 
-                    if (Prefs.with(context).get(PiaPrefHandler.PIA_MACE, false)) {
-                        fragment.toggleMace(false);
-                    }
-
-                    dialog.dismiss();
+                if (Prefs.with(context).get(PiaPrefHandler.PIA_MACE, false)) {
+                    fragment.toggleMace(false);
                 }
-            }
-        });
 
-        factory.setNegativeButton(context.getString(R.string.cancel), new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
                 dialog.dismiss();
             }
         });
 
+        factory.setNegativeButton(context.getString(R.string.cancel), view -> dialog.dismiss());
+
         if (customDNS != null && customDNS.length() > 0) {
-            factory.setNeutralButton(context.getString(R.string.clear), new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Prefs.with(context).remove(PiaPrefHandler.CUSTOM_DNS);
-                    Prefs.with(context).remove(PiaPrefHandler.CUSTOM_SECONDARY_DNS);
-                    Prefs.with(context).remove(PiaPrefHandler.DNS);
-                    Prefs.with(context).remove(PiaPrefHandler.DNS_SECONDARY);
-                    Prefs.with(context).remove(PiaPrefHandler.CUSTOM_DNS_SELECTED);
-                    fragment.setDNSSummary();
-                    dialog.dismiss();
-                }
+            factory.setNeutralButton(context.getString(R.string.clear), view -> {
+                Prefs.with(context).remove(PiaPrefHandler.CUSTOM_DNS);
+                Prefs.with(context).remove(PiaPrefHandler.CUSTOM_SECONDARY_DNS);
+                Prefs.with(context).remove(PiaPrefHandler.DNS);
+                Prefs.with(context).remove(PiaPrefHandler.DNS_SECONDARY);
+                Prefs.with(context).remove(PiaPrefHandler.CUSTOM_DNS_SELECTED);
+                fragment.setDNSSummary();
+                dialog.dismiss();
             });
         }
 
@@ -443,12 +424,7 @@ public class SettingsFragmentHandler {
         builder.setTitle(R.string.custom_dns_warning_title);
         builder.setMessage(R.string.custom_dns_disabling_mace);
 
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
+        builder.setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss());
 
         builder.show();
 
@@ -495,149 +471,114 @@ public class SettingsFragmentHandler {
                                         final Preference lPort, Preference rPort,
                                         final SwitchPreferenceCompat mTCP){
         final PIAServerHandler serverHandler = PIAServerHandler.getInstance(context);
-        lPort.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(R.string.local_port_titla);
+        lPort.setOnPreferenceClickListener(preference -> {
+            DialogFactory factory = new DialogFactory(context);
+            Dialog dialog = factory.buildDialog();
 
-                final NumberView view = new NumberView(context);
+            factory.addTextBox();
+            factory.setHeader(context.getString(R.string.local_port_titla));
 
-                view.getText().setHint(R.string.settings_lport_hint);
-                builder.setView(view.getView());
+            factory.setEditHint(context.getString(R.string.settings_lport_hint));
 
-                String lport = "";
-                try { //doing this since we save as an int. I will look into this as it should save as a string so we don't need this.
-                    lport = Prefs.with(context).get(PiaPrefHandler.LPORT, "auto");
-                } catch (Exception e) {
-                    int port = Prefs.with(context).get(PiaPrefHandler.LPORT, 0);
-                    if(port != 0)
-                        lport = port + "";
-                }
-
-                if(!TextUtils.isEmpty(lport) && !lport.equals("auto")) {
-                    view.getText().setText(lport);
-                    view.getText().setSelection(lport.length());
-                }
-
-                builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String input = view.getText().getText().toString();
-                        if(!TextUtils.isEmpty(input)) {
-                            try {
-                                Integer port = Integer.parseInt(input);
-                                if (port <= 65535 && port >= 1024) {
-                                    fragment.setLportSummary(port + "");
-                                    Prefs.with(view.getText().getContext()).set(PiaPrefHandler.LPORT, port + "");
-                                } else {
-                                    Toaster.s(view.getText().getContext(), context.getString(R.string.settings_port_number_restriction));
-                                }
-                            } catch (Exception e) {
-                                view.getText().setText("");
-                                Toaster.s(view.getText().getContext(), context.getString(R.string.settings_port_number_restriction));
-                            }
-                        }
-                    }
-                });
-
-                builder.setNeutralButton(R.string.default_base, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Prefs.with(view.getText().getContext()).remove(PiaPrefHandler.LPORT);
-                        fragment.setLportSummary("auto");
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.show();
-                return false;
+            String lport = "";
+            try { //doing this since we save as an int. I will look into this as it should save as a string so we don't need this.
+                lport = Prefs.with(context).get(PiaPrefHandler.LPORT, "auto");
+            } catch (Exception e) {
+                int port = Prefs.with(context).get(PiaPrefHandler.LPORT, 0);
+                if(port != 0)
+                    lport = port + "";
             }
+
+            if(!TextUtils.isEmpty(lport) && !lport.equals("auto")) {
+                factory.setEditText(lport);
+            }
+
+            factory.setPositiveButton(context.getString(R.string.save), view -> {
+                String input = factory.getEditText();
+                if(!TextUtils.isEmpty(input)) {
+                    try {
+                        Integer port = Integer.parseInt(input);
+                        if (port <= 65535 && port >= 1024) {
+                            fragment.setLportSummary(port + "");
+                            Prefs.with(view.getContext()).set(PiaPrefHandler.LPORT, port + "");
+                            dialog.dismiss();
+                        } else {
+                            Toaster.s(view.getContext(), context.getString(R.string.settings_port_number_restriction));
+                        }
+                    } catch (Exception e) {
+                        factory.setEditText("");
+                        Toaster.s(view.getContext(), context.getString(R.string.settings_port_number_restriction));
+                    }
+                }
+            });
+
+            factory.setNeutralButton(context.getString(R.string.default_base).toUpperCase(), view -> {
+                Prefs.with(view.getContext()).remove(PiaPrefHandler.LPORT);
+                fragment.setLportSummary("auto");
+                dialog.dismiss();
+            });
+
+            factory.setNegativeButton(context.getString(R.string.cancel), view -> dialog.dismiss());
+            dialog.show();
+
+            return false;
         });
 
-        rPort.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                mTCP.setEnabled(false);
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(R.string.remote_port);
+        rPort.setOnPreferenceClickListener(preference -> {
+            mTCP.setEnabled(false);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(R.string.remote_port);
 
-                boolean tcp = mTCP.isChecked();
+            boolean tcp = mTCP.isChecked();
 
-                Vector<Integer> ports;
-                if (tcp)
-                    ports = serverHandler.getInfo().getTcpPorts();
-                else
-                    ports = serverHandler.getInfo().getUdpPorts();
-                DLog.d("Settings", "ports " + ports);
-                String[] strPorts = new String[ports.size() + 1];
-                int i = 0;
-                strPorts[i++] = "auto";
-                for (int p : ports) {
-                    strPorts[i++] = "" + p;
-                }
-
-                final SettingsAdapter adapter = new SettingsAdapter(context);
-                adapter.setOptions(strPorts);
-                adapter.setSelected(Prefs.with(context).get("rport", "auto"));
-
-                builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(PIAApplication.isAndroidTV(context)) {
-                            DLog.d("onClickAdapter", "adapter = " + which);
-                            Vector<Integer> ports;
-                            boolean tcp = mTCP.isChecked();
-                            if (tcp)
-                                ports = serverHandler.getInfo().getTcpPorts();
-                            else
-                                ports = serverHandler.getInfo().getUdpPorts();
-                            String selected = "auto";
-                            if(which >= 1){
-                                selected = ports.get(--which) + "";
-                            }
-                            Prefs.with(context).set(PiaPrefHandler.RPORT, selected);
-                            fragment.setRportSummary(selected);
-                            dialog.dismiss();
-                        }
-                    }
-                });
-
-                if(!PIAApplication.isAndroidTV(context))
-                    builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String selected = adapter.getSelected();
-                            Prefs.with(context).set(PiaPrefHandler.RPORT, selected);
-                            fragment.setRportSummary(selected);
-                            dialog.dismiss();
-                        }
-                    });
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialogInterface) {
-                        mTCP.setEnabled(true);
-                    }
-                });
-                builder.show();
-                return false;
+            Vector<Integer> ports;
+            if (tcp)
+                ports = serverHandler.getInfo().getTcpPorts();
+            else
+                ports = serverHandler.getInfo().getUdpPorts();
+            DLog.d("Settings", "ports " + ports);
+            String[] strPorts = new String[ports.size() + 1];
+            int i = 0;
+            strPorts[i++] = "auto";
+            for (int p : ports) {
+                strPorts[i++] = "" + p;
             }
+
+            final SettingsAdapter adapter = new SettingsAdapter(context);
+            adapter.setOptions(strPorts);
+            adapter.setSelected(Prefs.with(context).get("rport", "auto"));
+
+            builder.setAdapter(adapter, (dialog, which) -> {
+                if(PIAApplication.isAndroidTV(context)) {
+                    DLog.d("onClickAdapter", "adapter = " + which);
+                    Vector<Integer> ports1;
+                    boolean tcp1 = mTCP.isChecked();
+                    if (tcp1)
+                        ports1 = serverHandler.getInfo().getTcpPorts();
+                    else
+                        ports1 = serverHandler.getInfo().getUdpPorts();
+                    String selected = "auto";
+                    if(which >= 1){
+                        selected = ports1.get(--which) + "";
+                    }
+                    Prefs.with(context).set(PiaPrefHandler.RPORT, selected);
+                    fragment.setRportSummary(selected);
+                    dialog.dismiss();
+                }
+            });
+
+            if(!PIAApplication.isAndroidTV(context))
+                builder.setPositiveButton(R.string.ok, (dialog, which) -> {
+                    String selected = adapter.getSelected();
+                    Prefs.with(context).set(PiaPrefHandler.RPORT, selected);
+                    fragment.setRportSummary(selected);
+                    dialog.dismiss();
+                });
+            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
+            builder.setOnDismissListener(dialogInterface -> mTCP.setEnabled(true));
+            builder.show();
+            return false;
         });
-
-
     }
 
     public static void setupOtherDialogs(Context context, Preference cipher, Preference auth, Preference tlsCipher){
@@ -659,67 +600,53 @@ public class SettingsFragmentHandler {
     public static void createListDialog(final Context context, Preference perf,
                                         final String prefName, final String[] list, final String[] valuesList,
                                         final String title, final String defaultValue, final Preference auth){
-        perf.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(final Preference preference) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(title);
+        perf.setOnPreferenceClickListener(preference -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(title);
 
-                final SettingsAdapter adapter = new SettingsAdapter(context);
-                adapter.setOptions(list);
-                adapter.setSelected(getSummaryItem(context, prefName, defaultValue, list, valuesList));
+            final SettingsAdapter adapter = new SettingsAdapter(context);
+            adapter.setOptions(list);
+            adapter.setSelected(getSummaryItem(context, prefName, defaultValue, list, valuesList));
 
-                builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(PIAApplication.isAndroidTV(context)) {
-                            DLog.d("onClickAdapter", "adapter = " + which);
-                            String value = valuesList[which];
-                            Prefs.with(context).set(prefName, value);
-                            preference.setSummary(list[which]);
-                            dialog.dismiss();
-                            if (auth != null) {
-                                // Auth is not null, so we are the cipher dialog and need to disable/enable auth depending on our result
-                                setAuthEnabledFromCipher(context, value, auth);
-                            }
+            builder.setAdapter(adapter, (dialog, which) -> {
+                if(PIAApplication.isAndroidTV(context)) {
+                    DLog.d("onClickAdapter", "adapter = " + which);
+                    String value = valuesList[which];
+                    Prefs.with(context).set(prefName, value);
+                    preference.setSummary(list[which]);
+                    dialog.dismiss();
+                    if (auth != null) {
+                        // Auth is not null, so we are the cipher dialog and need to disable/enable auth depending on our result
+                        setAuthEnabledFromCipher(context, value, auth);
+                    }
+                }
+            });
+
+            if(!PIAApplication.isAndroidTV(context))
+                builder.setPositiveButton(R.string.ok, (dialog, which) -> {
+                    String selected = adapter.getSelected();
+                    int selectedPos = 0;
+                    for(String name : list){
+                        if(name.equals(selected)){
+                            break;
                         }
+                        selectedPos++;
+                    }
+                    String value = valuesList[selectedPos];
+                    DLog.d("SettingsFragment", "selected = " + selected + " value = " + value);
+                    Prefs.with(context).set(prefName, value);
+                    preference.setSummary(adapter.getSelected());
+                    dialog.dismiss();
+                    if (auth != null) {
+                        // Auth is not null, so we are the cipher dialog and need to disable/enable auth depending on our result
+                        setAuthEnabledFromCipher(context, value, auth);
                     }
                 });
 
-                if(!PIAApplication.isAndroidTV(context))
-                    builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String selected = adapter.getSelected();
-                            int selectedPos = 0;
-                            for(String name : list){
-                                if(name.equals(selected)){
-                                    break;
-                                }
-                                selectedPos++;
-                            }
-                            String value = valuesList[selectedPos];
-                            DLog.d("SettingsFragment", "selected = " + selected + " value = " + value);
-                            Prefs.with(context).set(prefName, value);
-                            preference.setSummary(adapter.getSelected());
-                            dialog.dismiss();
-                            if (auth != null) {
-                                // Auth is not null, so we are the cipher dialog and need to disable/enable auth depending on our result
-                                setAuthEnabledFromCipher(context, value, auth);
-                            }
-                        }
-                    });
+            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
 
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.show();
-                return false;
-            }
+            builder.show();
+            return false;
         });
     }
 
@@ -753,51 +680,36 @@ public class SettingsFragmentHandler {
     }
 
     public static void setupProxyPortDialog(final Context context, final Preference pref){
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(final Preference preference) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(R.string.preference_proxy_port);
+        pref.setOnPreferenceClickListener(preference -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(R.string.preference_proxy_port);
 
-                final NumberView view = new NumberView(context);
+            final NumberView view = new NumberView(context);
 
-                builder.setView(view.getView());
+            builder.setView(view.getView());
 
-                String port = Prefs.with(context).get(PiaPrefHandler.PROXY_PORT, "8080");
-                view.getText().setText(port);
-                view.getText().setSelection(port.length());
+            String port = Prefs.with(context).get(PiaPrefHandler.PROXY_PORT, "8080");
+            view.getText().setText(port);
+            view.getText().setSelection(port.length());
 
-                builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String text = view.getText().getText().toString();
-                        pref.setSummary(text);
-                        Prefs.with(context).set(PiaPrefHandler.PROXY_PORT, text);
-                        dialog.dismiss();
-                    }
-                });
+            builder.setPositiveButton(R.string.save, (dialog, which) -> {
+                String text = view.getText().getText().toString();
+                pref.setSummary(text);
+                Prefs.with(context).set(PiaPrefHandler.PROXY_PORT, text);
+                dialog.dismiss();
+            });
 
-                builder.setNegativeButton(R.string.dismiss, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+            builder.setNegativeButton(R.string.dismiss, (dialog, which) -> dialog.dismiss());
+            builder.setNeutralButton(R.string.default_base, (dialog, which) -> {
+                Prefs.with(view.getText().getContext()).remove(PiaPrefHandler.PROXY_PORT);
+                pref.setSummary("8080");
+                dialog.dismiss();
+            });
 
-                builder.setNeutralButton(R.string.default_base, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Prefs.with(view.getText().getContext()).remove(PiaPrefHandler.PROXY_PORT);
-                        pref.setSummary("8080");
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.show();
+            builder.show();
 
 
-                return false;
-            }
+            return false;
         });
 
     }

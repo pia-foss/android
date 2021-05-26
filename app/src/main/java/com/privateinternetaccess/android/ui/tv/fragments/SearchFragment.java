@@ -129,7 +129,8 @@ public class SearchFragment extends Fragment {
                             ps.isAllowsPF(),
                             ps.isGeo(),
                             ps.isOffline(),
-                            ps.getLatency()
+                            ps.getLatency(),
+                            ps.isDedicatedIp()
                     )
             );
         }

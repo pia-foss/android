@@ -122,24 +122,6 @@ public class QuickSettingsView extends FrameLayout {
         }
     }
 
-    public void onKillSwitchClicked() {
-        boolean killswitch = PiaPrefHandler.isKillswitchEnabled(getContext());
-
-        if (killswitch) {
-            Prefs.with(getContext()).set(PiaPrefHandler.KILLSWITCH, false);
-
-            IVPN vpn = PIAFactory.getInstance().getVPN(getContext());
-            if(vpn.isKillswitchActive()){
-                vpn.stopKillswitch();
-            }
-        }
-        else {
-            Prefs.with(getContext()).set(PiaPrefHandler.KILLSWITCH, true);
-        }
-
-        setupStates();
-    }
-
     public void onNetworkClicked() {
         boolean networking = Prefs.with(getContext()).getBoolean(PiaPrefHandler.NETWORK_MANAGEMENT);
 
@@ -169,15 +151,6 @@ public class QuickSettingsView extends FrameLayout {
     private void setupStates() {
         lIcons.removeAllViews();
 
-        if (PiaPrefHandler.getQuickSettingsKillswitch(getContext()) &&
-                VPNProtocol.activeProtocol(getContext()) == VPNProtocol.Protocol.OpenVPN) {
-            View view = getView(QuickSettings.SETTING_KILL_SWITCH,
-                    PiaPrefHandler.isKillswitchEnabled(getContext()));
-            lIcons.addView(view);
-
-            view.setOnClickListener(view1 -> onKillSwitchClicked());
-        }
-
         if (PiaPrefHandler.getQuickSettingsNetwork(getContext())) {
             View view = getView(QuickSettings.SETTING_NETWORK,
                     Prefs.with(getContext()).getBoolean(PiaPrefHandler.NETWORK_MANAGEMENT));
@@ -200,29 +173,17 @@ public class QuickSettingsView extends FrameLayout {
         lp.weight = 1;
 
         view.setLayoutParams(lp);
-
-        TextView iconText = view.findViewById(R.id.quick_settings_icon_text);
         AppCompatImageView iconImage = view.findViewById(R.id.quick_settings_icon_image);
 
         switch(viewType) {
             case SETTING_BROWSER:
                 iconImage.setImageResource(R.drawable.ic_private_browser);
-                iconText.setText(R.string.quick_settings_private_browser);
                 break;
             case SETTING_NETWORK:
                 iconImage.setImageResource(isActive ? R.drawable.ic_network_management_active :
                         R.drawable.ic_network_management_inactive);
-                iconText.setText(R.string.quick_settings_network_toggle);
-                break;
-            case SETTING_KILL_SWITCH:
-                iconImage.setImageResource(isActive ? R.drawable.ic_kill_switch_active :
-                        R.drawable.ic_kill_switch_inactive);
-                iconText.setText(R.string.killswitch);
                 break;
         }
-
-        iconText.setVisibility(View.VISIBLE);
-
         return view;
     }
 }

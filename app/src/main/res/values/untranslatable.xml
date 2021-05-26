@@ -29,7 +29,7 @@
     <string name="gpl_compliance_header" translatable="false">GPL Compliance</string>
     <string name="openvpn_for_android" translatable="false">OpenVPN for Android</string>
     <string name="unknown_state" translatable="false">Unknown state</string>
-    <string name="copyright" translatable="false">Copyright © 2012-2017 London Trust Media, Inc.</string>
+    <string name="copyright" translatable="false">Copyright © 2012-2021 Private Internet Access, Inc.</string>
     <string name="privacy_policy" translatable="false"><a href="https://www.privateinternetaccess.com/pages/privacy-policy/">Privacy Policy</a></string>
     <string name="website" translatable="false"><a href="https://www.privateinternetaccess.com/">www.privateinternetaccess.com</a></string>
     <string name="bouncy_castle" translatable="false">Bouncy Castle Crypto APIs</string>
@@ -49,19 +49,13 @@
     </string-array>
 
     <string-array name="ciphers_values">
-        <item>AES-128-CBC</item>
-        <item>AES-256-CBC</item>
         <item>AES-128-GCM</item>
         <item>AES-256-GCM</item>
-        <item>none</item>
     </string-array>
 
     <string-array name="cipher_list">
-        <item>AES-128-CBC</item>
-        <item>AES-256-CBC</item>
         <item>AES-128-GCM</item>
         <item>AES-256-GCM</item>
-        <item>None</item>
     </string-array>
 
     <string-array name="auth_values">

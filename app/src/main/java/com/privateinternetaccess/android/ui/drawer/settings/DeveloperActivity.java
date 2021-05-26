@@ -34,6 +34,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,6 +67,7 @@ import de.blinkt.openvpn.core.OpenVPNService;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEN4_LAST_SERVER_BODY;
 import static com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus.SUCCEEDED;
 
 /**
@@ -154,6 +156,8 @@ public class DeveloperActivity extends BaseActivity {
 
     @BindView(R.id.developer_token) TextView tvToken;
 
+    @BindView(R.id.developer_crash_application) RelativeLayout rlCrashApplication;
+
     private final String[] levels = new String[]{"Info","Debug","Warning","Exception"};
     @BindView(R.id.developer_use_staging) Switch sStaging;
     @BindView(R.id.staging_servers) View aStaging;
@@ -198,6 +202,8 @@ public class DeveloperActivity extends BaseActivity {
         setupDebug();
 
         setupPurchaseTesting();
+
+        setupCrashApplication();
 
         setupStagingViews();
 
@@ -252,7 +258,7 @@ public class DeveloperActivity extends BaseActivity {
             public void onClick(View v) {
                 Prefs prefs = Prefs.with(getApplicationContext());
                 prefs.remove(PIAServerHandler.LAST_SERVER_GRAB);
-                prefs.remove(PIAServerHandler.GEN4_LAST_SERVER_BODY);
+                prefs.remove(GEN4_LAST_SERVER_BODY);
             }
         });
 
@@ -544,17 +550,79 @@ public class DeveloperActivity extends BaseActivity {
         });
     }
 
+    private void setupCrashApplication() {
+        rlCrashApplication.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                android.os.Process.killProcess(android.os.Process.myPid());
+            }
+        });
+    }
+
     private void setupStagingViews()
     {
-        boolean staging = PiaPrefHandler.useStaging(getApplicationContext());
+        Context context = this;
+        boolean staging = PiaPrefHandler.useStaging(context);
         sStaging.setChecked(staging);
-
         aStaging.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean newStaging = !PiaPrefHandler.useStaging(getApplicationContext());
-                sStaging.setChecked(newStaging);
-                PiaPrefHandler.setUseStaging(getApplicationContext(), newStaging);
+                if (!sStaging.isChecked()) {
+                    View dialogView = getLayoutInflater().inflate(R.layout.view_dialog_edittext, null);
+                    EditText customEditText = dialogView.findViewById(R.id.customEditText);
+                    customEditText.setText(
+                            String.valueOf(PiaPrefHandler.getStagingServerNumber(context))
+                    );
+
+                    AlertDialog dialog = new AlertDialog.Builder(context).create();
+                    dialog.setTitle("Server Staging Number");
+                    dialog.setMessage("Please type only the staging number.");
+                    dialog.setButton(
+                            DialogInterface.BUTTON_POSITIVE,
+                            "Done",
+                            (dialog12, which) -> {
+                                String serverNumber = customEditText.getText().toString();
+                                if (TextUtils.isEmpty(serverNumber) || !TextUtils.isDigitsOnly(serverNumber)) {
+                                    Toast.makeText(
+                                            context,
+                                            "Please type only the staging number",
+                                            Toast.LENGTH_LONG
+                                    ).show();
+                                    return;
+                                }
+
+                                // Set staging state
+                                boolean newStaging = !PiaPrefHandler.useStaging(context);
+                                sStaging.setChecked(newStaging);
+                                PiaPrefHandler.setUseStaging(context, newStaging);
+
+                                // Set the staging server number
+                                int stagingServerNumber = Integer.parseInt(serverNumber);
+                                PiaPrefHandler.setStagingServerNumber(context, stagingServerNumber);
+
+                                // Close app to force a cold start
+                                closeApplication();
+                            }
+                    );
+                    dialog.setButton(
+                            DialogInterface.BUTTON_NEGATIVE,
+                            "Cancel",
+                            (dialog1, which) -> {
+                                DLog.d("Developer", "Staging Server Number Cancelled");
+                            }
+                    );
+                    dialog.setCancelable(false);
+                    dialog.setView(dialogView);
+                    dialog.show();
+                } else {
+                    // Set staging state
+                    boolean newStaging = !PiaPrefHandler.useStaging(context);
+                    sStaging.setChecked(newStaging);
+                    PiaPrefHandler.setUseStaging(context, newStaging);
+
+                    // Close app to force a cold start
+                    closeApplication();
+                }
             }
         });
     }
@@ -742,6 +810,23 @@ public class DeveloperActivity extends BaseActivity {
 
     private String getLogLevel(int level){
         return levels[level];
+    }
+
+    private void closeApplication() {
+        AlertDialog dialog = new AlertDialog.Builder(this).create();
+        dialog.setTitle("Closing Application");
+        dialog.setMessage("The application requires a cold start for the changes to take effect. " +
+                "We will finish and stop its task now.");
+        dialog.setButton(
+                DialogInterface.BUTTON_POSITIVE,
+                "Done",
+                (dialog12, which) -> {
+                    finishAffinity();
+                    finishAndRemoveTask();
+                }
+        );
+        dialog.setCancelable(false);
+        dialog.show();
     }
 
     private String readFile(File filename)

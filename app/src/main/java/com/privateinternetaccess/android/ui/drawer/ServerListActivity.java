@@ -93,46 +93,43 @@ public class ServerListActivity extends BaseActivity {
             final Dialog dialog = factory.buildDialog();
             factory.setHeader(getString(R.string.region_dialog_header));
 
-            factory.setPositiveButton(getString(R.string.ok), new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Fragment frag = getSupportFragmentManager().findFragmentById(R.id.container);
-                    if (frag instanceof ServerListFragment) {
-                        ServerListFragment serverFrag = (ServerListFragment)frag;
-                        ServerSortingType selectedSortingType =
-                                serverFrag.getSortedServerSortingTypeForId(factory.getSelectedItem());
-                        switch (selectedSortingType) {
-                            case NAME:
-                                serverFrag.setUpAdapter(
-                                        ServerListActivity.this,
-                                        true,
-                                        PIAServerHandler.ServerSortingType.NAME
-                                );
-                                break;
-                            case LATENCY:
-                                serverFrag.setUpAdapter(
-                                        ServerListActivity.this,
-                                        true,
-                                        PIAServerHandler.ServerSortingType.LATENCY
-                                );
-                                break;
-                            case FAVORITES:
-                                serverFrag.setUpAdapter(
-                                        ServerListActivity.this,
-                                        true,
-                                        PIAServerHandler.ServerSortingType.NAME,
-                                        PIAServerHandler.ServerSortingType.FAVORITES
-                                );
-                                break;
-                        }
-                        Prefs.with(ServerListActivity.this).set(
-                                PiaPrefHandler.REGION_PREFERRED_SORTING,
-                                selectedSortingType.name()
-                        );
+            factory.setPositiveButton(getString(R.string.ok), view -> {
+                Fragment frag = getSupportFragmentManager().findFragmentById(R.id.container);
+                if (frag instanceof ServerListFragment) {
+                    ServerListFragment serverFrag = (ServerListFragment)frag;
+                    ServerSortingType selectedSortingType =
+                            serverFrag.getSortedServerSortingTypeForId(factory.getSelectedItem());
+                    switch (selectedSortingType) {
+                        case NAME:
+                            serverFrag.setUpAdapter(
+                                    ServerListActivity.this,
+                                    true,
+                                    ServerSortingType.NAME
+                            );
+                            break;
+                        case LATENCY:
+                            serverFrag.setUpAdapter(
+                                    ServerListActivity.this,
+                                    true,
+                                    ServerSortingType.LATENCY
+                            );
+                            break;
+                        case FAVORITES:
+                            serverFrag.setUpAdapter(
+                                    ServerListActivity.this,
+                                    true,
+                                    ServerSortingType.NAME,
+                                    ServerSortingType.FAVORITES
+                            );
+                            break;
                     }
-
-                    dialog.dismiss();
+                    Prefs.with(ServerListActivity.this).set(
+                            PiaPrefHandler.REGION_PREFERRED_SORTING,
+                            selectedSortingType.name()
+                    );
                 }
+
+                dialog.dismiss();
             });
 
             factory.setNegativeButton(getString(R.string.cancel), new View.OnClickListener() {

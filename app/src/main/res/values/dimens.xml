@@ -66,6 +66,10 @@
     <dimen name="fragment_connect_slider_margin_top">5dp</dimen>
     <dimen name="fragment_connect_slider_bottom_margin">0dp</dimen>
 
+    <!-- PIA tiles sizes -->
+    <dimen name="pia_tile_height_small">105dp</dimen>
+    <dimen name="pia_tile_height_large">140dp</dimen>
+
     <!-- PIA text sizes -->
     <dimen name="text_pia_title">18sp</dimen>
     <dimen name="text_pia_subheading">17sp</dimen>

@@ -23,7 +23,7 @@ data class PIAServer(
         val iso: String,
         val dns: String,
         val latency: String?,
-        val endpoints: Map<Protocol, List<Pair<String, String>>>,
+        val endpoints: Map<Protocol, List<PIAServerEndpointDetails>>,
         val key: String,
         val latitude: String?,
         val longitude: String?,
@@ -33,6 +33,12 @@ data class PIAServer(
         val dipToken: String?,
         val dedicatedIp: String?
 ) {
+    data class PIAServerEndpointDetails(
+            val ip: String,
+            val cn: String,
+            val usesVanillaOpenVPN: Boolean
+    )
+
     enum class Protocol {
         OPENVPN_TCP {
             override fun toString(): String {

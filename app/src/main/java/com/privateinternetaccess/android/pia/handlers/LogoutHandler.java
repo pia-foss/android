@@ -21,14 +21,11 @@ package com.privateinternetaccess.android.pia.handlers;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 
-import com.privateinternetaccess.android.PIAKillSwitchStatus;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.interfaces.IVPN;
-import com.privateinternetaccess.android.pia.model.events.KillSwitchEvent;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.ui.drawer.SettingsFragmentHandler;
 import com.privateinternetaccess.core.utils.IPIACallback;
@@ -37,7 +34,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.VpnStatus;
 
 /**
  * Handles the logout of a PIA Account using {@link IAccount#logout()} and a listener can be added for when the user agrees the log out by adding a {@link #callback} with a {@link IPIACallback}.

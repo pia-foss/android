@@ -22,23 +22,14 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
 
-import com.privateinternetaccess.android.BuildConfig;
-import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.PIAKillSwitchStatus;
 import com.privateinternetaccess.android.PIAOpenVPNTunnelLibrary;
-import com.privateinternetaccess.android.pia.PIAFactory;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
-import com.privateinternetaccess.android.pia.interfaces.IVPN;
-import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.receivers.PortForwardingReceiver;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.tunnel.PortForwardingStatus;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -104,11 +95,8 @@ public class ConnectionResponder implements VpnStatus.StateListener, PIAKillSwit
 
     @Override
     public void updateState(String state, String message, int localizedResId, final ConnectionStatus level) {
-        new Thread(new Runnable() { // Threading this as the amount of work has bloated overtime.
-            public void run() {
-                handleStateChange(state, message, level);
-            }
-        }).start();
+        // Threading this as the amount of work has bloated overtime.
+        new Thread(() -> handleStateChange(state, message, level)).start();
     }
 
     private synchronized void handleStateChange(String state, String message, ConnectionStatus level) {

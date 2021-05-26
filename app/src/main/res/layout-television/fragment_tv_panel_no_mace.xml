@@ -91,24 +91,6 @@
     </com.privateinternetaccess.android.ui.tv.views.PanelItem>
 
     <com.privateinternetaccess.android.ui.tv.views.PanelItem
-        android:id="@+id/panel_killswitch_item"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/dashboard_panel_spacing"
-        android:focusable="true"
-        app:shouldChangeTextColors="true"
-        app:focusedTextColor="@color/tv_grey_15"
-        app:unfocusedTextColor="@color/white"
-        android:layout_weight="1">
-
-        <com.privateinternetaccess.android.ui.tv.views.TVToggleView
-            android:id="@+id/panel_killswitch_toggle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    </com.privateinternetaccess.android.ui.tv.views.PanelItem>
-
-    <com.privateinternetaccess.android.ui.tv.views.PanelItem
         android:id="@+id/panel_per_app_item"
         android:layout_width="match_parent"
         android:layout_height="0dp"

@@ -80,7 +80,7 @@ public class IPPortView extends FrameLayout {
                     16f,
                     context.getResources().getDisplayMetrics()
             );
-            setPadding(padding, padding, padding, padding);
+            setPadding(padding, 0, padding, 0);
         }
         inflate(context, R.layout.view_ip_port_display, this);
         ButterKnife.bind(this, this);

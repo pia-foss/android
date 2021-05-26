@@ -52,7 +52,7 @@ import kotlin.Pair;
 public class PiaServerComparatorsTest {
 
     List<PIAServer> servers;
-    HashSet<String> favorites;
+    List<String> favorites;
 
     final String[] serverNames = new String[]{"US San Francisco","JP Tokyo", "UK London",
             "AU Sydney", "DE Berlin",
@@ -84,7 +84,7 @@ public class PiaServerComparatorsTest {
 
     public void initLists(){
         servers = new ArrayList<>();
-        favorites = new HashSet<>();
+        favorites = new ArrayList<>();
         for(int i = 0; i < serverNames.length; i++){
             String name = serverNames[i];
             String key = nameToKey(name);

@@ -121,7 +121,11 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
     }
 
     private void handleClick(ServerItem item) {
-        PiaPrefHandler.toggleFavorite(mContext, item.getName());
+        if (item.isDedicatedIP()) {
+            PiaPrefHandler.toggleFavorite(mContext, item.getKey());
+        } else {
+            PiaPrefHandler.toggleFavorite(mContext, item.getName());
+        }
     }
 
     private boolean trySelection() {

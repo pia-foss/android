@@ -19,10 +19,9 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingBottom="16dp"
+    android:layout_height="@dimen/pia_tile_height_small"
+    android:paddingHorizontal="16dp"
+    android:paddingBottom="8dp"
     android:paddingTop="16dp"
     android:orientation="vertical">
 
@@ -50,7 +49,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_height="wrap_content"
             android:textColor="@color/snooze_border"
-            android:layout_marginRight="4dp"
+            android:layout_marginEnd="4dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
             style="@style/Style12"
@@ -94,10 +93,11 @@
                 android:gravity="center_horizontal"
                 android:layout_height="wrap_content"
                 android:textColor="@color/snooze_border"
-                android:layout_marginRight="4dp"
+                android:layout_marginEnd="4dp"
                 style="@style/Style12"
                 android:textSize="10dp"
-                android:text="@string/snooze_short"/>
+                android:text="@string/snooze_short"
+                android:maxLines="1" />
 
             <TextView
                 android:clickable="true"
@@ -109,6 +109,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/snooze_medium"
+                android:maxLines="1"
                 android:textColor="@color/snooze_border"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
@@ -125,8 +126,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/snooze_long"
+                android:maxLines="1"
                 android:textColor="@color/snooze_border"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:textSize="10dp"
                 style="@style/Style12"/>
 

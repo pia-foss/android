@@ -25,8 +25,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="400dp"
-        android:paddingBottom="20dp" >
+        android:minHeight="300dp" >
 
         <ProgressBar
             android:id="@+id/connect_progress"

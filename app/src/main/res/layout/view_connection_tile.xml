@@ -17,15 +17,15 @@
   ~  Internet Access Android Client.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/quick_settings_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingBottom="16dp"
+    android:layout_height="@dimen/pia_tile_height_large"
+    android:paddingHorizontal="16dp"
+    android:paddingBottom="8dp"
     android:paddingTop="16dp">
 
     <TextView
@@ -63,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:ellipsize="end"
                 android:textAppearance="@style/Style07"
                 android:textColor="?attr/grey20_white"
@@ -87,7 +87,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:ellipsize="end"
                 android:textAppearance="@style/Style07"
                 android:textColor="?attr/grey20_white"
@@ -111,7 +111,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:ellipsize="end"
                 android:textAppearance="@style/Style07"
                 android:textColor="?attr/grey20_white"
@@ -135,7 +135,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:ellipsize="end"
                 android:textAppearance="@style/Style07"
                 android:textColor="?attr/grey20_white"
@@ -159,7 +159,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:ellipsize="end"
                 android:textAppearance="@style/Style07"
                 android:textColor="?attr/grey20_white"
@@ -183,7 +183,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:ellipsize="end"
                 android:textAppearance="@style/Style07"
                 android:textColor="?attr/grey20_white"
@@ -192,6 +192,5 @@
         </LinearLayout>
 
     </GridLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

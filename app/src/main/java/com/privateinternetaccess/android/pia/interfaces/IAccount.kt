@@ -79,6 +79,15 @@ interface IAccount {
      * @param token
      * @param callback
      */
+    fun refreshToken(
+            token: String,
+            callback: (token: String?, status: RequestResponseStatus) -> Unit
+    )
+
+    /**
+     * @param token
+     * @param callback
+     */
     fun accountInformation(
             token: String,
             callback: (accountInformation: AccountInformation?, status: RequestResponseStatus) -> Unit

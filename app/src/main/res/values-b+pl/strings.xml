@@ -444,6 +444,7 @@
     <string name="network_permisions_top_text">PIA wymaga dostępu do usług lokalizacji, aby wykrywać sieci Wi-Fi w pobliżu.</string>
     <string name="network_permissions_middle_text">Zostanie wyświetlone okno dialogowe z pytaniem o zezwolenie na dostęp do lokalizacji. Aby kontynuować, dotknij „OK”</string>
     <string name="network_permission_network">Nie monitorujemy, nie filtrujemy ani nie zapisujemy danych żadnej aktywności w sieci.</string>
+    <string name="account_invalid_warning">"Nieprawidłowe informacje o koncie"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">KUP KONTO</string>
     <string name="redeem_gift_card">WYKORZYSTAJ KARTĘ PODARUNKOWĄ</string>
@@ -540,6 +541,7 @@
     <string name="quick_settings_private_browser">Prywatna przeglądarka</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">SZYBKIE ŁĄCZENIE</string>
+    <string name="quick_connect_favorites_title">ULUBIONE SERWERY</string>
     <!-- Usage Strings -->
     <string name="usage_title">ZUŻYCIE</string>
     <string name="usage_download">Pobieranie</string>

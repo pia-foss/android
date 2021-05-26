@@ -20,7 +20,6 @@ package com.privateinternetaccess.android.ui.superclasses;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.PorterDuff;
@@ -196,18 +195,8 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
             builder.setTitle(R.string.purchase_renew_title);
             builder.setMessage(R.string.purchase_renew_message);
             if(handler.getType() == PurchasingType.GOOGLE)
-                builder.setPositiveButton(R.string.purchase, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        new LogoutHandler(BaseActivity.this, getLogoutCallback()).logoutLogic(true);
-                    }
-                });
-            builder.setNegativeButton(R.string.dismiss, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            });
+                builder.setPositiveButton(R.string.purchase, (dialogInterface, i) -> new LogoutHandler(BaseActivity.this, getLogoutCallback()).logoutLogic(true));
+            builder.setNegativeButton(R.string.dismiss, (dialogInterface, i) -> dialogInterface.dismiss());
             builder.show();
         }
     }
@@ -505,30 +494,42 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
             AccountInformation accountInformation,
             RequestResponseStatus requestResponseStatus
     ) {
-        if (accountInformation == null) {
-            DLog.d(TAG, "Invalid account information");
-            return;
-        }
-
+        Context context = getApplicationContext();
+        IAccount accountImpl = PIAFactory.getInstance().getAccount(context);
         Function0 navigateToLogin = () -> {
-            new LogoutHandler(BaseActivity.this, getLogoutCallback()).logoutLogic(true);
-            Intent i = new Intent(getApplicationContext(), LoginPurchaseActivity.class);
+            new LogoutHandler(BaseActivity.this, getLogoutCallback()).logoutLogic(false);
+            Intent i = new Intent(context, LoginPurchaseActivity.class);
             startActivity(i);
             finish();
             overridePendingTransition(R.anim.right_to_left_exit, R.anim.left_to_right_exit);
             return null;
         };
 
-        PiaPrefHandler.saveAccountInformation(getApplicationContext(), accountInformation);
+        // if we don't have persisted data (initial login) and the request failed. Logout the user.
+        AccountInformation persistedAccountInformation = accountImpl.persistedAccountInformation();
+        if (requestResponseStatus != RequestResponseStatus.SUCCEEDED && persistedAccountInformation == null) {
+            Toaster.s(context, R.string.account_invalid_warning);
+            navigateToLogin.invoke();
+            return;
+        }
+
+        // If we have persisted data and the request failed due to authentication. Logout the user.
+        if (requestResponseStatus == RequestResponseStatus.AUTH_FAILED) {
+            Toaster.s(context, R.string.account_invalid_warning);
+            navigateToLogin.invoke();
+            return;
+        }
+
+        PiaPrefHandler.saveAccountInformation(context, accountInformation);
         if (accountInformation.getActive()) {
             if (accountInformation.getExpired()) {
-                Toaster.s(getApplicationContext(), R.string.subscription_expired + " " + getString(R.string.timeleft_expired));
+                Toaster.s(context, R.string.subscription_expired + " " + getString(R.string.timeleft_expired));
                 navigateToLogin.invoke();
                 return;
             }
-            ExpiryNotificationService.armReminders(getApplicationContext());
+            ExpiryNotificationService.armReminders(context);
         } else {
-            Toaster.s(getApplicationContext(), R.string.account_termination);
+            Toaster.s(context, R.string.account_termination);
             navigateToLogin.invoke();
         }
     }
@@ -582,42 +583,40 @@ public abstract class BaseActivity extends SwipeBackBaseActivity {
 
         // Events are often reported before the tunnel is up/down which means the request timing out
         // Add a delay prior to the request to avoid it.
-        new Handler(context.getMainLooper()).postDelayed(() -> {
-            PIAFactory.getInstance().getAccount(context).clientStatus(
-                    (status, requestResponseStatus) -> {
-                        boolean successful = false;
-                        switch (requestResponseStatus) {
-                            case SUCCEEDED:
-                                successful = true;
-                                break;
-                            case AUTH_FAILED:
-                            case THROTTLED:
-                            case OP_FAILED:
-                                break;
-                        }
+        new Handler(context.getMainLooper()).postDelayed(() -> PIAFactory.getInstance().getAccount(context).clientStatus(
+                (status, requestResponseStatus) -> {
+                    boolean successful = false;
+                    switch (requestResponseStatus) {
+                        case SUCCEEDED:
+                            successful = true;
+                            break;
+                        case AUTH_FAILED:
+                        case THROTTLED:
+                        case OP_FAILED:
+                            break;
+                    }
 
-                        if (!successful) {
-                            DLog.d(TAG, "clientStatus unsuccessful " + requestResponseStatus);
+                    if (!successful) {
+                        DLog.d(TAG, "clientStatus unsuccessful " + requestResponseStatus);
 
-                            if (retryAttemptNumber < CLIENT_STATUS_MAX_RETRIES) {
-                                DLog.d(TAG, "clientStatus unsuccessful retrying " + retryAttemptNumber);
-                                fetchClientStatus(null, retryAttemptNumber + 1);
-                            }
-                            return null;
+                        if (retryAttemptNumber < CLIENT_STATUS_MAX_RETRIES) {
+                            DLog.d(TAG, "clientStatus unsuccessful retrying " + retryAttemptNumber);
+                            fetchClientStatus(null, retryAttemptNumber + 1);
                         }
-
-                        if (status.getConnected()) {
-                            PiaPrefHandler.saveLastIPVPN(context, status.getIp());
-                        } else {
-                            PiaPrefHandler.saveLastIP(context, status.getIp());
-                        }
-                        EventBus.getDefault().post(
-                                new FetchIPEvent(status.getIp(), status.getConnected())
-                        );
                         return null;
                     }
-            );
-        }, CLIENT_STATUS_DELAY_MS);
+
+                    if (status.getConnected()) {
+                        PiaPrefHandler.saveLastIPVPN(context, status.getIp());
+                    } else {
+                        PiaPrefHandler.saveLastIP(context, status.getIp());
+                    }
+                    EventBus.getDefault().post(
+                            new FetchIPEvent(status.getIp(), status.getConnected())
+                    );
+                    return null;
+                }
+        ), CLIENT_STATUS_DELAY_MS);
     }
 
     private void handleAuthenticationFailure(ConnectionStatus connectionStatus) {

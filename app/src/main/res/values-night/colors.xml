@@ -27,6 +27,7 @@
     <color name="status_bar_color">#323642</color>
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="textColorSecondary">#FFFFFF</color>
+    <color name="account_details_background">#3E4454</color>
 
     <color name="referral_divider">#22252e</color>
     <color name="referral_invite_background">#323642</color>

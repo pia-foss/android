@@ -123,6 +123,8 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        checkKillswitch();
+
         Rating.Companion.start(this);
         setContentView(R.layout.activity_connect);
         ButterKnife.bind(this);
@@ -498,5 +500,22 @@ public class MainActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onAuthFailureEvent(PIAAuthenticator.PIAAuthenticatorFailureEvent event) {
         onAuthFailureLogout();
+    }
+
+    private void checkKillswitch() {
+        if (PiaPrefHandler.isKillswitchEnabled(this)) {
+            Prefs.with(this).set(PiaPrefHandler.KILLSWITCH, false);
+
+            IVPN vpn = PIAFactory.getInstance().getVPN(this);
+            if(vpn.isKillswitchActive()){
+                vpn.stopKillswitch();
+            }
+
+            AlertDialog.Builder ab = new AlertDialog.Builder(this);
+            ab.setTitle(R.string.menu_update);
+            ab.setMessage(R.string.ks_removal_warning);
+            ab.setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss());
+            ab.show();
+        }
     }
 }

@@ -20,73 +20,80 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
-
-    <TextView
-        style="@style/Style13"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/grey55"
-        android:layout_marginTop="30dp"
-        android:text="@string/username_only" />
-
-    <TextView
-        android:id="@+id/settings_account_username"
-        style="@style/Style06"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="?attr/grey20_white"
-        tools:text="p5237889" />
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="bottom"
-        android:layout_marginTop="30dp"
-        >
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="16dp"
+        android:background="@color/account_details_background" >
 
         <TextView
-            android:id="@+id/settings_account_get_pia"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="left"
-            style="@style/Style11"
-            android:textColor="@color/grey55"
-            android:text="@string/settings_account_bottom_text"
-            />
-
-        <LinearLayout
+            style="@style/Style13"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="15dp"
-            android:layout_gravity="left"
+            android:textColor="@color/grey55"
+            android:layout_marginTop="30dp"
+            android:text="@string/username_only" />
+
+        <TextView
+            android:id="@+id/settings_account_username"
+            style="@style/Style06"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/grey20_white"
+            tools:text="p5237889" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="bottom"
+            android:layout_marginTop="30dp"
             >
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/settings_account_get_pia"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/your_plan_will_expire_on"
-                android:id="@+id/settings_account_expiration_text"
+                android:gravity="left"
                 style="@style/Style11"
                 android:textColor="@color/grey55"
-                android:layout_marginEnd="3dp"
-                android:layout_marginRight="3dp"
+                android:text="@string/settings_account_bottom_text"
                 />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/settings_account_expiration_date"
-                style="@style/Style11"
-                android:textColor="?attr/grey20_white"
-                tools:text="May 25 2001"
-                />
+                android:orientation="horizontal"
+                android:layout_marginTop="15dp"
+                android:layout_gravity="left"
+                >
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/your_plan_will_expire_on"
+                    android:id="@+id/settings_account_expiration_text"
+                    style="@style/Style11"
+                    android:textColor="@color/grey55"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginRight="3dp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/settings_account_expiration_date"
+                    style="@style/Style11"
+                    android:textColor="?attr/grey20_white"
+                    tools:text="May 25 2001"
+                    />
+
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
@@ -95,4 +102,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp" />
+
 </LinearLayout>

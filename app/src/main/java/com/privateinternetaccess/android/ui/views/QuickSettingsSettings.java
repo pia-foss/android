@@ -38,10 +38,7 @@ import butterknife.OnCheckedChanged;
 public class QuickSettingsSettings extends BaseActivity {
 
     @BindView(R.id.snippet_quick_settings_browser_switch) Switch sBrowser;
-    @BindView(R.id.snippet_quick_settings_killswitch_switch) Switch sKillswitch;
     @BindView(R.id.snippet_quick_settings_network_switch) Switch sNetwork;
-
-    @BindView(R.id.snippet_quick_settings_killswitch_layout) ConstraintLayout lKillswitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,17 +70,7 @@ public class QuickSettingsSettings extends BaseActivity {
 
     private void setStatus() {
         sNetwork.setChecked(PiaPrefHandler.getQuickSettingsNetwork(this));
-        sKillswitch.setChecked(PiaPrefHandler.getQuickSettingsKillswitch(this));
         sBrowser.setChecked(PiaPrefHandler.getQuickSettingsPrivateBrowser(this));
-
-        if (VPNProtocol.activeProtocol(this) == VPNProtocol.Protocol.Wireguard) {
-            lKillswitch.setVisibility(View.GONE);
-        }
-    }
-
-    @OnCheckedChanged(R.id.snippet_quick_settings_killswitch_switch)
-    public void onKillswitchChanged(CompoundButton button, boolean checked) {
-        PiaPrefHandler.setQuickSettingsKillswitch(this, checked);
     }
 
     @OnCheckedChanged(R.id.snippet_quick_settings_network_switch)

@@ -22,7 +22,6 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse;
 import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse.Status;
 import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse.DedicatedIPInformation;
 import com.privateinternetaccess.android.R;
@@ -34,6 +33,7 @@ import com.privateinternetaccess.android.pia.interfaces.IAccount;
 import com.privateinternetaccess.android.pia.model.InAppLocalMessage;
 import com.privateinternetaccess.android.pia.model.enums.RequestResponseStatus;
 import com.privateinternetaccess.core.model.PIAServer;
+import com.privateinternetaccess.core.model.PIAServer.PIAServerEndpointDetails;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -59,18 +59,26 @@ public class DedicatedIpUtils {
             if (server.getKey() != null &&
                     (server.getKey().equals(dip.getId()) || server.getName().toLowerCase().equals(dip.getId()))) {
 
-                Map<PIAServer.Protocol, List<Pair<String, String>>> updatedEndpointsPerProtocol = new HashMap<>();
-                for (Map.Entry<PIAServer.Protocol, List<Pair<String, String>>> endpointsPerProtocol : server.getEndpoints().entrySet()) {
-                    List<Pair<String, String>> updatedEndpointDetails = new ArrayList<>();
+                Map<PIAServer.Protocol, List<PIAServerEndpointDetails>> updatedEndpointsPerProtocol = new HashMap<>();
+                for (Map.Entry<PIAServer.Protocol, List<PIAServerEndpointDetails>> endpointsPerProtocol : server.getEndpoints().entrySet()) {
+                    List<PIAServerEndpointDetails> updatedEndpointDetails = new ArrayList<>();
                     switch (endpointsPerProtocol.getKey()) {
                         case OPENVPN_TCP:
                         case OPENVPN_UDP:
                         case META:
-                            updatedEndpointDetails.add(new Pair<>(dip.getIp(), dip.getCn()));
+                            updatedEndpointDetails.add(new PIAServerEndpointDetails(
+                                    dip.getIp(),
+                                    dip.getCn(),
+                                    false
+                            ));
                             break;
                         case WIREGUARD:
-                            String port = endpointsPerProtocol.getValue().get(0).getFirst().split(":")[1];
-                            updatedEndpointDetails.add(new Pair<>(dip.getIp() + ":" + port, dip.getCn()));
+                            String port = endpointsPerProtocol.getValue().get(0).getIp().split(":")[1];
+                            updatedEndpointDetails.add(new PIAServerEndpointDetails(
+                                    dip.getIp() + ":" + port,
+                                    dip.getCn(),
+                                    false
+                            ));
                             break;
                     }
                     updatedEndpointsPerProtocol.put(endpointsPerProtocol.getKey(), updatedEndpointDetails);

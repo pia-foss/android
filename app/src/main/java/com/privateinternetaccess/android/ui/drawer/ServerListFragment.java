@@ -39,7 +39,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse;
+import com.privateinternetaccess.account.model.response.DedicatedIPInformationResponse.DedicatedIPInformation;
 import com.privateinternetaccess.android.PIAApplication;
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.events.ServerClickedEvent;
@@ -51,10 +51,12 @@ import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler.ServerSortingType;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
+import com.privateinternetaccess.android.pia.interfaces.IVPN;
 import com.privateinternetaccess.android.pia.model.events.VpnStateEvent;
 import com.privateinternetaccess.android.pia.utils.DLog;
 import com.privateinternetaccess.android.pia.utils.Prefs;
 import com.privateinternetaccess.android.pia.utils.Toaster;
+import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.ui.adapters.ServerListAdapter;
 import com.privateinternetaccess.android.ui.tv.views.ServerSelectionItemDecoration;
 import com.privateinternetaccess.android.utils.DedicatedIpUtils;
@@ -243,7 +245,10 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
         PIAServer selectedServer = mHandler.getSelectedRegion(context, true);
         int selectedPosition = -1;
         if (reset) {
-            if (selectedServer != null) {
+
+            // Set a scroll position for non-DIP servers. DIP servers are always on top.
+            // No need to set a position as we default to top.
+            if (selectedServer != null && !selectedServer.isDedicatedIp()) {
                 for (int idx = 0; idx < serverItems.size(); idx ++) {
                     ServerItem serverItem = serverItems.get(idx);
                     if (serverItem.getKey().equals(selectedServer.getKey()) &&
@@ -363,7 +368,8 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                     true,
                     false,
                     false,
-                    ""
+                    "",
+                    false
             ));
         }
 
@@ -376,19 +382,23 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                 true,
                 false,
                 false,
-                ""
+                "",
+                false
         ));
 
         //Add dedicated IPs
         if (PiaPrefHandler.getDedicatedIps(getContext()).size() > 0) {
-            List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(getContext());
+            List<DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(getContext());
 
             for (int i = 0; i < ipList.size(); i++) {
-                DedicatedIPInformationResponse.DedicatedIPInformation ip = ipList.get(i);
-                PIAServer ps = DedicatedIpUtils.serverForDip(ip, getContext());
+                DedicatedIPInformation dip = ipList.get(i);
+                PIAServer ps = DedicatedIpUtils.serverForDip(dip, getContext());
+                if (ps == null) {
+                    continue;
+                }
 
                 ServerItem item = new ServerItem(
-                        ps.getKey(),
+                        dip.getIp(),
                         mHandler.getFlagResource(ps.getIso()),
                         ps.getName(),
                         ps.getIso(),
@@ -396,10 +406,9 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                         ps.isAllowsPF(),
                         ps.isGeo(),
                         false,
-                        ""
+                        "",
+                        ps.isDedicatedIp()
                 );
-
-                item.setDedicatedIp(ip.getIp());
                 items.add(item);
             }
         }
@@ -419,7 +428,8 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
                     ps.isAllowsPF(),
                     ps.isGeo(),
                     ps.isOffline(),
-                    ps.getLatency()
+                    ps.getLatency(),
+                    ps.isDedicatedIp()
             ));
         }
         return items;
@@ -476,58 +486,67 @@ public class ServerListFragment extends Fragment implements SwipeRefreshLayout.O
 
     @Subscribe
     public void serverClicked(ServerClickedEvent event) {
-        PIAServerHandler handler = PIAServerHandler.getInstance(getContext());
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
 
-        String region = "";
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
 
-        List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(getContext());
+        String currentRegionKey = "";
+        PIAServerHandler handler = PIAServerHandler.getInstance(context);
 
-        for (DedicatedIPInformationResponse.DedicatedIPInformation dip : ipList) {
+        List<DedicatedIPInformation> ipList = PiaPrefHandler.getDedicatedIps(context);
+        for (DedicatedIPInformation dip : ipList) {
             if (dip.getIp() != null && dip.getIp().equals(event.getName())) {
-                region = dip.getIp();
+                currentRegionKey = dip.getIp();
                 break;
             }
         }
 
-        if (TextUtils.isEmpty(region)) {
+        if (TextUtils.isEmpty(currentRegionKey)) {
             for (PIAServer ps : handler.getServers().values()) {
                 if (ps.getName().equals(event.getName())) {
-                    region = ps.getKey();
+                    currentRegionKey = ps.getKey();
                     break;
                 }
             }
         }
 
         // Try also with the key of the objects
-        if(TextUtils.isEmpty(region)) {
+        if(TextUtils.isEmpty(currentRegionKey)) {
             for (PIAServer ps : handler.getServers().values()) {
                 if (event.getId() == ps.getKey().hashCode()) {
-                    region = ps.getKey();
+                    currentRegionKey = ps.getKey();
                     break;
                 }
             }
         }
 
-        PIAServer oldregion = handler.getSelectedRegion(getContext(), true);
+        String previousRegionKey = "";
+        PIAServer previousRegion = PIAVpnStatus.getLastConnectedRegion();
+        if (previousRegion != null) {
+            previousRegionKey =
+                    previousRegion.isDedicatedIp() ?
+                            previousRegion.getDedicatedIp() :
+                            previousRegion.getKey();
+        }
 
-        handler.saveSelectedServer(getContext(), region);
-
-        if (!PIAApplication.isAndroidTV(getContext())) {
-            Activity activity = getActivity();
-
+        if (!PIAApplication.isAndroidTV(context)) {
             activity.setResult(RESULT_OK);
-            if (oldregion == null && region.equals(""))
-                ; // Both regions are autoselect
-            else
+            if (!currentRegionKey.equals(previousRegionKey)) {
                 activity.setResult(RESULT_SERVER_CHANGED);
+            }
             activity.overridePendingTransition(R.anim.right_to_left_exit, R.anim.left_to_right_exit);
             activity.finish();
-        }
-        else {
-            String oldRegionName = oldregion != null ? oldregion.getKey() : "";
-            if(!region.equals(oldRegionName) ||
-                    !PIAFactory.getInstance().getVPN(getActivity()).isVPNActive())
-                PIAFactory.getInstance().getVPN(getContext()).start();
+        } else {
+            IVPN vpn = PIAFactory.getInstance().getVPN(context);
+            if (!currentRegionKey.equals(previousRegionKey) || !vpn.isVPNActive()) {
+                vpn.start();
+            }
         }
     }
 

@@ -444,6 +444,7 @@
     <string name="network_permisions_top_text">PIA erfordert den Zugriff auf deine Standortdienste, um WLAN-Netzwerke in deiner Nähe zu ermitteln.</string>
     <string name="network_permissions_middle_text">Es wird eine Eingabeaufforderung für Standortberechtigungen angezeigt. Um fortzufahren, tippe auf ‚OK‘.</string>
     <string name="network_permission_network">Wir überwachen, filtern oder protokollieren keine Netzwerkaktivitäten.</string>
+    <string name="account_invalid_warning">"Ungültige Kontodaten"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">KONTO KAUFEN</string>
     <string name="redeem_gift_card">GESCHENKKARTE EINLÖSEN</string>
@@ -540,6 +541,7 @@
     <string name="quick_settings_private_browser">Privater Browser</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">SCHNELLVERBINDUNG</string>
+    <string name="quick_connect_favorites_title">LIEBLINGSSERVER</string>
     <!-- Usage Strings -->
     <string name="usage_title">NUTZUNG</string>
     <string name="usage_download">Download</string>

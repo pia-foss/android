@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -81,6 +82,7 @@ public class AllowedAppsActivity extends BaseActivity implements IAllowedApps {
     @BindView(android.R.id.list) RecyclerView rvListView;
     @BindView(R.id.activity_secondary_progress) View pbLoad;
     @BindView(R.id.search) EditText etSearch;
+    @BindView(R.id.cancel_icon) ImageView ivCancelSearch;
     @BindView(R.id.allowed_apps_problem_apps_text) TextView tvAppProblemExplanation;
 
     private LinearLayoutManager layoutManager;
@@ -207,9 +209,8 @@ public class AllowedAppsActivity extends BaseActivity implements IAllowedApps {
         etSearch.setHint(R.string.search_apps);
 
         hideIconButton();
-
         initToggleAndFilter();
-
+        initClearSearch();
         initText();
 
         if(!selectApp) {
@@ -274,6 +275,15 @@ public class AllowedAppsActivity extends BaseActivity implements IAllowedApps {
 
             @Override
             public void afterTextChanged(Editable s) {
+            }
+        });
+    }
+
+    private void initClearSearch() {
+        ivCancelSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                etSearch.setText("");
             }
         });
     }

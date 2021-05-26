@@ -137,6 +137,13 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 item = mFilteredItems.get(position);
             }
 
+            // TODO: Stop using server names as identifiers.
+            //  It will drop favourites when jumping languages.
+            boolean isFavorite = PiaPrefHandler.isFavorite(mContext, item.getName());
+            if (item.isDedicatedIP()) {
+                isFavorite = PiaPrefHandler.isFavorite(mContext, item.getKey());
+            }
+
             if (!PIAApplication.isAndroidTV(mContext)) {
                 sHolder.image.setImageResource(item.getFlagId());
                 sHolder.name.setText(item.getName());
@@ -213,9 +220,9 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                 }
 
-                if (item.getDedicatedIp() != null) {
+                if (item.isDedicatedIP()) {
                     sHolder.lDip.setVisibility(View.VISIBLE);
-                    sHolder.tvDip.setText(item.getDedicatedIp());
+                    sHolder.tvDip.setText(item.getKey());
 
                     if (position == getDipCount()) {
                         sHolder.vDivider.setVisibility(View.GONE);
@@ -226,33 +233,30 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     sHolder.lDip.setVisibility(View.GONE);
                 }
 
-                String itemName = item.getDedicatedIp() != null ? item.getDedicatedIp() : item.getName();
-                sHolder.view.setTag(itemName + "," + item.getHash());
                 sHolder.view.setOnClickListener(v -> {
-                    String tag = (String) v.getTag();
-                    String[] array = tag.split(",");
-                    String serverName = array[0];
-                    int hash = Integer.parseInt(array[1]);
                     DLog.d("ServerListAdapter", "Connecting to selection");
-                    DLog.d("ServerListAdapter", "Tag: " + v.getTag());
-
-                    EventBus.getDefault().post(new ServerClickedEvent(serverName, hash));
+                    DLog.d("ServerListAdapter", "Item key " + item.getKey());
+                    DLog.d("ServerListAdapter", "Item name " + item.getName());
+                    PIAServerHandler handler = PIAServerHandler.getInstance(mContext);
+                    handler.saveSelectedServer(mContext, item.getKey());
+                    EventBus.getDefault().post(
+                            new ServerClickedEvent(
+                                    item.getName(),
+                                    item.getName().hashCode()
+                            )
+                    );
                 });
 
-                String favoriteName;
-                if (!TextUtils.isEmpty(item.getDedicatedIp())) {
-                    favoriteName = item.getDedicatedIp();
-                }
-                else {
-                    favoriteName = item.getName();
-                }
-
                 sHolder.favoriteImage.setOnClickListener(view -> {
-                    PiaPrefHandler.toggleFavorite(mContext, favoriteName);
+                    if (item.isDedicatedIP()) {
+                        PiaPrefHandler.toggleFavorite(mContext, item.getKey());
+                    } else {
+                        PiaPrefHandler.toggleFavorite(mContext, item.getName());
+                    }
                     notifyItemChanged(position);
                 });
 
-                if (PiaPrefHandler.isFavorite(mContext, favoriteName)) {
+                if (isFavorite) {
                     sHolder.favoriteImage.setImageDrawable(AppCompatResources.getDrawable(mContext, R.drawable.ic_heart_selected));
                 }
                 else {
@@ -272,8 +276,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
 
                 sHolder.favoriteImage.setImageDrawable(heartDrawable);
-                sHolder.favoriteImage.setVisibility(PiaPrefHandler.isFavorite(
-                        mContext, item.getName()) ? View.VISIBLE : View.GONE);
+                sHolder.favoriteImage.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
 
                 sHolder.view.setOnClickListener(v -> trySelection());
             }
@@ -400,8 +403,9 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         mConnectedItem = mSelectedItem;
         mServerSelected = mSelectedItem;
 
-        String itemName = serverItem.getDedicatedIp() != null ? serverItem.getDedicatedIp() : serverItem.getName();
-        EventBus.getDefault().post(new ServerClickedEvent(itemName, serverItem.getHash()));
+        PIAServerHandler handler = PIAServerHandler.getInstance(mContext);
+        handler.saveSelectedServer(mContext, serverItem.getKey());
+        EventBus.getDefault().post(new ServerClickedEvent(serverItem.getName(), serverItem.getHash()));
 
         return true;
     }

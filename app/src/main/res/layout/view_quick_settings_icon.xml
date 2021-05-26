@@ -29,19 +29,11 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/quick_settings_icon_image"
-        android:layout_width="22dp"
-        android:layout_height="25dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:scaleType="fitEnd"
         android:layout_gravity="center_horizontal"
+        android:background="?attr/selectableItemBackgroundBorderless"
         app:srcCompat="@drawable/ic_network_management_inactive"/>
 
-    <TextView
-        android:id="@+id/quick_settings_icon_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/Style12"
-        android:textColor="?attr/grey20_white"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="8dp"
-        android:text="Network Management"/>
 </LinearLayout>

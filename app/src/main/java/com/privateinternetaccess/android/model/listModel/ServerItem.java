@@ -32,7 +32,7 @@ public class ServerItem {
     private boolean geo;
     private boolean isOffline;
     private String latency;
-    private String dedicatedIp;
+    private boolean isDedicatedIP;
 
     public ServerItem(
             String key,
@@ -43,7 +43,8 @@ public class ServerItem {
             boolean allowsPF,
             boolean geo,
             boolean isOffline,
-            String latency
+            String latency,
+            boolean isDedicatedIP
     ) {
         this.key = key;
         this.flagId = flagId;
@@ -54,6 +55,7 @@ public class ServerItem {
         this.geo = geo;
         this.isOffline = isOffline;
         this.latency = latency;
+        this.isDedicatedIP = isDedicatedIP;
     }
 
     public String getKey() {
@@ -66,10 +68,6 @@ public class ServerItem {
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getIso() {
@@ -112,7 +110,5 @@ public class ServerItem {
         this.latency = latency;
     }
 
-    public String getDedicatedIp() { return this.dedicatedIp; }
-
-    public void setDedicatedIp(String ip) { this.dedicatedIp = ip; }
+    public boolean isDedicatedIP() { return this.isDedicatedIP; }
 }

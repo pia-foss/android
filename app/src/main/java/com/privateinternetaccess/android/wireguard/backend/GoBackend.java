@@ -250,16 +250,31 @@ public final class GoBackend implements Backend {
                 return;
             }
 
-            final VpnService service;
-            if (!vpnService.isDone())
-                startVpnService();
+            if (!vpnService.isDone()) {
+                try {
+                    startVpnService();
+                } catch (SecurityException | IllegalStateException exception) {
+                    DLog.w("Wireguard", "Error starting VPN service " + exception);
+                    throw exception;
+                }
+            }
 
+            final VpnService service;
             try {
                 DLog.d("Wireguard", "Waiting for service");
                 service = vpnService.get(2, TimeUnit.SECONDS);
             } catch (final TimeoutException e) {
+                DLog.w("Wireguard", "Waiting for service reached thee timeout " + e);
                 throw new Exception("Unable to start Android VPN service", e);
             }
+
+            // Android expect us to invoke `startForeground` after starting the service.
+            // So, let's do it as soon as possible. If an error happens below.
+            // The state will not be set as UP.
+            service.showNotification("Connected", "Connected", ConnectionStatus.LEVEL_CONNECTED);
+
+            // Representing any potential error when setting up the VPN interface below.
+            Error error = null;
 
             // Build config
             final String goConfig = config.toWgUserspaceString();
@@ -298,17 +313,33 @@ public final class GoBackend implements Backend {
                 service.setUnderlyingNetworks(null);
 
             builder.setBlocking(true);
-            try (final ParcelFileDescriptor tun = builder.establish()) {
-                if (tun == null)
-                    throw new BackendException(BackendException.Reason.TUN_CREATION_ERROR);
-                Log.d(TAG, "Go backend v" + wgVersion());
-                currentTunnelHandle = wgTurnOn(tunnel.getName(), tun.detachFd(), goConfig);
+
+            // Create the VPN interface with the builder we have prepared.
+            try {
+                ParcelFileDescriptor tun = builder.establish();
+                if (tun == null) {
+                    error = new Error("TUN_CREATION_ERROR");
+                } else {
+                    Log.d(TAG, "Go backend v" + wgVersion());
+                    currentTunnelHandle = wgTurnOn(tunnel.getName(), tun.detachFd(), goConfig);
+                    if (currentTunnelHandle < 0) {
+                        error = new Error("GO_ACTIVATION_ERROR_CODE");
+                    }
+                }
+            } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
+                error = new Error("Error preparing the VPN interface " + e);
             }
-            if (currentTunnelHandle < 0)
-                throw new BackendException(BackendException.Reason.GO_ACTIVATION_ERROR_CODE, currentTunnelHandle);
+
+            // If an error happened when creating the VPN interface or preparing the tunnel above.
+            // Avoid announcing the connected state below or setting up the last know state as UP.
+            // And, hide the service notification.
+            if (error != null) {
+                DLog.w("Wireguard", "Error preparing the VPN interface " + error);
+                service.hideNotification();
+                return;
+            }
 
             currentTunnel = tunnel;
-
             service.protect(wgGetSocketV4(currentTunnelHandle));
             service.protect(wgGetSocketV6(currentTunnelHandle));
             service.backend = this;
@@ -316,18 +347,27 @@ public final class GoBackend implements Backend {
             //PIA Specific up logic
             service.setActiveTunnel(endpoint, currentTunnel);
 
-            VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
-                    R.string.wg_connected, ConnectionStatus.LEVEL_CONNECTED);
+            // Announce the connected state
+            VpnStateEvent event = new VpnStateEvent(
+                    "CONNECT",
+                    "Wireguard Connect",
+                    R.string.wg_connected,
+                    ConnectionStatus.LEVEL_CONNECTED
+            );
             EventBus.getDefault().postSticky(event);
             SnoozeUtils.resumeVpn(context, false);
 
-            PiaPrefHandler.setGatewayEndpoint(context, currentTunnel.getConfig().getInterface().getGateway());
+            // Persist the gateway for port forwarding purposes.
+            // This needs to happen before starting the port forwarding.
+            if (currentTunnel.getConfig() != null) {
+                PiaPrefHandler.setGatewayEndpoint(context, currentTunnel.getConfig().getInterface().getGateway());
+            }
 
+            // Start port forwarding if enabled.
+            // This needs tp happen after persisting the tunnel's gateway.
             if (PiaPrefHandler.isPortForwardingEnabled(context)) {
                 startPortForwarding();
             }
-
-            service.showNotification("Connected", "Connected", ConnectionStatus.LEVEL_CONNECTED);
 
             lastState = state;
             isConnecting = false;
@@ -344,11 +384,14 @@ public final class GoBackend implements Backend {
             currentTunnelHandle = -1;
 
             //PIA Specific down logic
-
             VpnService.activeTunnel = null;
 
-            VpnStateEvent event = new VpnStateEvent("CONNECT", "Wireguard Connect",
-                    R.string.state_exiting, ConnectionStatus.LEVEL_NOTCONNECTED);
+            VpnStateEvent event = new VpnStateEvent(
+                    "CONNECT",
+                    "Wireguard Connect",
+                    R.string.state_exiting,
+                    ConnectionStatus.LEVEL_NOTCONNECTED
+            );
             EventBus.getDefault().postSticky(event);
 
             PiaPrefHandler.clearGatewayEndpoint(context);
@@ -366,7 +409,7 @@ public final class GoBackend implements Backend {
         }
     }
 
-    private void startVpnService() {
+    private void startVpnService() throws SecurityException, IllegalStateException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             context.startForegroundService(new Intent(context, VpnService.class));
         else

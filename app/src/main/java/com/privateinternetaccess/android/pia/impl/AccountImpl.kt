@@ -123,20 +123,20 @@ class AccountImpl(private val context: Context) : IAccount, ProtocolInformationP
             password: String,
             callback: (token: String?, status: RequestResponseStatus) -> Unit
     ) {
-        androidAccountAPI?.loginWithCredentials(username, password) { token, error ->
+        androidAccountAPI?.loginWithCredentials(username, password) { loginResponse, error ->
             error?.let {
                 DLog.w(TAG, "loginWithCredentials error: $error")
                 callback(null, adaptResponseCode(it.code))
                 return@loginWithCredentials
             }
 
-            if (token.isNullOrEmpty()) {
+            if (loginResponse == null || loginResponse.token.isEmpty()) {
                 DLog.w(TAG, "loginWithCredentials Invalid response")
                 callback(null, RequestResponseStatus.OP_FAILED)
                 return@loginWithCredentials
             }
 
-            callback(token, RequestResponseStatus.SUCCEEDED)
+            callback(loginResponse.token, RequestResponseStatus.SUCCEEDED)
         }
     }
 
@@ -164,6 +164,27 @@ class AccountImpl(private val context: Context) : IAccount, ProtocolInformationP
             }
 
             callback(token, RequestResponseStatus.SUCCEEDED)
+        }
+    }
+
+    override fun refreshToken(
+            token: String,
+            callback: (token: String?, status: RequestResponseStatus) -> Unit
+    ) {
+        androidAccountAPI?.refreshToken(token, ) { loginResponse, error ->
+            error?.let {
+                DLog.w(TAG, "refreshToken error: $error")
+                callback(null, adaptResponseCode(it.code))
+                return@refreshToken
+            }
+
+            if (loginResponse == null || loginResponse.token.isEmpty()) {
+                DLog.w(TAG, "refreshToken Invalid response")
+                callback(null, RequestResponseStatus.OP_FAILED)
+                return@refreshToken
+            }
+
+            callback(loginResponse.token, RequestResponseStatus.SUCCEEDED)
         }
     }
 

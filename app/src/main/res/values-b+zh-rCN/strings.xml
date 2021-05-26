@@ -444,6 +444,7 @@
     <string name="network_permisions_top_text">PIA 需要访问您的位置服务才能检测附近的 WiFi 网络。</string>
     <string name="network_permissions_middle_text">您将看到要求位置权限的提示。继续操作请轻点“确定”。</string>
     <string name="network_permission_network">我们不会监视、筛选或记录任何网络活动。</string>
+    <string name="account_invalid_warning">"帐户信息无效"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">购买账户</string>
     <string name="redeem_gift_card">兑换礼品卡</string>
@@ -540,6 +541,7 @@
     <string name="quick_settings_private_browser">专用浏览器</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">快速连接</string>
+    <string name="quick_connect_favorites_title">最爱的服务器</string>
     <!-- Usage Strings -->
     <string name="usage_title">使用情况</string>
     <string name="usage_download">下载</string>

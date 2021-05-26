@@ -43,9 +43,9 @@ import com.privateinternetaccess.android.pia.utils.ServerResponseHelper;
 import com.privateinternetaccess.android.tunnel.PIAVpnStatus;
 import com.privateinternetaccess.android.utils.DedicatedIpUtils;
 import com.privateinternetaccess.android.utils.SystemUtils;
-import com.privateinternetaccess.common.regions.RegionLowerLatencyInformation;
-import com.privateinternetaccess.common.regions.RegionsUtils;
-import com.privateinternetaccess.common.regions.model.RegionsResponse;
+import com.privateinternetaccess.regions.RegionLowerLatencyInformation;
+import com.privateinternetaccess.regions.RegionsUtils;
+import com.privateinternetaccess.regions.model.RegionsResponse;
 import com.privateinternetaccess.core.model.PIAServer;
 import com.privateinternetaccess.core.model.PIAServerInfo;
 import com.privateinternetaccess.core.model.ServerResponse;
@@ -74,16 +74,17 @@ import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function2;
 
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEN4_LAST_SERVER_BODY;
+
 /**
  * Handler class for helping with the servers and pings to those servers.
  *
  */
 public class PIAServerHandler {
 
-    public static final String GEN4_LAST_SERVER_BODY = "GEN4_LAST_SERVER_BODY";
     private static final String TAG = "PIAServerHandler";
     public static final String LAST_SERVER_GRAB = "LAST_SERVER_GRAB";
-    public static final String SELECTEDREGION = "selectedregion";
+    public static final String SELECTEDREGION_deprecated = "selectedregion";
     public static final long SERVER_TIME_DIFFERENCE = 600000L; //10m
 
     private static PIAServerHandler instance;
@@ -476,7 +477,7 @@ public class PIAServerHandler {
                         Collections.sort(servers, new PingComperator());
                         break;
                     case FAVORITES:
-                        Collections.sort(servers, new FavoriteComperator((HashSet<String>) PiaPrefHandler.getFavorites(context)));
+                        Collections.sort(servers, new FavoriteComperator(PiaPrefHandler.getFavorites(context)));
                         break;
                 }
             }
@@ -489,7 +490,7 @@ public class PIAServerHandler {
             return true;
         }
 
-        String region = prefs.get(SELECTEDREGION, "");
+        String region = prefs.get(PiaPrefHandler.SELECTED_REGION, "");
         return !isDedicatedServer(context, region) && !servers.containsKey(region);
     }
 
@@ -509,7 +510,7 @@ public class PIAServerHandler {
 
     public PIAServer getSelectedRegion(Context context, boolean returnNullonAuto) {
         // Server region
-        String region = prefs.get(SELECTEDREGION, "");
+        String region = prefs.get(PiaPrefHandler.SELECTED_REGION, "");
 
         //Check DIP servers first
         List<DedicatedIPInformationResponse.DedicatedIPInformation> ipList =
@@ -522,7 +523,12 @@ public class PIAServerHandler {
         }
 
         PIAServer lastConnectedRegion = PIAVpnStatus.getLastConnectedRegion();
-        if (VpnStatus.isVPNActive() && lastConnectedRegion!= null && lastConnectedRegion.isDedicatedIp()) {
+        if (VpnStatus.isVPNActive() &&
+                lastConnectedRegion != null &&
+                lastConnectedRegion.isDedicatedIp() &&
+                lastConnectedRegion.getDedicatedIp() != null &&
+                lastConnectedRegion.getDedicatedIp().equals(region)
+        ) {
             return lastConnectedRegion;
         }
 
@@ -602,7 +608,7 @@ public class PIAServerHandler {
     }
 
     public void saveSelectedServer(Context context, String region) {
-        prefs.set(SELECTEDREGION, region);
+        prefs.set(PiaPrefHandler.SELECTED_REGION, region);
         PiaPrefHandler.addQuickConnectItem(context, region);
     }
 
@@ -637,9 +643,9 @@ public class PIAServerHandler {
 
     static public class FavoriteComperator implements Comparator<PIAServer> {
 
-        HashSet<String> favorites;
+        List<String> favorites;
 
-        public FavoriteComperator(HashSet<String> favorites) {
+        public FavoriteComperator(List<String> favorites) {
             this.favorites = favorites;
         }
 

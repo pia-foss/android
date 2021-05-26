@@ -77,6 +77,11 @@ import io.github.inflationx.calligraphy3.CalligraphyConfig;
 import io.github.inflationx.calligraphy3.CalligraphyInterceptor;
 import io.github.inflationx.viewpump.ViewPump;
 
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEN4_LAST_SERVER_BODY;
+import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_AUTH;
+import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_CIPHER;
+import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_HANDSHAKE;
+
 /**
  * Setups up {@link PIABuilder} and updates all the old variables and issues created along the years in {@link #updateOrResetValues()}
  *
@@ -85,6 +90,9 @@ import io.github.inflationx.viewpump.ViewPump;
  * Created by half47 on 2/5/16.
  */
 public class PIAApplication extends Application {
+
+    public static final int REQUIRED_API_VERSION = 6;
+    public static final int CURRENT_API_VERSION = 6;
 
     public static final String HAS_RESET_ALLOWED_APPS = "hasResetAllowedApps3";
     public static final String UPDATE_DIALOG_VERSION = "update_dialog_version";
@@ -175,6 +183,10 @@ public class PIAApplication extends Application {
         int debugLevel = PiaPrefHandler.getDebugLevel(context);
         VpnStatus.StateListener listener = ConnectionResponder.initConnection(context, R.string.requestingportfw);
 
+        if (!isAndroidTV(this)) {
+            validatePreferences(this);
+        }
+
         PIABuilder.init(context)
                 .enabledTileService()
                 .createNotificationChannel(getString(R.string.pia_channel_name), getString(R.string.pia_channel_description))
@@ -245,10 +257,8 @@ public class PIAApplication extends Application {
 
         String currentCipher = prefs.get("cipher", "null");
         // Remove blowfish completely
-        if (currentCipher.equals("BF-CBC")) { // 1.3.3.x
-            prefs.set("cipher", "none");
-        } else if (currentCipher.equals("null")) {
-            prefs.set("cipher", "AES-128-CBC");
+        if (currentCipher.equals("BF-CBC") || currentCipher.equals("null")) { // 1.3.3.x
+            prefs.set("cipher", DEFAULT_CIPHER);
         }
 
         if(BuildConfig.FLAVOR_store.equals("playstore") && !prefs.getBoolean(HAS_RESET_MACE_GOOGLE)){
@@ -357,5 +367,63 @@ public class PIAApplication extends Application {
             }
         }
         return null;
+    }
+
+    public static void validatePreferences(Context context) {
+        int apiVersion = Prefs.with(context).get(PiaPrefHandler.LAST_API, 0);
+
+        if (apiVersion < REQUIRED_API_VERSION) {
+            invalidateApiCache(context);
+            Prefs.with(context).set(PiaPrefHandler.LAST_API, CURRENT_API_VERSION);
+        }
+
+        boolean authExists = false;
+        boolean handshakeExists = false;
+        boolean cipherExists = false;
+
+        String currentAuth = Prefs.with(context).get("auth", DEFAULT_AUTH);
+        String currentHandshake = Prefs.with(context).get("tlscipher", DEFAULT_HANDSHAKE);
+        String currentCipher = Prefs.with(context).get("cipher", DEFAULT_CIPHER);
+
+        String[] authOptions = context.getResources().getStringArray(R.array.auth_values);
+        String[] handshakeOptions = context.getResources().getStringArray(R.array.tls_values);
+        String[] cipherOptions = context.getResources().getStringArray(R.array.ciphers_values);
+
+        for (String auth : authOptions) {
+            if (auth.equals(currentAuth)) {
+                authExists = true;
+                break;
+            }
+        }
+
+        for (String handshake : handshakeOptions) {
+            if (handshake.equals(currentHandshake)) {
+                handshakeExists = true;
+                break;
+            }
+        }
+
+        for (String cipher : cipherOptions) {
+            if (cipher.equals(currentCipher)) {
+                cipherExists = true;
+                break;
+            }
+        }
+
+        if (!authExists) {
+            Prefs.with(context).set("auth", DEFAULT_AUTH);
+        }
+
+        if (!handshakeExists) {
+            Prefs.with(context).set("tlscipher", DEFAULT_HANDSHAKE);
+        }
+
+        if (!cipherExists) {
+            Prefs.with(context).set("cipher", DEFAULT_CIPHER);
+        }
+    }
+
+    private static void invalidateApiCache(Context context) {
+        Prefs.with(context).set(GEN4_LAST_SERVER_BODY, "");
     }
 }

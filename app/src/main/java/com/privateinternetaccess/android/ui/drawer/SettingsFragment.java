@@ -81,7 +81,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     private String[] ovpnKeys = {
             "useTCP", "rport", "lport", "mssfix", "proxy_settings", "ovpn_cipher_warning",
-            "useproxy", "blockipv6", "encryption", "cipher", "auth", "killswitch", "tlscipher"};
+            "useproxy", "blockipv6", "encryption", "cipher", "auth", "tlscipher"};
     private String[] wgKeys = {};
 
     @Override
@@ -134,20 +134,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void setAlwaysOnClickListener(Preference preference) {
-        preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                new AlertDialog.Builder(getContext()).setTitle(R.string.block_connection_wo_vpn)
-                        .setMessage(R.string.always_oreo_message)
-                        .setPositiveButton(R.string.open_android_settings, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
-                            }
-                        })
-                        .setNegativeButton(android.R.string.cancel, null).show();
-                return true;
-            }
+        preference.setOnPreferenceClickListener(preference1 -> {
+            new AlertDialog.Builder(getContext()).setTitle(R.string.block_connection_wo_vpn)
+                    .setMessage(R.string.always_oreo_message)
+                    .setPositiveButton(R.string.open_android_settings, (dialog, which) -> startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS)))
+                    .setNegativeButton(android.R.string.cancel, null).show();
+            return true;
         });
     }
 
@@ -192,49 +184,46 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private void setupProxyArea() {
         Context context = getActivity();
         Prefs prefs = new Prefs(context);
-        final SwitchPreferenceCompat proxyChoice = (SwitchPreferenceCompat) findPreference(PiaPrefHandler.PROXY_ENABLED);
-        proxyChoice.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean proxy = (boolean) newValue;
-                if(proxy){
-                    Prefs prefs = new Prefs(preference.getContext());
-                    String app = prefs.get(PiaPrefHandler.PROXY_APP, "");
-                    if(!TextUtils.isEmpty(app)){
-                        Set<String> excludedApps = prefs.getStringSet(PiaPrefHandler.VPN_PER_APP_PACKAGES);
-                        excludedApps.add(app);
-                        prefs.set(PiaPrefHandler.VPN_PER_APP_PACKAGES, excludedApps);
-                        toggleProxyArea(proxy);
-                    } else {
-                        Activity act = getActivity();
-                        AlertDialog.Builder builder = new AlertDialog.Builder(act);
-                        builder.setTitle(R.string.enable_proxy_dialog_title);
-                        builder.setMessage(R.string.enable_proxy_dialog_message);
-                        builder.setCancelable(false);
-                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                // take the user to the app selection area
-                                Intent i = new Intent(getActivity(), AllowedAppsActivity.class);
-                                i.putExtra(AllowedAppsActivity.EXTRA_SELECT_APP, true);
-                                startActivity(i);
-                            }
-                        });
-                        builder.setNegativeButton(R.string.dismiss, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ((SwitchPreferenceCompat) findPreference(PiaPrefHandler.PROXY_ENABLED)).setChecked(false);
-                                dialog.dismiss();
-                            }
-                        });
-                        builder.show();
-                    }
+
+        final SwitchPreferenceCompat proxyChoice = findPreference(PiaPrefHandler.PROXY_ENABLED);
+
+        if (proxyChoice == null) {
+            return;
+        }
+
+        proxyChoice.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean proxy = (boolean) newValue;
+            if(proxy){
+                Prefs prefs1 = new Prefs(preference.getContext());
+                String app = prefs1.get(PiaPrefHandler.PROXY_APP, "");
+                if(!TextUtils.isEmpty(app)){
+                    Set<String> excludedApps = prefs1.getStringSet(PiaPrefHandler.VPN_PER_APP_PACKAGES);
+                    excludedApps.add(app);
+                    prefs1.set(PiaPrefHandler.VPN_PER_APP_PACKAGES, excludedApps);
+                    toggleProxyArea(proxy);
                 } else {
-                    resetProxyArea(preference, proxy);
+                    Activity act = getActivity();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(act);
+                    builder.setTitle(R.string.enable_proxy_dialog_title);
+                    builder.setMessage(R.string.enable_proxy_dialog_message);
+                    builder.setCancelable(false);
+                    builder.setPositiveButton(R.string.ok, (dialog, which) -> {
+                        dialog.dismiss();
+                        // take the user to the app selection area
+                        Intent i = new Intent(getActivity(), AllowedAppsActivity.class);
+                        i.putExtra(AllowedAppsActivity.EXTRA_SELECT_APP, true);
+                        startActivity(i);
+                    });
+                    builder.setNegativeButton(R.string.dismiss, (dialog, which) -> {
+                        ((SwitchPreferenceCompat) findPreference(PiaPrefHandler.PROXY_ENABLED)).setChecked(false);
+                        dialog.dismiss();
+                    });
+                    builder.show();
                 }
-                return true;
+            } else {
+                resetProxyArea(preference, proxy);
             }
+            return true;
         });
 
         boolean useProxy = prefs.get(PiaPrefHandler.PROXY_ENABLED, false);
@@ -258,14 +247,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
         toggleProxyArea(useProxy);
 
-        proxyApp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Intent i = new Intent(preference.getContext(), AllowedAppsActivity.class);
-                i.putExtra(AllowedAppsActivity.EXTRA_SELECT_APP, true);
-                startActivity(i);
-                return false;
-            }
+        proxyApp.setOnPreferenceClickListener(preference -> {
+            Intent i = new Intent(preference.getContext(), AllowedAppsActivity.class);
+            i.putExtra(AllowedAppsActivity.EXTRA_SELECT_APP, true);
+            startActivity(i);
+            return false;
         });
     }
 
@@ -273,19 +259,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.settings_orbot_udp_problem_title);
         builder.setMessage(R.string.settings_orbot_udp_problem_message);
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                ((SwitchPreferenceCompat) findPreference(PiaPrefHandler.USE_TCP)).setChecked(true);
-                dialog.dismiss();
-            }
+        builder.setPositiveButton(R.string.ok, (dialog, which) -> {
+            ((SwitchPreferenceCompat) findPreference(PiaPrefHandler.USE_TCP)).setChecked(true);
+            dialog.dismiss();
         });
-        builder.setNegativeButton(R.string.dismiss, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        builder.setNegativeButton(R.string.dismiss, (dialog, which) -> dialog.dismiss());
         builder.show();
     }
 
@@ -315,8 +293,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     private void handleDevMode() {
         if(PIAApplication.isRelease()){
-            PreferenceCategory mAppSettingsPref = (PreferenceCategory) findPreference("app_settings");
-            PreferenceScreen mCategory = (PreferenceScreen) findPreference("developer_mode");
+            PreferenceCategory mAppSettingsPref = findPreference("app_settings");
+            PreferenceScreen mCategory = findPreference("developer_mode");
             if(mAppSettingsPref != null && mCategory != null)
                 mAppSettingsPref.removePreference(mCategory);
         }
@@ -391,23 +369,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             }
 
             Preference mace = findPreference("pia_mace");
-            Preference killswitch = findPreference("killswitch");
 
             if (mace != null) {
                 blocking.removePreference(mace);
             }
 
-            if (killswitch != null) {
-                blocking.removePreference(killswitch);
-            }
-
-            PreferenceCategory connectionCat = findPreference("connection_setting");
             if (secureWifi != null)
                 category.removePreference(secureWifi);
         }
 
         if(BuildConfig.FLAVOR_store.equals("playstore")){
-            PreferenceCategory blocking = (PreferenceCategory)findPreference("blocking");
+            PreferenceCategory blocking = findPreference("blocking");
             Preference mace = findPreference("pia_mace");
             if(blocking != null && mace != null)
                 blocking.removePreference(mace);
@@ -432,24 +404,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                                                       AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                                       builder.setTitle(R.string.pref_block_dialog_title);
                                                       builder.setMessage(R.string.pref_block_dialog_message);
-                                                      builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                          @Override
-                                                          public void onClick(DialogInterface dialog, int which) {
-                                                              dialog.dismiss();
-                                                          }
-                                                      });
-                                                      builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                                          @Override
-                                                          public void onClick(DialogInterface dialog, int which) {
-                                                              revert(dialog);
-                                                          }
-                                                      });
-                                                      builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                                          @Override
-                                                          public void onCancel(DialogInterface dialog) {
-                                                              revert(dialog);
-                                                          }
-                                                      });
+                                                      builder.setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss());
+                                                      builder.setNegativeButton(R.string.cancel, (dialog, which) -> revert(dialog));
+                                                      builder.setOnCancelListener(dialog -> revert(dialog));
                                                       builder.show();
                                                   }
                                                   return true;
@@ -478,7 +435,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void setupKillswitch() {
-        Preference p = findPreference("killswitch");
         Preference pConnectBoot = findPreference("autostart");
 
         if (pConnectBoot != null && !PIAApplication.isAndroidTV(pTCP.getContext())) {
@@ -540,13 +496,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         Preference automation = findPreference("networkAutomation");
         if (Prefs.with(getContext()).getBoolean("networkManagement")) {
             automation.setVisible(true);
-            automation.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    Intent i = new Intent(getActivity(), TrustedWifiActivity.class);
-                    startActivity(i);
-                    return false;
-                }
+            automation.setOnPreferenceClickListener(preference -> {
+                Intent i = new Intent(getActivity(), TrustedWifiActivity.class);
+                startActivity(i);
+                return false;
             });
         }
         else {
@@ -559,16 +512,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         int versionCode = BuildConfig.VERSION_CODE;
 
         findPreference("version_info").setSummary("v" + version + " (" + versionCode + ")");
-        findPreference("version_info").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                if(BuildConfig.FLAVOR_store.equals("playstore") && !PIAApplication.isAndroidTV(getContext())) {
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse("market://details?id=com.privateinternetaccess.android"));
-                    startActivity(i);
-                }
-                return false;
+        findPreference("version_info").setOnPreferenceClickListener(preference -> {
+            if(BuildConfig.FLAVOR_store.equals("playstore") && !PIAApplication.isAndroidTV(getContext())) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse("market://details?id=com.privateinternetaccess.android"));
+                startActivity(i);
             }
+            return false;
         });
     }
 
@@ -653,7 +603,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     @SuppressLint("StringFormatInvalid")
     public void setLportSummary(String newvalue) {
-        PreferenceScreen lport = (PreferenceScreen) findPreference("lport");
+        PreferenceScreen lport = findPreference("lport");
         if (newvalue.equals("") || newvalue.equals("auto"))
             lport.setSummary(R.string.lportrandom);
         else
@@ -751,12 +701,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 triggerRebirth(getActivity());
             }
             return;
-        } else if(key.equals(PiaPrefHandler.KILLSWITCH)){
-            boolean killswitch = PiaPrefHandler.isKillswitchEnabled(context);
-            IVPN vpn = PIAFactory.getInstance().getVPN(context);
-            if(!killswitch && vpn.isKillswitchActive()){
-                vpn.stopKillswitch();
-            }
         } else if (key.equals(PiaPrefHandler.PIA_MACE)) {
             if (isUsingCustomDns() && sharedPreferences.getBoolean(key, false)) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -764,21 +708,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 builder.setMessage(R.string.custom_dns_mace_warning);
                 builder.setCancelable(false);
 
-                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Prefs.with(getContext()).remove(PiaPrefHandler.DNS);
-                        Prefs.with(getContext()).remove(PiaPrefHandler.DNS_SECONDARY);
-                        setDNSSummary();
-                    }
+                builder.setPositiveButton(R.string.ok, (dialogInterface, i) -> {
+                    Prefs.with(getContext()).remove(PiaPrefHandler.DNS);
+                    Prefs.with(getContext()).remove(PiaPrefHandler.DNS_SECONDARY);
+                    setDNSSummary();
                 });
 
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        toggleMace(false);
-                    }
-                });
+                builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> toggleMace(false));
 
                 builder.show();
             }
@@ -790,8 +726,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         List<String> dontShowList = new ArrayList<>();
         dontShowList.add(PiaPrefHandler.AUTOCONNECT);
         dontShowList.add(PiaPrefHandler.AUTOSTART);
-        dontShowList.add(PiaPrefHandler.KILLSWITCH);
         dontShowList.add(PiaPrefHandler.LAST_IP);
+        dontShowList.add(PiaPrefHandler.LAST_IP_VPN);
         dontShowList.add(PiaPrefHandler.CONNECT_ON_APP_UPDATED);
         dontShowList.add(PiaPrefHandler.GEO_SERVERS_ACTIVE);
         if (dontShowList.contains(key)) {
@@ -812,7 +748,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     public void toggleMace(boolean state) {
-        SwitchPreferenceCompat mace = (SwitchPreferenceCompat) findPreference(PiaPrefHandler.PIA_MACE);
+        SwitchPreferenceCompat mace = findPreference(PiaPrefHandler.PIA_MACE);
         Prefs.with(getContext()).set(PiaPrefHandler.PIA_MACE, state);
         mace.setChecked(Prefs.with(getContext()).get(PiaPrefHandler.PIA_MACE, false));
     }
@@ -896,11 +832,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             SwitchPreferenceCompat piaMacePreference = findPreference(PiaPrefHandler.PIA_MACE);
             if (piaMacePreference != null) {
                 piaMacePreference.setChecked(prefs.get(PiaPrefHandler.PIA_MACE, false));
-            }
-
-            SwitchPreferenceCompat killSwitchPreference = findPreference(PiaPrefHandler.KILLSWITCH);
-            if (killSwitchPreference != null) {
-                killSwitchPreference.setChecked(prefs.get(PiaPrefHandler.KILLSWITCH, false));
             }
         }
 

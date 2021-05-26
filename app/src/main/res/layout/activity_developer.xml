@@ -170,6 +170,28 @@
                 android:layout_height="1dp"
                 android:background="@color/per_app_divider"/>
 
+            <!-- Unexpected Crash -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/developer_crash_application"
+                android:padding="15dp"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Crash the application"
+                    style="@style/PiaTextBody1"
+                    />
+            </RelativeLayout>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/per_app_divider"/>
+                android:background="@color/per_app_divider"/>
+
             <!-- Staging mode -->
             <RelativeLayout
                 android:layout_width="match_parent"

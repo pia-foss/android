@@ -26,8 +26,7 @@ public class ServerResponse {
         return servers != null && servers.size() > 0
                 && info != null && info.getAutoRegions() != null && info.getAutoRegions().size() > 0
                 && info.getTcpPorts() != null && info.getTcpPorts().size() > 0
-                && info.getUdpPorts() != null && info.getUdpPorts().size() > 0
-                && info.getWebIps() != null && info.getWebIps().size() > 0;
+                && info.getUdpPorts() != null && info.getUdpPorts().size() > 0;
     }
 
     public Map<String, PIAServer> getServers() {

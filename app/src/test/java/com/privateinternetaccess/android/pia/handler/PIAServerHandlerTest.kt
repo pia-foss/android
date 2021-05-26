@@ -18,18 +18,16 @@
 
 package com.privateinternetaccess.android.pia.handler
 
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.any
 import com.privateinternetaccess.android.pia.handlers.PIAServerHandler
-import com.privateinternetaccess.android.pia.handlers.PIAServerHandler.GEN4_LAST_SERVER_BODY
+import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEN4_LAST_SERVER_BODY
 import com.privateinternetaccess.android.pia.utils.Prefs
 import com.privateinternetaccess.android.utils.KeyStoreUtils
-import com.privateinternetaccess.common.regions.RegionLowerLatencyInformation
-import com.privateinternetaccess.common.regions.model.RegionsResponse
+import com.privateinternetaccess.regions.RegionLowerLatencyInformation
 import com.privateinternetaccess.regions.RegionsAPI
+import com.privateinternetaccess.regions.model.RegionsResponse
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

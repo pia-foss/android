@@ -444,6 +444,7 @@
     <string name="network_permisions_top_text">PIA requiert l\'accès à vos services de localisation pour détecter les réseaux Wi-Fi à proximité.</string>
     <string name="network_permissions_middle_text">Une fenêtre vous invitera à accorder l\'accès à la localisation. Pour continuer, appuyez sur « OK ».</string>
     <string name="network_permission_network">Nous n\'enregistrons, ne suivons et ne surveillons aucune activité réseau.</string>
+    <string name="account_invalid_warning">"Informations de compte invalides"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">ACHETER UN COMPTE</string>
     <string name="redeem_gift_card">ÉCHANGER CARTE CADEAU</string>
@@ -540,6 +541,7 @@
     <string name="quick_settings_private_browser">Navigateur privé</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">CONNEXION RAPIDE</string>
+    <string name="quick_connect_favorites_title">SERVEURS FAVORIS</string>
     <!-- Usage Strings -->
     <string name="usage_title">UTILISATION</string>
     <string name="usage_download">Télécharger</string>

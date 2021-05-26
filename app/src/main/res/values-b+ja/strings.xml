@@ -444,6 +444,7 @@
     <string name="network_permisions_top_text">周囲のWi-Fiネットワークを検出するには、PIAに位置情報サービスへのアクセス許可を与える必要があります。</string>
     <string name="network_permissions_middle_text">位置情報へのアクセス許可を求めるメッセージが表示されます。続行するには、「OK」をタップします</string>
     <string name="network_permission_network">弊社がネットワークの使用状況を監視したりフィルターしたり記録したりすることはありません。</string>
+    <string name="account_invalid_warning">"無効なアカウント情報"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">アカウントを購入する</string>
     <string name="redeem_gift_card">ギフトカード引換え</string>
@@ -540,6 +541,7 @@
     <string name="quick_settings_private_browser">プライベートブラウザ</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">クイック接続</string>
+    <string name="quick_connect_favorites_title">お気に入りのサービス</string>
     <!-- Usage Strings -->
     <string name="usage_title">使用状況</string>
     <string name="usage_download">ダウンロード</string>

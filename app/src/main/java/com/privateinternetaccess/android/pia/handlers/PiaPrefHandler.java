@@ -21,6 +21,8 @@ package com.privateinternetaccess.android.pia.handlers;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import android.text.TextUtils;
 
 import com.privateinternetaccess.account.model.response.AndroidSubscriptionsInformation;
@@ -50,8 +52,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import kotlinx.serialization.DeserializationStrategy;
-import kotlinx.serialization.SerializationStrategy;
 import kotlinx.serialization.json.Json;
 
 /**
@@ -63,6 +63,7 @@ import kotlinx.serialization.json.Json;
  */
 
 public class PiaPrefHandler {
+    public static final String LAST_API = "lastApi";
 
     public final static String PREFNAME = "com.privateinternetaccess.android_preferences";
 
@@ -95,7 +96,9 @@ public class PiaPrefHandler {
 
     public static final String WIDGET_ORDER = "widgetInformation";
 
-    public static final String FAVORITES = "favoritesSet";
+    public static final String SELECTED_REGION = "selected_region";
+    public static final String FAVORITE_REGIONS = "favoriteRegions";
+    public static final String FAVORITES_deprecated = "favoritesSet";
 
     public static final String AUTOSTART = "autostart";
     public static final String AUTOCONNECT = "autoconnect";
@@ -145,6 +148,7 @@ public class PiaPrefHandler {
     public static final String PURCHASING_TESTING_EXCEPTION = "purchaseTestingException";
 
     public static final String USE_STAGING = "usestagingbackends";
+    public static final String STAGING_SERVER_NUMBER = "stagingServerNumber";
 
     public static final String KILLSWITCH = "killswitch";
     public static final String HAPTIC_FEEDBACK = "hapticFeedback";
@@ -192,13 +196,10 @@ public class PiaPrefHandler {
     public static final String LAST_DISCONNECT = "lastDisconnect";
     public static final String LAST_CHANGE = "last_change";
 
-    public static final String QUICK_SETTINGS_KILLSWITCH = "quickSettingsKillswitch";
     public static final String QUICK_SETTINGS_NETWORK = "quickSettingsNetwork";
     public static final String QUICK_SETTING_PRIVATE_BROWSER = "quickSettingsPrivateBrowser";
 
     public static final String INAPP_MESSAGE_DISMISSED_IDS = "inappMessageDismissedIds";
-
-    private static final String GEN4_QUICK_CONNECT_LIST = "gen4QuickConnectList";
 
     public static final String USAGE_BYTE_COUNT = "usageByteCount";
     public static final String USAGE_BYTE_COUNT_OUT = "usageByteCountOut";
@@ -214,6 +215,8 @@ public class PiaPrefHandler {
     public static final String CONNECT_ON_APP_UPDATED = "connectOnAppUpdated";
     public static final String VPN_CONNECTING = "VPNConnecting";
 
+    public static final String GEN4_QUICK_CONNECT_LIST = "gen4QuickConnectList";
+    public static final String GEN4_LAST_SERVER_BODY = "GEN4_LAST_SERVER_BODY";
     private static final String GEN4_GATEWAY_ENDPOINT = "gen4_gateway_endpoint";
 
     private static final String RATING_STATE = "rating_state";
@@ -440,6 +443,14 @@ public class PiaPrefHandler {
         Prefs.with(context).set(SNOOZE_TIME, time);
     }
 
+    public static int getStagingServerNumber(Context context) {
+        return Prefs.with(context).get(STAGING_SERVER_NUMBER, 1);
+    }
+
+    public static void setStagingServerNumber(Context context, int number) {
+        Prefs.with(context).set(STAGING_SERVER_NUMBER, number);
+    }
+
     public static boolean showExpiryNotifcation(Context c) {
         long diffToLastMsg = Math.abs(System.currentTimeMillis() - Prefs.with(c, LOGINDATA).getLong(LASTEXPIRYNOTIFICATION));
 
@@ -448,20 +459,12 @@ public class PiaPrefHandler {
         return diffToLastMsg > minIntervalBetweenNotifications;
     }
 
-    public static boolean getQuickSettingsKillswitch(Context c) {
-        return Prefs.with(c).get(QUICK_SETTINGS_KILLSWITCH, true);
-    }
-
     public static boolean getQuickSettingsNetwork(Context c) {
         return Prefs.with(c).get(QUICK_SETTINGS_NETWORK, true);
     }
 
     public static boolean getQuickSettingsPrivateBrowser(Context c) {
         return Prefs.with(c).get(QUICK_SETTING_PRIVATE_BROWSER, true);
-    }
-
-    public static void setQuickSettingsKillswitch(Context c, boolean shouldShow) {
-        Prefs.with(c).set(QUICK_SETTINGS_KILLSWITCH, shouldShow);
     }
 
     public static void setQuickSettingsNetwork(Context c, boolean shouldShow) {
@@ -577,16 +580,27 @@ public class PiaPrefHandler {
         Prefs.with(context).set(WIDGET_ORDER, array.toString());
     }
 
-    public static void addFavorite(Context context, String serverName) {
-        Set<String> serverSet = getFavorites(context);
-        Set<String> newServerSet = new HashSet<String>(serverSet);
-        newServerSet.add(serverName);
-
-        Prefs.with(context).set(FAVORITES, newServerSet);
+    private static void addFavorite(Context context, String serverName) {
+        JSONArray array = new JSONArray();
+        for (String favorite : getFavorites(context)) {
+            array.put(favorite);
+        }
+        array.put(serverName);
+        Prefs.with(context).set(FAVORITE_REGIONS, array.toString());
     }
 
-    public static Set<String> getFavorites(Context context) {
-        return Prefs.with(context).getStringSet(FAVORITES);
+    public static List<String> getFavorites(Context context) {
+        List<String> items = new ArrayList<>();
+        try {
+            JSONArray array = new JSONArray(Prefs.with(context).get(FAVORITE_REGIONS, "[]"));
+            for (int i = 0; i < array.length(); i++) {
+                items.add(array.getString(i));
+            }
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return items;
     }
 
     public static boolean isFavorite(Context context, String serverName) {
@@ -594,15 +608,18 @@ public class PiaPrefHandler {
     }
 
     public static void clearFavorites(Context context) {
-        Prefs.with(context).set(FAVORITES, new HashSet<>());
+        Prefs.with(context).set(FAVORITE_REGIONS, "[]");
     }
 
     public static void removeFavorite(Context context, String serverName) {
-        Set<String> serverSet = getFavorites(context);
-        Set<String> newServerSet = new HashSet<String>(serverSet);
-        newServerSet.remove(serverName);
-
-        Prefs.with(context).set(FAVORITES, newServerSet);
+        JSONArray array = new JSONArray();
+        for (String favorite : getFavorites(context)) {
+            if (favorite.equals(serverName)) {
+                continue;
+            }
+            array.put(favorite);
+        }
+        Prefs.with(context).set(FAVORITE_REGIONS, array.toString());
     }
 
     public static void toggleFavorite(Context context, String serverName) {
@@ -660,18 +677,25 @@ public class PiaPrefHandler {
         saveEmail(context, pai.getEmail());
     }
 
-    @NonNull
+    @Nullable
     public static AccountInformation getAccountInformation(Context c) {
         Prefs prefs = new Prefs(c, LOGINDATA);
+        String username = prefs.get(LOGIN, "");
+        String plan = prefs.get(PLAN, "");
+        long expirationTime = prefs.get(EXPIRATION_TIME, -1L);
+        if (TextUtils.isEmpty(username) && TextUtils.isEmpty(plan) && expirationTime == -1L) {
+            return null;
+        }
+
         return new AccountInformation(
                 getEmail(c),
                 prefs.get(ACTIVE, true),
                 prefs.get(EXPIRED, true),
                 prefs.get(RENEWABLE, true),
                 prefs.get(SHOW_EXPIRE, false),
-                prefs.get(PLAN, ""),
-                prefs.get(EXPIRATION_TIME, -1L),
-                prefs.get(LOGIN, "")
+                plan,
+                expirationTime,
+                username
         );
 
     }

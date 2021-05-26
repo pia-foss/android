@@ -23,14 +23,19 @@ import android.text.TextUtils;
 
 import com.privateinternetaccess.android.R;
 import com.privateinternetaccess.android.model.states.VPNProtocol;
-import com.privateinternetaccess.android.pia.handlers.PIAServerHandler;
 import com.privateinternetaccess.android.pia.handlers.PiaPrefHandler;
 import com.privateinternetaccess.android.pia.handlers.ThemeHandler;
 import com.privateinternetaccess.android.pia.utils.Prefs;
+import com.privateinternetaccess.regions.RegionsUtils;
+import com.privateinternetaccess.regions.model.RegionsResponse;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
+import static com.privateinternetaccess.android.pia.handlers.PiaPrefHandler.GEN4_LAST_SERVER_BODY;
 import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_AUTH;
+import static com.privateinternetaccess.android.pia.vpn.PiaOvpnConfig.DEFAULT_CIPHER;
 
 
 public class CSIHelper {
@@ -55,7 +60,7 @@ public class CSIHelper {
         sb.append("Ipv6 Blocking: " + prefs.get(PiaPrefHandler.IPV6, context.getResources().getBoolean(R.bool.useblockipv6))).append("\n");
         sb.append("Block Local Network: " + prefs.get(PiaPrefHandler.BLOCK_LOCAL_LAN, true)).append("\n").append("\n");
         sb.append("~~ Encryption Settings ~~").append("\n");
-        String cipher = prefs.get(PiaPrefHandler.CIPHER, "AES-128-CBC");
+        String cipher = prefs.get(PiaPrefHandler.CIPHER, DEFAULT_CIPHER);
         sb.append("Data Encryption: " + cipher).append("\n");
         if(!TextUtils.isEmpty(cipher))
             sb.append("Data Authentication: " + (cipher.toLowerCase(Locale.ENGLISH).contains("gcm") ? prefs.get(PiaPrefHandler.AUTH, DEFAULT_AUTH) : "")).append("\n");
@@ -67,10 +72,44 @@ public class CSIHelper {
         sb.append("Haptic Feedback: " + prefs.get(PiaPrefHandler.HAPTIC_FEEDBACK, true)).append("\n");
         sb.append("Dark theme: " + prefs.get(ThemeHandler.PREF_THEME, false)).append("\n");
         sb.append("\n~~~~~ End User Settings ~~~~~\n\n");
-        return sb.toString();
+        return redactIPsFromString(sb.toString());
     }
 
     public static String getRegions(Context context) {
-        return Prefs.with(context).get(PIAServerHandler.GEN4_LAST_SERVER_BODY, "");
+        String gen4LastBody = Prefs.with(context).get(GEN4_LAST_SERVER_BODY, "");
+        if (TextUtils.isEmpty(gen4LastBody)) {
+            return "";
+        }
+
+        ArrayList<RegionsResponse.Region> redactedRegions = new ArrayList<>();
+        RegionsResponse regionsResponse = RegionsUtils.INSTANCE.parse(gen4LastBody);
+        for (RegionsResponse.Region region : regionsResponse.getRegions()) {
+            redactedRegions.add(new RegionsResponse.Region(
+                    region.getId(),
+                    region.getName(),
+                    region.getCountry(),
+                    region.getDns(),
+                    region.getGeo(),
+                    region.getOffline(),
+                    region.getLatitude(),
+                    region.getLongitude(),
+                    region.getAutoRegion(),
+                    region.getPortForward(),
+                    region.getProxy(),
+                    Collections.emptyMap()
+            ));
+        }
+
+        RegionsResponse redactedResponse = new RegionsResponse(
+                regionsResponse.getGroups(),
+                redactedRegions
+        );
+        return redactIPsFromString(RegionsUtils.INSTANCE.stringify(redactedResponse));
     }
+
+    // region private
+    private static String redactIPsFromString(String redact) {
+        return redact.replaceAll("\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b", "REDACTED");
+    }
+    // endregion
 }

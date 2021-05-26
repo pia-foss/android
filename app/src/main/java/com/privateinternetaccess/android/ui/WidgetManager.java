@@ -26,6 +26,7 @@ import com.privateinternetaccess.android.ui.tv.views.IPPortView;
 import com.privateinternetaccess.android.ui.views.ConnectionSlider;
 import com.privateinternetaccess.android.ui.views.ConnectionView;
 import com.privateinternetaccess.android.ui.views.InAppMessageView;
+import com.privateinternetaccess.android.ui.views.QuickConnectFavoritesView;
 import com.privateinternetaccess.android.ui.views.QuickConnectView;
 import com.privateinternetaccess.android.ui.views.QuickSettingsView;
 import com.privateinternetaccess.android.ui.views.ServerSelectionView;
@@ -45,6 +46,7 @@ public class WidgetManager {
         WIDGET_SNOOZE,
         WIDGET_QUICK_SETTINGS,
         WIDGET_QUICK_CONNECT,
+        WIDGET_QUICK_CONNECT_FAVORITES,
         WIDGET_USAGE,
         WIDGET_CONNECTION_INFO,
         WIDGET_IN_APP_MESSAGE
@@ -74,6 +76,8 @@ public class WidgetManager {
                 return new QuickSettingsView(context);
             case WIDGET_QUICK_CONNECT:
                 return new QuickConnectView(context);
+            case WIDGET_QUICK_CONNECT_FAVORITES:
+                return new QuickConnectFavoritesView(context);
             case WIDGET_SNOOZE:
                 return new SnoozeView(context);
             case WIDGET_USAGE:
@@ -116,6 +120,7 @@ public class WidgetManager {
         defaultList.add(new WidgetItem(WidgetType.WIDGET_PERFORMANCE, true));
         defaultList.add(new WidgetItem(WidgetType.WIDGET_QUICK_SETTINGS, true));
         defaultList.add(new WidgetItem(WidgetType.WIDGET_QUICK_CONNECT, true));
+        defaultList.add(new WidgetItem(WidgetType.WIDGET_QUICK_CONNECT_FAVORITES, true));
         defaultList.add(new WidgetItem(WidgetType.WIDGET_SNOOZE, true));
         defaultList.add(new WidgetItem(WidgetType.WIDGET_USAGE, true));
         defaultList.add(new WidgetItem(WidgetType.WIDGET_CONNECTION_INFO, true));

@@ -90,6 +90,7 @@
     <color name="pia_action_bar_background">#FAFAFA</color>
     <color name="killswitch_image_tint">@color/pia_text_dark_87_percent</color>
     <color name="status_bar_color">#000000</color>
+    <color name="account_details_background">#FFFFFF</color>
 
     <!-- PIAX Colors -->
     <color name="grey15">#22252e</color>

@@ -445,6 +445,7 @@
     <string name="network_permisions_top_text">PIA ต้องการการเข้าถึงบริการค้นหาตำแหน่งที่ตั้งในการตรวจจับเครือข่าย wifi ใกล้เคียง</string>
     <string name="network_permissions_middle_text">คุณจะเห็นข้อความแจ้งขอการอนุญาตการเข้าถึงตำแหน่งที่ตั้ง ในการดำเนินการต่อ ให้แตะ \"ตกลง\"</string>
     <string name="network_permission_network">เราไม่ติดตาม กรอง หรือลงบันทึกกิจกรรมเครือข่ายใด ๆ</string>
+    <string name="account_invalid_warning">"ข้อมูลบัญชีไม่ถูกต้อง"</string>
     <!-- PIAX Specific Strings -->
     <string name="buy_account">ซื้อบัญชี</string>
     <string name="redeem_gift_card">แลกบัตรของขวัญ</string>
@@ -541,6 +542,7 @@
     <string name="quick_settings_private_browser">เบราว์เซอร์ส่วนตัว</string>
     <!-- Quick Connect String -->
     <string name="quick_connect_title">เชื่อมต่อด่วน</string>
+    <string name="quick_connect_favorites_title">เซิร์ฟเวอร์ที่ชื่นชอบ</string>
     <!-- Usage Strings -->
     <string name="usage_title">การใช้งาน</string>
     <string name="usage_download">ดาวน์โหลด</string>
